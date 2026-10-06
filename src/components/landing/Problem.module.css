@@ -1,0 +1,316 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+
+.race {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.schematic {
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 92, 122, 0.3);
+  background: rgba(255, 92, 122, 0.07);
+  font-size: 13.5px;
+  color: var(--l-text-2);
+}
+
+.account code {
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+.accountDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--short);
+  box-shadow: 0 0 10px rgba(255, 92, 122, 0.6);
+  flex: none;
+}
+
+.accountTag {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 92, 122, 0.14);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #ffc2cd;
+}
+
+.bots {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+  list-style: none;
+}
+
+.bot,
+.botWin {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 92px;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.botName {
+  color: var(--text-dim);
+}
+
+.botTrack {
+  height: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.botBar {
+  display: block;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.botWin .botBar {
+  background: linear-gradient(90deg, rgba(255, 92, 122, 0.55), #ff6f8a);
+  box-shadow: 0 0 14px rgba(255, 92, 122, 0.35);
+}
+
+.botOut {
+  text-align: right;
+  color: var(--text-dim);
+}
+
+.botWin .botName,
+.botWin .botOut {
+  color: #ffc2cd;
+}
+
+.axis {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 64px;
+  padding-right: 104px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.fee {
+  display: grid;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 14px 14px 16px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.feeHead {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.feeRow {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.feeKey {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--l-text-2);
+}
+
+.feeTrack {
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.feeBar {
+  display: flex;
+  align-items: center;
+  width: 46%;
+  height: 100%;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(255, 92, 122, 0.4), rgba(255, 92, 122, 0.22));
+  box-shadow: 0 0 0 1px rgba(255, 92, 122, 0.4) inset;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #ffc2cd;
+  white-space: nowrap;
+}
+
+.payout {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.payRow {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 13.5px;
+}
+
+.payKey {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.payVal {
+  color: var(--text);
+}
+
+.payBad {
+  color: #ffc2cd;
+}
+
+.issues {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.issue {
+  display: grid;
+  gap: 8px;
+  padding: 20px 22px;
+}
+
+.issueTag {
+  justify-self: start;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 92, 122, 0.35);
+  background: rgba(255, 92, 122, 0.08);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: #ffb3c1;
+}
+
+.turn {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-top: 20px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(131, 110, 249, 0.3);
+  background: linear-gradient(90deg, rgba(131, 110, 249, 0.14), rgba(131, 110, 249, 0.03));
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--l-text-2);
+}
+
+.turn strong {
+  color: var(--text);
+}
+
+.turnTag {
+  flex: none;
+  margin-top: 2px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: rgba(131, 110, 249, 0.22);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e2dcff;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .race {
+    padding: 18px 16px;
+  }
+
+  .bot,
+  .botWin {
+    grid-template-columns: 44px minmax(0, 1fr) 78px;
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .axis {
+    padding-left: 52px;
+    padding-right: 86px;
+  }
+
+  .payRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .issue {
+    padding: 18px;
+  }
+
+  .turn {
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+  }
+}
