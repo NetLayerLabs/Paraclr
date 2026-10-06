@@ -1,0 +1,539 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.name {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.badgePasskey,
+.badgeDemo {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badgePasskey {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(131, 110, 249, 0.4);
+}
+
+.badgeDemo {
+  color: var(--warn);
+  background: rgba(255, 181, 71, 0.12);
+  border: 1px solid rgba(255, 181, 71, 0.35);
+}
+
+.addressCard,
+.balanceCard,
+.faucet,
+.sessionKey {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  padding: 14px;
+}
+
+.addrRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.addr {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copyBtn {
+  flex: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.copyBtn:hover {
+  border-color: var(--accent);
+}
+
+.chainRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.chainDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.explorer {
+  margin-left: auto;
+  color: var(--accent);
+}
+
+.balanceCard {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(61, 220, 151, 0.14), transparent 55%),
+    var(--bg-elev);
+  border-color: rgba(61, 220, 151, 0.28);
+}
+
+.balanceLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.ausdMark {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ausd);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.equity {
+  margin-top: 8px;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.pnl {
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.pnl[data-sign="pos"] {
+  color: var(--long);
+}
+
+.pnl[data-sign="neg"] {
+  color: var(--short);
+}
+
+.bar {
+  height: 6px;
+  margin: 14px 0 12px;
+  border-radius: 3px;
+  background: var(--accent);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--ausd);
+  transition: width 0.4s ease;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.split dt {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.split dd {
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.split div:nth-child(1) dt::before,
+.split div:nth-child(2) dt::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 2px;
+  vertical-align: 1px;
+}
+
+.split div:nth-child(1) dt::before {
+  background: var(--ausd);
+}
+
+.split div:nth-child(2) dt::before {
+  background: var(--accent);
+}
+
+.faucet {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.faucetBtn {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  background: var(--bg-elev-2);
+  font-weight: 500;
+}
+
+.faucetBtn:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+.note {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.sessionKey {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.keyIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+}
+
+.keyIcon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--accent);
+}
+
+.keyTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.signOut {
+  margin-top: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 92, 122, 0.35);
+  color: var(--short);
+  font-weight: 500;
+}
+
+.signOut:hover:not(:disabled) {
+  background: rgba(255, 92, 122, 0.08);
+}
+
+.chainDot[data-net="anvil"] {
+  background: var(--warn);
+  box-shadow: 0 0 8px var(--warn);
+}
+
+.chainDot[data-net="sim"] {
+  background: var(--text-dim);
+  box-shadow: none;
+}
+
+.simTag,
+.blockTag {
+  margin-left: auto;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.simTag {
+  font-weight: 700;
+  color: var(--warn);
+}
+
+.splitPlain {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.split.splitPlain div dt::before {
+  display: none;
+}
+
+.split dd[data-low] {
+  color: var(--warn);
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+}
+
+.actionBtn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-elev-2);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.actionBtn:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+/* ---- layout hooks --------------------------------------------------------- */
+
+.cardTitle {
+  display: none;
+  margin-bottom: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.addrFull {
+  display: none;
+}
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tray:empty {
+  display: none;
+}
+
+/* ---- tablet and up -------------------------------------------------------- */
+
+@media (min-width: 640px) {
+  .root {
+    gap: 16px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .cardTitle {
+    display: block;
+  }
+
+  .addressCard,
+  .balanceCard,
+  .faucet,
+  .sessionKey {
+    padding: 18px 20px;
+  }
+
+  .equity {
+    font-size: 40px;
+  }
+}
+
+/* The header carries sign out from 768px up. */
+@media (min-width: 768px) {
+  .signOut {
+    display: none;
+  }
+}
+
+/* ---- desktop: two-column dashboard ---------------------------------------- */
+/* Left: equity breakdown + balances, then test funds. Right: account, wallet
+   type, recent transactions. */
+
+@media (min-width: 1024px) {
+  .root {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr);
+    grid-template-areas:
+      "head    head"
+      "notices notices"
+      "balance address"
+      "balance key"
+      "faucet  tray";
+    gap: 16px;
+    max-width: 1240px;
+    align-items: stretch;
+  }
+
+  .root:not(:has(.notices)) {
+    grid-template-areas:
+      "head    head"
+      "balance address"
+      "balance key"
+      "faucet  tray";
+  }
+
+  .rootSim,
+  .rootSim:not(:has(.notices)) {
+    grid-template-areas:
+      "head    head"
+      "balance address"
+      "balance key"
+      "faucet  faucet";
+  }
+
+  .root:has(.tray:empty):not(.rootSim) {
+    grid-template-areas:
+      "head    head"
+      "notices notices"
+      "balance address"
+      "balance key"
+      "faucet  faucet";
+  }
+
+  .root:has(.tray:empty):not(:has(.notices)):not(.rootSim) {
+    grid-template-areas:
+      "head    head"
+      "balance address"
+      "balance key"
+      "faucet  faucet";
+  }
+
+  .head {
+    grid-area: head;
+    align-items: center;
+  }
+
+  .notices {
+    grid-area: notices;
+  }
+
+  .addressCard {
+    grid-area: address;
+  }
+
+  .balanceCard {
+    grid-area: balance;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faucet {
+    grid-area: faucet;
+    align-self: start;
+  }
+
+  .tray {
+    grid-area: tray;
+    align-self: start;
+  }
+
+  .tray > section {
+    padding: 16px 18px 14px;
+  }
+
+  .sessionKey {
+    grid-area: key;
+  }
+
+  .equity {
+    font-size: 46px;
+  }
+
+  .split dd {
+    font-size: 16px;
+  }
+
+  .split dt {
+    font-size: 11.5px;
+  }
+
+  .splitPlain {
+    margin-top: auto;
+    padding-top: 14px;
+  }
+
+  .bar {
+    height: 8px;
+    margin: 18px 0 16px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .addrShort {
+    display: none;
+  }
+
+  .addrFull {
+    display: inline;
+    font-size: 13px;
+  }
+
+  /* Funding actions in a row: faucet | mint · withdraw, notes below. */
+  .faucet {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    column-gap: 12px;
+    row-gap: 10px;
+  }
+
+  .faucet > * {
+    grid-column: 1 / -1;
+  }
+
+  .faucet > .faucetBtn {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .faucet > .actionRow {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .actionBtn {
+    padding: 12px 10px;
+    white-space: nowrap;
+  }
+}
