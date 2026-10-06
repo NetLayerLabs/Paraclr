@@ -1,0 +1,482 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 650;
+}
+.count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.totalWrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.totalLabel {
+  display: none;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.total {
+  font-size: 13px;
+  font-weight: 600;
+}
+.up {
+  color: var(--long);
+}
+.down {
+  color: var(--short);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: enter 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+.cardLiq {
+  border-color: var(--short);
+  box-shadow: 0 0 0 3px rgba(255, 92, 122, 0.15);
+  animation: alarm 1s ease-in-out infinite;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+@keyframes alarm {
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 92, 122, 0.05);
+  }
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ident {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.badgeLong,
+.badgeShort {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.badgeLong {
+  color: var(--long);
+  background: rgba(61, 220, 151, 0.14);
+}
+.badgeShort {
+  color: var(--short);
+  background: rgba(255, 92, 122, 0.14);
+}
+.sym {
+  font-size: 15px;
+  font-weight: 650;
+}
+.symQuote {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.pnl {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.roe {
+  font-size: 11.5px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px 10px;
+}
+.grid div {
+  min-width: 0;
+}
+.grid dt {
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+.grid dd {
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.liq {
+  color: var(--warn);
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.healthWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.healthLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+.healthBar {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+  overflow: hidden;
+}
+.healthFill {
+  height: 100%;
+  width: calc(var(--h) * 100%);
+  border-radius: 999px;
+  background: color-mix(
+    in srgb,
+    var(--long) calc(var(--h) * 100%),
+    var(--short)
+  );
+  transition: width 0.25s linear;
+}
+
+.close {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  transition:
+    background 0.15s,
+    transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.close:active {
+  transform: scale(0.95);
+  background: var(--border);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 22px 12px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+  color: var(--text-dim);
+  text-align: center;
+}
+.empty svg {
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.empty p {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.empty span {
+  font-size: 12px;
+}
+
+.chainNote {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.close:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---- table (>=720px; PositionsList switches with MQ_TABLE) ----------------- */
+
+.tableWrap {
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg-elev);
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+.table td {
+  padding: 0 12px;
+  height: 44px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  vertical-align: middle;
+}
+
+.table tbody tr:first-child td {
+  border-top: none;
+}
+
+.table tbody tr:hover td {
+  background: color-mix(in srgb, var(--bg-hover) 60%, transparent);
+}
+
+.table .num {
+  text-align: right;
+}
+
+.marketCell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+}
+.marketCell .sym {
+  font-size: 13px;
+}
+.lev {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.unit {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.pnlCell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+.pnlCell b {
+  font-size: 13px;
+  font-weight: 650;
+}
+.pnlCell span {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.healthCell {
+  width: 1%;
+}
+.healthCell .healthBar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 56px;
+  margin-right: 8px;
+}
+.healthCell :global(.mono) {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.actionCell {
+  width: 1%;
+  text-align: right;
+}
+
+.closeSm {
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.closeSm:hover:not(:disabled) {
+  color: var(--short);
+  border-color: color-mix(in srgb, var(--short) 45%, var(--border));
+  background: color-mix(in srgb, var(--short) 8%, var(--bg-elev-2));
+}
+.closeSm:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.rowLiq td {
+  background: color-mix(in srgb, var(--short) 9%, transparent);
+}
+.rowLiq td:first-child {
+  box-shadow: inset 2px 0 0 var(--short);
+}
+
+.errorRow td {
+  height: auto;
+  padding: 0 12px 10px;
+  border-top: none;
+}
+
+/* Wide tables show Side as its own column; narrower ones fold it into Market
+   and drop the health bar (cards on phones still show it). */
+.sideInline {
+  display: none;
+}
+
+@media (max-width: 1279px) {
+  .colSide,
+  .colHealth {
+    display: none;
+  }
+  .sideInline {
+    display: inline-block;
+    align-self: center;
+    margin-left: 2px;
+    padding: 2px 6px;
+    font-size: 9.5px;
+  }
+  .table th {
+    padding: 8px 8px;
+  }
+  .table td {
+    padding: 0 8px;
+  }
+  .table th:first-child,
+  .table td:first-child {
+    padding-left: 12px;
+  }
+  .table th:last-child,
+  .table td:last-child {
+    padding-right: 10px;
+  }
+  .table {
+    font-size: 12px;
+  }
+  .marketCell .symQuote,
+  .table .unit {
+    display: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .totalLabel {
+    display: inline;
+  }
+  .empty {
+    padding: 28px 16px;
+  }
+}
+
+/* ---- desktop: a panel that fills the terminal's positions cell ------------ */
+
+@media (min-width: 1024px) {
+  .section {
+    flex: 1;
+    min-height: 0;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    background: var(--bg-elev);
+    overflow: hidden;
+  }
+  .head {
+    flex: none;
+    height: 42px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .title {
+    font-size: 13px;
+  }
+  .title::before {
+    content: "";
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .section > *:not(.head):not(.tableWrap):not(.empty) {
+    margin: 10px 14px 0;
+  }
+  .tableWrap {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+  }
+  .empty {
+    flex: 1;
+    justify-content: center;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    padding: 12px;
+  }
+}

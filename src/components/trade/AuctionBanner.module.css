@@ -1,0 +1,243 @@
+/* Trade screen: liquidation auction banner + resolved outcome. Tokens only. */
+
+.banner {
+  --tone: var(--warn);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--tone) 55%, var(--border));
+  background:
+    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--tone) 16%, transparent), transparent 65%),
+    var(--bg-elev);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--tone) 14%, transparent);
+  animation: bannerIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.banner[data-tone="taken"] {
+  --tone: var(--accent);
+}
+
+.banner[data-tone="cured"] {
+  --tone: var(--long);
+}
+
+.banner[data-tone="expired"] {
+  --tone: var(--short);
+}
+
+.main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  color: #07060c;
+  background: var(--tone);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 800;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--tone) 40%, transparent);
+}
+
+.banner[data-tone="auction"] .icon {
+  animation: tick 1s ease-in-out infinite;
+}
+
+.icon[data-tone] {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.text b {
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--tone) 45%, var(--text));
+}
+
+.text > span {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.text > span :global(.mono) {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.text a {
+  color: var(--accent);
+}
+
+.clock {
+  position: relative;
+  height: 5px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+}
+
+.clock i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 50%, transparent), var(--warn));
+  transition: width 0.35s ease-out;
+}
+
+.clock em {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
+.cure {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.cureInput {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.cureInput:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.cureInput input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cureBtn {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #07060c;
+  background: var(--long);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--long) 30%, transparent);
+  white-space: nowrap;
+}
+
+.cureBtn:disabled {
+  cursor: not-allowed;
+  color: var(--text-dim);
+  font-weight: 550;
+  background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.cure small {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.cure small :global(.mono) {
+  color: var(--text);
+}
+
+.fine {
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.dismiss {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: var(--bg-elev-2);
+}
+
+.dismiss:hover {
+  color: var(--text);
+}
+
+.cureBtn:focus-visible,
+.dismiss:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+  .banner[data-tone="auction"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    column-gap: 20px;
+    align-items: center;
+    padding: 12px 14px;
+  }
+
+  .banner[data-tone="auction"] .fine,
+  .banner[data-tone="auction"] > div:last-child:not(.cure) {
+    grid-column: 1 / -1;
+  }
+}
+
+@keyframes bannerIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes tick {
+  50% {
+    box-shadow: 0 6px 26px color-mix(in srgb, var(--tone) 70%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner,
+  .icon {
+    animation: none !important;
+  }
+}
