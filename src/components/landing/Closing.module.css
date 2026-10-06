@@ -1,0 +1,359 @@
+/* ---- Built with -------------------------------------------------------- */
+
+.builtHead {
+  margin-bottom: 28px;
+}
+
+.builtTitle {
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.028em;
+}
+
+.stack {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid var(--l-line);
+  background: var(--l-line);
+  list-style: none;
+}
+
+.stackItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 22px 24px;
+  background: var(--bg);
+  transition: background-color 0.2s;
+}
+
+.stackItem:hover {
+  background: #0d0b16;
+}
+
+.stackName {
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.stackRole {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.disclaimer {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ---- FAQ --------------------------------------------------------------- */
+
+.faqWrap {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(32px, 6vw, 80px);
+  align-items: start;
+}
+
+.faqHead {
+  position: sticky;
+  top: calc(var(--l-nav-h) + 32px);
+}
+
+.faqList {
+  border-top: 1px solid var(--l-line-strong);
+}
+
+.faqItem {
+  border-bottom: 1px solid var(--l-line-strong);
+}
+
+.faqQ {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 2px;
+  font-size: 17.5px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  cursor: pointer;
+  list-style: none;
+  transition: color 0.15s;
+}
+
+.faqQ::-webkit-details-marker {
+  display: none;
+}
+
+.faqQ:hover {
+  color: #d4ccff;
+}
+
+.faqQ:focus-visible {
+  outline: 2px solid var(--l-accent-hi);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.faqIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 9px;
+  border: 1px solid var(--l-line-strong);
+  color: var(--l-text-2);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.faqPlus {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.2s ease;
+}
+
+.faqItem[open] .faqIcon {
+  background: rgba(131, 110, 249, 0.18);
+  color: #e2dcff;
+}
+
+.faqItem[open] .faqPlus {
+  transform: rotate(45deg);
+}
+
+.faqA {
+  display: grid;
+  gap: 10px;
+  padding: 0 52px 24px 2px;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--l-text-2);
+}
+
+.faqA strong {
+  color: var(--text);
+}
+
+/* ---- Final CTA --------------------------------------------------------- */
+
+.ctaSection {
+  padding: clamp(64px, 9vw, 120px) 0 clamp(48px, 7vw, 88px);
+}
+
+.ctaBand {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 28px 40px;
+  padding: clamp(32px, 5vw, 56px);
+  border-radius: 26px;
+  border: 1px solid rgba(131, 110, 249, 0.45);
+  background:
+    radial-gradient(60% 120% at 0% 0%, rgba(131, 110, 249, 0.35), transparent 60%),
+    radial-gradient(50% 120% at 100% 100%, rgba(61, 220, 151, 0.12), transparent 60%),
+    linear-gradient(180deg, #161230, #0d0b19);
+  box-shadow: 0 40px 120px -50px rgba(131, 110, 249, 0.7);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ctaLanes {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  grid-template-rows: repeat(8, 14px);
+  align-content: center;
+  gap: 9px;
+  padding: 0 0 0 50%;
+  opacity: 0.55;
+  mask-image: linear-gradient(90deg, transparent 50%, #000 85%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 50%, #000 85%);
+}
+
+.ctaLane {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ctaLane i {
+  flex: 0 0 22px;
+  border-radius: 4px;
+  background: rgba(168, 152, 255, 0.14);
+}
+
+.ctaLane .ctaLiq {
+  background: rgba(143, 123, 255, 0.55);
+}
+
+.ctaLane .ctaCured {
+  background: rgba(61, 220, 151, 0.4);
+}
+
+.ctaTitle {
+  font-size: clamp(30px, 4.2vw, 52px);
+  font-weight: 650;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.ctaTitle span {
+  color: #c4b9ff;
+}
+
+.ctaSub {
+  margin-top: 14px;
+  max-width: 560px;
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: var(--l-text-2);
+}
+
+.ctaActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ctaActions .ctaSecondary {
+  background: #16132a;
+}
+
+.ctaActions .ctaSecondary:hover {
+  background: #1d1934;
+}
+
+/* ---- Footer ------------------------------------------------------------ */
+
+.footer {
+  border-top: 1px solid var(--l-line);
+  padding: 40px 0 48px;
+}
+
+.footerInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto;
+  gap: 28px 40px;
+}
+
+.footerLogo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.footerMark {
+  width: 26px;
+  height: 26px;
+}
+
+.footerTag {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px 26px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--l-text-2);
+}
+
+.footerLinks a:hover {
+  color: var(--text);
+}
+
+.footerFine {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 4px;
+  padding-top: 22px;
+  border-top: 1px solid var(--l-line);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+@media (max-width: 1023px) {
+  .stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .faqWrap {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .faqHead {
+    position: static;
+  }
+}
+
+@media (max-width: 860px) {
+  .ctaBand {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ctaActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .ctaLanes {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stackItem {
+    padding: 18px;
+  }
+
+  .faqQ {
+    font-size: 16px;
+    padding: 18px 2px;
+  }
+
+  .faqA {
+    padding-right: 4px;
+    font-size: 15px;
+  }
+
+  .ctaActions > a {
+    flex: 1 1 100%;
+  }
+
+  .footerInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
