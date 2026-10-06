@@ -1,0 +1,377 @@
+/* Header solvency badge + detail dialog. Tokens only. */
+
+.badge {
+  --tone: var(--text-dim);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--tone) 40%, var(--border));
+  background: color-mix(in srgb, var(--tone) 9%, var(--bg-elev));
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--text-dim);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.badge:hover {
+  background: color-mix(in srgb, var(--tone) 16%, var(--bg-elev));
+}
+
+.badge:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.badge b {
+  font-weight: 600;
+  color: color-mix(in srgb, var(--tone) 75%, var(--text));
+}
+
+.badge[data-tone="ok"] {
+  --tone: var(--long);
+}
+
+.badge[data-tone="alert"] {
+  --tone: var(--short);
+  animation: alertPulse 1.4s ease-in-out infinite;
+}
+
+.badge[data-tone="pending"] {
+  --tone: var(--text-dim);
+}
+
+.icon {
+  flex: none;
+  color: var(--tone);
+}
+
+.meta {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+/* ---- dialog -------------------------------------------------------------- */
+
+.dialog {
+  margin: auto auto 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 88dvh;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  background: var(--bg-elev);
+  color: var(--text);
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.dialog::backdrop {
+  background: rgba(4, 3, 8, 0.66);
+  backdrop-filter: blur(3px);
+}
+
+.dialog[open] {
+  animation: sheetUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sheet {
+  max-height: 88dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: var(--bg-elev-2);
+}
+
+.close:hover {
+  color: var(--text);
+}
+
+.verdict {
+  --tone: var(--long);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--tone) 40%, transparent);
+  background: color-mix(in srgb, var(--tone) 10%, transparent);
+  font-size: 13px;
+}
+
+.verdict[data-tone="alert"] {
+  --tone: var(--short);
+}
+
+.verdict b {
+  color: var(--tone);
+}
+
+.verdict .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.identity > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+}
+
+.identity > div + div {
+  border-top: 1px solid var(--border);
+}
+
+.identity dt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.identity dt small {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.identity dd {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.identityTotal {
+  background: var(--bg-elev-2);
+}
+
+.identityTotal dd[data-tone="ok"] {
+  color: var(--long);
+}
+
+.identityTotal dd[data-tone="alert"] {
+  color: var(--short);
+}
+
+.h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin: -2px 0 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.table th {
+  text-align: right;
+  font-weight: 500;
+  font-size: 9.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 0 5px 6px;
+  white-space: nowrap;
+}
+
+.table td {
+  text-align: right;
+  padding: 4px 0 4px 6px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  white-space: nowrap;
+}
+
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+
+.table td[data-tone="warn"] {
+  color: var(--warn);
+}
+
+.table tfoot td {
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.check {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.check[data-tone="ok"]::before {
+  content: "✓ ";
+  color: var(--long);
+  font-weight: 700;
+}
+
+.check[data-tone="warn"] {
+  color: var(--warn);
+}
+
+.note {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* Phone header: the shield alone (colour + tooltip carry the state). */
+@media (max-width: 639px) {
+  .badge {
+    width: 30px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .badge b,
+  .badge [data-part="surplus"] {
+    display: none;
+  }
+
+  .table th[data-long] {
+    display: none;
+  }
+}
+
+.table th[data-short] {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .table th[data-short] {
+    display: table-cell;
+  }
+}
+
+@media (min-width: 640px) {
+  .dialog {
+    margin: auto;
+    width: min(620px, calc(100vw - 48px));
+    border-bottom: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  }
+
+  .dialog[open] {
+    animation-name: pop;
+  }
+
+  .sheet {
+    padding: 20px 22px 22px;
+    gap: 14px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .table {
+    font-size: 12px;
+  }
+
+  .table th {
+    font-size: 10px;
+    padding-left: 10px;
+  }
+
+  .table td {
+    padding: 5px 0 5px 10px;
+  }
+}
+
+/* 640–1279: keep the header bar fitting — word only. */
+@media (min-width: 640px) and (max-width: 1279px) {
+  .badge [data-part="surplus"] {
+    display: none;
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+@keyframes alertPulse {
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--short) 22%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge,
+  .dialog[open] {
+    animation: none !important;
+  }
+}
