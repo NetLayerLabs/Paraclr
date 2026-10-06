@@ -1,0 +1,219 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(7, 6, 12, 0.72);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 64px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  border-radius: 10px;
+}
+
+.brand:focus-visible,
+.link:focus-visible,
+.github:focus-visible,
+.menuBtn:focus-visible,
+.sheetLink:focus-visible {
+  outline: 2px solid #a898ff;
+  outline-offset: 3px;
+}
+
+.logo {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 4px 14px rgba(131, 110, 249, 0.45));
+}
+
+.wordmark {
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.link {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dim);
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.github {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+  font-weight: 500;
+  color: #b9b5cc;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.github:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.githubIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.menuBtn {
+  display: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.menuGlyph,
+.menuGlyph::before,
+.menuGlyph::after {
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 1.6px;
+  margin-left: -8px;
+  border-radius: 2px;
+  background: var(--text);
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.menuGlyph {
+  top: 50%;
+  margin-top: -0.8px;
+}
+
+.menuGlyph::before,
+.menuGlyph::after {
+  content: "";
+  left: 0;
+  margin-left: 0;
+}
+
+.menuGlyph::before {
+  transform: translateY(-5px);
+}
+
+.menuGlyph::after {
+  transform: translateY(5px);
+}
+
+.nav[data-open] .menuGlyph {
+  background: transparent;
+}
+
+.nav[data-open] .menuGlyph::before {
+  background: var(--text);
+  transform: rotate(45deg);
+}
+
+.nav[data-open] .menuGlyph::after {
+  background: var(--text);
+  transform: rotate(-45deg);
+}
+
+.sheet {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 8px 0 16px;
+}
+
+.sheet[hidden] {
+  display: none;
+}
+
+.sheetLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.sheetArrow {
+  width: 16px;
+  height: 16px;
+  color: var(--text-dim);
+}
+
+@media (max-width: 899px) {
+  .links {
+    display: none;
+  }
+
+  .actions {
+    margin-left: auto;
+  }
+
+  .menuBtn {
+    display: inline-block;
+  }
+}
+
+@media (max-width: 520px) {
+  .github {
+    display: none;
+  }
+
+  .inner {
+    gap: 12px;
+  }
+}
+
+@media (min-width: 900px) {
+  .sheet {
+    display: none;
+  }
+}
