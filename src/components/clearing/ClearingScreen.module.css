@@ -1,0 +1,1738 @@
+/* Clearing screen — lane visualizer (simulated + live). Colors come from globals.css tokens. */
+
+.screen,
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.body[hidden],
+.view[hidden] {
+  display: none;
+}
+
+/* ---- header ------------------------------------------------------------ */
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.badge i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+.stat small {
+  font-size: 9.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.stat b {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.marks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+}
+
+.marks [data-down] {
+  color: var(--short);
+}
+
+.marksSource {
+  margin-left: auto;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.marksSource + .marksShock {
+  margin-left: 0;
+}
+
+.inlineLink {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.marksShock {
+  margin-left: auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--short) 18%, transparent);
+  color: var(--short);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+/* ---- controls ---------------------------------------------------------- */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crashBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  padding: 14px 12px;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--short) 92%, #fff), var(--short));
+  color: #fff;
+  box-shadow:
+    0 8px 28px color-mix(in srgb, var(--short) 40%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: crashGlow 2.2s ease-in-out infinite;
+  transition: transform 0.12s ease;
+}
+
+.crashBtn span {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.crashBtn small {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.crashBtn:active {
+  transform: scale(0.98);
+}
+
+.controlRow {
+  display: flex;
+  gap: 8px;
+}
+
+.recoverBtn,
+.ghostBtn {
+  flex: 1;
+  padding: 13px 12px;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.recoverBtn {
+  background: var(--long);
+  color: var(--bg);
+}
+
+.ghostBtn {
+  flex: 0 0 96px;
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+
+.crashBtn:disabled,
+.recoverBtn:disabled,
+.ghostBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  animation: none;
+}
+
+.speeds {
+  display: flex;
+  align-self: center;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+}
+
+.speed,
+.speedOn {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.speedOn {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.speed:disabled,
+.speedOn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---- visualizer -------------------------------------------------------- */
+
+.viz {
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+[data-phase="running"] .viz {
+  border-color: color-mix(in srgb, var(--short) 60%, transparent);
+  box-shadow: 0 0 32px color-mix(in srgb, var(--short) 22%, transparent);
+}
+
+[data-phase="done"] .viz {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 28px var(--accent-soft);
+}
+
+.vizHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.vizTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.vizSub {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.clock {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  color: var(--accent);
+}
+
+.clock span {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.clock small {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+[data-phase="running"] .clock {
+  color: var(--text);
+}
+
+.liveStats {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 0 10px;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.liveStats b {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.lane {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.laneLabel {
+  flex: 0 0 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.laneLabel small {
+  font-size: 9.5px;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.lane[data-done] .laneLabel {
+  color: var(--text);
+}
+
+.lane[data-done] .laneLabel small {
+  color: var(--long);
+  opacity: 1;
+}
+
+.laneBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cells {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 7px);
+  gap: 2px;
+}
+
+.cell {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--bg-elev-2);
+}
+
+.cell[data-s="warn"] {
+  background: color-mix(in srgb, var(--warn) 55%, transparent);
+}
+
+.cell[data-s="risk"] {
+  background: color-mix(in srgb, var(--short) 60%, transparent);
+}
+
+.cell[data-s="checked"] {
+  background: color-mix(in srgb, var(--accent) 38%, transparent);
+  animation: checkPop 0.35s ease-out;
+}
+
+.cell[data-s="liquidated"] {
+  z-index: 2;
+  background: var(--short);
+  animation: liqFlash 0.6s ease-out;
+}
+
+.cell[data-s="settled"] {
+  z-index: 1;
+  background: var(--long);
+  animation: settleFlash 0.6s ease-out;
+}
+
+.cell[data-you] {
+  outline: 1.5px solid var(--text);
+  outline-offset: 1px;
+  z-index: 3;
+}
+
+.laneTrack {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--bg-elev-2);
+  overflow: hidden;
+}
+
+.laneFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+}
+
+.lane[data-done] .laneFill {
+  background: var(--long);
+}
+
+/* race: parallel vs sequential, same simulated clock */
+
+.race {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.raceRow {
+  display: grid;
+  grid-template-columns: 118px 1fr 34px;
+  align-items: center;
+  gap: 8px;
+  font-size: 10.5px;
+}
+
+.raceLabel {
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.raceTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+  overflow: hidden;
+}
+
+.raceFillPar,
+.raceFillSeq {
+  display: block;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+  border-radius: 999px;
+}
+
+.raceFillPar {
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.raceFillSeq {
+  background: var(--text-dim);
+}
+
+.raceCount {
+  text-align: right;
+  font-size: 11px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend i {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--bg-elev-2);
+}
+
+.legend i[data-k="checked"] {
+  background: color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+.legend i[data-k="warn"] {
+  background: color-mix(in srgb, var(--warn) 55%, transparent);
+}
+
+.legend i[data-k="liquidated"] {
+  background: var(--short);
+}
+
+.legend i[data-k="settled"] {
+  background: var(--long);
+}
+
+.legend i[data-k="you"] {
+  outline: 1.5px solid var(--text);
+  outline-offset: 1px;
+}
+
+/* ---- result card ------------------------------------------------------- */
+
+.result {
+  padding: 14px;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(ellipse at top left, var(--accent-soft), transparent 70%),
+    var(--bg-elev);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.resultKicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--long);
+}
+
+.resultHead {
+  margin-top: 6px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+
+.resultMs {
+  color: var(--accent);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.cmp {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cmpRow {
+  display: grid;
+  grid-template-columns: 66px 1fr 62px;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.cmpRow b {
+  text-align: right;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.cmpTrack {
+  height: 12px;
+  border-radius: 4px;
+  background: var(--bg-elev-2);
+  overflow: hidden;
+}
+
+.cmpPar,
+.cmpSeq {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  transform-origin: left;
+  animation: grow 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cmpPar {
+  background: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.cmpSeq {
+  background: color-mix(in srgb, var(--text-dim) 60%, transparent);
+}
+
+.speedup {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.speedup b {
+  color: var(--accent);
+  font-size: 13px;
+}
+
+.resultGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.resultGrid div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev-2);
+}
+
+.resultGrid small {
+  font-size: 9.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.resultGrid b {
+  font-size: 16px;
+}
+
+.userResult {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  background: var(--bg-elev-2);
+}
+
+.userResult small {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.userResult b {
+  font-size: 14px;
+}
+
+.userResult span {
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+.note {
+  margin-top: 10px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.body > .note {
+  margin-top: 0;
+}
+
+/* ---- live / simulated toggle ---------------------------------------------- */
+
+.modeToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 12px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+}
+
+.modeBtn,
+.modeBtnOn {
+  padding: 8px 6px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.modeBtnOn {
+  color: var(--text);
+  background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.modeBtnOn[data-live] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- live run progress ---------------------------------------------------- */
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  border: 1px solid color-mix(in srgb, var(--short) 45%, transparent);
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.progress b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.progress a {
+  color: var(--accent);
+}
+
+/* live lanes: tx in flight between submit and receipt */
+.lane[data-flight] .laneFill {
+  background: var(--warn);
+}
+
+.lane[data-flight] .laneLabel small {
+  color: var(--warn);
+  opacity: 1;
+}
+
+.lane[data-failed] .laneLabel small {
+  color: var(--short);
+  opacity: 1;
+}
+
+.laneMore {
+  font-size: 9px;
+  color: var(--text-dim);
+  line-height: 7px;
+}
+
+.legend i[data-k="flight"] {
+  background: var(--warn);
+}
+
+.legend i[data-k="risk"] {
+  background: color-mix(in srgb, var(--short) 60%, transparent);
+}
+
+.blocksRow {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.blocksRow b {
+  color: var(--text);
+}
+
+/* ---- live result card ----------------------------------------------------- */
+
+.resultKicker[data-net="anvil"] {
+  color: var(--warn);
+}
+
+.result[data-net="anvil"] {
+  border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+}
+
+.shockRow {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.shockRow a,
+.laneTable a {
+  color: var(--accent);
+}
+
+.laneTable {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.laneTable th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 9.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 4px 4px 0;
+}
+
+.laneTable td {
+  padding: 4px 4px 4px 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  white-space: nowrap;
+}
+
+.laneTable td:last-child,
+.laneTable th:last-child {
+  text-align: right;
+  padding-right: 0;
+}
+
+/* ---- auction lifecycle (live) ------------------------------------------------ */
+
+.cell[data-s="auction"] {
+  z-index: 1;
+  background: color-mix(in srgb, var(--warn) 45%, var(--bg-elev-2));
+  animation: auctionIn 0.45s ease-out;
+}
+
+.cell[data-s="backstop"] {
+  z-index: 1;
+  background: var(--accent);
+  animation: takeFlash 0.6s ease-out;
+}
+
+.cell[data-s="external"] {
+  z-index: 1;
+  background: var(--link);
+  animation: takeFlash 0.6s ease-out;
+}
+
+.cell[data-s="cured"] {
+  background: var(--long);
+  animation: settleFlash 0.6s ease-out;
+}
+
+.cell[data-s="expired"] {
+  z-index: 1;
+  background: var(--short);
+  animation: liqFlash 0.6s ease-out;
+}
+
+/* Resolved with bad debt (equity didn't cover the discount / expired underwater). */
+.cell[data-debt]::after {
+  content: "";
+  position: absolute;
+  inset: 25%;
+  border-radius: 1px;
+  background: var(--warn);
+}
+
+/* Discount clock under each lane: 0 → MAX, tick at the pool's minimum. */
+.discTrack {
+  position: relative;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bg-elev-2);
+}
+
+.discFill {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background: var(--warn);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease-out;
+}
+
+.lane[data-clock="take"] .discFill,
+.lane[data-clock="taken"] .discFill {
+  background: var(--accent);
+}
+
+.lane[data-clock="taken"] .discFill {
+  opacity: 0.55;
+}
+
+.discMin {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--accent) 80%, var(--text));
+}
+
+.lane[data-clock="tick"] .laneLabel small,
+.lane[data-clock="take"] .laneLabel small {
+  color: var(--warn);
+  opacity: 1;
+}
+
+.lane[data-clock="taken"] .laneLabel {
+  color: var(--text);
+}
+
+.lane[data-clock="taken"] .laneLabel small {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.legend i[data-k="auction"] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 35%, var(--bg-elev-2)), var(--warn));
+}
+
+.legend i[data-k="backstop"] {
+  background: var(--accent);
+}
+
+.legend i[data-k="external"] {
+  background: var(--link);
+}
+
+.legend i[data-k="cured"] {
+  background: var(--long);
+}
+
+.legend i[data-k="expired"] {
+  background: var(--short);
+}
+
+.legend i[data-k="debt"] {
+  position: relative;
+  background: var(--accent);
+}
+
+.legend i[data-k="debt"]::after {
+  content: "";
+  position: absolute;
+  inset: 25%;
+  border-radius: 1px;
+  background: var(--warn);
+}
+
+.legend i[data-k="min"] {
+  width: 2px;
+  height: 9px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--accent) 80%, var(--text));
+}
+
+.clock span[data-small] {
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: none;
+  color: var(--text-dim);
+}
+
+/* ---- run metrics strip ------------------------------------------------------- */
+
+.metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.metrics[data-net="anvil"] {
+  border-color: color-mix(in srgb, var(--warn) 38%, var(--border));
+}
+
+.metricsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.metricsKicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--long);
+}
+
+.metrics[data-net="anvil"] .metricsKicker {
+  color: var(--warn);
+}
+
+.metricsOutcomes {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.metricsOutcomes b {
+  color: var(--text);
+}
+
+.demoTag {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--link);
+  background: color-mix(in srgb, var(--link) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--link) 40%, transparent);
+  vertical-align: 1px;
+}
+
+.metricsNote {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev-2);
+  min-width: 0;
+}
+
+.metric small {
+  font-size: 9.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric b {
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.metric b[data-pair] {
+  font-size: 14px;
+  white-space: normal;
+}
+
+.metric b span {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.metric > span {
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
+/* ---- external takers (same lane) --------------------------------------------- */
+
+.takeList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--link) 45%, var(--border));
+  background: color-mix(in srgb, var(--link) 6%, var(--bg-elev));
+  font-size: 12px;
+}
+
+.takeList header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.takeList header span,
+.takeList small {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.takeRow {
+  display: grid;
+  grid-template-columns: 1fr auto 64px;
+  align-items: center;
+  gap: 2px 10px;
+  padding: 5px 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+/* Phone: payment details on their own line under the account. */
+.takeRow span:nth-child(3) {
+  grid-column: 1 / 3;
+  grid-row: 2;
+  font-size: 11px;
+}
+
+.takeRow button {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+}
+
+@media (min-width: 640px) {
+  .takeRow {
+    grid-template-columns: 1fr auto auto 64px;
+  }
+
+  .takeRow span:nth-child(3) {
+    grid-column: auto;
+    grid-row: auto;
+    font-size: inherit;
+  }
+
+  .takeRow button {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+.takeRow span:nth-child(2) {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.takeRow span:nth-child(3) {
+  color: var(--text-dim);
+}
+
+.takeRow button {
+  height: 28px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--link);
+}
+
+.takeRow button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.moreRow {
+  color: var(--text-dim);
+  text-align: left !important;
+}
+
+/* ---- tablet and up: bigger type, lanes as long tracks ----------------------- */
+
+@media (min-width: 640px) {
+  .screen,
+  .body,
+  .view {
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .stats {
+    gap: 10px;
+  }
+
+  .stat {
+    gap: 5px;
+    padding: 12px 14px;
+  }
+
+  .stat small {
+    font-size: 10.5px;
+  }
+
+  .stat b {
+    font-size: 20px;
+  }
+
+  .marks {
+    gap: 16px;
+    font-size: 12.5px;
+  }
+
+  .marksSource {
+    font-size: 10.5px;
+  }
+
+  .viz {
+    padding: 16px 18px 14px;
+  }
+
+  .vizTitle {
+    font-size: 14.5px;
+  }
+
+  .vizSub {
+    font-size: 11.5px;
+  }
+
+  .clock span {
+    font-size: 32px;
+  }
+
+  .clock small {
+    font-size: 12px;
+  }
+
+  .liveStats {
+    justify-content: flex-start;
+    gap: 32px;
+    padding: 8px 0 12px;
+    margin-bottom: 12px;
+    font-size: 11.5px;
+  }
+
+  .liveStats b {
+    font-size: 14px;
+  }
+
+  .lanes {
+    gap: 9px;
+  }
+
+  .lane {
+    gap: 12px;
+  }
+
+  .laneLabel {
+    flex-basis: 74px;
+    font-size: 11.5px;
+  }
+
+  .laneLabel small {
+    font-size: 10.5px;
+  }
+
+  /* One column per account of the longest lane (--cols, set by the
+     visualizer), so every lane is a full-width track on the same scale. */
+  .cells {
+    grid-template-columns: repeat(var(--cols, 64), minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  .cell {
+    width: auto;
+    height: 10px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--text-dim) 13%, var(--bg-elev-2));
+  }
+
+  .cell[data-s="liquidated"] {
+    animation-name: liqFlashWide;
+  }
+
+  .cell[data-s="settled"] {
+    animation-name: settleFlashWide;
+  }
+
+  .laneMore {
+    grid-column: span 3;
+    font-size: 10px;
+    line-height: 10px;
+    white-space: nowrap;
+  }
+
+  .laneTrack {
+    height: 3px;
+  }
+
+  .race {
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+  }
+
+  .raceRow {
+    grid-template-columns: 150px 1fr 48px;
+    gap: 12px;
+    font-size: 11.5px;
+  }
+
+  .raceTrack {
+    height: 10px;
+  }
+
+  .raceCount {
+    font-size: 12px;
+  }
+
+  .legend {
+    gap: 6px 18px;
+    margin-top: 12px;
+    font-size: 11px;
+  }
+
+  .legend i {
+    width: 10px;
+    height: 10px;
+  }
+
+  .blocksRow {
+    font-size: 11.5px;
+  }
+
+  .crashBtn span {
+    font-size: 17px;
+  }
+
+  .crashBtn small {
+    font-size: 12px;
+  }
+
+  .result {
+    padding: 20px 22px;
+  }
+
+  .resultHead {
+    font-size: 22px;
+  }
+
+  .resultGrid b {
+    font-size: 18px;
+  }
+
+  .resultGrid small {
+    font-size: 10px;
+  }
+
+  .shockRow {
+    font-size: 12px;
+  }
+
+  .laneTable {
+    font-size: 12px;
+  }
+
+  .laneTable th {
+    font-size: 10px;
+    padding-bottom: 6px;
+  }
+
+  .laneTable td {
+    padding: 6px 8px 6px 0;
+  }
+
+  .cmpRow {
+    grid-template-columns: 80px 1fr 72px;
+    font-size: 12px;
+  }
+
+  .speedup {
+    font-size: 12px;
+  }
+
+  .note {
+    font-size: 11.5px;
+  }
+
+  .progress {
+    font-size: 12.5px;
+  }
+}
+
+@media (min-width: 640px) {
+  .metrics {
+    padding: 14px 16px;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .metric {
+    padding: 10px 12px;
+  }
+
+  .metric b {
+    font-size: 20px;
+  }
+
+  .metric b[data-pair] {
+    font-size: 17px;
+  }
+
+  .metricsOutcomes {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .metricsGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* ---- desktop: wide layout --------------------------------------------------- */
+/* Header + Live/Simulated toggle on one row; stats + marks beside the crash
+   controls; the lane visualizer gets the full width; results in two columns. */
+
+@media (min-width: 1024px) {
+  .screen {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 20px;
+    row-gap: 16px;
+    max-width: var(--content-max);
+    margin: 0 auto;
+  }
+
+  .screen > .view {
+    grid-column: 1 / -1;
+  }
+
+  .head {
+    align-items: center;
+    gap: 16px;
+  }
+
+  .modeToggle {
+    width: 380px;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 400px);
+    grid-template-areas:
+      "stats controls"
+      "marks controls";
+    column-gap: 16px;
+    row-gap: 12px;
+    align-items: start;
+  }
+
+  .body > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .body > .stats {
+    grid-area: stats;
+  }
+
+  .body > .marks {
+    grid-area: marks;
+    padding: 0 2px;
+  }
+
+  .body > .controls {
+    grid-area: controls;
+    align-self: stretch;
+  }
+
+  .controls {
+    gap: 10px;
+  }
+
+  .controls > .crashBtn,
+  .controls > .controlRow {
+    flex: 1;
+  }
+
+  .crashBtn {
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .recoverBtn,
+  .ghostBtn {
+    border-radius: 12px;
+  }
+
+  .speeds {
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .speed,
+  .speedOn {
+    flex: 1;
+  }
+
+  .stat {
+    padding: 14px 16px;
+  }
+
+  .stat b {
+    font-size: 24px;
+  }
+
+  .viz {
+    padding: 18px 22px 16px;
+  }
+
+  .laneLabel {
+    flex-basis: 82px;
+  }
+
+  .cell {
+    height: 14px;
+    border-radius: 3px;
+  }
+
+  .laneMore {
+    line-height: 14px;
+  }
+
+  .lanes {
+    gap: 10px;
+  }
+
+  /* Live result: headline, numbers and the shock tx on the left; the
+     per-lane batch table (blocks, timings, gas, tx links) on the right. */
+  .resultLive {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    column-gap: 36px;
+    align-items: start;
+  }
+
+  .resultLive > .resultMain {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .resultLive > .resultSide {
+    grid-column: 2;
+    grid-row: 1;
+    max-height: 430px;
+    overflow-y: auto;
+  }
+
+  .resultLive > .resultSide .laneTable {
+    margin-top: 0;
+  }
+
+  .resultLive > .note {
+    grid-column: 1 / -1;
+  }
+
+  /* Simulated result: headline + parallel-vs-sequential on the left,
+     outcome numbers (and your account) on the right. */
+  .resultSim {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    column-gap: 36px;
+    align-items: start;
+  }
+
+  .resultSim > * {
+    grid-column: 1;
+  }
+
+  .resultSim > .resultGrid {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+    align-self: end;
+  }
+
+  .resultSim > .userResult {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 12px;
+  }
+
+  .resultSim > .note {
+    grid-column: 1 / -1;
+  }
+
+  .result .resultGrid div {
+    padding: 10px 12px;
+  }
+
+  /* Keep the explanatory copy at a readable line length. */
+  .note {
+    max-width: 150ch;
+  }
+}
+
+/* ---- motion ------------------------------------------------------------ */
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes crashGlow {
+  50% {
+    box-shadow:
+      0 8px 38px color-mix(in srgb, var(--short) 65%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+}
+
+@keyframes checkPop {
+  from {
+    background: var(--accent);
+  }
+}
+
+@keyframes liqFlash {
+  0% {
+    transform: scale(2.4);
+    background: #fff;
+    box-shadow: 0 0 12px 4px var(--short);
+  }
+  40% {
+    transform: scale(1.6);
+    box-shadow: 0 0 10px 3px var(--short);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes settleFlash {
+  0% {
+    transform: scale(2);
+    box-shadow: 0 0 10px 3px var(--long);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes liqFlashWide {
+  0% {
+    transform: scale(1.6);
+    background: #fff;
+    box-shadow: 0 0 12px 3px var(--short);
+  }
+  40% {
+    transform: scale(1.25);
+    box-shadow: 0 0 9px 2px var(--short);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes settleFlashWide {
+  0% {
+    transform: scale(1.5);
+    box-shadow: 0 0 10px 3px var(--long);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes auctionIn {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--warn) 70%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 8px 2px color-mix(in srgb, var(--warn) 45%, transparent);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+@keyframes takeFlash {
+  0% {
+    transform: scale(1.6);
+    box-shadow: 0 0 12px 3px var(--accent);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell,
+  .crashBtn,
+  .badge i,
+  .result,
+  .cmpPar,
+  .cmpSeq {
+    animation: none !important;
+  }
+}
