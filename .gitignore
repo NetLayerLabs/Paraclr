@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+!.env.example
+
+# chain backend: keeper/deploy keys are never committed (already covered by .env*,
+# spelled out for safety); deployments/*.json and bench/results/*.json ARE committed.
+keeper/.env*
+contracts/.env*
+!keeper/.env.example
+!deployments/*.json
+!bench/results/*.json
