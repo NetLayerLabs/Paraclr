@@ -181,8 +181,15 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
         {chg != null && (
           <span className={`${styles.change} ${chg >= 0 ? styles.changeUp : styles.changeDown}`}>
             <span className="mono">{fmtPct(chg)}</span>
-            <span className={styles.changeLabel} title={isOracle ? "Change since the first on-chain price this session loaded" : undefined}>
-              {isOracle ? "session" : "24h"}
+            <span
+              className={styles.changeLabel}
+              title={
+                isOracle
+                  ? "Change since the first on-chain price this session loaded"
+                  : "Simulation mode: change vs a simulated reference price, not real 24h market data"
+              }
+            >
+              {isOracle ? "session" : "sim"}
             </span>
           </span>
         )}
