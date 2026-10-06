@@ -6,12 +6,25 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "contracts:build": "cd contracts && forge build",
+    "contracts:test": "cd contracts && forge test",
+    "abi": "npm run contracts:build && node scripts/export-abi.mjs",
+    "dev:chain": "tsx scripts/dev-chain.ts",
+    "deploy:anvil": "tsx scripts/deploy.ts --network anvil",
+    "deploy:monad": "tsx scripts/deploy.ts --network monad",
+    "keeper": "tsx keeper/src/index.ts",
+    "keeper:init": "tsx keeper/src/init-env.ts",
+    "keeper:fund": "tsx keeper/src/fund-roles.ts",
+    "bench": "tsx bench/run.ts",
+    "xray": "tsx bench/xray.ts"
   },
   "dependencies": {
+    "@privy-io/react-auth": "^3.45.0",
     "next": "16.3.5",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "viem": "^2.56.0"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -19,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
