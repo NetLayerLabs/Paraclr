@@ -1,34 +1,40 @@
+/* Paraclr design tokens — dark trading terminal. Use these vars everywhere;
+   don't hardcode colors in feature modules. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: #07060c;
+  --bg-elev: #110f1a;
+  --bg-elev-2: #1a1726;
+  --border: #2a2638;
+  --text: #ecebf3;
+  --text-dim: #8d89a3;
+  --accent: #836ef9; /* Monad purple */
+  --accent-soft: rgba(131, 110, 249, 0.16);
+  --ausd: #3ddc97; /* Agora AUSD green, also "long" */
+  --long: #3ddc97;
+  --short: #ff5c7a;
+  --warn: #ffb547;
+  --link: #375bd2; /* Chainlink blue */
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --bg-hover: #201c2e;
+  --radius-panel: 10px; /* desktop terminal panels: tighter than mobile cards */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Layout. The app is a full-viewport responsive web app (no device frame):
+       < 640px    phone   — top bar + bottom tab bar, stacked cards, swipe-to-trade
+       640–1023px tablet  — header nav, single-column stacking of the desktop sections
+       >= 1024px  desktop — header nav, CSS-grid trading terminal
+     Media queries can't read custom properties, so the breakpoints are literal
+     640px / 1024px / 1280px in the modules. */
+  --header-h: 56px;
+  --header-h-phone: 48px;
+  --tabbar-h: 64px;
+  --gutter: 16px;
+  --order-w: 352px; /* desktop order panel column */
+  --positions-h: clamp(176px, 27dvh, 300px); /* desktop positions table */
+  --content-max: 1680px; /* clearing / wallet pages on very wide screens */
+  color-scheme: dark;
 }
 
 * {
@@ -37,13 +43,41 @@ body {
   margin: 0;
 }
 
+html,
+body {
+  height: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--text);
+  background: var(--bg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 a {
   color: inherit;
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thin, dark scrollbars for the terminal's inner scroll areas. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
