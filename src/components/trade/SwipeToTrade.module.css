@@ -1,0 +1,218 @@
+.track {
+  --thumb: 52px;
+  --inset: 4px;
+  position: relative;
+  height: calc(var(--thumb) + var(--inset) * 2);
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.long {
+  --side: var(--long);
+  --side-soft: rgba(61, 220, 151, 0.22);
+  --side-glow: rgba(61, 220, 151, 0.45);
+}
+.short {
+  --side: var(--short);
+  --side-soft: rgba(255, 92, 122, 0.22);
+  --side-glow: rgba(255, 92, 122, 0.45);
+}
+.track:not(.disabled) {
+  border-color: color-mix(in srgb, var(--side) 35%, var(--border));
+}
+
+/* progress fill trails the thumb */
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--x) + var(--thumb) + var(--inset) * 2);
+  background: linear-gradient(90deg, transparent, var(--side-soft));
+  border-radius: 999px;
+  transition: width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-left: calc(var(--thumb) + 8px);
+  padding-right: 12px;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  opacity: calc(1 - var(--p) * 1.3);
+  transition: opacity 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.done .label,
+.failed .label {
+  opacity: 1;
+  padding-left: 12px;
+  padding-right: calc(var(--thumb) + 8px);
+}
+.done .label {
+  color: var(--side);
+}
+.failed .label {
+  color: var(--warn);
+}
+
+.shimmer {
+  background: linear-gradient(
+    100deg,
+    var(--text-dim) 0%,
+    var(--text-dim) 35%,
+    #fff 50%,
+    var(--text-dim) 65%,
+    var(--text-dim) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2.2s linear infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -150% 0;
+  }
+}
+
+.thumb {
+  position: absolute;
+  top: var(--inset);
+  left: var(--inset);
+  width: var(--thumb);
+  height: var(--thumb);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #07060c;
+  background: var(--side);
+  box-shadow:
+    0 4px 14px var(--side-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateX(var(--x));
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+    background 0.2s,
+    box-shadow 0.2s;
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+.thumb:focus-visible {
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 5px var(--accent);
+}
+.thumb svg {
+  animation: nudge 1.6s ease-in-out infinite;
+}
+
+.dragging .thumb {
+  cursor: grabbing;
+  transition: none;
+  box-shadow: 0 6px 22px var(--side-glow);
+}
+.dragging .fill {
+  transition: none;
+}
+.dragging .thumb svg,
+.done .thumb svg,
+.disabled .thumb svg {
+  animation: none;
+}
+
+.done {
+  border-color: var(--side);
+  box-shadow: 0 0 0 4px var(--side-soft);
+}
+.done .fill {
+  background: var(--side-soft);
+}
+.done .thumb {
+  animation: pop 0.35s ease-out;
+}
+.failed {
+  animation: shake 0.35s;
+}
+
+.disabled .thumb {
+  background: var(--border);
+  color: var(--text-dim);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.disabled .label {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+@keyframes nudge {
+  0%,
+  60%,
+  100% {
+    transform: translateX(0);
+  }
+  30% {
+    transform: translateX(3px);
+  }
+}
+@keyframes pop {
+  0% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.12;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes shake {
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer,
+  .thumb svg {
+    animation: none;
+  }
+}
+
+/* On-chain confirm in flight: thumb parked at the end, track breathes. */
+.pending .fill {
+  animation: pendingPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes pendingPulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pending .fill {
+    animation: none;
+  }
+}
