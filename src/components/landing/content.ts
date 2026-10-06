@@ -1,6 +1,6 @@
 // Shared landing constants (safe for client components: no server imports).
 
-export const GITHUB_URL = "https://github.com/mrnetwork0001/paraclr";
+export const GITHUB_URL = "https://github.com/NetLayerLabs/Paraclr";
 export const GITHUB_TREE = `${GITHUB_URL}/tree/main`;
 export const GITHUB_BLOB = `${GITHUB_URL}/blob/main`;
 
