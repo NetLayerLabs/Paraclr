@@ -1,0 +1,102 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { Position } from "@/lib/types";
+import { useParaclr } from "@/lib/store";
+import { Notice, TxTray } from "@/components/chain/ChainUi";
+import { MarketHeader } from "./MarketHeader";
+import { CandleChart } from "./CandleChart";
+import { OrderPanel, type OpenedMeta } from "./OrderPanel";
+import { AccountSummary } from "./AccountSummary";
+import { AuctionBanner } from "./AuctionBanner";
+import { PositionsList, type ClosedMeta } from "./PositionsList";
+import { baseOf, fmtPrice, fmtSigned } from "./format";
+import styles from "./TradeScreen.module.css";
+
+interface Toast {
+  id: number;
+  tone: "long" | "short" | "neutral";
+  title: string;
+  detail: string;
+}
+
+export function TradeScreen() {
+  const symbol = useParaclr((s) => s.selectedMarket);
+  const chainLive = useParaclr((s) => s.chain.status === "ready");
+  const faucet = useParaclr((s) => s.chain.faucet);
+  const hasGas = useParaclr((s) => (s.chain.account?.native ?? 0) > 0);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const show = (t: Omit<Toast, "id">) => {
+    clearTimeout(timer.current);
+    setToast({ ...t, id: Date.now() });
+    timer.current = setTimeout(() => setToast(null), 2600);
+  };
+
+  const onOpened = (p: Position, meta?: OpenedMeta) =>
+    show({
+      tone: p.side,
+      title: `${p.side === "long" ? "Long" : "Short"} ${p.leverage}x ${baseOf(p.symbol)} opened`,
+      detail:
+        `Entry ${fmtPrice(p.symbol, p.entryPrice)} · ${p.margin.toFixed(2)} AUSD margin` +
+        (meta?.block !== undefined ? ` · block #${meta.block}` : ""),
+    });
+
+  const onClosed = (p: Position, realized: number, meta?: ClosedMeta) =>
+    show({
+      tone: "neutral",
+      title: `${baseOf(p.symbol)} position closed`,
+      detail: `Realized ${fmtSigned(realized)} AUSD` + (meta?.block !== undefined ? ` · block #${meta.block}` : ""),
+    });
+
+  return (
+    // Phone/tablet: one stacked column in DOM order. Desktop (>=1024px): a
+    // CSS-grid terminal — ticker across the top, chart filling the height,
+    // order column docked right, positions table under the chart.
+    <div className={styles.screen}>
+      <div className={styles.ticker}>
+        <AuctionBanner />
+        <MarketHeader symbol={symbol} />
+      </div>
+      <div className={styles.chart}>
+        <CandleChart symbol={symbol} />
+      </div>
+      <aside className={styles.side} aria-label="Order entry">
+        {chainLive && (faucet.status === "checking" || faucet.status === "requesting") && (
+          <Notice>{faucet.message ?? "Checking your wallet balance…"}</Notice>
+        )}
+        {chainLive && faucet.status === "failed" && (
+          <Notice tone="warn">
+            Auto-funding failed: {faucet.message}{" "}
+            {hasGas
+              ? "You can retry or mint test AUSD on the Wallet tab."
+              : "Retry from the Wallet tab once the keeper is reachable."}
+          </Notice>
+        )}
+        <OrderPanel symbol={symbol} onOpened={onOpened} />
+        {chainLive && <TxTray />}
+        <AccountSummary />
+      </aside>
+      <div className={styles.positions}>
+        <PositionsList onClosed={onClosed} />
+      </div>
+
+      {toast && (
+        <div key={toast.id} className={`${styles.toast} ${styles[toast.tone]}`} role="status">
+          <span className={styles.toastIcon} aria-hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path d="M5 12.5 10 17.5 19 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <span className={styles.toastBody}>
+            <b>{toast.title}</b>
+            <span>{toast.detail}</span>
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}

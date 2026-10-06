@@ -1,0 +1,193 @@
+/* Trade screen.
+   Phone / tablet: one stacked column (ticker, chart, order entry, positions).
+   Desktop (>=1024px): CSS-grid terminal filling the viewport below the header. */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+.ticker,
+.chart,
+.positions {
+  min-width: 0;
+}
+
+/* Ticker cell also carries the liquidation-auction banner (above the market header). */
+.ticker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .screen {
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .screen {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--order-w);
+    grid-template-rows: auto minmax(0, 1fr) var(--positions-h);
+    grid-template-areas:
+      "ticker    ticker"
+      "chart     side"
+      "positions side";
+    gap: 8px;
+    height: 100%;
+    /* Short viewports: keep the terminal usable and let the page scroll. */
+    min-height: 640px;
+    padding-bottom: 0;
+  }
+
+  .ticker {
+    grid-area: ticker;
+    gap: 8px;
+  }
+
+  .chart {
+    grid-area: chart;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .side {
+    grid-area: side;
+    min-height: 0;
+    gap: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* The last panel in the order column (the desktop-only account summary)
+     takes up any spare height, so the column has no dead space. */
+  .side > :last-child {
+    flex: 1 0 auto;
+  }
+
+  .positions {
+    grid-area: positions;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 1600px) {
+  .screen {
+    grid-template-columns: minmax(0, 1fr) calc(var(--order-w) + 32px);
+  }
+}
+
+/* ---- toast: fixed to the viewport ------------------------------------- */
+/* Phone: top, under the top bar. Tablet/desktop: bottom-right. */
+
+.toast {
+  --tone: var(--accent);
+  position: fixed;
+  top: calc(var(--header-h-phone) + 10px + env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg-elev-2) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--tone) 45%, var(--border));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  animation: drop 2.6s cubic-bezier(0.2, 0.9, 0.3, 1.1) forwards;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .toast {
+    top: auto;
+    left: auto;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    width: 380px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    animation-name: rise;
+  }
+}
+
+.long {
+  --tone: var(--long);
+}
+.short {
+  --tone: var(--short);
+}
+.neutral {
+  --tone: var(--accent);
+}
+.toastIcon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #07060c;
+  background: var(--tone);
+}
+.toastBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.toastBody b {
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+@keyframes drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  10%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  10%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
