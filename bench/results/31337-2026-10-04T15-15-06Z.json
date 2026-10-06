@@ -1,0 +1,3635 @@
+{
+  "runId": "run-mutypzvs-ey2c8",
+  "status": "done",
+  "chainId": 31337,
+  "network": "anvil",
+  "priceLoopPaused": true,
+  "shock": {
+    "txHash": "0xbada22a51eda31818ed7863a65bdf78ae139b487bfa4f8cf9fcdc14d39cdeb13",
+    "block": 68,
+    "submittedAt": 1791126919559,
+    "confirmedAt": 1791126919895,
+    "bps": 8000
+  },
+  "batches": [
+    {
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 0,
+      "keeper": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "accounts": 55,
+      "liquidated": 55,
+      "gasUsed": "3911905",
+      "gasLimit": "5378870"
+    },
+    {
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 1,
+      "keeper": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "accounts": 48,
+      "liquidated": 48,
+      "gasUsed": "3494991",
+      "gasLimit": "4805612"
+    },
+    {
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 2,
+      "keeper": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "accounts": 48,
+      "liquidated": 48,
+      "gasUsed": "3282912",
+      "gasLimit": "4514003"
+    },
+    {
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 3,
+      "keeper": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+      "accounts": 42,
+      "liquidated": 42,
+      "gasUsed": "2806774",
+      "gasLimit": "3859314"
+    },
+    {
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 4,
+      "keeper": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+      "accounts": 50,
+      "liquidated": 50,
+      "gasUsed": "3310840",
+      "gasLimit": "4552405"
+    },
+    {
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 5,
+      "keeper": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+      "accounts": 62,
+      "liquidated": 62,
+      "gasUsed": "3867570",
+      "gasLimit": "5317909"
+    },
+    {
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 6,
+      "keeper": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+      "accounts": 56,
+      "liquidated": 56,
+      "gasUsed": "3635827",
+      "gasLimit": "4999262"
+    },
+    {
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "block": 69,
+      "submittedAt": 1791126919965,
+      "confirmedAt": 1791126920301,
+      "lane": 7,
+      "keeper": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
+      "accounts": 43,
+      "liquidated": 43,
+      "gasUsed": "2964033",
+      "gasLimit": "4075546"
+    }
+  ],
+  "liquidations": [
+    {
+      "lane": 0,
+      "account": "0x5D7a339c23Ac35c53615486E3bF2d9c1a8b14cc8",
+      "equity": "-7246666204",
+      "badDebt": "7246666204",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 3
+    },
+    {
+      "lane": 0,
+      "account": "0x031463E803Db4d48A150E58a03d901Ed9DA56C68",
+      "equity": "-5663286642",
+      "badDebt": "5663286642",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 8
+    },
+    {
+      "lane": 0,
+      "account": "0xd2B7Dd651775118dEd38F8528E5d780BAff3cb78",
+      "equity": "-226493314",
+      "badDebt": "226493314",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 11
+    },
+    {
+      "lane": 0,
+      "account": "0x3b00975431B8B5dC5CccbdF22CE34FC64BE696a8",
+      "equity": "-85887398",
+      "badDebt": "85887398",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 14
+    },
+    {
+      "lane": 0,
+      "account": "0xe62f594A5017Cc603722318548A0Dd080693D2f8",
+      "equity": "-6427287648",
+      "badDebt": "6427287648",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 17
+    },
+    {
+      "lane": 0,
+      "account": "0xd4b2fC61454D52F3843CccE81BfAacCbcfD83568",
+      "equity": "-5992864999",
+      "badDebt": "5992864999",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 21
+    },
+    {
+      "lane": 0,
+      "account": "0xbC42f1926335672746b21E1650D1e40CE72a2c58",
+      "equity": "-56301481",
+      "badDebt": "56301481",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 24
+    },
+    {
+      "lane": 0,
+      "account": "0x685805ed451990D1Eb48316aC5ee2394C4Aa0378",
+      "equity": "-1241095465",
+      "badDebt": "1241095465",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 28
+    },
+    {
+      "lane": 0,
+      "account": "0x5e6768d64ab758313F77134e36Eb60Ae6Ed9b790",
+      "equity": "442997342",
+      "badDebt": "0",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 31
+    },
+    {
+      "lane": 0,
+      "account": "0xdeE54b348e409d751C820222d69B36FD1e0B7a40",
+      "equity": "-53420753",
+      "badDebt": "53420753",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 34
+    },
+    {
+      "lane": 0,
+      "account": "0x1b3020e540D6e6c2C77952BBF0c8850487F032B0",
+      "equity": "-16193750717",
+      "badDebt": "16193750717",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 37
+    },
+    {
+      "lane": 0,
+      "account": "0x285776eE1AcC0361285a1CfEFa596bb53D090A30",
+      "equity": "-316731785",
+      "badDebt": "316731785",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 40
+    },
+    {
+      "lane": 0,
+      "account": "0x3034A801c42fDabc023B1CC8BF243E3B5835FE30",
+      "equity": "-93666399",
+      "badDebt": "93666399",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 43
+    },
+    {
+      "lane": 0,
+      "account": "0x9Ad8a938566eE1fcB89d4536731aea1e22002F48",
+      "equity": "-165920104",
+      "badDebt": "165920104",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 48
+    },
+    {
+      "lane": 0,
+      "account": "0xCddBB9D126515dDA440d58944Cb40ca08c9b3400",
+      "equity": "-8053491791",
+      "badDebt": "8053491791",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 52
+    },
+    {
+      "lane": 0,
+      "account": "0x7734265E4315EC6a6E57637e22CFd67923Ac58b0",
+      "equity": "-7101394317",
+      "badDebt": "7101394317",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 56
+    },
+    {
+      "lane": 0,
+      "account": "0x4A4b0be461986A5801a67c7B8E11Bfef16C01e60",
+      "equity": "-123050734",
+      "badDebt": "123050734",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 59
+    },
+    {
+      "lane": 0,
+      "account": "0x69f4fD8398187327BF4E564470B197B1f28Bf910",
+      "equity": "-4179518955",
+      "badDebt": "4179518955",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 62
+    },
+    {
+      "lane": 0,
+      "account": "0x0ad07168aa61A8723b4b284183698bb8079338B8",
+      "equity": "-422893329",
+      "badDebt": "422893329",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 66
+    },
+    {
+      "lane": 0,
+      "account": "0x49CB6aD24b122e905a687D071d36A9030d66B1E8",
+      "equity": "-6528371935",
+      "badDebt": "6528371935",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 70
+    },
+    {
+      "lane": 0,
+      "account": "0x08E4188571C2290C89aD9Af5466E6E7dc3D4a7c8",
+      "equity": "-120491111",
+      "badDebt": "120491111",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 73
+    },
+    {
+      "lane": 0,
+      "account": "0xADc8a7Caa018b0c9dcb7327D479b296E847bDEC0",
+      "equity": "-4984741062",
+      "badDebt": "4984741062",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 76
+    },
+    {
+      "lane": 0,
+      "account": "0xA731900dba1FE09a414886d452778731Df5FED80",
+      "equity": "-1959679662",
+      "badDebt": "1959679662",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 81
+    },
+    {
+      "lane": 0,
+      "account": "0x70534d0Ebf53cf72DdfebbD11c86853dB7871480",
+      "equity": "923893721",
+      "badDebt": "0",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 83
+    },
+    {
+      "lane": 0,
+      "account": "0x1447e93Bc51d180E193a4ba95b14fb4401223Cd0",
+      "equity": "-3579299465",
+      "badDebt": "3579299465",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 88
+    },
+    {
+      "lane": 0,
+      "account": "0x6145B1A4B5e0Eb4c75d33ff8D4209cceBb007cB8",
+      "equity": "-1599313174",
+      "badDebt": "1599313174",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 91
+    },
+    {
+      "lane": 0,
+      "account": "0x975DB6633d8d1ad1F28932E8043f1dF64Cd54FE0",
+      "equity": "-15727551136",
+      "badDebt": "15727551136",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 94
+    },
+    {
+      "lane": 0,
+      "account": "0x8E0a5431000d5f1170Cb213a59dCDE66079458D8",
+      "equity": "-166302720",
+      "badDebt": "166302720",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 98
+    },
+    {
+      "lane": 0,
+      "account": "0xE72ec452B4B08C13F148c523e4122A8d9Fe4c610",
+      "equity": "-1035419708",
+      "badDebt": "1035419708",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 102
+    },
+    {
+      "lane": 0,
+      "account": "0x46F61B5b3431D7cCc565a9f01D6e38Ce8b01c0B8",
+      "equity": "-1652169457",
+      "badDebt": "1652169457",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 105
+    },
+    {
+      "lane": 0,
+      "account": "0xb31af1Dd68f8056bd3c8b66B3997Fb369bd2a1d8",
+      "equity": "-235323041",
+      "badDebt": "235323041",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 108
+    },
+    {
+      "lane": 0,
+      "account": "0xC492Cdc1796D5eD4b36EBFE7537442d45FC4B5C8",
+      "equity": "-2299771923",
+      "badDebt": "2299771923",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 111
+    },
+    {
+      "lane": 0,
+      "account": "0x5B6E74f62C0C79e57e63ea9aa20376c6375F3928",
+      "equity": "-215530150",
+      "badDebt": "215530150",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 116
+    },
+    {
+      "lane": 0,
+      "account": "0xaF52833F0d1Dd2e92AcF0E00FC1E31C62218D320",
+      "equity": "43876777",
+      "badDebt": "0",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 119
+    },
+    {
+      "lane": 0,
+      "account": "0xE39003E4DBC6AE49c1205281580a912b5E66ba58",
+      "equity": "8275597",
+      "badDebt": "0",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 121
+    },
+    {
+      "lane": 0,
+      "account": "0xa96715eC1ae08dc6e9478034d45C1fa8f18139B0",
+      "equity": "-1470884150",
+      "badDebt": "1470884150",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 125
+    },
+    {
+      "lane": 0,
+      "account": "0xA7F2D2fbF5c82e9d1DbC0fC38164b4571C4BB910",
+      "equity": "-623624551",
+      "badDebt": "623624551",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 128
+    },
+    {
+      "lane": 0,
+      "account": "0xeF767Cc278D39Aae296C0ed1D31Ff7456ab4e330",
+      "equity": "-845648355",
+      "badDebt": "845648355",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 131
+    },
+    {
+      "lane": 0,
+      "account": "0xa4949C36c4Fe631bd58c4836F32dB44B31d19af0",
+      "equity": "-4666220904",
+      "badDebt": "4666220904",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 135
+    },
+    {
+      "lane": 0,
+      "account": "0x85E0D3c6E84c1eD06555E8366A2AC6b67bF8E460",
+      "equity": "-17523927097",
+      "badDebt": "17523927097",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 138
+    },
+    {
+      "lane": 0,
+      "account": "0x2536cB6d2920C0B7A4db81EbB9E3E52D2F029088",
+      "equity": "-13873456016",
+      "badDebt": "13873456016",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 142
+    },
+    {
+      "lane": 0,
+      "account": "0xd53dBaE3bddd308E8167EF4Bca08f4D009A3c6c8",
+      "equity": "-4709493099",
+      "badDebt": "4709493099",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 145
+    },
+    {
+      "lane": 0,
+      "account": "0x62ccb147fbad920d899480Dd4cCdB2fb890e64b0",
+      "equity": "-39241983",
+      "badDebt": "39241983",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 148
+    },
+    {
+      "lane": 0,
+      "account": "0xd84Da29C853636123D2e79131aE6A2bdA13CAE08",
+      "equity": "-8935090616",
+      "badDebt": "8935090616",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 151
+    },
+    {
+      "lane": 0,
+      "account": "0xBdC8D46c5048ff327888a069f115A4Fd43E15560",
+      "equity": "-592353707",
+      "badDebt": "592353707",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 155
+    },
+    {
+      "lane": 0,
+      "account": "0xE059bD58e2c34Cf448D645D5790424F2751fFDD0",
+      "equity": "-13092920875",
+      "badDebt": "13092920875",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 160
+    },
+    {
+      "lane": 0,
+      "account": "0x9Aae48BD5EF9F1aD54408E235CEb2b52F0633ac0",
+      "equity": "-669152423",
+      "badDebt": "669152423",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 163
+    },
+    {
+      "lane": 0,
+      "account": "0x4c691f9b6334213870787BFAd698431A63F14dE8",
+      "equity": "715484030",
+      "badDebt": "0",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 165
+    },
+    {
+      "lane": 0,
+      "account": "0xEC991590Ef82f87d10657105A0c0d245E1f65240",
+      "equity": "-3159948912",
+      "badDebt": "3159948912",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 168
+    },
+    {
+      "lane": 0,
+      "account": "0xf2C25Bd3D9ac287F782cFA752Ea5765C60593700",
+      "equity": "-3485771846",
+      "badDebt": "3485771846",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 171
+    },
+    {
+      "lane": 0,
+      "account": "0xf2B0d138f42E6c34Ab8D9011BE8Ce268c3B067c0",
+      "equity": "-2597539391",
+      "badDebt": "2597539391",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 174
+    },
+    {
+      "lane": 0,
+      "account": "0x4a4857BAEe263B4f01a41b7c7a363595FB661f98",
+      "equity": "-184102977",
+      "badDebt": "184102977",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 177
+    },
+    {
+      "lane": 0,
+      "account": "0x5634120fE469fb69c866bFEB36E2E4cCcedc4090",
+      "equity": "72014553",
+      "badDebt": "0",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 179
+    },
+    {
+      "lane": 0,
+      "account": "0xF0Bc1501f4BF02DaE91005c147357aBB639f4470",
+      "equity": "-1778372279",
+      "badDebt": "1778372279",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 184
+    },
+    {
+      "lane": 0,
+      "account": "0x472b62f12245f553a6fd64a87A637F798A29f538",
+      "equity": "-3202724791",
+      "badDebt": "3202724791",
+      "txHash": "0x2fb403067df3ba4242ef84e3eef9b5ae9c83445a36aba3ace532d9a99ecf9054",
+      "logIndex": 189
+    },
+    {
+      "lane": 1,
+      "account": "0x747b7e492590423FEf7F843F59F197c29e68ab21",
+      "equity": "-5834582251",
+      "badDebt": "5834582251",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 193
+    },
+    {
+      "lane": 1,
+      "account": "0x799992b5c7DF211eA398040AF342889989026551",
+      "equity": "-861089604",
+      "badDebt": "861089604",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 196
+    },
+    {
+      "lane": 1,
+      "account": "0xa6030d47D250fCaDE6c566D158Bf1ed9b1D7F139",
+      "equity": "-251195822",
+      "badDebt": "251195822",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 200
+    },
+    {
+      "lane": 1,
+      "account": "0xD4a3d4e4CBEB1fb12790710045EAda2717048979",
+      "equity": "-1155277577",
+      "badDebt": "1155277577",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 203
+    },
+    {
+      "lane": 1,
+      "account": "0x18aE488Ac5243F37D8A942cfEc030383FBEcae69",
+      "equity": "-2840197654",
+      "badDebt": "2840197654",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 207
+    },
+    {
+      "lane": 1,
+      "account": "0x5Bde0503424Ec4BF7b160960B0292949a3914119",
+      "equity": "-29755976821",
+      "badDebt": "29755976821",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 210
+    },
+    {
+      "lane": 1,
+      "account": "0x7afC37AEb34E8b9126D52A86e2D9D58feB827279",
+      "equity": "-499081695",
+      "badDebt": "499081695",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 213
+    },
+    {
+      "lane": 1,
+      "account": "0x5e778F57Bf6b880A10eA5E33B2979bc442A697f9",
+      "equity": "-526502469",
+      "badDebt": "526502469",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 216
+    },
+    {
+      "lane": 1,
+      "account": "0x81dA7f452090ceAbFBB599539C851D646e7808a1",
+      "equity": "-90184396",
+      "badDebt": "90184396",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 219
+    },
+    {
+      "lane": 1,
+      "account": "0xE36239452E07287236179eAEB1f40BCF18083921",
+      "equity": "-58566519",
+      "badDebt": "58566519",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 222
+    },
+    {
+      "lane": 1,
+      "account": "0x78E14FdC501651432e3a52bb4B11045826d0d7C9",
+      "equity": "-323525459",
+      "badDebt": "323525459",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 226
+    },
+    {
+      "lane": 1,
+      "account": "0x5A9f867A0173Bbe5A6C190440C658b4Bba0F1A61",
+      "equity": "15529083",
+      "badDebt": "0",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 229
+    },
+    {
+      "lane": 1,
+      "account": "0x5592f1333E574923De25d3eA3b04EB83f05a4E69",
+      "equity": "-167616844",
+      "badDebt": "167616844",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 232
+    },
+    {
+      "lane": 1,
+      "account": "0x4C6A5678bAD9A964571d5d11A694a1FbFAd60149",
+      "equity": "-868362466",
+      "badDebt": "868362466",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 235
+    },
+    {
+      "lane": 1,
+      "account": "0xcD8aEE2c06de7282b51B0247087735d7704a2501",
+      "equity": "259277229",
+      "badDebt": "0",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 238
+    },
+    {
+      "lane": 1,
+      "account": "0x35D1E270053f9fF8C045F8D4c6DaA4a9F2810081",
+      "equity": "-12457813327",
+      "badDebt": "12457813327",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 242
+    },
+    {
+      "lane": 1,
+      "account": "0x1D979B268B04DCe0ec8a23774864d5fe1B59aB39",
+      "equity": "-446777669",
+      "badDebt": "446777669",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 247
+    },
+    {
+      "lane": 1,
+      "account": "0xeDC538009139b05928D874E191Fa2EbE2daC4661",
+      "equity": "-2447020957",
+      "badDebt": "2447020957",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 251
+    },
+    {
+      "lane": 1,
+      "account": "0xD4c8B6E687Ae6Ea144F36945d0e3d6831fd6Cd99",
+      "equity": "-6910867260",
+      "badDebt": "6910867260",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 254
+    },
+    {
+      "lane": 1,
+      "account": "0x7F687E75582380F0925616fF300b714Dd883A8E9",
+      "equity": "-2353697686",
+      "badDebt": "2353697686",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 258
+    },
+    {
+      "lane": 1,
+      "account": "0x82a319972BeeE8B88166D115FF8FF7176A488a29",
+      "equity": "-6646936624",
+      "badDebt": "6646936624",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 262
+    },
+    {
+      "lane": 1,
+      "account": "0x350fD07c51914C0730527dF4cbf38e9761d49199",
+      "equity": "-4898874352",
+      "badDebt": "4898874352",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 265
+    },
+    {
+      "lane": 1,
+      "account": "0xfaa13241320F244BC5928ca20BF6Af2A3049AB79",
+      "equity": "-4558875837",
+      "badDebt": "4558875837",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 270
+    },
+    {
+      "lane": 1,
+      "account": "0xA5094BEbc5aa98EB04e8Aa18c2fbaE4920e53BB1",
+      "equity": "-166447878",
+      "badDebt": "166447878",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 274
+    },
+    {
+      "lane": 1,
+      "account": "0xA84dFbcfC69a2d3c17e9A9Bb63a11D16c4Dcb631",
+      "equity": "-5346354371",
+      "badDebt": "5346354371",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 278
+    },
+    {
+      "lane": 1,
+      "account": "0x84E138aff1f8fBC08FEF6E1E76BfD3D8F65D3b19",
+      "equity": "-195694468",
+      "badDebt": "195694468",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 281
+    },
+    {
+      "lane": 1,
+      "account": "0xcf37A8ECfBFD8e2201CdF48A4248b4FF10021651",
+      "equity": "-2327578168",
+      "badDebt": "2327578168",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 285
+    },
+    {
+      "lane": 1,
+      "account": "0x0ec608aBAEE179F646850951b8b7802Cd7245829",
+      "equity": "-313779894",
+      "badDebt": "313779894",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 288
+    },
+    {
+      "lane": 1,
+      "account": "0xCc05Fdfc05Af5Cab92a9507872e7D7999c00CBe9",
+      "equity": "-145177406",
+      "badDebt": "145177406",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 291
+    },
+    {
+      "lane": 1,
+      "account": "0xF90667F4f53f958171A431d4F3C3aE24D6b7d221",
+      "equity": "-3447868817",
+      "badDebt": "3447868817",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 296
+    },
+    {
+      "lane": 1,
+      "account": "0x2F16eE95A6eC4ae8ecB364EcD7D95b7801890549",
+      "equity": "-3356319295",
+      "badDebt": "3356319295",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 300
+    },
+    {
+      "lane": 1,
+      "account": "0x6B6fDEBdaF20aAFba9753C2C4bE48Cdf5a7e31d9",
+      "equity": "-10164258650",
+      "badDebt": "10164258650",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 304
+    },
+    {
+      "lane": 1,
+      "account": "0xBBbD399d4b9bf72d651A87B7bAEceC2d9A820bA1",
+      "equity": "-190536402",
+      "badDebt": "190536402",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 308
+    },
+    {
+      "lane": 1,
+      "account": "0x8FF4a13cF77F04dc962ce0Dd7c7A6d2dbF413e21",
+      "equity": "-8526473530",
+      "badDebt": "8526473530",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 311
+    },
+    {
+      "lane": 1,
+      "account": "0x3ecf8c24BFdA65438462Fd0f4713694991C80159",
+      "equity": "-8915867427",
+      "badDebt": "8915867427",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 314
+    },
+    {
+      "lane": 1,
+      "account": "0xEC4BF677b56CE51FE72c8dc2A7a3d8cb9999CDA9",
+      "equity": "-29727168508",
+      "badDebt": "29727168508",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 317
+    },
+    {
+      "lane": 1,
+      "account": "0x4a555DB7ae6FC8e057f2E42c1a3cA14b5e436b81",
+      "equity": "2180750187",
+      "badDebt": "0",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 320
+    },
+    {
+      "lane": 1,
+      "account": "0x5126f407fC0d4E23760e1410F07D1b4a9B128dC1",
+      "equity": "-131769980",
+      "badDebt": "131769980",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 323
+    },
+    {
+      "lane": 1,
+      "account": "0x43dF479954d22c1e6B8576984714D64894601029",
+      "equity": "-268826953",
+      "badDebt": "268826953",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 327
+    },
+    {
+      "lane": 1,
+      "account": "0x65E4c2d62A46Af64823B690a2445c75b41ab2BB9",
+      "equity": "-6285859448",
+      "badDebt": "6285859448",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 332
+    },
+    {
+      "lane": 1,
+      "account": "0x5ddB7C85FBCfc6E6Cf56280C392b29e6DE1e8849",
+      "equity": "-298853200",
+      "badDebt": "298853200",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 335
+    },
+    {
+      "lane": 1,
+      "account": "0xc0737D3945334FAbA695edA21d125344377425C1",
+      "equity": "306355499",
+      "badDebt": "0",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 337
+    },
+    {
+      "lane": 1,
+      "account": "0x56DcfaC47FB5799A916BAE37d5D7D23984a94Cd9",
+      "equity": "-4365252936",
+      "badDebt": "4365252936",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 340
+    },
+    {
+      "lane": 1,
+      "account": "0xcc279d9B4585AE60ddCACF65DF94E2024C6E1459",
+      "equity": "1061092302",
+      "badDebt": "0",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 343
+    },
+    {
+      "lane": 1,
+      "account": "0x907B8E8E2e898c5CB4477Ac3cC7D2f609d201aa9",
+      "equity": "-66021190",
+      "badDebt": "66021190",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 346
+    },
+    {
+      "lane": 1,
+      "account": "0x9B9298cF63aeD3c5AD0edB4f4Cfa1a6F83709C71",
+      "equity": "-1608216693",
+      "badDebt": "1608216693",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 350
+    },
+    {
+      "lane": 1,
+      "account": "0xf3490f84EEA0FFA6613e496ce337c92345F8EB91",
+      "equity": "-1515310647",
+      "badDebt": "1515310647",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 354
+    },
+    {
+      "lane": 1,
+      "account": "0xe54AF5e142d0F848f31553F85bD786B9b2852379",
+      "equity": "-14512880",
+      "badDebt": "14512880",
+      "txHash": "0x951452cce7fd9ad7808141ea13f6d1cc75b25d73e82e4295f0aa57df47bd4043",
+      "logIndex": 358
+    },
+    {
+      "lane": 2,
+      "account": "0x336174cD1F2A6943A4DA98f1d0346c42D245bdBa",
+      "equity": "-195631389",
+      "badDebt": "195631389",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 362
+    },
+    {
+      "lane": 2,
+      "account": "0x3a0D1d80d8795a01227452A72029128C773e911A",
+      "equity": "-134414457",
+      "badDebt": "134414457",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 366
+    },
+    {
+      "lane": 2,
+      "account": "0x69b31669009CdCA2E1B9caffdA7b429308B7740A",
+      "equity": "55435298",
+      "badDebt": "0",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 369
+    },
+    {
+      "lane": 2,
+      "account": "0x42dB2Dc050d2C43cB783a288Cd9fB7a351E77442",
+      "equity": "-4691913701",
+      "badDebt": "4691913701",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 372
+    },
+    {
+      "lane": 2,
+      "account": "0xD71D5E650105cAcb637DA7324179cfFd84B7D8ca",
+      "equity": "-11809389487",
+      "badDebt": "11809389487",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 376
+    },
+    {
+      "lane": 2,
+      "account": "0x2280bfB5472d6933C66E0d3FC58a44CC23e33f1a",
+      "equity": "-25390192817",
+      "badDebt": "25390192817",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 379
+    },
+    {
+      "lane": 2,
+      "account": "0x22f61225781187508CaC6446349e685Bec01F4Ea",
+      "equity": "-29911449821",
+      "badDebt": "29911449821",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 383
+    },
+    {
+      "lane": 2,
+      "account": "0x0Ca1a8B282b1991401E7d474FB6EE17CDE98D4F2",
+      "equity": "-1381165497",
+      "badDebt": "1381165497",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 386
+    },
+    {
+      "lane": 2,
+      "account": "0x55335B2223f056d341C03a9f25B72Bc3AE2f513a",
+      "equity": "-906673416",
+      "badDebt": "906673416",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 390
+    },
+    {
+      "lane": 2,
+      "account": "0xA69349454DbcE4E51443e8554BD7f6574c47D1a2",
+      "equity": "-1181392469",
+      "badDebt": "1181392469",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 395
+    },
+    {
+      "lane": 2,
+      "account": "0x1836fedB96E797Cd3c91C88285E68E3197C2f44a",
+      "equity": "-642453482",
+      "badDebt": "642453482",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 399
+    },
+    {
+      "lane": 2,
+      "account": "0x8dA95eB577f6d5653EC548fEAcc3aC486D777422",
+      "equity": "-1494833933",
+      "badDebt": "1494833933",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 403
+    },
+    {
+      "lane": 2,
+      "account": "0x918B1a3272CF040e4EdEAF1Ff6bd1435c294962a",
+      "equity": "-133127930",
+      "badDebt": "133127930",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 406
+    },
+    {
+      "lane": 2,
+      "account": "0xfB6132A56A413B927C78cfb3253572bC1197e322",
+      "equity": "-383709493",
+      "badDebt": "383709493",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 409
+    },
+    {
+      "lane": 2,
+      "account": "0xaf482894F5745c6dA87c682A68a571fF82c679a2",
+      "equity": "-4563206544",
+      "badDebt": "4563206544",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 412
+    },
+    {
+      "lane": 2,
+      "account": "0x9B361019398DF37aD1b898A18b57455e3C38F242",
+      "equity": "-3004278250",
+      "badDebt": "3004278250",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 416
+    },
+    {
+      "lane": 2,
+      "account": "0xe185D75924e3460d2a4506491972A1EFcd3627a2",
+      "equity": "-2158261293",
+      "badDebt": "2158261293",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 420
+    },
+    {
+      "lane": 2,
+      "account": "0x4cc8D4b75149eA5cDA7f4cAc38c5F5aDb1047A62",
+      "equity": "-16019551725",
+      "badDebt": "16019551725",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 423
+    },
+    {
+      "lane": 2,
+      "account": "0x4141FF44022284806A9cafFAf761AA812dC556b2",
+      "equity": "135227924",
+      "badDebt": "0",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 426
+    },
+    {
+      "lane": 2,
+      "account": "0xccAB1F817323405D4ab9fcE59d1bB56C4aA70662",
+      "equity": "-353480261",
+      "badDebt": "353480261",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 429
+    },
+    {
+      "lane": 2,
+      "account": "0x4fdB96383AE29D1F33F8628Da9A814464A9e3f5A",
+      "equity": "-5188766168",
+      "badDebt": "5188766168",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 434
+    },
+    {
+      "lane": 2,
+      "account": "0x8687090553778e8880DabA2f455902Acedd75Ba2",
+      "equity": "72882102",
+      "badDebt": "0",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 436
+    },
+    {
+      "lane": 2,
+      "account": "0x4380ac954322a890c1E3534F8940B57265bd6142",
+      "equity": "-39136946598",
+      "badDebt": "39136946598",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 440
+    },
+    {
+      "lane": 2,
+      "account": "0xFe4Fb4B01bb284e432C82416276C286a70F7f6dA",
+      "equity": "-219425021",
+      "badDebt": "219425021",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 443
+    },
+    {
+      "lane": 2,
+      "account": "0x907a257731150AE2ABa96CAC8CFf09b200c4Df02",
+      "equity": "-9410915720",
+      "badDebt": "9410915720",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 446
+    },
+    {
+      "lane": 2,
+      "account": "0x23B1a3Cf93305902AB398dAA684f00f88e411dd2",
+      "equity": "-287237171",
+      "badDebt": "287237171",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 449
+    },
+    {
+      "lane": 2,
+      "account": "0x42e5A6E31A55e8edcca81195FCD39eAE4Dd32CA2",
+      "equity": "-13443693734",
+      "badDebt": "13443693734",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 453
+    },
+    {
+      "lane": 2,
+      "account": "0x14B4D6A58081868e3b3641564E084399Db1170c2",
+      "equity": "-497030436",
+      "badDebt": "497030436",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 457
+    },
+    {
+      "lane": 2,
+      "account": "0xCf128DBAB2875cCFf33C77ea67ba38c46b2b245a",
+      "equity": "-297732514",
+      "badDebt": "297732514",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 461
+    },
+    {
+      "lane": 2,
+      "account": "0x304aa96eEc8A819F0E6C584c5D2E55B122029f52",
+      "equity": "-290646976",
+      "badDebt": "290646976",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 464
+    },
+    {
+      "lane": 2,
+      "account": "0x66214e5245AABdF6F166c6C8D56f49dEFdEA12b2",
+      "equity": "-145666064",
+      "badDebt": "145666064",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 467
+    },
+    {
+      "lane": 2,
+      "account": "0xCbC5a4B7147F4358992FF381f4f0e36425BF9032",
+      "equity": "65922580",
+      "badDebt": "0",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 470
+    },
+    {
+      "lane": 2,
+      "account": "0xA9006AA91257d3a703432818ED9b7542629DC34a",
+      "equity": "-1525920534",
+      "badDebt": "1525920534",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 473
+    },
+    {
+      "lane": 2,
+      "account": "0x781190caf09230805320340355bD1A4e4bF8d56a",
+      "equity": "-732287296",
+      "badDebt": "732287296",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 477
+    },
+    {
+      "lane": 2,
+      "account": "0x683a021018f0CC0D0208C7AA178511680146b772",
+      "equity": "-816083303",
+      "badDebt": "816083303",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 480
+    },
+    {
+      "lane": 2,
+      "account": "0xdfdd6c4189DF0190BE668C15B922de03aaD3027a",
+      "equity": "-131320993",
+      "badDebt": "131320993",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 483
+    },
+    {
+      "lane": 2,
+      "account": "0x7185E151A0a710e68e7b2Fa3c5ab3fB28ef1308a",
+      "equity": "-265877968",
+      "badDebt": "265877968",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 486
+    },
+    {
+      "lane": 2,
+      "account": "0x064d66005a16d8d567F581639Dd6BD5cf286F042",
+      "equity": "-533564646",
+      "badDebt": "533564646",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 489
+    },
+    {
+      "lane": 2,
+      "account": "0x51810A52702a95De1472e4064a93949A5905b2fa",
+      "equity": "-454223733",
+      "badDebt": "454223733",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 493
+    },
+    {
+      "lane": 2,
+      "account": "0x05836A584610af09467F5406b26bF3E2604c42c2",
+      "equity": "-11925183",
+      "badDebt": "11925183",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 496
+    },
+    {
+      "lane": 2,
+      "account": "0xd0dE142320012408792880316077AA4547Ec22E2",
+      "equity": "-90143017",
+      "badDebt": "90143017",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 499
+    },
+    {
+      "lane": 2,
+      "account": "0x5A2c753b7E62f88A4203d0351B2b7A569fc85d1A",
+      "equity": "1797531",
+      "badDebt": "0",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 501
+    },
+    {
+      "lane": 2,
+      "account": "0xbcb7601A1C9254270Aba4711Ca581B762c62D232",
+      "equity": "-1558840111",
+      "badDebt": "1558840111",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 504
+    },
+    {
+      "lane": 2,
+      "account": "0x74e07A3c2F6cB04019786561bD21d0317717d6B2",
+      "equity": "-1282034999",
+      "badDebt": "1282034999",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 507
+    },
+    {
+      "lane": 2,
+      "account": "0x607F4EE3eCB0C4F73e74Ad36fF048877053Eb522",
+      "equity": "-1210338516",
+      "badDebt": "1210338516",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 511
+    },
+    {
+      "lane": 2,
+      "account": "0xCF44903878288C92da807043f1a5d9F2f2B8020a",
+      "equity": "-1928522658",
+      "badDebt": "1928522658",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 514
+    },
+    {
+      "lane": 2,
+      "account": "0xd0b3d01dc8fEa4712823C9f2e01D32F1607b6DcA",
+      "equity": "-228992289",
+      "badDebt": "228992289",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 518
+    },
+    {
+      "lane": 2,
+      "account": "0x092a7cae4ad053c22378A2f81F0245fDd10302C2",
+      "equity": "-34315213",
+      "badDebt": "34315213",
+      "txHash": "0xc7bb10c1d68de838dc5219e9acca92b752cce0a0f30a04d8c2ef8405b2698614",
+      "logIndex": 521
+    },
+    {
+      "lane": 3,
+      "account": "0x121af07C525FA8CB1FAF870885B6C181923eC8A3",
+      "equity": "-793582451",
+      "badDebt": "793582451",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 526
+    },
+    {
+      "lane": 3,
+      "account": "0x1ff2Ab0Dc3DBD5e021B8da8c9196418E8C919C63",
+      "equity": "93555778",
+      "badDebt": "0",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 529
+    },
+    {
+      "lane": 3,
+      "account": "0x4355196F5F51A2a08f77712EA8467a278E1C3F53",
+      "equity": "-377450627",
+      "badDebt": "377450627",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 532
+    },
+    {
+      "lane": 3,
+      "account": "0xFEAC2ad1C3195BA5E1D5E81431a1391628F80eE3",
+      "equity": "-53954300",
+      "badDebt": "53954300",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 535
+    },
+    {
+      "lane": 3,
+      "account": "0x513D8eab89eA11205f1FcE7bA861c318A3740b03",
+      "equity": "-69025504",
+      "badDebt": "69025504",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 538
+    },
+    {
+      "lane": 3,
+      "account": "0x00e503dC40A05FD02A4c6A84aeE7dff7F0279793",
+      "equity": "-98671156",
+      "badDebt": "98671156",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 541
+    },
+    {
+      "lane": 3,
+      "account": "0xEDc9784fDEe466530E6f8b16af0DCB7238cBE063",
+      "equity": "-5235270550",
+      "badDebt": "5235270550",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 545
+    },
+    {
+      "lane": 3,
+      "account": "0xaBa133A87834C43984f942f83C68BfFf85E3abFB",
+      "equity": "-1164610303",
+      "badDebt": "1164610303",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 549
+    },
+    {
+      "lane": 3,
+      "account": "0x9203f86Da020f39E8a2d6621b5431C36Cf02896B",
+      "equity": "-74007259",
+      "badDebt": "74007259",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 552
+    },
+    {
+      "lane": 3,
+      "account": "0x136634aD8aA4074dE7a098CC3DCE7691Fd8729F3",
+      "equity": "-5804143584",
+      "badDebt": "5804143584",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 556
+    },
+    {
+      "lane": 3,
+      "account": "0xC107880215d1950EE8b1EeBc39cdccf1Eca8c30b",
+      "equity": "7174775",
+      "badDebt": "0",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 558
+    },
+    {
+      "lane": 3,
+      "account": "0xb0D72F27AFEfEcA3ed0780927E08e190Ff828e93",
+      "equity": "-69161627",
+      "badDebt": "69161627",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 561
+    },
+    {
+      "lane": 3,
+      "account": "0x93d300afB7ddEa07B9F0566BFc57C192e13fa0a3",
+      "equity": "-1775783149",
+      "badDebt": "1775783149",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 565
+    },
+    {
+      "lane": 3,
+      "account": "0xa53000abeb921ae8a6d49D44F244dA71A07A6753",
+      "equity": "-3692006600",
+      "badDebt": "3692006600",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 568
+    },
+    {
+      "lane": 3,
+      "account": "0x884328E4291f9883fD8C962942f22502E9aEd8a3",
+      "equity": "-670444392",
+      "badDebt": "670444392",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 572
+    },
+    {
+      "lane": 3,
+      "account": "0xc75077708180994f64e2EF72A7Bf0950759A44Bb",
+      "equity": "-6022686248",
+      "badDebt": "6022686248",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 575
+    },
+    {
+      "lane": 3,
+      "account": "0x69B5e213F19c330337938A15CdAafB0Ce8ab7Da3",
+      "equity": "-608939739",
+      "badDebt": "608939739",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 579
+    },
+    {
+      "lane": 3,
+      "account": "0xfaEd8Ad45f88f0958846aBD52997939689B3c9e3",
+      "equity": "-21465905780",
+      "badDebt": "21465905780",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 582
+    },
+    {
+      "lane": 3,
+      "account": "0x81d2714A5b5720f521A6e1E6fC7106d8a21b091B",
+      "equity": "-1222580627",
+      "badDebt": "1222580627",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 585
+    },
+    {
+      "lane": 3,
+      "account": "0x9c96C717DbB98c3868a39949070510e67372ceBb",
+      "equity": "-5447555895",
+      "badDebt": "5447555895",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 589
+    },
+    {
+      "lane": 3,
+      "account": "0xD5067B3d23C00edDFC176306Ef504aA9cE84eC1b",
+      "equity": "-4592624011",
+      "badDebt": "4592624011",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 592
+    },
+    {
+      "lane": 3,
+      "account": "0xc742e90311233A7b110b2070b912B9e3a6389423",
+      "equity": "-649982520",
+      "badDebt": "649982520",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 595
+    },
+    {
+      "lane": 3,
+      "account": "0x172B06Ea4c6b7948628e6e7BF11E55c707db03fb",
+      "equity": "-116349366",
+      "badDebt": "116349366",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 598
+    },
+    {
+      "lane": 3,
+      "account": "0x35d535847E71957e8c0E4b9763fde933001619fb",
+      "equity": "114038445",
+      "badDebt": "0",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 600
+    },
+    {
+      "lane": 3,
+      "account": "0xE588E83DD33712267B6b3391525DEeFdf2eF776B",
+      "equity": "519826891",
+      "badDebt": "0",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 602
+    },
+    {
+      "lane": 3,
+      "account": "0xa461712A7b72383Ddd3EfD754c239e73C57d776B",
+      "equity": "-41535170",
+      "badDebt": "41535170",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 605
+    },
+    {
+      "lane": 3,
+      "account": "0x9Ce92aa83bd396dE516858E9BdB1C0Bd664ADbb3",
+      "equity": "-1845180189",
+      "badDebt": "1845180189",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 608
+    },
+    {
+      "lane": 3,
+      "account": "0xB544fEfff300949DA84bBAfd62b24b73ca0aed5B",
+      "equity": "-33373553314",
+      "badDebt": "33373553314",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 612
+    },
+    {
+      "lane": 3,
+      "account": "0xAB130791D7369299c3ec5E047ce56f901e4c43Ab",
+      "equity": "-2595376105",
+      "badDebt": "2595376105",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 616
+    },
+    {
+      "lane": 3,
+      "account": "0x95cc9d901FDb97bCB6e99C26853658F9b1dDBE3b",
+      "equity": "-7438932174",
+      "badDebt": "7438932174",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 619
+    },
+    {
+      "lane": 3,
+      "account": "0x20B052e3d68902ea41709D85084815C86ba74cE3",
+      "equity": "-2126667864",
+      "badDebt": "2126667864",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 623
+    },
+    {
+      "lane": 3,
+      "account": "0x0E2E85E08Fc2ab825b04D1CC62585ABc8578fA53",
+      "equity": "-850472360",
+      "badDebt": "850472360",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 626
+    },
+    {
+      "lane": 3,
+      "account": "0x1F1437cA3999C8b14188715147b4D9157462CCc3",
+      "equity": "-1673937487",
+      "badDebt": "1673937487",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 629
+    },
+    {
+      "lane": 3,
+      "account": "0x3A6d04bF67E0A24f182eC7346a88Ab424f73F7eb",
+      "equity": "-9080417868",
+      "badDebt": "9080417868",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 633
+    },
+    {
+      "lane": 3,
+      "account": "0x3C0dd34E0E3B9606e89D8ab13bee31FCe0A46883",
+      "equity": "549302561",
+      "badDebt": "0",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 637
+    },
+    {
+      "lane": 3,
+      "account": "0x8B7D2Aba4161C92DcBf218B50b0875A139631CC3",
+      "equity": "-81893646",
+      "badDebt": "81893646",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 640
+    },
+    {
+      "lane": 3,
+      "account": "0xC58621A604F6805f73212416d42596a5D2266d13",
+      "equity": "-1330220631",
+      "badDebt": "1330220631",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 643
+    },
+    {
+      "lane": 3,
+      "account": "0x0D84398b714c342C0F23fe5A0A84fdf9aeDa2003",
+      "equity": "-7161471604",
+      "badDebt": "7161471604",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 646
+    },
+    {
+      "lane": 3,
+      "account": "0x871089b48bD4C9294E0dd4acf840A600340b1ACb",
+      "equity": "-2239374393",
+      "badDebt": "2239374393",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 650
+    },
+    {
+      "lane": 3,
+      "account": "0x46cA814Afde6931420F3AE52D4372ae00B1F711B",
+      "equity": "-3127491148",
+      "badDebt": "3127491148",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 654
+    },
+    {
+      "lane": 3,
+      "account": "0x3ebA1F2f8e2d386465B10Ac4f0554887CC2B331b",
+      "equity": "-5817054945",
+      "badDebt": "5817054945",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 658
+    },
+    {
+      "lane": 3,
+      "account": "0xCf796e8b805e8A1CF4E50EB1c0DBd9b338d1d1db",
+      "equity": "-6854442527",
+      "badDebt": "6854442527",
+      "txHash": "0xf40abe77dd64836daf8336e69ff75acabda770fd54085967b2de8c4e4b53dd4f",
+      "logIndex": 661
+    },
+    {
+      "lane": 4,
+      "account": "0xB3b4d96829e1144790a63AAb30C036eA7b0cB29c",
+      "equity": "-3140933796",
+      "badDebt": "3140933796",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 666
+    },
+    {
+      "lane": 4,
+      "account": "0xE17f8D3dFe265Bb143a361BF4C111F90b267910C",
+      "equity": "-2030554851",
+      "badDebt": "2030554851",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 669
+    },
+    {
+      "lane": 4,
+      "account": "0x93EC7d6B31FEDF6CDB47b07121d9f356358f23F4",
+      "equity": "-19849813",
+      "badDebt": "19849813",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 672
+    },
+    {
+      "lane": 4,
+      "account": "0x6CFE9545Aca3f3701dcE0A16143Fff3E7E27A84c",
+      "equity": "-91986130",
+      "badDebt": "91986130",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 675
+    },
+    {
+      "lane": 4,
+      "account": "0x5d1baB0c2B6c4dd1aa7bEB0d21Cd44DCac970DD4",
+      "equity": "-126816125",
+      "badDebt": "126816125",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 679
+    },
+    {
+      "lane": 4,
+      "account": "0xdD4f744f3EDa1831AbD3E55C927CCBb512eDD91c",
+      "equity": "-14117022698",
+      "badDebt": "14117022698",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 682
+    },
+    {
+      "lane": 4,
+      "account": "0x62e16aeCf3B43ED56353978364ad9a87AAA2f6aC",
+      "equity": "-388209352",
+      "badDebt": "388209352",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 685
+    },
+    {
+      "lane": 4,
+      "account": "0x601EB3EE7058fe9891d19d4c67D0170C4BbD1b04",
+      "equity": "-3604799484",
+      "badDebt": "3604799484",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 688
+    },
+    {
+      "lane": 4,
+      "account": "0x0f03F380bf33eC4c573024C920cc0Fdf16CBf774",
+      "equity": "-919176714",
+      "badDebt": "919176714",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 692
+    },
+    {
+      "lane": 4,
+      "account": "0xA9291365C61F8fE4F8EF1c75bD3ddedaf5454044",
+      "equity": "-81990286",
+      "badDebt": "81990286",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 695
+    },
+    {
+      "lane": 4,
+      "account": "0x3b4235Af36558bb6cF6c0AFA6Ee45A26486308DC",
+      "equity": "-7475573",
+      "badDebt": "7475573",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 698
+    },
+    {
+      "lane": 4,
+      "account": "0x3bafA3Be809Ac193b3F0A6B3d044567994D1c034",
+      "equity": "-1874141",
+      "badDebt": "1874141",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 701
+    },
+    {
+      "lane": 4,
+      "account": "0x8A04ABA2ce8538D11713eB8412AFbeA9FB964d34",
+      "equity": "-368917133",
+      "badDebt": "368917133",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 704
+    },
+    {
+      "lane": 4,
+      "account": "0x2416bBb5944766eDE98067Eac6382b73cd99e6e4",
+      "equity": "-205614180",
+      "badDebt": "205614180",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 708
+    },
+    {
+      "lane": 4,
+      "account": "0x063d399F089F7aee296Af5be8fbC87a6401D5234",
+      "equity": "-311728265",
+      "badDebt": "311728265",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 711
+    },
+    {
+      "lane": 4,
+      "account": "0x24726724E856d37A6E9FC129e41Bf4C8eCe50ac4",
+      "equity": "-855320005",
+      "badDebt": "855320005",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 714
+    },
+    {
+      "lane": 4,
+      "account": "0x3Af3266f59F7479DC29CFf33919d65b5e582104C",
+      "equity": "93481992",
+      "badDebt": "0",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 716
+    },
+    {
+      "lane": 4,
+      "account": "0xC1Bb707457ab83ED7f025D08C07bcDb28420d4D4",
+      "equity": "-48334861",
+      "badDebt": "48334861",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 719
+    },
+    {
+      "lane": 4,
+      "account": "0x35e7F75A893d50609BaC46A51dd80057d20F900C",
+      "equity": "-9793117305",
+      "badDebt": "9793117305",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 724
+    },
+    {
+      "lane": 4,
+      "account": "0x8595BD2672D803Fc3efbDb45Bb71Bd2676A4e1E4",
+      "equity": "-6270723263",
+      "badDebt": "6270723263",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 729
+    },
+    {
+      "lane": 4,
+      "account": "0x8befca016Ae56bD5Ee7F5cCd1417d41FfF90F904",
+      "equity": "-10217457508",
+      "badDebt": "10217457508",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 732
+    },
+    {
+      "lane": 4,
+      "account": "0xe42dB029c09A539C2eB011392ecdAf99A785E3dc",
+      "equity": "-944933287",
+      "badDebt": "944933287",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 736
+    },
+    {
+      "lane": 4,
+      "account": "0x83565D4b6Ea79707251A3Bf4Da4D6cC03A36B9CC",
+      "equity": "-14689545300",
+      "badDebt": "14689545300",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 741
+    },
+    {
+      "lane": 4,
+      "account": "0xaA00a728dCbD2AD86E3D2bc225644bEea68eC92C",
+      "equity": "-22043487748",
+      "badDebt": "22043487748",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 745
+    },
+    {
+      "lane": 4,
+      "account": "0x1eC6f53F61f8A746a4474d437B63330A0DbE8fE4",
+      "equity": "-15032788108",
+      "badDebt": "15032788108",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 749
+    },
+    {
+      "lane": 4,
+      "account": "0x6cd66f3f97c8C98Fc6E5B1Bf662610Bc9a2a6704",
+      "equity": "-42468831",
+      "badDebt": "42468831",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 752
+    },
+    {
+      "lane": 4,
+      "account": "0xEa32656F845DA380F131Dba4B8721F3aF1659dec",
+      "equity": "-78726298",
+      "badDebt": "78726298",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 755
+    },
+    {
+      "lane": 4,
+      "account": "0x0D77042583a66F843B01Eb2223B4c44528Ea5b24",
+      "equity": "-2387100339",
+      "badDebt": "2387100339",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 758
+    },
+    {
+      "lane": 4,
+      "account": "0x76971B2765b2b0bf11E726F83dD946B4b5E6Dfd4",
+      "equity": "33170921",
+      "badDebt": "0",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 760
+    },
+    {
+      "lane": 4,
+      "account": "0x04B293B8cb0104539b1DCC0495E843A468d9bA24",
+      "equity": "-1742246225",
+      "badDebt": "1742246225",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 764
+    },
+    {
+      "lane": 4,
+      "account": "0xeD5640E1717C05ea3800d7adB8f139051186C684",
+      "equity": "-4886681086",
+      "badDebt": "4886681086",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 767
+    },
+    {
+      "lane": 4,
+      "account": "0x34b26A7713fb184F30A9022e7F81584b78EC90cc",
+      "equity": "-33314759",
+      "badDebt": "33314759",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 770
+    },
+    {
+      "lane": 4,
+      "account": "0xA98208b872378B64C344f567F634247f2B7c2ac4",
+      "equity": "1297777855",
+      "badDebt": "0",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 773
+    },
+    {
+      "lane": 4,
+      "account": "0x60E69529464b0A39Bd88CD09996C54AEeCC3Ad04",
+      "equity": "-68036211",
+      "badDebt": "68036211",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 776
+    },
+    {
+      "lane": 4,
+      "account": "0x21913A633a82Ea25707CDa9f7089f0663B49A0E4",
+      "equity": "-3686616895",
+      "badDebt": "3686616895",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 779
+    },
+    {
+      "lane": 4,
+      "account": "0x64355E0839127b655dd9caFA2D4f1fa1e4e22edc",
+      "equity": "-72134993",
+      "badDebt": "72134993",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 782
+    },
+    {
+      "lane": 4,
+      "account": "0x8Ddc85399001841F82f480FAd4c60E330CC8eCCc",
+      "equity": "-12380158817",
+      "badDebt": "12380158817",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 785
+    },
+    {
+      "lane": 4,
+      "account": "0x6a61632Dc2631E150eeB3Fa527A79DF2fb54bf84",
+      "equity": "-13184603481",
+      "badDebt": "13184603481",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 788
+    },
+    {
+      "lane": 4,
+      "account": "0x5fae82f6668c64920C8a49Ce91cE178a0A708124",
+      "equity": "-1915324272",
+      "badDebt": "1915324272",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 792
+    },
+    {
+      "lane": 4,
+      "account": "0xFfEA07748Af10b0729c3afA4b037C819c2C4Ba7c",
+      "equity": "-160766546",
+      "badDebt": "160766546",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 795
+    },
+    {
+      "lane": 4,
+      "account": "0xC220282A8E062B6E05a9e177bc62D9e27B667e44",
+      "equity": "-12390455",
+      "badDebt": "12390455",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 798
+    },
+    {
+      "lane": 4,
+      "account": "0xc7FB452F81874aed0c573A4115FC47b97b5EffA4",
+      "equity": "-10259850886",
+      "badDebt": "10259850886",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 801
+    },
+    {
+      "lane": 4,
+      "account": "0x8b27a7e4F67a7460368cbdDB2dED60dC70A59774",
+      "equity": "307248264",
+      "badDebt": "0",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 804
+    },
+    {
+      "lane": 4,
+      "account": "0xeB7e480064F34A8D2d840CA7f008D500AB3cFdfc",
+      "equity": "-19392720349",
+      "badDebt": "19392720349",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 808
+    },
+    {
+      "lane": 4,
+      "account": "0x14e582957bAE3BE3cD78132ebAdd27d3468D836C",
+      "equity": "-5565103853",
+      "badDebt": "5565103853",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 811
+    },
+    {
+      "lane": 4,
+      "account": "0xdd3791C6Ad68B1bD5110d1E8E51eb2D27Dc4C094",
+      "equity": "401627462",
+      "badDebt": "0",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 815
+    },
+    {
+      "lane": 4,
+      "account": "0xfc7178B9833032fCCC851a29820f967a8606173c",
+      "equity": "-844958513",
+      "badDebt": "844958513",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 818
+    },
+    {
+      "lane": 4,
+      "account": "0xe3863B71CE24c5a7febDc4dbea2f64484B2c8Eb4",
+      "equity": "303561410",
+      "badDebt": "0",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 821
+    },
+    {
+      "lane": 4,
+      "account": "0x307f6e874206FBb1dA9463929D1f67Dbc496e00c",
+      "equity": "-6633594904",
+      "badDebt": "6633594904",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 824
+    },
+    {
+      "lane": 4,
+      "account": "0xa077C6c3BEbB9ABb0d2597826AbB36283219e9Ec",
+      "equity": "-299222135",
+      "badDebt": "299222135",
+      "txHash": "0x383025930699d5ea57f1a66334ee303ca726c15e21639c021787d93446d0d7bd",
+      "logIndex": 827
+    },
+    {
+      "lane": 5,
+      "account": "0x3989E047af988E48b2d73110eaC39153DD00CeE5",
+      "equity": "-695514273",
+      "badDebt": "695514273",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 832
+    },
+    {
+      "lane": 5,
+      "account": "0xeb7ABF2cbb767F8F6c26aa024b76e52b864E10C5",
+      "equity": "-1045950895",
+      "badDebt": "1045950895",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 835
+    },
+    {
+      "lane": 5,
+      "account": "0x18923Fc971262E5BB8236ffAf4839260B2E7D86d",
+      "equity": "-3929264366",
+      "badDebt": "3929264366",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 838
+    },
+    {
+      "lane": 5,
+      "account": "0xBd16E4a0E878226398a51428F7303112431ee0c5",
+      "equity": "-1167656010",
+      "badDebt": "1167656010",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 841
+    },
+    {
+      "lane": 5,
+      "account": "0x12ef3060AB92DB130560261289eB03d27221Bd25",
+      "equity": "43835366",
+      "badDebt": "0",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 843
+    },
+    {
+      "lane": 5,
+      "account": "0xB586499Fa71999DAB61ec98B88ADbaB63bD5BB55",
+      "equity": "-2856106701",
+      "badDebt": "2856106701",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 847
+    },
+    {
+      "lane": 5,
+      "account": "0xea1e6e482105334eB9504851D3595B12E731CCdd",
+      "equity": "-511464656",
+      "badDebt": "511464656",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 850
+    },
+    {
+      "lane": 5,
+      "account": "0x4A2026a15bB9b68CE96c04CA93603d027A960e65",
+      "equity": "-42213224",
+      "badDebt": "42213224",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 853
+    },
+    {
+      "lane": 5,
+      "account": "0xcBe11e4236bb897Adf51a7E9e9c60eD341263D6d",
+      "equity": "-19855190914",
+      "badDebt": "19855190914",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 857
+    },
+    {
+      "lane": 5,
+      "account": "0xf452BEc38ac0fB9AA257678B68A29EBE3BbA232D",
+      "equity": "-342993042",
+      "badDebt": "342993042",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 860
+    },
+    {
+      "lane": 5,
+      "account": "0x2E4881Bb4709D6ebD1871AA31Ac8994F8F7583b5",
+      "equity": "-1554204119",
+      "badDebt": "1554204119",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 863
+    },
+    {
+      "lane": 5,
+      "account": "0xbf7249140F0B00Fe5b9E78fB3cD402AC07200675",
+      "equity": "-18469112882",
+      "badDebt": "18469112882",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 868
+    },
+    {
+      "lane": 5,
+      "account": "0x3e32d2fb50728A2B121bEbF73FC4A98d824C86Dd",
+      "equity": "-334543335",
+      "badDebt": "334543335",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 871
+    },
+    {
+      "lane": 5,
+      "account": "0x465a8cFA77c548A70db1DB036388B5080a29Ca25",
+      "equity": "-7307916412",
+      "badDebt": "7307916412",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 874
+    },
+    {
+      "lane": 5,
+      "account": "0xF2b8960de55fAb087686cf3fF3B7044Bb0f7046d",
+      "equity": "-4050974988",
+      "badDebt": "4050974988",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 877
+    },
+    {
+      "lane": 5,
+      "account": "0x734f18A26F40f3f528eF21f55ab04E7aa988DE2D",
+      "equity": "-135029630",
+      "badDebt": "135029630",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 880
+    },
+    {
+      "lane": 5,
+      "account": "0x72aDfe63642Fd5e8eF95c1633D9127267366119D",
+      "equity": "-1295768729",
+      "badDebt": "1295768729",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 883
+    },
+    {
+      "lane": 5,
+      "account": "0x94fd60D70E2003014f7254da5354DD902d2DA965",
+      "equity": "287319398",
+      "badDebt": "0",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 885
+    },
+    {
+      "lane": 5,
+      "account": "0xa6e016aa3C4c8082D6AD4E750B9d0062381F9965",
+      "equity": "-6981428874",
+      "badDebt": "6981428874",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 889
+    },
+    {
+      "lane": 5,
+      "account": "0x8A3365aEC593C85D3303ff332526d6dd4ee035cd",
+      "equity": "-12430273724",
+      "badDebt": "12430273724",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 894
+    },
+    {
+      "lane": 5,
+      "account": "0x281F049eEab8B0d4c20AEAECd22c30d9B76e7145",
+      "equity": "-137276269",
+      "badDebt": "137276269",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 897
+    },
+    {
+      "lane": 5,
+      "account": "0xDf3e6f523f08fEb6F6A08cc03C5D1c43ab84ae85",
+      "equity": "-64542985",
+      "badDebt": "64542985",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 901
+    },
+    {
+      "lane": 5,
+      "account": "0x50ad3A2239d6A71Cc2044E09B62FaAb416bBb0b5",
+      "equity": "-2451261200",
+      "badDebt": "2451261200",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 904
+    },
+    {
+      "lane": 5,
+      "account": "0x6276216311443573dD25a66cBC3124F771f5F175",
+      "equity": "-6509007772",
+      "badDebt": "6509007772",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 908
+    },
+    {
+      "lane": 5,
+      "account": "0x227ECC6D4fC4f5AE6A4278448F3D2bED62bF8e9d",
+      "equity": "-457996136",
+      "badDebt": "457996136",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 912
+    },
+    {
+      "lane": 5,
+      "account": "0xc76CA433d02f708847d428f0D00A068a5EAC565D",
+      "equity": "-7477807467",
+      "badDebt": "7477807467",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 916
+    },
+    {
+      "lane": 5,
+      "account": "0x6EA9a3aE74E619f982b79d469a554FFa41c37B4d",
+      "equity": "34650118",
+      "badDebt": "0",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 918
+    },
+    {
+      "lane": 5,
+      "account": "0xEfb6f0f221C871BE33dcD9dFFd6d3B0040b379bd",
+      "equity": "-102677908",
+      "badDebt": "102677908",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 921
+    },
+    {
+      "lane": 5,
+      "account": "0x85752571a1B9cdE5c513aF49667E32019712C985",
+      "equity": "-298930732",
+      "badDebt": "298930732",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 924
+    },
+    {
+      "lane": 5,
+      "account": "0x5d90B00a4f1A251Ca074d2111eB4ebBaade27995",
+      "equity": "-19227767663",
+      "badDebt": "19227767663",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 929
+    },
+    {
+      "lane": 5,
+      "account": "0x8eB794EE94d2F5743FF97F42cd5512a15d9BAC35",
+      "equity": "-307132143",
+      "badDebt": "307132143",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 932
+    },
+    {
+      "lane": 5,
+      "account": "0x69F063b962b73f215457A618f4D768FA4d33EfaD",
+      "equity": "-64233046",
+      "badDebt": "64233046",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 935
+    },
+    {
+      "lane": 5,
+      "account": "0x05432dA791C933F8D05A9e02946c362A11d329C5",
+      "equity": "-19694431",
+      "badDebt": "19694431",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 938
+    },
+    {
+      "lane": 5,
+      "account": "0x99173BE5Bf6Fa9F4FD28b88aC2cFc5546263df8D",
+      "equity": "-120133993",
+      "badDebt": "120133993",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 941
+    },
+    {
+      "lane": 5,
+      "account": "0xD18fA8c9C63eE0e58a549A66df657C91D212F7bD",
+      "equity": "-7018026809",
+      "badDebt": "7018026809",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 944
+    },
+    {
+      "lane": 5,
+      "account": "0xb5B07b5ff06ea997D95cBF36EE0b2F403Fa31B2D",
+      "equity": "1320634967",
+      "badDebt": "0",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 946
+    },
+    {
+      "lane": 5,
+      "account": "0x76912843748C3BC9279C08014123B83cb19BD64d",
+      "equity": "-6186767232",
+      "badDebt": "6186767232",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 949
+    },
+    {
+      "lane": 5,
+      "account": "0x21Fb943Ea09582606dE48bE1307f5d8E311d20Cd",
+      "equity": "-33641628",
+      "badDebt": "33641628",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 952
+    },
+    {
+      "lane": 5,
+      "account": "0x7804e2444Aeb125f99af91E07168CC3bDccCdb55",
+      "equity": "-149849581",
+      "badDebt": "149849581",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 955
+    },
+    {
+      "lane": 5,
+      "account": "0x2aEad69bfA4C074e7583741f9ba52ae702A77315",
+      "equity": "-36672511",
+      "badDebt": "36672511",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 958
+    },
+    {
+      "lane": 5,
+      "account": "0x5B6B86FCdAdA05cB3cAc1e687b45b5551ad22935",
+      "equity": "-12507945405",
+      "badDebt": "12507945405",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 962
+    },
+    {
+      "lane": 5,
+      "account": "0x5608c7E2bEbaaE63a8fC4778b5C5105E88D51505",
+      "equity": "-3819643108",
+      "badDebt": "3819643108",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 966
+    },
+    {
+      "lane": 5,
+      "account": "0xAC6b96cD42c6CA47CEa979FBA8f96C5bf3706D8D",
+      "equity": "-12767360026",
+      "badDebt": "12767360026",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 970
+    },
+    {
+      "lane": 5,
+      "account": "0x2F876034249C507AF19Eb1620E68b405fE4d92B5",
+      "equity": "-19268347313",
+      "badDebt": "19268347313",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 974
+    },
+    {
+      "lane": 5,
+      "account": "0xA31805F2858E243731cB9A4F89D685e82FE4bf45",
+      "equity": "-55968780",
+      "badDebt": "55968780",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 977
+    },
+    {
+      "lane": 5,
+      "account": "0xB13cD939211304A8D46d66a1098f097453Db062d",
+      "equity": "-274577742",
+      "badDebt": "274577742",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 980
+    },
+    {
+      "lane": 5,
+      "account": "0xA7Acf3603d8a6efFD6F35cFF74e898b1c079Cfbd",
+      "equity": "-344692575",
+      "badDebt": "344692575",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 983
+    },
+    {
+      "lane": 5,
+      "account": "0x9A5D104e7296cf8b431059A33E36921fE6eA0D8d",
+      "equity": "-63058534",
+      "badDebt": "63058534",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 986
+    },
+    {
+      "lane": 5,
+      "account": "0xec6f9F4e2738ba5B380D60B1e20c613Ff0B7D4bD",
+      "equity": "-2231853403",
+      "badDebt": "2231853403",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 989
+    },
+    {
+      "lane": 5,
+      "account": "0x7355Ef47F5EA0861b2281c6A06618C826e1B2455",
+      "equity": "-226081634",
+      "badDebt": "226081634",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 992
+    },
+    {
+      "lane": 5,
+      "account": "0x87f02E3C4afFAC3AfC0d3e04387384bB3D779a45",
+      "equity": "-11724064621",
+      "badDebt": "11724064621",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 995
+    },
+    {
+      "lane": 5,
+      "account": "0xD92fFcDc65F9de07aC142D7bB22B5e326FeD40Dd",
+      "equity": "-105926674",
+      "badDebt": "105926674",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 998
+    },
+    {
+      "lane": 5,
+      "account": "0x0D49DC0804469EcBA34dBfD7263428B2bf279FDd",
+      "equity": "-6791493686",
+      "badDebt": "6791493686",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1002
+    },
+    {
+      "lane": 5,
+      "account": "0x205cD142cAA24CC3Ea759Df2DC871e9B144Cb2FD",
+      "equity": "-60687894",
+      "badDebt": "60687894",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1005
+    },
+    {
+      "lane": 5,
+      "account": "0xDaba21dbE31Ca28d1e79400d5C769C48Ef33A285",
+      "equity": "-2827018262",
+      "badDebt": "2827018262",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1008
+    },
+    {
+      "lane": 5,
+      "account": "0x06E290AE71CAa6aC1b20b83d7Ead6BCdE9a669e5",
+      "equity": "-23026252",
+      "badDebt": "23026252",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1011
+    },
+    {
+      "lane": 5,
+      "account": "0xff90908311efe46a1615ab6EF7751Bbd0B23121d",
+      "equity": "-106950381",
+      "badDebt": "106950381",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1014
+    },
+    {
+      "lane": 5,
+      "account": "0x8e223d11107fC58563B80E48ABcafE4224C7375d",
+      "equity": "-146227669",
+      "badDebt": "146227669",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1017
+    },
+    {
+      "lane": 5,
+      "account": "0x7D4BC30611994dBAa3f82B2fB24d71670881CF75",
+      "equity": "2364803",
+      "badDebt": "0",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1019
+    },
+    {
+      "lane": 5,
+      "account": "0x4740Aab6b72Ced6F9618c8Cbe54019D53383733d",
+      "equity": "-235233620",
+      "badDebt": "235233620",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1023
+    },
+    {
+      "lane": 5,
+      "account": "0x4812f71390E662Cc1f3D19E6776bb80bEB515b1D",
+      "equity": "-3100380705",
+      "badDebt": "3100380705",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1026
+    },
+    {
+      "lane": 5,
+      "account": "0x9A218daC47A386FdcfDEaA7A909eF3CdE9Cc8675",
+      "equity": "-104961920",
+      "badDebt": "104961920",
+      "txHash": "0xbe835c2d00e50bc35279b40f03cb1cbd7c495cf61cb6bc20430e0d4581d7f52d",
+      "logIndex": 1029
+    },
+    {
+      "lane": 6,
+      "account": "0x24e5714d90Ff7bc97BfC4f7E079B7ac48b0AB05E",
+      "equity": "-621250227",
+      "badDebt": "621250227",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1033
+    },
+    {
+      "lane": 6,
+      "account": "0xcc50a146Be3Bca6FD44EC7471a6aAA4aBb6E408e",
+      "equity": "-11732309550",
+      "badDebt": "11732309550",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1037
+    },
+    {
+      "lane": 6,
+      "account": "0xAFF943ae616A113e6FBAbD421F33aB57CA814DcE",
+      "equity": "-1169346441",
+      "badDebt": "1169346441",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1040
+    },
+    {
+      "lane": 6,
+      "account": "0x856B2dB39b726bB6Bc6932146B41c3f886A190Ee",
+      "equity": "-1221000791",
+      "badDebt": "1221000791",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1044
+    },
+    {
+      "lane": 6,
+      "account": "0x7E61F82F29634C4cE4ccE058a1bB193E5Ca4c3DE",
+      "equity": "-6156378533",
+      "badDebt": "6156378533",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1048
+    },
+    {
+      "lane": 6,
+      "account": "0x451a7f55dc61bBed5e10C5CFA4cEf04df87DC2D6",
+      "equity": "-505067933",
+      "badDebt": "505067933",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1052
+    },
+    {
+      "lane": 6,
+      "account": "0x1777c27366ABA8E7Bbf1932E5169d2918873D7D6",
+      "equity": "-280946179",
+      "badDebt": "280946179",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1055
+    },
+    {
+      "lane": 6,
+      "account": "0xC51bbf8cDC83F713513E3c5F5E2ecC8254e494a6",
+      "equity": "-10437550568",
+      "badDebt": "10437550568",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1060
+    },
+    {
+      "lane": 6,
+      "account": "0xc481b6499F3702C137Ff9F2ec4188566Ce14F946",
+      "equity": "-4391484",
+      "badDebt": "4391484",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1063
+    },
+    {
+      "lane": 6,
+      "account": "0x4BBAae7c7dE471BA1c558De262AF1433d5a2A41E",
+      "equity": "-10954263",
+      "badDebt": "10954263",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1066
+    },
+    {
+      "lane": 6,
+      "account": "0xDecF06a1C64e05d2C7EacCA3d129AC9fC0297526",
+      "equity": "-1416803139",
+      "badDebt": "1416803139",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1069
+    },
+    {
+      "lane": 6,
+      "account": "0x5A7d35195D9713Cda0e43Fb968060F6e619eB54E",
+      "equity": "-704074575",
+      "badDebt": "704074575",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1073
+    },
+    {
+      "lane": 6,
+      "account": "0x6b0815A24547ba88C06443e623524122Ee75EfBE",
+      "equity": "-55506718",
+      "badDebt": "55506718",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1076
+    },
+    {
+      "lane": 6,
+      "account": "0x951fdB085F25b5B55f604543b1a6a6949e6c9c16",
+      "equity": "-625732434",
+      "badDebt": "625732434",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1079
+    },
+    {
+      "lane": 6,
+      "account": "0x0AcF025B146F54d6752265775422f2F0ABdC3FbE",
+      "equity": "-13437422",
+      "badDebt": "13437422",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1082
+    },
+    {
+      "lane": 6,
+      "account": "0x598807773C8aB2918FB4e18C1B6944Fd28766C66",
+      "equity": "261577081",
+      "badDebt": "0",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1085
+    },
+    {
+      "lane": 6,
+      "account": "0x92Fbce6381B9203bef2c319f7deF660d425ABf16",
+      "equity": "-702851037",
+      "badDebt": "702851037",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1088
+    },
+    {
+      "lane": 6,
+      "account": "0xd4dcf01f2Fa3453d4499FbBc6b39A459d1967bce",
+      "equity": "1251960509",
+      "badDebt": "0",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1090
+    },
+    {
+      "lane": 6,
+      "account": "0x042a0253e6B37Fc69E1A0959Fc5498A70955C8B6",
+      "equity": "-4343141160",
+      "badDebt": "4343141160",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1093
+    },
+    {
+      "lane": 6,
+      "account": "0xb084Ec9fFed082d034987BC74c2a594Dc6E3124e",
+      "equity": "-8750423026",
+      "badDebt": "8750423026",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1096
+    },
+    {
+      "lane": 6,
+      "account": "0xE86AcbefEbfAa2695fbf5a36B9f812c647825776",
+      "equity": "-62622520",
+      "badDebt": "62622520",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1099
+    },
+    {
+      "lane": 6,
+      "account": "0x2CCE67b7C8161032e854F37fe85F1A2c928eb9f6",
+      "equity": "-623411000",
+      "badDebt": "623411000",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1103
+    },
+    {
+      "lane": 6,
+      "account": "0xA6A03B255c57C5a5D8A9EA846B7c911b9e341f36",
+      "equity": "-3511609536",
+      "badDebt": "3511609536",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1106
+    },
+    {
+      "lane": 6,
+      "account": "0x14116dd025e3Cce36dfe234d27232235d4B2d60E",
+      "equity": "-151898641",
+      "badDebt": "151898641",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1109
+    },
+    {
+      "lane": 6,
+      "account": "0x71f68020818DD197A9dbBBF2c262E32CD221f8a6",
+      "equity": "34873895",
+      "badDebt": "0",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1111
+    },
+    {
+      "lane": 6,
+      "account": "0xD8BFa69237d68ED69051Ad27dB69f7D10Fb41346",
+      "equity": "-999184546",
+      "badDebt": "999184546",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1114
+    },
+    {
+      "lane": 6,
+      "account": "0xCE45AFa8581ee820027Be35E285151853fd4d6Ee",
+      "equity": "-292752445",
+      "badDebt": "292752445",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1117
+    },
+    {
+      "lane": 6,
+      "account": "0xE37ED2f21D439EDEB6444F35dbA95cC89e7B3aDE",
+      "equity": "196182508",
+      "badDebt": "0",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1119
+    },
+    {
+      "lane": 6,
+      "account": "0xD2756b6BDebD29Dd038EB7b9680c3863345240F6",
+      "equity": "32648593",
+      "badDebt": "0",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1121
+    },
+    {
+      "lane": 6,
+      "account": "0xdC76388e23B6cD2165346738852794A292B50fDE",
+      "equity": "-13383689984",
+      "badDebt": "13383689984",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1126
+    },
+    {
+      "lane": 6,
+      "account": "0x6A691Ddb94773D1Badf6eB3C115ef2C1B07C3596",
+      "equity": "-7427924554",
+      "badDebt": "7427924554",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1130
+    },
+    {
+      "lane": 6,
+      "account": "0x37DEbe89323Bb62b8EfC719F4e5c9eBE39d15236",
+      "equity": "-213137952",
+      "badDebt": "213137952",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1133
+    },
+    {
+      "lane": 6,
+      "account": "0x1bD2dF0B5C194a80b4B610C31306B068Ec29320e",
+      "equity": "-792430407",
+      "badDebt": "792430407",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1137
+    },
+    {
+      "lane": 6,
+      "account": "0x52d8Ed8F646b5D03c4B21E09519bC588cdD3b096",
+      "equity": "28686042",
+      "badDebt": "0",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1139
+    },
+    {
+      "lane": 6,
+      "account": "0xd43d4cddfb9AEd0524b12A7031A79606351C3B06",
+      "equity": "-54035448506",
+      "badDebt": "54035448506",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1144
+    },
+    {
+      "lane": 6,
+      "account": "0x4bE2396b3C93933B6BC476b23AE0FacbbFcbB82e",
+      "equity": "-457316356",
+      "badDebt": "457316356",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1148
+    },
+    {
+      "lane": 6,
+      "account": "0xA14f3C9D80F9BBBed4A15d5fd0DD9Eac256e4eD6",
+      "equity": "-11878433486",
+      "badDebt": "11878433486",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1152
+    },
+    {
+      "lane": 6,
+      "account": "0x6890ea65B8D98ac6D9fB72A0e0F8f7027D53b68e",
+      "equity": "-10962271089",
+      "badDebt": "10962271089",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1155
+    },
+    {
+      "lane": 6,
+      "account": "0xb136e831df2c8e7Ff529BB279Ba63bac591452Ae",
+      "equity": "-596126486",
+      "badDebt": "596126486",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1158
+    },
+    {
+      "lane": 6,
+      "account": "0x37984148B1Eb9BE9E46Ae2AC8D45223D5310eD76",
+      "equity": "-3186173528",
+      "badDebt": "3186173528",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1161
+    },
+    {
+      "lane": 6,
+      "account": "0xd89Dc2a2050dF6799f82512111a677E973D2AD46",
+      "equity": "-4546643202",
+      "badDebt": "4546643202",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1165
+    },
+    {
+      "lane": 6,
+      "account": "0x18901343453192Eedeb304b56F5f71883A17443E",
+      "equity": "18969605",
+      "badDebt": "0",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1168
+    },
+    {
+      "lane": 6,
+      "account": "0x8e36cc079DDbDC05F06cF4391EA73Db276bDBfA6",
+      "equity": "-2559415961",
+      "badDebt": "2559415961",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1171
+    },
+    {
+      "lane": 6,
+      "account": "0xE6cc21f0e2bCE25B036a4b1bBacd4a644805F206",
+      "equity": "-176425275",
+      "badDebt": "176425275",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1174
+    },
+    {
+      "lane": 6,
+      "account": "0x07BC90607E4EcC3bd9efE1F7F36Ce296A1153746",
+      "equity": "-17361446718",
+      "badDebt": "17361446718",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1177
+    },
+    {
+      "lane": 6,
+      "account": "0x9ccd1fBf61A2c8423E676539F9CBD9D88f61c306",
+      "equity": "-260795192",
+      "badDebt": "260795192",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1180
+    },
+    {
+      "lane": 6,
+      "account": "0xF6aB39F89fdA94F44f0e32eD7b2778A4b46D40CE",
+      "equity": "-20366000",
+      "badDebt": "20366000",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1183
+    },
+    {
+      "lane": 6,
+      "account": "0xB0d408e16022Ab01D1AaC54D697284823111A3e6",
+      "equity": "-5149603663",
+      "badDebt": "5149603663",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1186
+    },
+    {
+      "lane": 6,
+      "account": "0x97DF93007583F7E20dE1DB55D064f554912AC11E",
+      "equity": "-639978742",
+      "badDebt": "639978742",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1191
+    },
+    {
+      "lane": 6,
+      "account": "0xfcd66a634e6E90DDa6a3AD9725473148daD4054E",
+      "equity": "-892041435",
+      "badDebt": "892041435",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1194
+    },
+    {
+      "lane": 6,
+      "account": "0x61c0795f7d6DFaE5368BCe7C3993f46e29a7269e",
+      "equity": "-1094236331",
+      "badDebt": "1094236331",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1197
+    },
+    {
+      "lane": 6,
+      "account": "0xA4a5358B77E20926A7449cAeBEEd0516F41D7Cee",
+      "equity": "-125525078",
+      "badDebt": "125525078",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1200
+    },
+    {
+      "lane": 6,
+      "account": "0xA31a290eeE00dacc74ce8614AD789977ef13C56e",
+      "equity": "-4867900659",
+      "badDebt": "4867900659",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1204
+    },
+    {
+      "lane": 6,
+      "account": "0x63b3C31220817dd3Daea1471E1ba18eDCe359f26",
+      "equity": "-96608355",
+      "badDebt": "96608355",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1207
+    },
+    {
+      "lane": 6,
+      "account": "0x41196BD393723cB95D929b6b41308B24132a3186",
+      "equity": "-1576314824",
+      "badDebt": "1576314824",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1210
+    },
+    {
+      "lane": 6,
+      "account": "0x2b79d6C99795a26Ca8Ac2EB8c4eCBbf7efac04E6",
+      "equity": "-599002580",
+      "badDebt": "599002580",
+      "txHash": "0xa36f5599714c8e9a28f4e56e36fafe38a5cbe167dbcaff008ba7696f5402100f",
+      "logIndex": 1213
+    },
+    {
+      "lane": 7,
+      "account": "0xa11c4e1124e2CB7b0a2632eD511a556275fAa8Ff",
+      "equity": "-14452873941",
+      "badDebt": "14452873941",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1218
+    },
+    {
+      "lane": 7,
+      "account": "0x5D705135e2A8B509d1a435427C61537E536715d7",
+      "equity": "-5203076574",
+      "badDebt": "5203076574",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1221
+    },
+    {
+      "lane": 7,
+      "account": "0x557341CAb340c5feA0D3bB643B25c0e4b68e3B27",
+      "equity": "-1314121361",
+      "badDebt": "1314121361",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1224
+    },
+    {
+      "lane": 7,
+      "account": "0x74921b87BCa5b9fda874c95aF748a87b27CCb26F",
+      "equity": "3179743367",
+      "badDebt": "0",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1227
+    },
+    {
+      "lane": 7,
+      "account": "0xFAc7AD21018cC9b5a960787D0BC8FA836aE40447",
+      "equity": "-242561417",
+      "badDebt": "242561417",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1231
+    },
+    {
+      "lane": 7,
+      "account": "0xD75eFB06E6650B04edB675BCd3604930aCdc0cf7",
+      "equity": "-4920338141",
+      "badDebt": "4920338141",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1234
+    },
+    {
+      "lane": 7,
+      "account": "0x469aF190926b329589F2237D22B46F2Baa2b38Ff",
+      "equity": "-7836125346",
+      "badDebt": "7836125346",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1237
+    },
+    {
+      "lane": 7,
+      "account": "0xD9912a75c05da6eAf8Cb623a639CFE6E8D1786E7",
+      "equity": "-4734308222",
+      "badDebt": "4734308222",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1240
+    },
+    {
+      "lane": 7,
+      "account": "0xd43d056dA71CB84A199706D56a945e638B205f67",
+      "equity": "-10367211786",
+      "badDebt": "10367211786",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1244
+    },
+    {
+      "lane": 7,
+      "account": "0x614cE3755738B0323F9CEDfE2840caCAd58822A7",
+      "equity": "-14007205477",
+      "badDebt": "14007205477",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1247
+    },
+    {
+      "lane": 7,
+      "account": "0x03b62ef64B2E8E0D97988d8f5d4121061881CdcF",
+      "equity": "-655324872",
+      "badDebt": "655324872",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1251
+    },
+    {
+      "lane": 7,
+      "account": "0xDF5f2B3bdFF10aB6d7E8619EDb1a804ebc86799f",
+      "equity": "-793931376",
+      "badDebt": "793931376",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1255
+    },
+    {
+      "lane": 7,
+      "account": "0x69b4DF8aB28173D3085AFcaCd69CE642352561C7",
+      "equity": "-1532531516",
+      "badDebt": "1532531516",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1258
+    },
+    {
+      "lane": 7,
+      "account": "0x3cbeDAAFA8233288e9dF78b8fFef6440e9D3C157",
+      "equity": "-53027634",
+      "badDebt": "53027634",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1261
+    },
+    {
+      "lane": 7,
+      "account": "0x607d4D72FF0dDF6BbF6b6aA2F101d43D0c6De6df",
+      "equity": "154782868",
+      "badDebt": "0",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1264
+    },
+    {
+      "lane": 7,
+      "account": "0xb9aC3d45D1c753D77dDfc5bC6625F5B7D1CB4BEF",
+      "equity": "-368700970",
+      "badDebt": "368700970",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1267
+    },
+    {
+      "lane": 7,
+      "account": "0xa93fc6AaDF559dA117E0a32500E92E49f2bdE6B7",
+      "equity": "-3172017830",
+      "badDebt": "3172017830",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1270
+    },
+    {
+      "lane": 7,
+      "account": "0xa9C6138AFFf4dab6f06755F50dC577c6B86548fF",
+      "equity": "-2110726853",
+      "badDebt": "2110726853",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1273
+    },
+    {
+      "lane": 7,
+      "account": "0xc173951d618A09b03cE4Aee01874de83336fF86f",
+      "equity": "88272034",
+      "badDebt": "0",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1275
+    },
+    {
+      "lane": 7,
+      "account": "0x916b714Efcf503F8d4eC7Ce3691A992df55af207",
+      "equity": "-10969769708",
+      "badDebt": "10969769708",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1278
+    },
+    {
+      "lane": 7,
+      "account": "0xd3a663A684cA6623F2664d520759ef0b0Aa72dcf",
+      "equity": "132117187",
+      "badDebt": "0",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1281
+    },
+    {
+      "lane": 7,
+      "account": "0xe831F22fb0ee579916549adc646fac80240b268F",
+      "equity": "-3405104998",
+      "badDebt": "3405104998",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1285
+    },
+    {
+      "lane": 7,
+      "account": "0x4B8D73f56094bF3FBeb1c94Dae09518aC58a3bAf",
+      "equity": "-1403994115",
+      "badDebt": "1403994115",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1288
+    },
+    {
+      "lane": 7,
+      "account": "0x466cAf7a8130575793234d14696E3006cC845d67",
+      "equity": "50299378",
+      "badDebt": "0",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1291
+    },
+    {
+      "lane": 7,
+      "account": "0xde62cD436A5aE569409b69C7dD4B6C82A97D70AF",
+      "equity": "-4877054347",
+      "badDebt": "4877054347",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1296
+    },
+    {
+      "lane": 7,
+      "account": "0x05915AFD200641EcB3613FaeA0eB69B2D46A9Bd7",
+      "equity": "-97038574",
+      "badDebt": "97038574",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1299
+    },
+    {
+      "lane": 7,
+      "account": "0x79Fa92C06d459bd829b61acaC0C014E4ef0d3227",
+      "equity": "-132168435",
+      "badDebt": "132168435",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1302
+    },
+    {
+      "lane": 7,
+      "account": "0x0e5f2C6894af36767adC8EB2b9c67Eb16F4a7f77",
+      "equity": "-124653726",
+      "badDebt": "124653726",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1305
+    },
+    {
+      "lane": 7,
+      "account": "0xF8A98dE38A2f3E011681E99A128647432c14d57F",
+      "equity": "-878527721",
+      "badDebt": "878527721",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1308
+    },
+    {
+      "lane": 7,
+      "account": "0xc4DfF64378f36e729C2750284F750f6499d5a64f",
+      "equity": "-261661429",
+      "badDebt": "261661429",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1311
+    },
+    {
+      "lane": 7,
+      "account": "0xf5E5E070A6DF40C27DD92bFA423521B42058F09f",
+      "equity": "-6560433400",
+      "badDebt": "6560433400",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1316
+    },
+    {
+      "lane": 7,
+      "account": "0xe70A36d5bF3eEf3770D1c29CD1919180B4a1F357",
+      "equity": "-882617763",
+      "badDebt": "882617763",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1320
+    },
+    {
+      "lane": 7,
+      "account": "0x54848eD90Cbf3a7fa0dB75B5daF907e9752Ac8dF",
+      "equity": "26537897",
+      "badDebt": "0",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1322
+    },
+    {
+      "lane": 7,
+      "account": "0xbBD67E1E92E2CD4c5d7a2F30e37f73191a825D67",
+      "equity": "-5039537971",
+      "badDebt": "5039537971",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1327
+    },
+    {
+      "lane": 7,
+      "account": "0x60Ddef6F430B5d019AC37d7f7cabF6d63aA06417",
+      "equity": "-4432302158",
+      "badDebt": "4432302158",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1331
+    },
+    {
+      "lane": 7,
+      "account": "0x32E5cfcf35C1042B6e1bc1cC595fa6195022db6F",
+      "equity": "-1125539977",
+      "badDebt": "1125539977",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1334
+    },
+    {
+      "lane": 7,
+      "account": "0xccC0d9B3Eba96B74E67B2F762d74Bc329e977557",
+      "equity": "-3180621478",
+      "badDebt": "3180621478",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1338
+    },
+    {
+      "lane": 7,
+      "account": "0x531a96EBB0978987fF8B2aD152120b04441afD8F",
+      "equity": "-3751742389",
+      "badDebt": "3751742389",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1342
+    },
+    {
+      "lane": 7,
+      "account": "0x64ea5A410e394D37A148de3D56EeC3808BC84D5F",
+      "equity": "-1251841684",
+      "badDebt": "1251841684",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1345
+    },
+    {
+      "lane": 7,
+      "account": "0x6434542eCc088e64D426d74DDa117F7B961461Cf",
+      "equity": "-588513024",
+      "badDebt": "588513024",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1348
+    },
+    {
+      "lane": 7,
+      "account": "0xF356aa59d308cf5996676fe56a030e474D5E7547",
+      "equity": "4976231",
+      "badDebt": "0",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1351
+    },
+    {
+      "lane": 7,
+      "account": "0x44fb4008F5Ae24380436B3B77B9C3B537A84F73F",
+      "equity": "-16110849763",
+      "badDebt": "16110849763",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1354
+    },
+    {
+      "lane": 7,
+      "account": "0xc7f3A325C0024A47BF898f180FfA56223B343ccf",
+      "equity": "-569288775",
+      "badDebt": "569288775",
+      "txHash": "0x0c5135d2fd010fad869cd706ce334a8913e9f080f02dbb47e5836b896b5970a5",
+      "logIndex": 1357
+    }
+  ],
+  "totals": {
+    "accountsScanned": 2000,
+    "liquidated": 404,
+    "badDebt": "1420362114060",
+    "wallClockMs": 336,
+    "blocks": [
+      69
+    ],
+    "sameBlock": true,
+    "totalGasUsed": "27274852"
+  },
+  "bench": {
+    "measuredOn": "local anvil (NOT Monad)",
+    "tool": "npm run bench",
+    "startedAt": "2026-10-04T15:15:06.651Z",
+    "finishedAt": "2026-10-04T15:15:20.689Z",
+    "crashVia": "keeper-http",
+    "rpcHost": "127.0.0.1:8545",
+    "clientVersion": "anvil/v1.7.1",
+    "observedBlockIntervalMs": 400,
+    "seed": 2,
+    "accountsSeeded": 2000,
+    "positionsSeeded": 3127,
+    "accountsPerLaneSeeded": [
+      260,
+      227,
+      244,
+      235,
+      254,
+      278,
+      271,
+      231
+    ],
+    "seedParams": {
+      "positionsPerAccount": "1 (55%) | 2 (34%) | 3 (11%)",
+      "marketMix": {
+        "MON/AUSD": 0.45,
+        "SOL/AUSD": 0.3,
+        "BTC/AUSD": 0.25
+      },
+      "longShare": 0.6,
+      "leverage": "round(2 + 18·u²)  → 2..20x, median ≈ 6x",
+      "marginAusd": "10^(1.8 + 2.4·u)  → ≈63 … 15,849 AUSD per position",
+      "collateral": "Σmargin × (1 + 0.15 + 2.5·u^1.6)",
+      "entry": "current oracle mark (seedAccounts opens at mark)"
+    },
+    "seedTotalCollateral": "18914994000000",
+    "seedGasUsed": "664279983",
+    "seedGasLimit": "730713271",
+    "seedWallClockMs": 12422,
+    "seedTxs": [
+      {
+        "txHash": "0x5d8272f1911689970e86280ed91ee2ef02daca196bfc1cd75af2e10750d18003",
+        "block": 37,
+        "accounts": 20,
+        "gasUsed": "6916339",
+        "gasLimit": "7607973"
+      },
+      {
+        "txHash": "0x6fee804ae19459afbff5785e7009f911e5c694c0a77013118b7cf7b0ec7ee029",
+        "block": 38,
+        "accounts": 67,
+        "gasUsed": "22769390",
+        "gasLimit": "25046329"
+      },
+      {
+        "txHash": "0x64e4618363aabecd8e7673e9ba97cafa89dda7bdba69cb3b055938886375efb4",
+        "block": 39,
+        "accounts": 68,
+        "gasUsed": "22853646",
+        "gasLimit": "25139011"
+      },
+      {
+        "txHash": "0xfd0ac51bf34b90da8deaf41106edaf54c884c1623f244ff62bdaa053aa413bfa",
+        "block": 40,
+        "accounts": 68,
+        "gasUsed": "23435129",
+        "gasLimit": "25778642"
+      },
+      {
+        "txHash": "0xbb15c4fa94f998875cfcf984d420c9fd04e79d1fde40d27d6e67383eaca8d4ad",
+        "block": 41,
+        "accounts": 67,
+        "gasUsed": "22895900",
+        "gasLimit": "25185490"
+      },
+      {
+        "txHash": "0xe1be1c901b9dec0c0c3343a54591431b4dd1214a7424c3bd1205bec849da7a94",
+        "block": 42,
+        "accounts": 67,
+        "gasUsed": "21648751",
+        "gasLimit": "23813627"
+      },
+      {
+        "txHash": "0xaa2588f84f6004a4ec6274971cf4fd28fe78e947878763572fac5a258d156728",
+        "block": 43,
+        "accounts": 71,
+        "gasUsed": "22459517",
+        "gasLimit": "24705469"
+      },
+      {
+        "txHash": "0xcaf35aab3bf956fe1fba7ba106c486c297faf62a235782f454331a82c928ce3f",
+        "block": 44,
+        "accounts": 73,
+        "gasUsed": "23569327",
+        "gasLimit": "25926260"
+      },
+      {
+        "txHash": "0xa51ad5c9b90f1224dacf0e547787d90ab71ad56be46b9aa843cd94851830b1bb",
+        "block": 45,
+        "accounts": 71,
+        "gasUsed": "22003198",
+        "gasLimit": "24203518"
+      },
+      {
+        "txHash": "0x494b3701f822b2c63e75af2fb620784d5b034addafcd6cd2e21601805280af53",
+        "block": 46,
+        "accounts": 74,
+        "gasUsed": "24886606",
+        "gasLimit": "27375267"
+      },
+      {
+        "txHash": "0x87565869b2c9b49ea599a71cbf70b408d90ba8f6646074ded261c675eb719ad9",
+        "block": 47,
+        "accounts": 68,
+        "gasUsed": "23414257",
+        "gasLimit": "25755683"
+      },
+      {
+        "txHash": "0x7dd39f1b771289ec37790af69c3c5e8538ccd1402279c98a4e545371720eb762",
+        "block": 48,
+        "accounts": 67,
+        "gasUsed": "22273363",
+        "gasLimit": "24500700"
+      },
+      {
+        "txHash": "0x3dd1721e23135c38e668bd5c2d6f69b9b9968c7921de7f96eece457cedc66ff9",
+        "block": 49,
+        "accounts": 69,
+        "gasUsed": "23062139",
+        "gasLimit": "25368353"
+      },
+      {
+        "txHash": "0x588bcbff4e6720cb1a19a04e3aeba83ce7e7fd6c4a967674050ba90cc4a6771a",
+        "block": 50,
+        "accounts": 69,
+        "gasUsed": "23050685",
+        "gasLimit": "25355754"
+      },
+      {
+        "txHash": "0x08d80676e72671c1364af92ff7b6fcadfd49fd22c77508aecca9fbab85dcfa31",
+        "block": 51,
+        "accounts": 69,
+        "gasUsed": "23054315",
+        "gasLimit": "25359747"
+      },
+      {
+        "txHash": "0xbd9b156442b0bf6bec69149d9b056eb52746b2ffac78313f8b1a24679c69eae9",
+        "block": 52,
+        "accounts": 69,
+        "gasUsed": "23493868",
+        "gasLimit": "25843255"
+      },
+      {
+        "txHash": "0x5d0e5cf3396e9b14fc768a414f2fc4ac635d6bc5fce1be8326f38bad0d04e3db",
+        "block": 53,
+        "accounts": 68,
+        "gasUsed": "21128966",
+        "gasLimit": "23241863"
+      },
+      {
+        "txHash": "0x06296683a8955fdd61fadd4d583e3ff85903929e3e0cce9258a3d02da79b9f76",
+        "block": 54,
+        "accounts": 74,
+        "gasUsed": "25775222",
+        "gasLimit": "28352745"
+      },
+      {
+        "txHash": "0xbfdde316049d80076bdf03dbcf4eb3ae1507e4e265c4fa33f5f18b0e6220acbd",
+        "block": 55,
+        "accounts": 66,
+        "gasUsed": "20959264",
+        "gasLimit": "23055191"
+      },
+      {
+        "txHash": "0x739861b23b1bfa83d1abfd4641ec2d17331434609797afd98d20e28ad61852ed",
+        "block": 56,
+        "accounts": 72,
+        "gasUsed": "23010434",
+        "gasLimit": "25311478"
+      },
+      {
+        "txHash": "0x50bb2159283a67097ab1d888a18d57bdeca5135e216dfaabf6d68d68d416653a",
+        "block": 57,
+        "accounts": 72,
+        "gasUsed": "24054799",
+        "gasLimit": "26460279"
+      },
+      {
+        "txHash": "0xb81d19313139cd1a437afc62b78301d4de143272c5782e7470d6d8a13ec6412e",
+        "block": 58,
+        "accounts": 69,
+        "gasUsed": "23051848",
+        "gasLimit": "25357033"
+      },
+      {
+        "txHash": "0x6bd4332b2f0dbb7d414c3fe18ba101acda0b53339aaadf2075f6ca95bc3b365e",
+        "block": 59,
+        "accounts": 69,
+        "gasUsed": "22290830",
+        "gasLimit": "24519913"
+      },
+      {
+        "txHash": "0xf6044325e8bab7785bbfea8bc37abbbb72235cf2fde02f61d446b08b7720b1d3",
+        "block": 60,
+        "accounts": 71,
+        "gasUsed": "22456770",
+        "gasLimit": "24702447"
+      },
+      {
+        "txHash": "0x827bcc3d820fa95d5e99ca311ad27cfd37f38bee1e306e38c600b8dd78884714",
+        "block": 61,
+        "accounts": 73,
+        "gasUsed": "25692529",
+        "gasLimit": "28261782"
+      },
+      {
+        "txHash": "0x1dfb82a6415f3b6daee2b3841a0ea4984df7531d5f2cb3e318d424df00a049ce",
+        "block": 62,
+        "accounts": 65,
+        "gasUsed": "21771707",
+        "gasLimit": "23948878"
+      },
+      {
+        "txHash": "0x2a6e67a6bb0106fddfe4c52f0c2d44df50d38174ba39c9606f653c0645de9776",
+        "block": 63,
+        "accounts": 69,
+        "gasUsed": "22745766",
+        "gasLimit": "25020343"
+      },
+      {
+        "txHash": "0xc235e25c29a203152315e7c0958e042b4e22aa5815fabf336f10be0e8785f1e1",
+        "block": 64,
+        "accounts": 70,
+        "gasUsed": "24039827",
+        "gasLimit": "26443810"
+      },
+      {
+        "txHash": "0x81c559d0bcf7e6b63ad7fa29e3b31271385479dc13b9da930ea027021bd2f535",
+        "block": 65,
+        "accounts": 67,
+        "gasUsed": "22719336",
+        "gasLimit": "24991270"
+      },
+      {
+        "txHash": "0x7c8458e80aff3b00aa777d29d243fe57ed7de65250852a7050eee0ba9631d307",
+        "block": 66,
+        "accounts": 38,
+        "gasUsed": "12796255",
+        "gasLimit": "14081161"
+      }
+    ],
+    "config": {
+      "receiptPollMs": 25,
+      "gasMarginBps": 1000,
+      "maxTxGas": "30000000",
+      "keeperKeys": 8
+    },
+    "priceUpdatesDuringRunExcludingShock": 0,
+    "recoverTxHash": "0xe4e5e07af347cde55b0af656a49aa44eb5afe2da2c19476dcb09cfe9cc74d335",
+    "derived": {
+      "liquidatedPct": 20.2,
+      "gasPerLiquidation": 67512,
+      "gasPerScannedAccount": 13637,
+      "batchCount": 8,
+      "avgGasPerBatch": 3409357,
+      "maxGasPerBatch": 3911905,
+      "shockConfirmMs": 336,
+      "shockSubmitToLastBatchReceiptMs": 742,
+      "seedGasPerAccount": 332140
+    },
+    "notes": [
+      "Timings are keeper-side wall clock (Date.now()): submittedAt right before eth_sendRawTransaction, confirmedAt when the receipt poll first sees the receipt (includes up to receiptPollMs + RPC latency).",
+      "wallClockMs = first lane batch submitted → last lane batch receipt observed.",
+      "accountsScanned counts every account registered in the 8 lanes, including accounts seeded by earlier runs.",
+      "AUSD amounts are raw 6-decimal integers; gas values are integers as strings.",
+      "Local anvil with interval mining: block time and ordering are anvil's, NOT Monad's."
+    ]
+  }
+}
