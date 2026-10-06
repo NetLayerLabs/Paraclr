@@ -1,0 +1,952 @@
+{
+  "runId": "run-muxa18h8-ef0ay",
+  "status": "done",
+  "chainId": 31337,
+  "network": "anvil",
+  "mode": "auctions",
+  "priceLoopPaused": true,
+  "shock": {
+    "txHash": "0x9ff8873b199a9528dcba46f3707180404ce5e27a5df07b59fb1e763c2325a050",
+    "block": 34,
+    "submittedAt": 1791327317823,
+    "confirmedAt": 1791327318714,
+    "bps": 9500
+  },
+  "batches": [
+    {
+      "txHash": "0x2240d01bca51ad538988dddab14d65f06f53f2c354e3330d986954998a2100f9",
+      "block": 35,
+      "submittedAt": 1791327318774,
+      "confirmedAt": 1791327319710,
+      "lane": 0,
+      "keeper": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "accounts": 1,
+      "liquidated": 0,
+      "gasUsed": "142582",
+      "gasLimit": "156841",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x092c61a7495e5a7b3efecbc05a1a47be1efa1878de71dfe2afac035f73809bf7",
+      "block": 35,
+      "submittedAt": 1791327318774,
+      "confirmedAt": 1791327319710,
+      "lane": 1,
+      "keeper": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "accounts": 2,
+      "liquidated": 0,
+      "gasUsed": "211677",
+      "gasLimit": "232845",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x1b0bbb4fc933469adc860cca81c10d5e2297fd741c018aa217db435221743ca0",
+      "block": 35,
+      "submittedAt": 1791327318774,
+      "confirmedAt": 1791327319710,
+      "lane": 2,
+      "keeper": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "accounts": 4,
+      "liquidated": 0,
+      "gasUsed": "375639",
+      "gasLimit": "413203",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x0fdb0302344a2d849387d2f55ddb21cbd93263456d9b3c0fff5e46a0c7e52a3e",
+      "block": 37,
+      "submittedAt": 1791327320757,
+      "confirmedAt": 1791327321719,
+      "lane": 0,
+      "keeper": "0x26878542d80D1E7A933953e7D0BC91CD8a7f9620",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "283796",
+      "gasLimit": "364976",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x4235a7b481b843bbe0da327f177e5279546974d08bc9b1fa853dbfa15fce41fb",
+      "block": 37,
+      "submittedAt": 1791327320757,
+      "confirmedAt": 1791327321719,
+      "lane": 1,
+      "keeper": "0xC17D282F1b5c2DcEDd503fC0bF407a5D566D5e01",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "299310",
+      "gasLimit": "376761",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xb0f63993bfa2cf1482267f0b42bde65d72bea687f1a5227cffa3a3817ff33769",
+      "block": 37,
+      "submittedAt": 1791327320757,
+      "confirmedAt": 1791327321719,
+      "lane": 2,
+      "keeper": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "465573",
+      "gasLimit": "591331",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x5bb125c12973c1cf910e380ab0f4733b08db8b7cabdcfee23c20c7abde62d879",
+      "block": 38,
+      "submittedAt": 1791327321750,
+      "confirmedAt": 1791327322738,
+      "lane": 0,
+      "keeper": "0x26878542d80D1E7A933953e7D0BC91CD8a7f9620",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x757a246a6085db2cb51332bfc5dea481084192b6c44eb9fb8be5d905bb8ffb9d",
+      "block": 38,
+      "submittedAt": 1791327321760,
+      "confirmedAt": 1791327322730,
+      "lane": 1,
+      "keeper": "0xC17D282F1b5c2DcEDd503fC0bF407a5D566D5e01",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xa6c706c55ec43be73964018d79dacb87ff629482bbb69c8b63ed0311a872e6e7",
+      "block": 38,
+      "submittedAt": 1791327321764,
+      "confirmedAt": 1791327322730,
+      "lane": 1,
+      "keeper": "0x1473228Ad3052157Da0836746d26a5BdE1C6cB89",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "266696",
+      "gasLimit": "346166",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xf339850460d906223e4daa21e569c9c8a118773cb3cdff2be4b97c5acf902bcb",
+      "block": 38,
+      "submittedAt": 1791327321769,
+      "confirmedAt": 1791327322730,
+      "lane": 2,
+      "keeper": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "278286",
+      "gasLimit": "353635",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x3f3156024a5fdec179dd194d4a864ac159b16d6fc18190d7f1495fee93a4bf84",
+      "block": 38,
+      "submittedAt": 1791327321769,
+      "confirmedAt": 1791327322738,
+      "lane": 2,
+      "keeper": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "72380",
+      "gasLimit": "99523",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x83576eccccc3dcef4dca8dcff6a9b4c53026dc2490473b68845dc4614ac8c13e",
+      "block": 38,
+      "submittedAt": 1791327321773,
+      "confirmedAt": 1791327322738,
+      "lane": 2,
+      "keeper": "0x275FAfF00eB41637833552d852D65DA63e598e92",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "437759",
+      "gasLimit": "560735",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x7c1ed1f0b256dc2a772c686e0f6e2803193848b47b80c34d18848c9c50fc32d1",
+      "block": 38,
+      "submittedAt": 1791327321773,
+      "confirmedAt": 1791327322738,
+      "lane": 2,
+      "keeper": "0x751f382b5200eafeCd481FBc463dB43543b5f122",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "266696",
+      "gasLimit": "357951",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xf806382c79511cf20e2971a8e89170b9c031927ed53183d20d844fbabc6323f0",
+      "block": 38,
+      "submittedAt": 1791327321776,
+      "confirmedAt": 1791327322738,
+      "lane": 2,
+      "keeper": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x95a92e20719dc994de987561f0e0f34e5ccab3c8d052b9f6b9cf034473d1613d",
+      "block": 39,
+      "submittedAt": 1791327322762,
+      "confirmedAt": 1791327323715,
+      "lane": 1,
+      "keeper": "0x1473228Ad3052157Da0836746d26a5BdE1C6cB89",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xa6aa188c8ec0b5947f77f01af249eb49ac2ef0b7724705c0edbdfc9cfe2e470a",
+      "block": 39,
+      "submittedAt": 1791327322762,
+      "confirmedAt": 1791327323715,
+      "lane": 2,
+      "keeper": "0x751f382b5200eafeCd481FBc463dB43543b5f122",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xc859faedc5abb57d36721569160f2364c31d5939fe1c9e26b427d53a40ac91bb",
+      "block": 39,
+      "submittedAt": 1791327322762,
+      "confirmedAt": 1791327323715,
+      "lane": 2,
+      "keeper": "0x275FAfF00eB41637833552d852D65DA63e598e92",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "72380",
+      "gasLimit": "99523",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x1da9decce7a9c61f4f69087162d08691a19e8094f648c3888fa573120ce6ceaf",
+      "block": 39,
+      "submittedAt": 1791327322769,
+      "confirmedAt": 1791327323715,
+      "lane": 2,
+      "keeper": "0x275FAfF00eB41637833552d852D65DA63e598e92",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    }
+  ],
+  "liquidations": [
+    {
+      "lane": 0,
+      "account": "0x534918C635B6FB3D818403cdefb19Ce7Dc7343D8",
+      "equity": "210000001",
+      "badDebt": "0",
+      "txHash": "0x0fdb0302344a2d849387d2f55ddb21cbd93263456d9b3c0fff5e46a0c7e52a3e",
+      "logIndex": 2
+    },
+    {
+      "lane": 1,
+      "account": "0x6e50A4A779eC5966672A9CA1aC75AcA98d955C09",
+      "equity": "154750001",
+      "badDebt": "0",
+      "txHash": "0x4235a7b481b843bbe0da327f177e5279546974d08bc9b1fa853dbfa15fce41fb",
+      "logIndex": 5
+    },
+    {
+      "lane": 2,
+      "account": "0x5bD365EC98b9ED80E88a5bAb179336bEa485062a",
+      "equity": "3454000002",
+      "badDebt": "0",
+      "txHash": "0xb0f63993bfa2cf1482267f0b42bde65d72bea687f1a5227cffa3a3817ff33769",
+      "logIndex": 10
+    },
+    {
+      "lane": 1,
+      "account": "0x70d2573e5DBd5426aA18f5c722d8CAE7634F38A1",
+      "equity": "189800001",
+      "badDebt": "0",
+      "txHash": "0xa6c706c55ec43be73964018d79dacb87ff629482bbb69c8b63ed0311a872e6e7",
+      "logIndex": 5
+    },
+    {
+      "lane": 2,
+      "account": "0xf8c82613Ea070BC4099Bf7e8F07c29BBE8ec2Ff2",
+      "equity": "420550001",
+      "badDebt": "0",
+      "txHash": "0xf339850460d906223e4daa21e569c9c8a118773cb3cdff2be4b97c5acf902bcb",
+      "logIndex": 11
+    },
+    {
+      "lane": 2,
+      "account": "0x654d42190D5db901f4a3E3B6B9DdC05105171022",
+      "equity": "1597000002",
+      "badDebt": "0",
+      "txHash": "0x83576eccccc3dcef4dca8dcff6a9b4c53026dc2490473b68845dc4614ac8c13e",
+      "logIndex": 17
+    },
+    {
+      "lane": 2,
+      "account": "0xDd3aa26094c49Caca13F28372E7bca2FEEF678Ca",
+      "equity": "2551700001",
+      "badDebt": "0",
+      "txHash": "0x7c1ed1f0b256dc2a772c686e0f6e2803193848b47b80c34d18848c9c50fc32d1",
+      "logIndex": 20
+    }
+  ],
+  "totals": {
+    "accountsScanned": 524,
+    "liquidated": 7,
+    "badDebt": "0",
+    "wallClockMs": 4941,
+    "blocks": [
+      35,
+      37,
+      38,
+      39
+    ],
+    "sameBlock": false,
+    "totalGasUsed": "3585328"
+  },
+  "auctions": {
+    "started": 7,
+    "takenByBackstop": 1,
+    "takenExternal": 6,
+    "cured": 0,
+    "expired": 0,
+    "avgDiscountBps": 64.29,
+    "traderResidualReturned": "5640098391",
+    "backstopPaid": "182891624",
+    "badDebt": "0",
+    "legacyCounterfactual": {
+      "traderLoss": "4526407993"
+    },
+    "traderEquityAtStart": "8577800009",
+    "externalTakers": {
+      "demo": true,
+      "accounts": 24,
+      "reservationBps": [
+        25,
+        70
+      ]
+    }
+  },
+  "underwater": {
+    "maxBlocks": 4,
+    "p50Blocks": 4,
+    "p95Blocks": 4,
+    "maxMs": 4024,
+    "perAccount": [
+      {
+        "account": "0x534918c635b6fb3d818403cdefb19ce7dc7343d8",
+        "lane": 0,
+        "fromBlock": 34,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0x6e50a4a779ec5966672a9ca1ac75aca98d955c09",
+        "lane": 1,
+        "fromBlock": 34,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0x70d2573e5dbd5426aa18f5c722d8cae7634f38a1",
+        "lane": 1,
+        "fromBlock": 34,
+        "toBlock": 38,
+        "outcome": "external"
+      },
+      {
+        "account": "0x5bd365ec98b9ed80e88a5bab179336bea485062a",
+        "lane": 2,
+        "fromBlock": 34,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0xf8c82613ea070bc4099bf7e8f07c29bbe8ec2ff2",
+        "lane": 2,
+        "fromBlock": 34,
+        "toBlock": 38,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x654d42190d5db901f4a3e3b6b9ddc05105171022",
+        "lane": 2,
+        "fromBlock": 34,
+        "toBlock": 38,
+        "outcome": "external"
+      },
+      {
+        "account": "0xdd3aa26094c49caca13f28372e7bca2feef678ca",
+        "lane": 2,
+        "fromBlock": 34,
+        "toBlock": 38,
+        "outcome": "external"
+      }
+    ]
+  },
+  "xrayId": "run-muxa18h8-ef0ay",
+  "bench": {
+    "measuredOn": "local anvil (NOT Monad)",
+    "tool": "npm run bench",
+    "startedAt": "2026-10-06T22:54:58.933Z",
+    "finishedAt": "2026-10-06T22:55:24.716Z",
+    "crashVia": "keeper-http",
+    "crashMode": "auctions",
+    "rpcHost": "127.0.0.1:8645",
+    "clientVersion": "anvil/v1.7.1",
+    "observedBlockIntervalMs": 999,
+    "seed": 20261006,
+    "designs": [
+      {
+        "design": "paraclr-lanes",
+        "contract": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      },
+      {
+        "design": "naive-shared",
+        "contract": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      }
+    ],
+    "accountsSeeded": 500,
+    "accountsSeededPerDesign": 500,
+    "positionsSeeded": 783,
+    "accountsPerLaneSeeded": [
+      65,
+      53,
+      65,
+      64,
+      64,
+      55,
+      71,
+      63
+    ],
+    "seedParams": {
+      "positionsPerAccount": "1 (55%) | 2 (34%) | 3 (11%)",
+      "marketMix": {
+        "MON/AUSD": 0.45,
+        "SOL/AUSD": 0.3,
+        "BTC/AUSD": 0.25
+      },
+      "longShare": 0.6,
+      "leverage": "round(2 + 18·u²)  → 2..20x, median ≈ 6x",
+      "marginAusd": "10^(1.8 + 2.4·u)  → ≈63 … 15,849 AUSD per position",
+      "collateral": "Σmargin × (1 + 0.15 + 2.5·u^1.6)",
+      "entry": "current oracle mark (seedAccounts opens at mark)"
+    },
+    "seedTotalCollateral": "4753603000000",
+    "seedGasUsed": "169017266",
+    "seedGasLimit": "185924276",
+    "seedWallClockMs": 9802,
+    "seedTxs": [
+      {
+        "txHash": "0x196b9d04dac9d515ee74a8aa51db596d7f1f91d7abdc5dcc556b4759aba828d2",
+        "block": 16,
+        "accounts": 20,
+        "gasUsed": "6754106",
+        "gasLimit": "7429517"
+      },
+      {
+        "txHash": "0xd0365fb991221e0830be007ae387fd54ef1960e4da5f90038af1894fffcb03f1",
+        "block": 17,
+        "accounts": 68,
+        "gasUsed": "23591300",
+        "gasLimit": "25950430"
+      },
+      {
+        "txHash": "0x03167be4523f6aa0c9d2949f88f218dae26e6ec69292ebea5e5476258b128780",
+        "block": 18,
+        "accounts": 66,
+        "gasUsed": "22465193",
+        "gasLimit": "24711713"
+      },
+      {
+        "txHash": "0xfa4282a02e38b54ea5f7aa66dfc01b7b30b17ccd183687c7ca5e9e75f9ba6fc8",
+        "block": 19,
+        "accounts": 68,
+        "gasUsed": "21411801",
+        "gasLimit": "23552982"
+      },
+      {
+        "txHash": "0x5a4d7e7c63b903ecaf97c7642be424c6b929cbfbcbb2bc6494c0207ba8bae04c",
+        "block": 20,
+        "accounts": 73,
+        "gasUsed": "24604922",
+        "gasLimit": "27065415"
+      },
+      {
+        "txHash": "0x35daee0afb093c33f0ec450b75f5b2cf6cbe26137f06a78a3c85b9fde123ac1c",
+        "block": 21,
+        "accounts": 68,
+        "gasUsed": "22624725",
+        "gasLimit": "24887198"
+      },
+      {
+        "txHash": "0xf1561abb838f4df33cc4b26b283e77d629b60ffaa6d2ca0d636135bed8addd08",
+        "block": 22,
+        "accounts": 69,
+        "gasUsed": "24247900",
+        "gasLimit": "26672690"
+      },
+      {
+        "txHash": "0x72ebe96f0448d6d483f3bbd6c93cd8fa27690e9713c461b7773b0faebe688456",
+        "block": 23,
+        "accounts": 65,
+        "gasUsed": "22183329",
+        "gasLimit": "24401662"
+      },
+      {
+        "txHash": "0x0ee790eb91e5b5cc088d09d329838ffe4a514ba53759a5d579fac081bc81a07a",
+        "block": 24,
+        "accounts": 3,
+        "gasUsed": "1133990",
+        "gasLimit": "1252669"
+      }
+    ],
+    "seeding": {
+      "paraclr-lanes": {
+        "txs": [
+          {
+            "txHash": "0x196b9d04dac9d515ee74a8aa51db596d7f1f91d7abdc5dcc556b4759aba828d2",
+            "block": 16,
+            "accounts": 20,
+            "gasUsed": "6754106",
+            "gasLimit": "7429517"
+          },
+          {
+            "txHash": "0xd0365fb991221e0830be007ae387fd54ef1960e4da5f90038af1894fffcb03f1",
+            "block": 17,
+            "accounts": 68,
+            "gasUsed": "23591300",
+            "gasLimit": "25950430"
+          },
+          {
+            "txHash": "0x03167be4523f6aa0c9d2949f88f218dae26e6ec69292ebea5e5476258b128780",
+            "block": 18,
+            "accounts": 66,
+            "gasUsed": "22465193",
+            "gasLimit": "24711713"
+          },
+          {
+            "txHash": "0xfa4282a02e38b54ea5f7aa66dfc01b7b30b17ccd183687c7ca5e9e75f9ba6fc8",
+            "block": 19,
+            "accounts": 68,
+            "gasUsed": "21411801",
+            "gasLimit": "23552982"
+          },
+          {
+            "txHash": "0x5a4d7e7c63b903ecaf97c7642be424c6b929cbfbcbb2bc6494c0207ba8bae04c",
+            "block": 20,
+            "accounts": 73,
+            "gasUsed": "24604922",
+            "gasLimit": "27065415"
+          },
+          {
+            "txHash": "0x35daee0afb093c33f0ec450b75f5b2cf6cbe26137f06a78a3c85b9fde123ac1c",
+            "block": 21,
+            "accounts": 68,
+            "gasUsed": "22624725",
+            "gasLimit": "24887198"
+          },
+          {
+            "txHash": "0xf1561abb838f4df33cc4b26b283e77d629b60ffaa6d2ca0d636135bed8addd08",
+            "block": 22,
+            "accounts": 69,
+            "gasUsed": "24247900",
+            "gasLimit": "26672690"
+          },
+          {
+            "txHash": "0x72ebe96f0448d6d483f3bbd6c93cd8fa27690e9713c461b7773b0faebe688456",
+            "block": 23,
+            "accounts": 65,
+            "gasUsed": "22183329",
+            "gasLimit": "24401662"
+          },
+          {
+            "txHash": "0x0ee790eb91e5b5cc088d09d329838ffe4a514ba53759a5d579fac081bc81a07a",
+            "block": 24,
+            "accounts": 3,
+            "gasUsed": "1133990",
+            "gasLimit": "1252669"
+          }
+        ],
+        "gasUsed": "169017266",
+        "gasLimit": "185924276",
+        "wallClockMs": 9802
+      },
+      "naive-shared": {
+        "txs": [
+          {
+            "txHash": "0x1ec031bb48033cbf4652c2c03d3565a06a67b7bfd45bd9787f9f4c9ddf01b68d",
+            "block": 26,
+            "accounts": 20,
+            "gasUsed": "6347630",
+            "gasLimit": "6982393"
+          },
+          {
+            "txHash": "0xca40dbdddb0467eacb012abf4239c440eb6caf96253fe8e0a5747f4f049520e3",
+            "block": 27,
+            "accounts": 73,
+            "gasUsed": "24543141",
+            "gasLimit": "26997456"
+          },
+          {
+            "txHash": "0x90ad36fe10903e266738dba888a8869f2e5151135933653b33d13474765d9a7b",
+            "block": 28,
+            "accounts": 68,
+            "gasUsed": "22858049",
+            "gasLimit": "25143854"
+          },
+          {
+            "txHash": "0x2b2cd643e9a375c0fee36bf38f967b4b7f5642f6e93fd387a2bc86467cffb578",
+            "block": 29,
+            "accounts": 68,
+            "gasUsed": "21186841",
+            "gasLimit": "23305526"
+          },
+          {
+            "txHash": "0x85ccaf9c1f6d909577ad0560ee8b7c8fea2ce3dc71798f8e4f309b2376659889",
+            "block": 30,
+            "accounts": 74,
+            "gasUsed": "24640096",
+            "gasLimit": "27104106"
+          },
+          {
+            "txHash": "0x2575293a44227bf601cf2325ced3a01ea75f5f0c221215782e6203382ffefe53",
+            "block": 31,
+            "accounts": 69,
+            "gasUsed": "22954853",
+            "gasLimit": "25250339"
+          },
+          {
+            "txHash": "0xf3abdf282cd5b0633198a51ec86da8b061c441e4aebcb76a00fde07257af4da0",
+            "block": 32,
+            "accounts": 69,
+            "gasUsed": "24028891",
+            "gasLimit": "26431781"
+          },
+          {
+            "txHash": "0x41211c4e11e9465a53eccc98c52b585b7851e01cd1c260b03b4e6227c1a00de5",
+            "block": 33,
+            "accounts": 59,
+            "gasUsed": "20043627",
+            "gasLimit": "22053270"
+          }
+        ],
+        "gasUsed": "166603128",
+        "gasLimit": "183268725",
+        "wallClockMs": 8962
+      }
+    },
+    "backstopFunding": null,
+    "demoTakers": {
+      "demo": true,
+      "seed": 20261006,
+      "perLane": 3,
+      "reservationBps": [
+        25,
+        70
+      ],
+      "collateral": "250000000000",
+      "takers": [
+        {
+          "address": "0x6958b23A2487b3E800BDC7F73AC2837A199e3DD0",
+          "lane": 0,
+          "reservationBps": 62
+        },
+        {
+          "address": "0x26878542d80D1E7A933953e7D0BC91CD8a7f9620",
+          "lane": 0,
+          "reservationBps": 29
+        },
+        {
+          "address": "0x9B4E1DB7920D1b7C636B81f2A53b114a33F3a928",
+          "lane": 0,
+          "reservationBps": 50
+        },
+        {
+          "address": "0xC17D282F1b5c2DcEDd503fC0bF407a5D566D5e01",
+          "lane": 1,
+          "reservationBps": 29
+        },
+        {
+          "address": "0x1473228Ad3052157Da0836746d26a5BdE1C6cB89",
+          "lane": 1,
+          "reservationBps": 58
+        },
+        {
+          "address": "0x8B35A28c41E2E58B456dB12a236B5b3BE6513C51",
+          "lane": 1,
+          "reservationBps": 68
+        },
+        {
+          "address": "0x751f382b5200eafeCd481FBc463dB43543b5f122",
+          "lane": 2,
+          "reservationBps": 68
+        },
+        {
+          "address": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+          "lane": 2,
+          "reservationBps": 33
+        },
+        {
+          "address": "0x275FAfF00eB41637833552d852D65DA63e598e92",
+          "lane": 2,
+          "reservationBps": 51
+        },
+        {
+          "address": "0xc6032A27f320A0D892bB2511b0927AB535ee0293",
+          "lane": 3,
+          "reservationBps": 47
+        },
+        {
+          "address": "0x870c223DF19B23F97990546b9452A0F76FFdA9f3",
+          "lane": 3,
+          "reservationBps": 30
+        },
+        {
+          "address": "0xc1289e0beb5b06cF121AeA244005CE972889E443",
+          "lane": 3,
+          "reservationBps": 36
+        },
+        {
+          "address": "0xFdDA59E1f1549a5B13425D14E2aDD037C1B9F51c",
+          "lane": 4,
+          "reservationBps": 53
+        },
+        {
+          "address": "0x8b2F7D61b56c4a7195a1D1D8401685B29d5e420C",
+          "lane": 4,
+          "reservationBps": 64
+        },
+        {
+          "address": "0x0312Babc9E00eC65d5269903f850895Ecc30d70C",
+          "lane": 4,
+          "reservationBps": 38
+        },
+        {
+          "address": "0xCF81c7576c3A49f43360c98A23C360248CeF919D",
+          "lane": 5,
+          "reservationBps": 48
+        },
+        {
+          "address": "0xAd2E676478F8C890dc9c943A500C4f47F29907Bd",
+          "lane": 5,
+          "reservationBps": 67
+        },
+        {
+          "address": "0xc4A4Ba3f9FCBcfDF17dbA0f41515d567bC9427cd",
+          "lane": 5,
+          "reservationBps": 68
+        },
+        {
+          "address": "0x01D7B2954f21d78F3F80329D2C24823Bf944260E",
+          "lane": 6,
+          "reservationBps": 31
+        },
+        {
+          "address": "0x8E2a22aa5b76AADD75Ee11cb373a4c58d526C306",
+          "lane": 6,
+          "reservationBps": 36
+        },
+        {
+          "address": "0xEB37a7ae93aEf57645B8264404082F80706A495e",
+          "lane": 6,
+          "reservationBps": 31
+        },
+        {
+          "address": "0x04D937d15a66598298d5B6bC2F4fe7D4F8a4233F",
+          "lane": 7,
+          "reservationBps": 54
+        },
+        {
+          "address": "0xdefB27bD0c7B54F74580913dCD36681d09A75e27",
+          "lane": 7,
+          "reservationBps": 43
+        },
+        {
+          "address": "0xc53Bf6c116Afa8eDae5a5BafB530407AfD7396e7",
+          "lane": 7,
+          "reservationBps": 52
+        }
+      ]
+    },
+    "config": {
+      "receiptPollMs": 25,
+      "gasMarginBps": 1000,
+      "maxTxGas": "30000000",
+      "keeperKeys": 8,
+      "sweeperPollMs": 50
+    },
+    "priceUpdatesDuringRunExcludingShock": 0,
+    "recoverTxHash": "0xf3d8a80579731384f488082f2c328b9bd5dd4a0598a31bd2cc6486d726b9750f",
+    "naive": {
+      "design": "naive-shared",
+      "contract": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "auctions": {
+        "started": 7,
+        "takenByBackstop": 1,
+        "takenExternal": 6,
+        "cured": 0,
+        "expired": 0,
+        "avgDiscountBps": 64.29,
+        "traderResidualReturned": "5640098391",
+        "backstopPaid": "182891624",
+        "badDebt": "0",
+        "legacyCounterfactual": {
+          "traderLoss": "4526407993"
+        },
+        "traderEquityAtStart": "8577800009",
+        "externalTakers": {
+          "demo": true,
+          "accounts": 24,
+          "reservationBps": [
+            25,
+            70
+          ]
+        }
+      },
+      "underwater": {
+        "maxBlocks": 4,
+        "p50Blocks": 4,
+        "p95Blocks": 4,
+        "maxMs": null,
+        "accounts": 7
+      },
+      "vsLegacy": {
+        "worse": 0,
+        "equal": 0,
+        "better": 7,
+        "worstExtra": "0"
+      },
+      "unresolved": 0,
+      "note": "Same events-based summary as the RunReport, computed for the naive design (keeper ms not tracked for it)."
+    },
+    "laneFunds": {
+      "paraclr-lanes": {
+        "block": {
+          "before": 33,
+          "after": 39
+        },
+        "insuranceBefore": "800000000000",
+        "insuranceAfter": "823823199991",
+        "recordedBadDebtBefore": "0",
+        "recordedBadDebtAfter": "0"
+      },
+      "naive-shared": {
+        "block": {
+          "before": 33,
+          "after": 39
+        },
+        "insuranceBefore": "800000000000",
+        "insuranceAfter": "823823199991",
+        "recordedBadDebtBefore": "0",
+        "recordedBadDebtAfter": "0"
+      }
+    },
+    "resolutionGas": {
+      "paraclr-lanes": {
+        "txs": 18,
+        "gasUsed": "3585328",
+        "gasLimit": "4520748"
+      },
+      "naive-shared": {
+        "txs": 18,
+        "gasUsed": "3501918",
+        "gasLimit": "4543044"
+      }
+    },
+    "xray": {
+      "file": "bench/xray/31337-run-muxa18h8-ef0ay.json",
+      "method": "debug_traceTransaction",
+      "summary": {
+        "paraclr-lanes": {
+          "txs": 18,
+          "edges": 11,
+          "longestChain": 5,
+          "independentTxs": 10,
+          "crossLaneEdges": 0,
+          "sameLaneEdges": 11
+        },
+        "naive-shared": {
+          "txs": 18,
+          "edges": 27,
+          "longestChain": 6,
+          "independentTxs": 0,
+          "crossLaneEdges": 16,
+          "sameLaneEdges": 11
+        }
+      }
+    },
+    "derived": {
+      "liquidatedPct": 1.34,
+      "gasPerResolvedAccount": 512190,
+      "gasPerScannedAccount": 6842,
+      "batchCount": 18,
+      "avgGasPerBatch": 199185,
+      "maxGasPerBatch": 465573,
+      "byKind": {
+        "startAuctions": {
+          "txs": 3,
+          "gasUsed": 729898,
+          "gasLimit": 802889,
+          "accounts": 7
+        },
+        "take": {
+          "txs": 6,
+          "gasUsed": 2019830,
+          "gasLimit": 2597920,
+          "accounts": 6
+        },
+        "closePosition": {
+          "txs": 8,
+          "gasUsed": 557314,
+          "gasLimit": 766304,
+          "accounts": 0
+        },
+        "backstopTakeBatch": {
+          "txs": 1,
+          "gasUsed": 278286,
+          "gasLimit": 353635,
+          "accounts": 1
+        }
+      },
+      "shockConfirmMs": 891,
+      "shockSubmitToLastResolutionReceiptMs": 5892,
+      "seedGasPerAccount": 338035,
+      "traderLossAuctions": "2937701618",
+      "traderLossLegacyCounterfactual": "4526407993",
+      "accountsVsLegacy": {
+        "worse": 0,
+        "equal": 0,
+        "better": 7,
+        "worstExtra": "0"
+      }
+    },
+    "notes": [
+      "Timings are keeper-side wall clock (Date.now()): submittedAt right before eth_sendRawTransaction, confirmedAt when the receipt poll first sees the receipt (includes up to receiptPollMs + RPC latency).",
+      "batches = every sweeper tx on the lane-sharded design during the run (kind: startAuctions | backstopTakeBatch | expireBatch | cancelAuction); wallClockMs = first submitted → last receipt observed.",
+      "underwater: fromBlock = shock block, toBlock = block of the resolving event; maxMs = keeper saw the shock receipt → keeper saw the resolving receipt.",
+      "External takers in this run (auctions.externalTakers.demo = true) are demo bots run by the keeper: same-lane accounts with reservation discounts drawn from auctions.externalTakers.reservationBps, which take when the payment they would really receive (capped at the trader's equity) reaches their reservation, then close what they inherited at mark the next block. bench.demoTakers lists them.",
+      "legacyCounterfactual.traderLoss = Σ min(max(equity, 0), notional × LIQUIDATION_FEE_BPS / 10000) over the same accounts, equity and notional from AuctionStarted (the old liquidateBatch penalty).",
+      "accountsScanned counts every account registered in the 8 lanes of the lane-sharded design, including accounts seeded by earlier runs.",
+      "auctions.badDebt / totals.badDebt = Σ event badDebt = lane-FUNDED shortfall (AuctionTaken: max(0, payment − equity) incl. written-off negative equity; AuctionExpired / Liquidated: negative equity written off). The lane insurance fund pays first; only what it cannot cover becomes recorded lane bad debt — see laneFunds for the recorded before/after.",
+      "AUSD amounts are raw 6-decimal integers; gas values are integers as strings.",
+      "Local anvil with interval mining: block time and ordering are anvil's, NOT Monad's."
+    ]
+  }
+}

@@ -1,0 +1,2737 @@
+{
+  "runId": "run-mux9zc6t-g5jvm",
+  "status": "done",
+  "chainId": 31337,
+  "network": "anvil",
+  "mode": "auctions",
+  "priceLoopPaused": true,
+  "shock": {
+    "txHash": "0xb81b8e8ce99139d2dbac890d31df3bc18d80a2e40df9f6430035065a41cb215e",
+    "block": 33,
+    "submittedAt": 1791327229319,
+    "confirmedAt": 1791327230244,
+    "bps": 8000
+  },
+  "batches": [
+    {
+      "txHash": "0xfa4e9f8f64acb277b739708fc9693b55065a9b257c92594cdbc53d0ac6c5339b",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 0,
+      "keeper": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "accounts": 15,
+      "liquidated": 0,
+      "gasUsed": "1113592",
+      "gasLimit": "1224952",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x68bb0b5fe73cc94d679cd8ed7adf9e9678ab2702fb6a120dacfa8cf4fa71024b",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 1,
+      "keeper": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "accounts": 9,
+      "liquidated": 0,
+      "gasUsed": "766782",
+      "gasLimit": "843461",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0xc3cba6317200a5ebdcdae4603e66c3325ac35590f1096ad7fdf8b340f7700c40",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 2,
+      "keeper": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "accounts": 20,
+      "liquidated": 0,
+      "gasUsed": "1518525",
+      "gasLimit": "1670378",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x301159f9b7a5dd5273004ecc9cad38267556b800518e78f835f95839b87b9824",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 3,
+      "keeper": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+      "accounts": 11,
+      "liquidated": 0,
+      "gasUsed": "914835",
+      "gasLimit": "1006319",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x72c2b33c1d2798c0c80c9a217af39afdd47e20b424385769ae2fbf4d958e72e7",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 4,
+      "keeper": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+      "accounts": 10,
+      "liquidated": 0,
+      "gasUsed": "778175",
+      "gasLimit": "855993",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x1c5d7e22d16648b7a845c137f0fabe8fafb871c2a425129458fb941af5e14a22",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 5,
+      "keeper": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+      "accounts": 12,
+      "liquidated": 0,
+      "gasUsed": "995902",
+      "gasLimit": "1095493",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x3738908ad80a4fdc5b63c3f3cca1896ca314b2e4fb2043e5d299367ae0c13ad7",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 6,
+      "keeper": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+      "accounts": 8,
+      "liquidated": 0,
+      "gasUsed": "630074",
+      "gasLimit": "693082",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x03580c5545edec07d69ba250f5179873a5198a67271a17489dacfbbf4417f0e7",
+      "block": 34,
+      "submittedAt": 1791327230281,
+      "confirmedAt": 1791327231220,
+      "lane": 7,
+      "keeper": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
+      "accounts": 11,
+      "liquidated": 0,
+      "gasUsed": "900961",
+      "gasLimit": "991058",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0xc2ca50094eb09794f700b59007beea9c9e40c27d4caf93e493a6783ece8164e4",
+      "block": 36,
+      "submittedAt": 1791327232257,
+      "confirmedAt": 1791327233233,
+      "lane": 0,
+      "keeper": "0x26878542d80D1E7A933953e7D0BC91CD8a7f9620",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "299310",
+      "gasLimit": "376761",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xda6df7dc4c5da5be5fee39cdfc9a7249c5b3eeeb9e3f8423cca963e92da92ba3",
+      "block": 36,
+      "submittedAt": 1791327232257,
+      "confirmedAt": 1791327233233,
+      "lane": 2,
+      "keeper": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "465352",
+      "gasLimit": "591088",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x9d1dc9b798ef4ff604b6c3b35ba36c7e06bc81826b18c4423b161440456b7e52",
+      "block": 36,
+      "submittedAt": 1791327232257,
+      "confirmedAt": 1791327233233,
+      "lane": 4,
+      "keeper": "0x0312Babc9E00eC65d5269903f850895Ecc30d70C",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "299310",
+      "gasLimit": "376761",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x606b48866d8049868bd0b6b351a913986d98b39c253718fa28936c54b67f38d6",
+      "block": 36,
+      "submittedAt": 1791327232257,
+      "confirmedAt": 1791327233233,
+      "lane": 5,
+      "keeper": "0xCF81c7576c3A49f43360c98A23C360248CeF919D",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "632179",
+      "gasLimit": "806277",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xb9585d329bc0ce3bf7d415c87b1f64d584123b11e7a2cb9dc4146fdf9b74f702",
+      "block": 36,
+      "submittedAt": 1791327232257,
+      "confirmedAt": 1791327233233,
+      "lane": 6,
+      "keeper": "0x01D7B2954f21d78F3F80329D2C24823Bf944260E",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "299310",
+      "gasLimit": "376761",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x867573b8bd8c77769c6779f1c1f5214488ac0bfa26302d0feacd8da1b04b4ab9",
+      "block": 36,
+      "submittedAt": 1791327232257,
+      "confirmedAt": 1791327233233,
+      "lane": 7,
+      "keeper": "0xdefB27bD0c7B54F74580913dCD36681d09A75e27",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "465352",
+      "gasLimit": "591088",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x7dbafa8dd3a8e23d1dc189adcc5b9644ad2d371d19f0f122ae65c501f963b21e",
+      "block": 36,
+      "submittedAt": 1791327232264,
+      "confirmedAt": 1791327233233,
+      "lane": 3,
+      "keeper": "0x870c223DF19B23F97990546b9452A0F76FFdA9f3",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "465573",
+      "gasLimit": "591331",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x6f3c2404ff14f44aefa4ebafed63a1861edb55ed6f687c05063d424b90c0b5ac",
+      "block": 36,
+      "submittedAt": 1791327232264,
+      "confirmedAt": 1791327233233,
+      "lane": 3,
+      "keeper": "0xc1289e0beb5b06cF121AeA244005CE972889E443",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "277362",
+      "gasLimit": "376709",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234246,
+      "lane": 1,
+      "keeper": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "accounts": 9,
+      "liquidated": 8,
+      "gasUsed": "1283824",
+      "gasLimit": "1765258",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234246,
+      "lane": 3,
+      "keeper": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+      "accounts": 9,
+      "liquidated": 9,
+      "gasUsed": "1358599",
+      "gasLimit": "1868073",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234246,
+      "lane": 4,
+      "keeper": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+      "accounts": 9,
+      "liquidated": 9,
+      "gasUsed": "1186394",
+      "gasLimit": "1631292",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234246,
+      "lane": 6,
+      "keeper": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+      "accounts": 7,
+      "liquidated": 7,
+      "gasUsed": "963890",
+      "gasLimit": "1325349",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x860b0768437cc1584d663e221db6c3f0bbaf930bba7975f6e7907229667fa228",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234233,
+      "lane": 3,
+      "keeper": "0x870c223DF19B23F97990546b9452A0F76FFdA9f3",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "72380",
+      "gasLimit": "99523",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x61c5c4491ae69283978f44cfda09e24226f602576c806948b6cde29286b7a4d7",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234246,
+      "lane": 3,
+      "keeper": "0xc1289e0beb5b06cF121AeA244005CE972889E443",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x2338873b8317a4d5e5a35058505f9d71387e6aa30feb51c7b67372c0f7babdff",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234246,
+      "lane": 4,
+      "keeper": "0x0312Babc9E00eC65d5269903f850895Ecc30d70C",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x41ac170ee8ce282d595e22312cea85a69a8f94f239bb449ce72a5cd11d4f56c4",
+      "block": 37,
+      "submittedAt": 1791327233290,
+      "confirmedAt": 1791327234246,
+      "lane": 6,
+      "keeper": "0x01D7B2954f21d78F3F80329D2C24823Bf944260E",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "block": 37,
+      "submittedAt": 1791327233319,
+      "confirmedAt": 1791327234246,
+      "lane": 2,
+      "keeper": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "accounts": 18,
+      "liquidated": 15,
+      "gasUsed": "1983028",
+      "gasLimit": "2726663",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "block": 37,
+      "submittedAt": 1791327233319,
+      "confirmedAt": 1791327234246,
+      "lane": 5,
+      "keeper": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+      "accounts": 10,
+      "liquidated": 10,
+      "gasUsed": "1446064",
+      "gasLimit": "1988338",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "block": 37,
+      "submittedAt": 1791327233319,
+      "confirmedAt": 1791327234246,
+      "lane": 7,
+      "keeper": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
+      "accounts": 9,
+      "liquidated": 9,
+      "gasUsed": "1231684",
+      "gasLimit": "1693565",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x3f93a428cc5526eb6c9e1603600c95c086488d852985c4101ba88d61462a0671",
+      "block": 37,
+      "submittedAt": 1791327233319,
+      "confirmedAt": 1791327234246,
+      "lane": 2,
+      "keeper": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "72380",
+      "gasLimit": "99523",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xb417c2c98fd5acac355ec185fee7d042f63cfae6a4293754afc776b2868e65e9",
+      "block": 37,
+      "submittedAt": 1791327233319,
+      "confirmedAt": 1791327234233,
+      "lane": 5,
+      "keeper": "0xCF81c7576c3A49f43360c98A23C360248CeF919D",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "72380",
+      "gasLimit": "99523",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x7dbc65482446cc78088192da4f5ca7dad47dbd334d69ed31058b1380f3618d5f",
+      "block": 37,
+      "submittedAt": 1791327233319,
+      "confirmedAt": 1791327234246,
+      "lane": 7,
+      "keeper": "0xdefB27bD0c7B54F74580913dCD36681d09A75e27",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "72429",
+      "gasLimit": "99590",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x4e623c7108d39892fbd94f23eb6cb9ef7d462491459b41e4727ba6748f8f0232",
+      "block": 37,
+      "submittedAt": 1791327233336,
+      "confirmedAt": 1791327234233,
+      "lane": 2,
+      "keeper": "0x275FAfF00eB41637833552d852D65DA63e598e92",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "282210",
+      "gasLimit": "357951",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x97dd8ab0b7a8ea6db9f7f2e01b586f0503e5c55caf8c026f55b61f2c34c1db28",
+      "block": 37,
+      "submittedAt": 1791327233336,
+      "confirmedAt": 1791327234233,
+      "lane": 5,
+      "keeper": "0xAd2E676478F8C890dc9c943A500C4f47F29907Bd",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "266696",
+      "gasLimit": "357951",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xeb747bb282fb1ec9da9d050045459c17eaa55f7063fee482d5bdd9917f0d1afb",
+      "block": 37,
+      "submittedAt": 1791327233336,
+      "confirmedAt": 1791327234233,
+      "lane": 7,
+      "keeper": "0xc53Bf6c116Afa8eDae5a5BafB530407AfD7396e7",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "599565",
+      "gasLimit": "787467",
+      "kind": "take"
+    },
+    {
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "block": 37,
+      "submittedAt": 1791327233336,
+      "confirmedAt": 1791327234233,
+      "lane": 0,
+      "keeper": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "accounts": 12,
+      "liquidated": 12,
+      "gasUsed": "1485872",
+      "gasLimit": "2043073",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0xf6d6839532fc860cc6cada1cb7da88f1edc91eaa6e6015bf600f277743d5f3a7",
+      "block": 37,
+      "submittedAt": 1791327233336,
+      "confirmedAt": 1791327234233,
+      "lane": 0,
+      "keeper": "0x26878542d80D1E7A933953e7D0BC91CD8a7f9620",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x3e58ec6e82bd2435e5d74aa29e913f78fd95e6cfc0de5820399692e43a9ca0d0",
+      "block": 37,
+      "submittedAt": 1791327233336,
+      "confirmedAt": 1791327234233,
+      "lane": 3,
+      "keeper": "0x870c223DF19B23F97990546b9452A0F76FFdA9f3",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x558806d6a5b9488382fdca465af3f22132cb5e27194404fc96ecf4383707a7f2",
+      "block": 37,
+      "submittedAt": 1791327233347,
+      "confirmedAt": 1791327234246,
+      "lane": 0,
+      "keeper": "0x9B4E1DB7920D1b7C636B81f2A53b114a33F3a928",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "266648",
+      "gasLimit": "357899",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xb1fd085e7e6f49308ce348e19b26d86ae82b83bd8c9a8b480b039cabf3453a94",
+      "block": 37,
+      "submittedAt": 1791327233347,
+      "confirmedAt": 1791327234246,
+      "lane": 0,
+      "keeper": "0x6958b23A2487b3E800BDC7F73AC2837A199e3DD0",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "266696",
+      "gasLimit": "357951",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xa5ae3688076e4e0637e6d5418ff5791af81f2aa05c591baf972e812173a47773",
+      "block": 37,
+      "submittedAt": 1791327233348,
+      "confirmedAt": 1791327234246,
+      "lane": 2,
+      "keeper": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68808",
+      "gasLimit": "94610",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xc747093c1fd967ea2d4efd8783840012ba0f724e7aff7091eae145c2e7fd99f1",
+      "block": 37,
+      "submittedAt": 1791327233348,
+      "confirmedAt": 1791327234233,
+      "lane": 5,
+      "keeper": "0xCF81c7576c3A49f43360c98A23C360248CeF919D",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "70416",
+      "gasLimit": "96821",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x06cc7bc82d4e7480f975e2fdfb4dc970f4b82e12c704303e585517dbd9af0908",
+      "block": 37,
+      "submittedAt": 1791327233348,
+      "confirmedAt": 1791327234246,
+      "lane": 7,
+      "keeper": "0xdefB27bD0c7B54F74580913dCD36681d09A75e27",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x179e82d06563f71375a3b521af9dc29ad888d88693bc44e9c5a7c9d49df3b543",
+      "block": 37,
+      "submittedAt": 1791327233374,
+      "confirmedAt": 1791327234233,
+      "lane": 5,
+      "keeper": "0xCF81c7576c3A49f43360c98A23C360248CeF919D",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xdb04e1afc9200f9a6f54992cb6ed357a794e79dc9fbd684039a95935724c9dd8",
+      "block": 38,
+      "submittedAt": 1791327234274,
+      "confirmedAt": 1791327235218,
+      "lane": 0,
+      "keeper": "0x6958b23A2487b3E800BDC7F73AC2837A199e3DD0",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x2eac753c5760a8fe1b860ef23221d693497eff25858ae103b5a0f3827c1bc06f",
+      "block": 38,
+      "submittedAt": 1791327234274,
+      "confirmedAt": 1791327235218,
+      "lane": 0,
+      "keeper": "0x9B4E1DB7920D1b7C636B81f2A53b114a33F3a928",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x7294ac323842ac00576bf5e3d2e3fd6c8c4b65dae79fa678a0ea132302e48332",
+      "block": 38,
+      "submittedAt": 1791327234274,
+      "confirmedAt": 1791327235218,
+      "lane": 5,
+      "keeper": "0xAd2E676478F8C890dc9c943A500C4f47F29907Bd",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x28dbbd443d7b7409b3afba24528ba06f7943b081d7c768015799dd1ff0971d07",
+      "block": 38,
+      "submittedAt": 1791327234274,
+      "confirmedAt": 1791327235218,
+      "lane": 7,
+      "keeper": "0xc53Bf6c116Afa8eDae5a5BafB530407AfD7396e7",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "72380",
+      "gasLimit": "99523",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x0a384f3509f5ba1e87d75f60fb3f41c0c040cdf64f01d5691082713c6d968628",
+      "block": 38,
+      "submittedAt": 1791327234279,
+      "confirmedAt": 1791327235218,
+      "lane": 7,
+      "keeper": "0xc53Bf6c116Afa8eDae5a5BafB530407AfD7396e7",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "70416",
+      "gasLimit": "96821",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xaa116f0f3879a71eac253648adf5e06b2582d7d0f50f4d98fbb0f0cdd067da14",
+      "block": 38,
+      "submittedAt": 1791327234283,
+      "confirmedAt": 1791327235218,
+      "lane": 2,
+      "keeper": "0x275FAfF00eB41637833552d852D65DA63e598e92",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x9703d35efc342ccfa83202e268d6d5fd8d309be23d7d5c2e17739773deaa9f0e",
+      "block": 38,
+      "submittedAt": 1791327234285,
+      "confirmedAt": 1791327235218,
+      "lane": 7,
+      "keeper": "0xc53Bf6c116Afa8eDae5a5BafB530407AfD7396e7",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "68759",
+      "gasLimit": "94543",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x14fd8c4ac49e7fd7ad7493daa9c6d6ce1206ca6024de3dd911ddf368f953a2c7",
+      "block": 51,
+      "submittedAt": 1791327247249,
+      "confirmedAt": 1791327248227,
+      "lane": 2,
+      "keeper": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "accounts": 3,
+      "liquidated": 1,
+      "gasUsed": "285281",
+      "gasLimit": "366610",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0xb3183eca0eef2d4216eb93e4ceb3dd9f92cc498c8c5da9b5964a916669272292",
+      "block": 54,
+      "submittedAt": 1791327250241,
+      "confirmedAt": 1791327251232,
+      "lane": 1,
+      "keeper": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "157131",
+      "gasLimit": "216055",
+      "kind": "expireBatch"
+    },
+    {
+      "txHash": "0xfbdb241ba33570245148a47fe33e435acf2a9aca339cc944c501e65a194c53c1",
+      "block": 54,
+      "submittedAt": 1791327250241,
+      "confirmedAt": 1791327251232,
+      "lane": 2,
+      "keeper": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "accounts": 2,
+      "liquidated": 2,
+      "gasUsed": "217815",
+      "gasLimit": "299495",
+      "kind": "expireBatch"
+    }
+  ],
+  "liquidations": [
+    {
+      "lane": 0,
+      "account": "0x12e53a41FcB619A6a735a0229465C54A39CAe5A0",
+      "equity": "7000001",
+      "badDebt": "0",
+      "txHash": "0xc2ca50094eb09794f700b59007beea9c9e40c27d4caf93e493a6783ece8164e4",
+      "logIndex": 2
+    },
+    {
+      "lane": 2,
+      "account": "0x9548388E748901c18f951828d68c92d9ee243252",
+      "equity": "1595200000",
+      "badDebt": "0",
+      "txHash": "0xda6df7dc4c5da5be5fee39cdfc9a7249c5b3eeeb9e3f8423cca963e92da92ba3",
+      "logIndex": 7
+    },
+    {
+      "lane": 4,
+      "account": "0x6211f4fC9bdbfF5A7758d68ff7986670F74929d4",
+      "equity": "735400001",
+      "badDebt": "0",
+      "txHash": "0x9d1dc9b798ef4ff604b6c3b35ba36c7e06bc81826b18c4423b161440456b7e52",
+      "logIndex": 10
+    },
+    {
+      "lane": 5,
+      "account": "0x33c03172840B339b9eB73085313C2e7ce817524d",
+      "equity": "1145600003",
+      "badDebt": "0",
+      "txHash": "0x606b48866d8049868bd0b6b351a913986d98b39c253718fa28936c54b67f38d6",
+      "logIndex": 17
+    },
+    {
+      "lane": 6,
+      "account": "0xE2d1b34250d26CF9e41EBf49D7fFe4CA4915dD06",
+      "equity": "25000001",
+      "badDebt": "0",
+      "txHash": "0xb9585d329bc0ce3bf7d415c87b1f64d584123b11e7a2cb9dc4146fdf9b74f702",
+      "logIndex": 20
+    },
+    {
+      "lane": 7,
+      "account": "0x97eda57FBC629d2cc9F0E47109621a4a247ECE17",
+      "equity": "50200000",
+      "badDebt": "0",
+      "txHash": "0x867573b8bd8c77769c6779f1c1f5214488ac0bfa26302d0feacd8da1b04b4ab9",
+      "logIndex": 25
+    },
+    {
+      "lane": 3,
+      "account": "0x79d8168B9e7978F13e46639f32984D55aD6a3B83",
+      "equity": "1213600002",
+      "badDebt": "0",
+      "txHash": "0x7dbafa8dd3a8e23d1dc189adcc5b9644ad2d371d19f0f122ae65c501f963b21e",
+      "logIndex": 30
+    },
+    {
+      "lane": 3,
+      "account": "0x865387edbaba1f00E39B2A96377225baBa628e2b",
+      "equity": "18000001",
+      "badDebt": "0",
+      "txHash": "0x6f3c2404ff14f44aefa4ebafed63a1861edb55ed6f687c05063d424b90c0b5ac",
+      "logIndex": 33
+    },
+    {
+      "lane": 1,
+      "account": "0x2c0B4961678efa764142b2295a0020a0a8E06d79",
+      "equity": "-83599999",
+      "badDebt": "91567998",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 2
+    },
+    {
+      "lane": 1,
+      "account": "0x454779540d0E8969130db42A79918354Ed6B96E1",
+      "equity": "-13300999998",
+      "badDebt": "14422159997",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 6
+    },
+    {
+      "lane": 1,
+      "account": "0x554D7422a6d72f37F2C822Bb49DB4961Cb0A5459",
+      "equity": "-787799999",
+      "badDebt": "959147998",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 11
+    },
+    {
+      "lane": 1,
+      "account": "0x6566F2D179Ac0dEe1501F039EAD290f8CaC1CB11",
+      "equity": "-14707000000",
+      "badDebt": "15593799999",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 15
+    },
+    {
+      "lane": 1,
+      "account": "0x69Dd15345Aaf2f8a2B8ABf96A683f0D824D91009",
+      "equity": "-20930399998",
+      "badDebt": "22347701997",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 19
+    },
+    {
+      "lane": 1,
+      "account": "0x6e50A4A779eC5966672A9CA1aC75AcA98d955C09",
+      "equity": "-1081999999",
+      "badDebt": "1131469998",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 22
+    },
+    {
+      "lane": 1,
+      "account": "0x70d2573e5DBd5426aA18f5c722d8CAE7634F38A1",
+      "equity": "-1166799999",
+      "badDebt": "1221063998",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 25
+    },
+    {
+      "lane": 1,
+      "account": "0xdDd61CD4e7558490b0833D5fcFBF952248a77a39",
+      "equity": "-129799999",
+      "badDebt": "151513998",
+      "txHash": "0xd87ec5007191025b6fc56c7fd19f30612c08486359319be90d408ba3eed9b134",
+      "logIndex": 28
+    },
+    {
+      "lane": 3,
+      "account": "0x1DC6c41f7aFd65E3d3A32A91f742A4A23186c743",
+      "equity": "-948999997",
+      "badDebt": "1006419996",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 33
+    },
+    {
+      "lane": 3,
+      "account": "0x6e98e28710C66093E82B1FD21B8EA5D890fb0913",
+      "equity": "-158999999",
+      "badDebt": "167579998",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 36
+    },
+    {
+      "lane": 3,
+      "account": "0x8a6B79Bcc69aEfc568063e804dcd3aee2409A15b",
+      "equity": "-576000000",
+      "badDebt": "1073039999",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 40
+    },
+    {
+      "lane": 3,
+      "account": "0xA9Eb123bc2aEc096e0DeEF5A5A1F5Ac993842073",
+      "equity": "-991799999",
+      "badDebt": "1138043998",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 43
+    },
+    {
+      "lane": 3,
+      "account": "0xcC9DA548ebB2169A807b6252DF9B0Fa5A7872b6B",
+      "equity": "-67199998",
+      "badDebt": "96275997",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 47
+    },
+    {
+      "lane": 3,
+      "account": "0xE180586a4b92Bf8E757Df9164A7727bf9AeC8C73",
+      "equity": "-81599999",
+      "badDebt": "100367998",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 50
+    },
+    {
+      "lane": 3,
+      "account": "0xe3d5c861f28Af01b635a8ED4930Bf0863A50709b",
+      "equity": "-1695800000",
+      "badDebt": "2234887999",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 54
+    },
+    {
+      "lane": 3,
+      "account": "0xEB73C22F20D6efD06998F444b8cD96aC4F85676B",
+      "equity": "-6301199998",
+      "badDebt": "6984275997",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 58
+    },
+    {
+      "lane": 3,
+      "account": "0xF9E373eC10ec1b4abC251DB7b4a1dAac1b001C73",
+      "equity": "-109199999",
+      "badDebt": "117155998",
+      "txHash": "0x5fb398b20b0889452494cf88494620c344fbc9c6e5ae416b5b8a41b7d412cbc4",
+      "logIndex": 61
+    },
+    {
+      "lane": 4,
+      "account": "0x06b1F607a0b3C651323ec020810717A82471CE64",
+      "equity": "-593199999",
+      "badDebt": "624105998",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 64
+    },
+    {
+      "lane": 4,
+      "account": "0x0f5a06Ea52ff26EB977c4B3F002B901d57c715d4",
+      "equity": "-2800599998",
+      "badDebt": "2941047997",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 68
+    },
+    {
+      "lane": 4,
+      "account": "0x21f9D14683546F349243085eA173aA9Ed56ABe94",
+      "equity": "-11374200000",
+      "badDebt": "12274463999",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 72
+    },
+    {
+      "lane": 4,
+      "account": "0x47679C4DF5cF57f0Ee7Ba80e28dC58822CF182DC",
+      "equity": "-1773999999",
+      "badDebt": "1881549998",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 75
+    },
+    {
+      "lane": 4,
+      "account": "0x53E28f2a5f33Cfbe85C986084De50EB516EF7944",
+      "equity": "-790799999",
+      "badDebt": "840563998",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 78
+    },
+    {
+      "lane": 4,
+      "account": "0x6fDd91AB894000d843d13a89b95a374468d40024",
+      "equity": "-687999999",
+      "badDebt": "815259998",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 81
+    },
+    {
+      "lane": 4,
+      "account": "0x867cfbBc8d516bF664a41D5d323674350418A63C",
+      "equity": "-74599999",
+      "badDebt": "82567998",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 84
+    },
+    {
+      "lane": 4,
+      "account": "0xa273bCd7C242134c10142fa38F13Be0a58B94a0C",
+      "equity": "-10999999",
+      "badDebt": "15589998",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 87
+    },
+    {
+      "lane": 4,
+      "account": "0xF428ded39716Dc189dB6A16F5B2Fb781b856242C",
+      "equity": "-42599999",
+      "badDebt": "49637998",
+      "txHash": "0xb8f3223c8e578e051f72baadd57506fb9f2fffd74372489893a2fddad5cb196f",
+      "logIndex": 90
+    },
+    {
+      "lane": 6,
+      "account": "0x2673d397deC2CCDF06e1947349f265c51460118E",
+      "equity": "-9336599999",
+      "badDebt": "10117457998",
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "logIndex": 93
+    },
+    {
+      "lane": 6,
+      "account": "0x2864c6a381b739a8276664ea68b34071Ab231EAe",
+      "equity": "-124199999",
+      "badDebt": "196505998",
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "logIndex": 96
+    },
+    {
+      "lane": 6,
+      "account": "0xBEA4A2d7AcD1DC41896F1a2B0f3E29A2D78BE46E",
+      "equity": "-90599998",
+      "badDebt": "112847997",
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "logIndex": 100
+    },
+    {
+      "lane": 6,
+      "account": "0xD0Ec15e7a4da2e4E5a94b857e2D868878DD634F6",
+      "equity": "-486599999",
+      "badDebt": "534647998",
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "logIndex": 103
+    },
+    {
+      "lane": 6,
+      "account": "0xE0e4BcCC04467A39c8E2fe54eC0518168045dcDE",
+      "equity": "-176399999",
+      "badDebt": "187991998",
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "logIndex": 106
+    },
+    {
+      "lane": 6,
+      "account": "0xe6A4D1a8c89E63be2689C980Cc406eE29392241E",
+      "equity": "-307399999",
+      "badDebt": "324871998",
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "logIndex": 109
+    },
+    {
+      "lane": 6,
+      "account": "0xEd51706DeC6D4df975c41319104E3f1B8387d73E",
+      "equity": "-156999999",
+      "badDebt": "167229998",
+      "txHash": "0xe43df859203ae598ba77b1a9f9c2a5ff6146977f3d20750d0fcf23a061f93aad",
+      "logIndex": 112
+    },
+    {
+      "lane": 2,
+      "account": "0x09aF7b453DFc0D85Cf7A167bFeB52CF9fDBc2d7A",
+      "equity": "-127999999",
+      "badDebt": "149449998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 240
+    },
+    {
+      "lane": 2,
+      "account": "0x0bfe792ecd671a7Ed0070e60393a43F5561CAc3a",
+      "equity": "-3485999998",
+      "badDebt": "3799289997",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 244
+    },
+    {
+      "lane": 2,
+      "account": "0x240BC711D4Ea7cfC23e7cE202e7FC19B800f186a",
+      "equity": "-4599999",
+      "badDebt": "15207998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 247
+    },
+    {
+      "lane": 2,
+      "account": "0x2DD7e1C7fF4BcA794B7464c9A925D0E68C45A402",
+      "equity": "-87399999",
+      "badDebt": "93951998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 250
+    },
+    {
+      "lane": 2,
+      "account": "0x516845889f56290A6F86715e2a3720cF787dC3C2",
+      "equity": "-7870599999",
+      "badDebt": "8521767998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 253
+    },
+    {
+      "lane": 2,
+      "account": "0x5bD365EC98b9ED80E88a5bAb179336bEa485062a",
+      "equity": "-22810999998",
+      "badDebt": "23861599997",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 257
+    },
+    {
+      "lane": 2,
+      "account": "0x5C10072F5639B4183dbE405D533a62eE634CeC0A",
+      "equity": "-8190999998",
+      "badDebt": "8640039997",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 261
+    },
+    {
+      "lane": 2,
+      "account": "0x654d42190D5db901f4a3E3B6B9DdC05105171022",
+      "equity": "-9721999998",
+      "badDebt": "10174759997",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 265
+    },
+    {
+      "lane": 2,
+      "account": "0x668Fd1dC0fCd832c8dD165edb022B54CE20dfD6a",
+      "equity": "-1531999999",
+      "badDebt": "1621249998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 268
+    },
+    {
+      "lane": 2,
+      "account": "0x6F00532f95c2C283fe213d556AD8a6fDD33d2712",
+      "equity": "-2628999999",
+      "badDebt": "2763039998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 271
+    },
+    {
+      "lane": 2,
+      "account": "0x9C69ca87b646e8B8649FB2860e482c8015D64CB2",
+      "equity": "-1151599998",
+      "badDebt": "1236457997",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 275
+    },
+    {
+      "lane": 2,
+      "account": "0xd503a31aA267E3b408E721FA7686e67Ab67DCB4A",
+      "equity": "-43399999",
+      "badDebt": "47071998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 278
+    },
+    {
+      "lane": 2,
+      "account": "0xdc5505C47e4E273D5c6E4D1dCF2B59EDC5cBdE5A",
+      "equity": "-230999999",
+      "badDebt": "435929998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 281
+    },
+    {
+      "lane": 2,
+      "account": "0xf8c82613Ea070BC4099Bf7e8F07c29BBE8ec2Ff2",
+      "equity": "-3429799999",
+      "badDebt": "3583813998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 284
+    },
+    {
+      "lane": 2,
+      "account": "0xfB9265fB5756046B15b756d4894AaF9AA0B8D2b2",
+      "equity": "-159599999",
+      "badDebt": "171107998",
+      "txHash": "0x38f22fbfb61bd3e9b4e9fc7c2755d0c516154a5200ebcc9a39dfa9ad9a40563e",
+      "logIndex": 287
+    },
+    {
+      "lane": 5,
+      "account": "0x15CE3F56a5EcBfAe9fCb8b6FC9224992B30b086d",
+      "equity": "-3527999999",
+      "badDebt": "3804929998",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 290
+    },
+    {
+      "lane": 5,
+      "account": "0x6547E251ac454F6b41cCd1Ae7a139652e8dd2cF5",
+      "equity": "-556399998",
+      "badDebt": "670231997",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 294
+    },
+    {
+      "lane": 5,
+      "account": "0x74441a4F3676D50E4294b99a8C1F9aec79cbD2d5",
+      "equity": "-463199999",
+      "badDebt": "521855998",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 297
+    },
+    {
+      "lane": 5,
+      "account": "0x930653aE1da46D0D03984793681BE1859C6D8b65",
+      "equity": "-6696000001",
+      "badDebt": "7338762000",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 302
+    },
+    {
+      "lane": 5,
+      "account": "0x9FB5aC843173Ea4b4c6783fB916f09d47B7938c5",
+      "equity": "-5406999998",
+      "badDebt": "6168609997",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 306
+    },
+    {
+      "lane": 5,
+      "account": "0xbDc87cF083178cF0c5a9aFD412845Bd6368f7A2D",
+      "equity": "-2330400000",
+      "badDebt": "2532971999",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 310
+    },
+    {
+      "lane": 5,
+      "account": "0xd0A77D052fF9241e4b1D93a1C4c5D0C9b8c807Ed",
+      "equity": "-354799998",
+      "badDebt": "771463997",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 314
+    },
+    {
+      "lane": 5,
+      "account": "0xD0c33C838060Ae5d117244f9144D8c497BCa3d3D",
+      "equity": "-1090199999",
+      "badDebt": "1230845998",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 317
+    },
+    {
+      "lane": 5,
+      "account": "0xe0d80B4559372AaFe23cb23fB98c1f00aa838195",
+      "equity": "-8619399999",
+      "badDebt": "9131211998",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 320
+    },
+    {
+      "lane": 5,
+      "account": "0xEe360276057cda9a5ee1f47777e73776B4944e2d",
+      "equity": "-11999999",
+      "badDebt": "17039998",
+      "txHash": "0x7456e0538cd348be50a446d0fc4ad5ef3772d3e45e9c30d311d30e41d64a6ad4",
+      "logIndex": 323
+    },
+    {
+      "lane": 7,
+      "account": "0x0E4455D0E07b0b7990eEDEDbefC2b024Ef17992f",
+      "equity": "-380999999",
+      "badDebt": "401159998",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 326
+    },
+    {
+      "lane": 7,
+      "account": "0x552604ab1fA8F6dB386E5951035A72F8C95d5C07",
+      "equity": "-629999999",
+      "badDebt": "712829998",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 329
+    },
+    {
+      "lane": 7,
+      "account": "0x6e53B3bcA326e49b5484A11BfdC39a47065848ef",
+      "equity": "-511399998",
+      "badDebt": "553051997",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 333
+    },
+    {
+      "lane": 7,
+      "account": "0x6F2E295c59E4e97e5011493c179Cae7c3B9FD78f",
+      "equity": "-194599999",
+      "badDebt": "206407998",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 336
+    },
+    {
+      "lane": 7,
+      "account": "0x79B9CFABf9E989c964eFBb73879A9461D4b3502F",
+      "equity": "-5315999999",
+      "badDebt": "5594399998",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 339
+    },
+    {
+      "lane": 7,
+      "account": "0x7b3b0366a71F8142f05eEd26513756a3b99439Cf",
+      "equity": "-1107200000",
+      "badDebt": "1272691999",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 343
+    },
+    {
+      "lane": 7,
+      "account": "0x813C7E40A97Dcc9291563a84d4ca94Ad0873751F",
+      "equity": "-75199999",
+      "badDebt": "87535998",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 346
+    },
+    {
+      "lane": 7,
+      "account": "0xb139e4304CccE8fA59C0De527EF0f3b19892aC87",
+      "equity": "-596999998",
+      "badDebt": "655679997",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 350
+    },
+    {
+      "lane": 7,
+      "account": "0xBE961fFF45bAB84799504CE5300ADc1eb9a42cf7",
+      "equity": "-2481999999",
+      "badDebt": "2724189998",
+      "txHash": "0xea40f3ab71e86da5ffc2dd125c0e754a5e240310d4564e6f3cb245330e555d47",
+      "logIndex": 353
+    },
+    {
+      "lane": 2,
+      "account": "0xE75F5fa2Dcb2BbE90f7103260D4E1142CB343E52",
+      "equity": "21400001",
+      "badDebt": "0",
+      "txHash": "0x4e623c7108d39892fbd94f23eb6cb9ef7d462491459b41e4727ba6748f8f0232",
+      "logIndex": 359
+    },
+    {
+      "lane": 5,
+      "account": "0x80c344856945116B04d5F04C410A771E995C20D5",
+      "equity": "82400001",
+      "badDebt": "0",
+      "txHash": "0x97dd8ab0b7a8ea6db9f7f2e01b586f0503e5c55caf8c026f55b61f2c34c1db28",
+      "logIndex": 362
+    },
+    {
+      "lane": 7,
+      "account": "0xAc9F49259745177374C4FD9fC733aE5fCc7a5217",
+      "equity": "4564600003",
+      "badDebt": "0",
+      "txHash": "0xeb747bb282fb1ec9da9d050045459c17eaa55f7063fee482d5bdd9917f0d1afb",
+      "logIndex": 369
+    },
+    {
+      "lane": 0,
+      "account": "0x107809080a55052bA8291E186d96E5e2d1C975b0",
+      "equity": "-348999998",
+      "badDebt": "370239997",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 502
+    },
+    {
+      "lane": 0,
+      "account": "0x14B009d9d26e2291539F44388a38C46284FaF1d8",
+      "equity": "-618399999",
+      "badDebt": "664671998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 505
+    },
+    {
+      "lane": 0,
+      "account": "0x3308e611CdB201A6D27d89e5Fbc33675b8237E10",
+      "equity": "-109399999",
+      "badDebt": "121171998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 508
+    },
+    {
+      "lane": 0,
+      "account": "0x50948dBd920cbE5FdADF8e0F2560e3f11c6BD480",
+      "equity": "-88599999",
+      "badDebt": "101127998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 511
+    },
+    {
+      "lane": 0,
+      "account": "0x534918C635B6FB3D818403cdefb19Ce7Dc7343D8",
+      "equity": "-1157999999",
+      "badDebt": "1212719998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 514
+    },
+    {
+      "lane": 0,
+      "account": "0x58A7A3aF6D4B11588668a58186378b31388B1060",
+      "equity": "-150999999",
+      "badDebt": "167199998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 517
+    },
+    {
+      "lane": 0,
+      "account": "0x70fD40CfA7419a0e944B13F71F0bD81538906868",
+      "equity": "-134999999",
+      "badDebt": "291599998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 520
+    },
+    {
+      "lane": 0,
+      "account": "0x8AAb34eA839a0b8B37DA3300E0917e3102B469E0",
+      "equity": "-194399999",
+      "badDebt": "203861998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 523
+    },
+    {
+      "lane": 0,
+      "account": "0x93E00b1272C0A5aB929206E3866331c80f12Daf8",
+      "equity": "-14733800000",
+      "badDebt": "16254697999",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 527
+    },
+    {
+      "lane": 0,
+      "account": "0x9E10aA25131740087B0ef781b84E4363E0f91b10",
+      "equity": "-8121999999",
+      "badDebt": "8699199998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 530
+    },
+    {
+      "lane": 0,
+      "account": "0xD644A110f70bea29125bE530E629F225074577D0",
+      "equity": "-238599999",
+      "badDebt": "252777998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 533
+    },
+    {
+      "lane": 0,
+      "account": "0xe6bdaaa19a25F127e862063103d1aC3f28B599c0",
+      "equity": "-414799999",
+      "badDebt": "440773998",
+      "txHash": "0x9e79beb40f3c7dbf3976fb9a47dfb4f35f61b3ef5810514ce8463dbcc8464ed9",
+      "logIndex": 536
+    },
+    {
+      "lane": 0,
+      "account": "0x393934ca319DCAf6B8582F715AFaE0067F062900",
+      "equity": "225000001",
+      "badDebt": "0",
+      "txHash": "0x558806d6a5b9488382fdca465af3f22132cb5e27194404fc96ecf4383707a7f2",
+      "logIndex": 541
+    },
+    {
+      "lane": 0,
+      "account": "0xA6e51ca79921a46f9F4FCf6DA9f242816e840c88",
+      "equity": "60200001",
+      "badDebt": "0",
+      "txHash": "0xb1fd085e7e6f49308ce348e19b26d86ae82b83bd8c9a8b480b039cabf3453a94",
+      "logIndex": 544
+    },
+    {
+      "lane": 2,
+      "account": "0xDf42CB97eb9d5f933F53Bf392C8F545324a414b2",
+      "equity": "-3117999999",
+      "badDebt": "6803429998",
+      "txHash": "0x14fd8c4ac49e7fd7ad7493daa9c6d6ce1206ca6024de3dd911ddf368f953a2c7",
+      "logIndex": 2
+    },
+    {
+      "lane": 1,
+      "account": "0xbC4232EaF392D2D68110848bFc88A1dD583cEc31",
+      "equity": "-9316999998",
+      "badDebt": "9316999998",
+      "txHash": "0xb3183eca0eef2d4216eb93e4ceb3dd9f92cc498c8c5da9b5964a916669272292",
+      "logIndex": 3
+    },
+    {
+      "lane": 2,
+      "account": "0x9542C9452E4ae60c9868A3ECd3FADc2138e987A2",
+      "equity": "-14844199998",
+      "badDebt": "14844199998",
+      "txHash": "0xfbdb241ba33570245148a47fe33e435acf2a9aca339cc944c501e65a194c53c1",
+      "logIndex": 7
+    },
+    {
+      "lane": 2,
+      "account": "0xDd3aa26094c49Caca13F28372E7bca2FEEF678Ca",
+      "equity": "-23522199999",
+      "badDebt": "23522199999",
+      "txHash": "0xfbdb241ba33570245148a47fe33e435acf2a9aca339cc944c501e65a194c53c1",
+      "logIndex": 10
+    }
+  ],
+  "totals": {
+    "accountsScanned": 524,
+    "liquidated": 96,
+    "badDebt": "292780301825",
+    "wallClockMs": 20951,
+    "blocks": [
+      34,
+      36,
+      37,
+      38,
+      51,
+      54
+    ],
+    "sameBlock": false,
+    "totalGasUsed": "25500688"
+  },
+  "auctions": {
+    "started": 96,
+    "takenByBackstop": 80,
+    "takenExternal": 13,
+    "cured": 0,
+    "expired": 3,
+    "avgDiscountBps": 76.61,
+    "traderResidualReturned": "5101406025",
+    "backstopPaid": "21890101920",
+    "badDebt": "292780301825",
+    "legacyCounterfactual": {
+      "traderLoss": "7082639999"
+    },
+    "traderEquityAtStart": "9743600016",
+    "externalTakers": {
+      "demo": true,
+      "accounts": 24,
+      "reservationBps": [
+        25,
+        70
+      ]
+    }
+  },
+  "underwater": {
+    "maxBlocks": 21,
+    "p50Blocks": 4,
+    "p95Blocks": 4,
+    "maxMs": 20988,
+    "perAccount": [
+      {
+        "account": "0x70fd40cfa7419a0e944b13f71f0bd81538906868",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x58a7a3af6d4b11588668a58186378b31388b1060",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xe6bdaaa19a25f127e862063103d1ac3f28b599c0",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x3308e611cdb201a6d27d89e5fbc33675b8237e10",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x9e10aa25131740087b0ef781b84e4363e0f91b10",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xa6e51ca79921a46f9f4fcf6da9f242816e840c88",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0x14b009d9d26e2291539f44388a38c46284faf1d8",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x12e53a41fcb619a6a735a0229465c54a39cae5a0",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0xd644a110f70bea29125be530e629f225074577d0",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x393934ca319dcaf6b8582f715afae0067f062900",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0x93e00b1272c0a5ab929206e3866331c80f12daf8",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x534918c635b6fb3d818403cdefb19ce7dc7343d8",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x107809080a55052ba8291e186d96e5e2d1c975b0",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x8aab34ea839a0b8b37da3300e0917e3102b469e0",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x50948dbd920cbe5fdadf8e0f2560e3f11c6bd480",
+        "lane": 0,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x69dd15345aaf2f8a2b8abf96a683f0d824d91009",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x454779540d0e8969130db42a79918354ed6b96e1",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6566f2d179ac0dee1501f039ead290f8cac1cb11",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x554d7422a6d72f37f2c822bb49db4961cb0a5459",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x2c0b4961678efa764142b2295a0020a0a8e06d79",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xddd61cd4e7558490b0833d5fcfbf952248a77a39",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6e50a4a779ec5966672a9ca1ac75aca98d955c09",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x70d2573e5dbd5426aa18f5c722d8cae7634f38a1",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xbc4232eaf392d2d68110848bfc88a1dd583cec31",
+        "lane": 1,
+        "fromBlock": 33,
+        "toBlock": 54,
+        "outcome": "expired"
+      },
+      {
+        "account": "0x9542c9452e4ae60c9868a3ecd3fadc2138e987a2",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 54,
+        "outcome": "expired"
+      },
+      {
+        "account": "0x9548388e748901c18f951828d68c92d9ee243252",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0x516845889f56290a6f86715e2a3720cf787dc3c2",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x668fd1dc0fcd832c8dd165edb022b54ce20dfd6a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xd503a31aa267e3b408e721fa7686e67ab67dcb4a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xdf42cb97eb9d5f933f53bf392c8f545324a414b2",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 51,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x09af7b453dfc0d85cf7a167bfeb52cf9fdbc2d7a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x240bc711d4ea7cfc23e7ce202e7fc19b800f186a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x2dd7e1c7ff4bca794b7464c9a925d0e68c45a402",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xe75f5fa2dcb2bbe90f7103260d4e1142cb343e52",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0x5c10072f5639b4183dbe405d533a62ee634cec0a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x0bfe792ecd671a7ed0070e60393a43f5561cac3a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x5bd365ec98b9ed80e88a5bab179336bea485062a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xf8c82613ea070bc4099bf7e8f07c29bbe8ec2ff2",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xfb9265fb5756046b15b756d4894aaf9aa0b8d2b2",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x654d42190d5db901f4a3e3b6b9ddc05105171022",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x9c69ca87b646e8b8649fb2860e482c8015d64cb2",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6f00532f95c2c283fe213d556ad8a6fdd33d2712",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xdc5505c47e4e273d5c6e4d1dcf2b59edc5cbde5a",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xdd3aa26094c49caca13f28372e7bca2feef678ca",
+        "lane": 2,
+        "fromBlock": 33,
+        "toBlock": 54,
+        "outcome": "expired"
+      },
+      {
+        "account": "0x865387edbaba1f00e39b2a96377225baba628e2b",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0xeb73c22f20d6efd06998f444b8cd96ac4f85676b",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xcc9da548ebb2169a807b6252df9b0fa5a7872b6b",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xe180586a4b92bf8e757df9164a7727bf9aec8c73",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xe3d5c861f28af01b635a8ed4930bf0863a50709b",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x1dc6c41f7afd65e3d3a32a91f742a4a23186c743",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x79d8168b9e7978f13e46639f32984d55ad6a3b83",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0xf9e373ec10ec1b4abc251db7b4a1daac1b001c73",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x8a6b79bcc69aefc568063e804dcd3aee2409a15b",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xa9eb123bc2aec096e0deef5a5a1f5ac993842073",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6e98e28710c66093e82b1fd21b8ea5d890fb0913",
+        "lane": 3,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x867cfbbc8d516bf664a41d5d323674350418a63c",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x47679c4df5cf57f0ee7ba80e28dc58822cf182dc",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x21f9d14683546f349243085ea173aa9ed56abe94",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6211f4fc9bdbff5a7758d68ff7986670f74929d4",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0x0f5a06ea52ff26eb977c4b3f002b901d57c715d4",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x06b1f607a0b3c651323ec020810717a82471ce64",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xf428ded39716dc189db6a16f5b2fb781b856242c",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6fdd91ab894000d843d13a89b95a374468d40024",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xa273bcd7c242134c10142fa38f13be0a58b94a0c",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x53e28f2a5f33cfbe85c986084de50eb516ef7944",
+        "lane": 4,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xe0d80b4559372aafe23cb23fb98c1f00aa838195",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x930653ae1da46d0d03984793681be1859c6d8b65",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xee360276057cda9a5ee1f47777e73776b4944e2d",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x74441a4f3676d50e4294b99a8c1f9aec79cbd2d5",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xd0a77d052ff9241e4b1d93a1c4c5d0c9b8c807ed",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x33c03172840b339b9eb73085313c2e7ce817524d",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0x80c344856945116b04d5f04c410a771e995c20d5",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0x15ce3f56a5ecbfae9fcb8b6fc9224992b30b086d",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6547e251ac454f6b41ccd1ae7a139652e8dd2cf5",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x9fb5ac843173ea4b4c6783fb916f09d47b7938c5",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xd0c33c838060ae5d117244f9144d8c497bca3d3d",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xbdc87cf083178cf0c5a9afd412845bd6368f7a2d",
+        "lane": 5,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x2864c6a381b739a8276664ea68b34071ab231eae",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x2673d397dec2ccdf06e1947349f265c51460118e",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xd0ec15e7a4da2e4e5a94b857e2d868878dd634f6",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xe6a4d1a8c89e63be2689c980cc406ee29392241e",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xe2d1b34250d26cf9e41ebf49d7ffe4ca4915dd06",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0xe0e4bccc04467a39c8e2fe54ec0518168045dcde",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xed51706dec6d4df975c41319104e3f1b8387d73e",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xbea4a2d7acd1dc41896f1a2b0f3e29a2d78be46e",
+        "lane": 6,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6f2e295c59e4e97e5011493c179cae7c3b9fd78f",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x0e4455d0e07b0b7990eededbefc2b024ef17992f",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x6e53b3bca326e49b5484a11bfdc39a47065848ef",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x552604ab1fa8f6db386e5951035a72f8c95d5c07",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x79b9cfabf9e989c964efbb73879a9461d4b3502f",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x813c7e40a97dcc9291563a84d4ca94ad0873751f",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xac9f49259745177374c4fd9fc733ae5fcc7a5217",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "external"
+      },
+      {
+        "account": "0xbe961fff45bab84799504ce5300adc1eb9a42cf7",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x7b3b0366a71f8142f05eed26513756a3b99439cf",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x97eda57fbc629d2cc9f0e47109621a4a247ece17",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 36,
+        "outcome": "external"
+      },
+      {
+        "account": "0xb139e4304ccce8fa59c0de527ef0f3b19892ac87",
+        "lane": 7,
+        "fromBlock": 33,
+        "toBlock": 37,
+        "outcome": "backstop"
+      }
+    ]
+  },
+  "xrayId": "run-mux9zc6t-g5jvm",
+  "bench": {
+    "measuredOn": "local anvil (NOT Monad)",
+    "tool": "npm run bench",
+    "startedAt": "2026-10-06T22:53:30.472Z",
+    "finishedAt": "2026-10-06T22:54:13.396Z",
+    "crashVia": "keeper-http",
+    "crashMode": "auctions",
+    "rpcHost": "127.0.0.1:8645",
+    "clientVersion": "anvil/v1.7.1",
+    "observedBlockIntervalMs": 999,
+    "seed": 20261006,
+    "designs": [
+      {
+        "design": "paraclr-lanes",
+        "contract": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      },
+      {
+        "design": "naive-shared",
+        "contract": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      }
+    ],
+    "accountsSeeded": 500,
+    "accountsSeededPerDesign": 500,
+    "positionsSeeded": 783,
+    "accountsPerLaneSeeded": [
+      65,
+      53,
+      65,
+      64,
+      64,
+      55,
+      71,
+      63
+    ],
+    "seedParams": {
+      "positionsPerAccount": "1 (55%) | 2 (34%) | 3 (11%)",
+      "marketMix": {
+        "MON/AUSD": 0.45,
+        "SOL/AUSD": 0.3,
+        "BTC/AUSD": 0.25
+      },
+      "longShare": 0.6,
+      "leverage": "round(2 + 18·u²)  → 2..20x, median ≈ 6x",
+      "marginAusd": "10^(1.8 + 2.4·u)  → ≈63 … 15,849 AUSD per position",
+      "collateral": "Σmargin × (1 + 0.15 + 2.5·u^1.6)",
+      "entry": "current oracle mark (seedAccounts opens at mark)"
+    },
+    "seedTotalCollateral": "4753603000000",
+    "seedGasUsed": "169017266",
+    "seedGasLimit": "185924276",
+    "seedWallClockMs": 9807,
+    "seedTxs": [
+      {
+        "txHash": "0x79700b81c3327a2273902f9eea40de292838c6fbe2835f69ed8ae9f97443655a",
+        "block": 15,
+        "accounts": 20,
+        "gasUsed": "6754106",
+        "gasLimit": "7429517"
+      },
+      {
+        "txHash": "0xde1830f41c3462f43d39ddba9b31b34d94b534cdab57e16b071af6ad792b4a1f",
+        "block": 16,
+        "accounts": 68,
+        "gasUsed": "23591300",
+        "gasLimit": "25950430"
+      },
+      {
+        "txHash": "0xc864bf83ec29cec62cda25d6a3816dd03558440dd0576ebdbcc6688f06b0ef51",
+        "block": 17,
+        "accounts": 66,
+        "gasUsed": "22465193",
+        "gasLimit": "24711713"
+      },
+      {
+        "txHash": "0x5d189c252da62c65a95229870e7aa2f075991999c4922a62361f7568218e8c32",
+        "block": 18,
+        "accounts": 68,
+        "gasUsed": "21411801",
+        "gasLimit": "23552982"
+      },
+      {
+        "txHash": "0x84592d5fb1c418fe1b3c0c2610276d0c23244026abd1ddfeb2b7732585d99722",
+        "block": 19,
+        "accounts": 73,
+        "gasUsed": "24604922",
+        "gasLimit": "27065415"
+      },
+      {
+        "txHash": "0x4063dba23853240491be0cf912376fc61fa951098a8fd2fb6f6fb5a0bf083269",
+        "block": 20,
+        "accounts": 68,
+        "gasUsed": "22624725",
+        "gasLimit": "24887198"
+      },
+      {
+        "txHash": "0x4995d466004931ab9671e563c3ec0c5aeee8878b3b3bb0304292cc492b5ffc27",
+        "block": 21,
+        "accounts": 69,
+        "gasUsed": "24247900",
+        "gasLimit": "26672690"
+      },
+      {
+        "txHash": "0xfef1030e28e7ecc7dc749f5950a4a82d75bc03800add96c0c9f2c4d4f643478f",
+        "block": 22,
+        "accounts": 65,
+        "gasUsed": "22183329",
+        "gasLimit": "24401662"
+      },
+      {
+        "txHash": "0xf906a557284ef099fa16eef34260ef39775d4a18b93462763189461571b37901",
+        "block": 23,
+        "accounts": 3,
+        "gasUsed": "1133990",
+        "gasLimit": "1252669"
+      }
+    ],
+    "seeding": {
+      "paraclr-lanes": {
+        "txs": [
+          {
+            "txHash": "0x79700b81c3327a2273902f9eea40de292838c6fbe2835f69ed8ae9f97443655a",
+            "block": 15,
+            "accounts": 20,
+            "gasUsed": "6754106",
+            "gasLimit": "7429517"
+          },
+          {
+            "txHash": "0xde1830f41c3462f43d39ddba9b31b34d94b534cdab57e16b071af6ad792b4a1f",
+            "block": 16,
+            "accounts": 68,
+            "gasUsed": "23591300",
+            "gasLimit": "25950430"
+          },
+          {
+            "txHash": "0xc864bf83ec29cec62cda25d6a3816dd03558440dd0576ebdbcc6688f06b0ef51",
+            "block": 17,
+            "accounts": 66,
+            "gasUsed": "22465193",
+            "gasLimit": "24711713"
+          },
+          {
+            "txHash": "0x5d189c252da62c65a95229870e7aa2f075991999c4922a62361f7568218e8c32",
+            "block": 18,
+            "accounts": 68,
+            "gasUsed": "21411801",
+            "gasLimit": "23552982"
+          },
+          {
+            "txHash": "0x84592d5fb1c418fe1b3c0c2610276d0c23244026abd1ddfeb2b7732585d99722",
+            "block": 19,
+            "accounts": 73,
+            "gasUsed": "24604922",
+            "gasLimit": "27065415"
+          },
+          {
+            "txHash": "0x4063dba23853240491be0cf912376fc61fa951098a8fd2fb6f6fb5a0bf083269",
+            "block": 20,
+            "accounts": 68,
+            "gasUsed": "22624725",
+            "gasLimit": "24887198"
+          },
+          {
+            "txHash": "0x4995d466004931ab9671e563c3ec0c5aeee8878b3b3bb0304292cc492b5ffc27",
+            "block": 21,
+            "accounts": 69,
+            "gasUsed": "24247900",
+            "gasLimit": "26672690"
+          },
+          {
+            "txHash": "0xfef1030e28e7ecc7dc749f5950a4a82d75bc03800add96c0c9f2c4d4f643478f",
+            "block": 22,
+            "accounts": 65,
+            "gasUsed": "22183329",
+            "gasLimit": "24401662"
+          },
+          {
+            "txHash": "0xf906a557284ef099fa16eef34260ef39775d4a18b93462763189461571b37901",
+            "block": 23,
+            "accounts": 3,
+            "gasUsed": "1133990",
+            "gasLimit": "1252669"
+          }
+        ],
+        "gasUsed": "169017266",
+        "gasLimit": "185924276",
+        "wallClockMs": 9807
+      },
+      "naive-shared": {
+        "txs": [
+          {
+            "txHash": "0xd2ed5707bae8c12121648d87c07a6f0f8774c8f7b6dafdec8569743adaf24ea2",
+            "block": 25,
+            "accounts": 20,
+            "gasUsed": "6347630",
+            "gasLimit": "6982393"
+          },
+          {
+            "txHash": "0xbb6b031a910b1da9ea0c52c5991bd31430a0b06d295ad8bee758c03815f4e575",
+            "block": 26,
+            "accounts": 73,
+            "gasUsed": "24543141",
+            "gasLimit": "26997456"
+          },
+          {
+            "txHash": "0x36823c1544ccd20ed5c33d5bdaf3fac6521aa8ae532765fcbc093e3f0f17e9ce",
+            "block": 27,
+            "accounts": 68,
+            "gasUsed": "22858049",
+            "gasLimit": "25143854"
+          },
+          {
+            "txHash": "0x09df0ac2eb94e47ef3047550312c44ee0e342924951dd5ca15af3f9f54ca80d4",
+            "block": 28,
+            "accounts": 68,
+            "gasUsed": "21186841",
+            "gasLimit": "23305526"
+          },
+          {
+            "txHash": "0xe5382cb6a356b90cadf4975aba2d938ee367860f3e23f73b8082666e91954cdd",
+            "block": 29,
+            "accounts": 74,
+            "gasUsed": "24640096",
+            "gasLimit": "27104106"
+          },
+          {
+            "txHash": "0xa40a546491d798c74e9a8e62326a3adbd18caf50b936092c9de6b53bc4170ccb",
+            "block": 30,
+            "accounts": 69,
+            "gasUsed": "22954853",
+            "gasLimit": "25250339"
+          },
+          {
+            "txHash": "0x816e576c17c92a5e7e6bea21299d9f7efdc606be019eb94109da8b5fd455cc98",
+            "block": 31,
+            "accounts": 69,
+            "gasUsed": "24028891",
+            "gasLimit": "26431781"
+          },
+          {
+            "txHash": "0x8bcb7710615e1a25781c112d9331d846aa87d13cc8dcacdf9878e934f297e8b4",
+            "block": 32,
+            "accounts": 59,
+            "gasUsed": "20043627",
+            "gasLimit": "22053270"
+          }
+        ],
+        "gasUsed": "166603128",
+        "gasLimit": "183268725",
+        "wallClockMs": 8916
+      }
+    },
+    "backstopFunding": null,
+    "demoTakers": {
+      "demo": true,
+      "seed": 20261006,
+      "perLane": 3,
+      "reservationBps": [
+        25,
+        70
+      ],
+      "collateral": "250000000000",
+      "takers": [
+        {
+          "address": "0x6958b23A2487b3E800BDC7F73AC2837A199e3DD0",
+          "lane": 0,
+          "reservationBps": 62
+        },
+        {
+          "address": "0x26878542d80D1E7A933953e7D0BC91CD8a7f9620",
+          "lane": 0,
+          "reservationBps": 29
+        },
+        {
+          "address": "0x9B4E1DB7920D1b7C636B81f2A53b114a33F3a928",
+          "lane": 0,
+          "reservationBps": 50
+        },
+        {
+          "address": "0xC17D282F1b5c2DcEDd503fC0bF407a5D566D5e01",
+          "lane": 1,
+          "reservationBps": 29
+        },
+        {
+          "address": "0x1473228Ad3052157Da0836746d26a5BdE1C6cB89",
+          "lane": 1,
+          "reservationBps": 58
+        },
+        {
+          "address": "0x8B35A28c41E2E58B456dB12a236B5b3BE6513C51",
+          "lane": 1,
+          "reservationBps": 68
+        },
+        {
+          "address": "0x751f382b5200eafeCd481FBc463dB43543b5f122",
+          "lane": 2,
+          "reservationBps": 68
+        },
+        {
+          "address": "0x834686bC8eEF747C4D4A2A20FD8b8f3bCc69823a",
+          "lane": 2,
+          "reservationBps": 33
+        },
+        {
+          "address": "0x275FAfF00eB41637833552d852D65DA63e598e92",
+          "lane": 2,
+          "reservationBps": 51
+        },
+        {
+          "address": "0xc6032A27f320A0D892bB2511b0927AB535ee0293",
+          "lane": 3,
+          "reservationBps": 47
+        },
+        {
+          "address": "0x870c223DF19B23F97990546b9452A0F76FFdA9f3",
+          "lane": 3,
+          "reservationBps": 30
+        },
+        {
+          "address": "0xc1289e0beb5b06cF121AeA244005CE972889E443",
+          "lane": 3,
+          "reservationBps": 36
+        },
+        {
+          "address": "0xFdDA59E1f1549a5B13425D14E2aDD037C1B9F51c",
+          "lane": 4,
+          "reservationBps": 53
+        },
+        {
+          "address": "0x8b2F7D61b56c4a7195a1D1D8401685B29d5e420C",
+          "lane": 4,
+          "reservationBps": 64
+        },
+        {
+          "address": "0x0312Babc9E00eC65d5269903f850895Ecc30d70C",
+          "lane": 4,
+          "reservationBps": 38
+        },
+        {
+          "address": "0xCF81c7576c3A49f43360c98A23C360248CeF919D",
+          "lane": 5,
+          "reservationBps": 48
+        },
+        {
+          "address": "0xAd2E676478F8C890dc9c943A500C4f47F29907Bd",
+          "lane": 5,
+          "reservationBps": 67
+        },
+        {
+          "address": "0xc4A4Ba3f9FCBcfDF17dbA0f41515d567bC9427cd",
+          "lane": 5,
+          "reservationBps": 68
+        },
+        {
+          "address": "0x01D7B2954f21d78F3F80329D2C24823Bf944260E",
+          "lane": 6,
+          "reservationBps": 31
+        },
+        {
+          "address": "0x8E2a22aa5b76AADD75Ee11cb373a4c58d526C306",
+          "lane": 6,
+          "reservationBps": 36
+        },
+        {
+          "address": "0xEB37a7ae93aEf57645B8264404082F80706A495e",
+          "lane": 6,
+          "reservationBps": 31
+        },
+        {
+          "address": "0x04D937d15a66598298d5B6bC2F4fe7D4F8a4233F",
+          "lane": 7,
+          "reservationBps": 54
+        },
+        {
+          "address": "0xdefB27bD0c7B54F74580913dCD36681d09A75e27",
+          "lane": 7,
+          "reservationBps": 43
+        },
+        {
+          "address": "0xc53Bf6c116Afa8eDae5a5BafB530407AfD7396e7",
+          "lane": 7,
+          "reservationBps": 52
+        }
+      ]
+    },
+    "config": {
+      "receiptPollMs": 25,
+      "gasMarginBps": 1000,
+      "maxTxGas": "30000000",
+      "keeperKeys": 8,
+      "sweeperPollMs": 50
+    },
+    "priceUpdatesDuringRunExcludingShock": 0,
+    "recoverTxHash": "0xfcfa94cb1d6b0c507e308894410ea4fdeaecec48beeea31325e9a96fe2f1c7b8",
+    "naive": {
+      "design": "naive-shared",
+      "contract": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "auctions": {
+        "started": 96,
+        "takenByBackstop": 83,
+        "takenExternal": 13,
+        "cured": 0,
+        "expired": 0,
+        "avgDiscountBps": 72.92,
+        "traderResidualReturned": "5101406025",
+        "backstopPaid": "21584723917",
+        "badDebt": "292474923822",
+        "legacyCounterfactual": {
+          "traderLoss": "7082639999"
+        },
+        "traderEquityAtStart": "9743600016",
+        "externalTakers": {
+          "demo": true,
+          "accounts": 24,
+          "reservationBps": [
+            25,
+            70
+          ]
+        }
+      },
+      "underwater": {
+        "maxBlocks": 4,
+        "p50Blocks": 4,
+        "p95Blocks": 4,
+        "maxMs": null,
+        "accounts": 96
+      },
+      "vsLegacy": {
+        "worse": 0,
+        "equal": 85,
+        "better": 11,
+        "worstExtra": "0"
+      },
+      "unresolved": 0,
+      "note": "Same events-based summary as the RunReport, computed for the naive design (keeper ms not tracked for it)."
+    },
+    "laneFunds": {
+      "paraclr-lanes": {
+        "block": {
+          "before": 32,
+          "after": 54
+        },
+        "insuranceBefore": "800000000000",
+        "insuranceAfter": "1403611298064",
+        "recordedBadDebtBefore": "0",
+        "recordedBadDebtAfter": "0"
+      },
+      "naive-shared": {
+        "block": {
+          "before": 32,
+          "after": 54
+        },
+        "insuranceBefore": "800000000000",
+        "insuranceAfter": "1403916676067",
+        "recordedBadDebtBefore": "0",
+        "recordedBadDebtAfter": "0"
+      }
+    },
+    "resolutionGas": {
+      "paraclr-lanes": {
+        "txs": 52,
+        "gasUsed": "25500688",
+        "gasLimit": "32530952"
+      },
+      "naive-shared": {
+        "txs": 49,
+        "gasUsed": "23689171",
+        "gasLimit": "32734631"
+      }
+    },
+    "xray": {
+      "file": "bench/xray/31337-run-mux9zc6t-g5jvm.json",
+      "method": "debug_traceTransaction",
+      "summary": {
+        "paraclr-lanes": {
+          "txs": 52,
+          "edges": 34,
+          "longestChain": 4,
+          "independentTxs": 22,
+          "crossLaneEdges": 0,
+          "sameLaneEdges": 34
+        },
+        "naive-shared": {
+          "txs": 49,
+          "edges": 311,
+          "longestChain": 18,
+          "independentTxs": 0,
+          "crossLaneEdges": 277,
+          "sameLaneEdges": 34
+        }
+      }
+    },
+    "derived": {
+      "liquidatedPct": 18.32,
+      "gasPerResolvedAccount": 265632,
+      "gasPerScannedAccount": 48665,
+      "batchCount": 52,
+      "avgGasPerBatch": 490398,
+      "maxGasPerBatch": 1983028,
+      "byKind": {
+        "startAuctions": {
+          "txs": 8,
+          "gasUsed": 7618846,
+          "gasLimit": 8380736,
+          "accounts": 96
+        },
+        "take": {
+          "txs": 13,
+          "gasUsed": 4885563,
+          "gasLimit": 6305995,
+          "accounts": 13
+        },
+        "backstopTakeBatch": {
+          "txs": 9,
+          "gasUsed": 11224636,
+          "gasLimit": 15408221,
+          "accounts": 86
+        },
+        "closePosition": {
+          "txs": 20,
+          "gasUsed": 1396697,
+          "gasLimit": 1920450,
+          "accounts": 0
+        },
+        "expireBatch": {
+          "txs": 2,
+          "gasUsed": 374946,
+          "gasLimit": 515550,
+          "accounts": 3
+        }
+      },
+      "shockConfirmMs": 925,
+      "shockSubmitToLastResolutionReceiptMs": 21913,
+      "seedGasPerAccount": 338035,
+      "traderLossAuctions": "4642193991",
+      "traderLossLegacyCounterfactual": "7082639999",
+      "accountsVsLegacy": {
+        "worse": 0,
+        "equal": 85,
+        "better": 11,
+        "worstExtra": "0"
+      }
+    },
+    "notes": [
+      "Timings are keeper-side wall clock (Date.now()): submittedAt right before eth_sendRawTransaction, confirmedAt when the receipt poll first sees the receipt (includes up to receiptPollMs + RPC latency).",
+      "batches = every sweeper tx on the lane-sharded design during the run (kind: startAuctions | backstopTakeBatch | expireBatch | cancelAuction); wallClockMs = first submitted → last receipt observed.",
+      "underwater: fromBlock = shock block, toBlock = block of the resolving event; maxMs = keeper saw the shock receipt → keeper saw the resolving receipt.",
+      "External takers in this run (auctions.externalTakers.demo = true) are demo bots run by the keeper: same-lane accounts with reservation discounts drawn from auctions.externalTakers.reservationBps, which take when the payment they would really receive (capped at the trader's equity) reaches their reservation, then close what they inherited at mark the next block. bench.demoTakers lists them.",
+      "legacyCounterfactual.traderLoss = Σ min(max(equity, 0), notional × LIQUIDATION_FEE_BPS / 10000) over the same accounts, equity and notional from AuctionStarted (the old liquidateBatch penalty).",
+      "accountsScanned counts every account registered in the 8 lanes of the lane-sharded design, including accounts seeded by earlier runs.",
+      "auctions.badDebt / totals.badDebt = Σ event badDebt = lane-FUNDED shortfall (AuctionTaken: max(0, payment − equity) incl. written-off negative equity; AuctionExpired / Liquidated: negative equity written off). The lane insurance fund pays first; only what it cannot cover becomes recorded lane bad debt — see laneFunds for the recorded before/after.",
+      "AUSD amounts are raw 6-decimal integers; gas values are integers as strings.",
+      "Local anvil with interval mining: block time and ordering are anvil's, NOT Monad's."
+    ]
+  }
+}
