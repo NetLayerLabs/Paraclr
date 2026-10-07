@@ -11,7 +11,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { formatEther, parseEther } from "viem";
 import { envStr } from "../env";
-import { envNum, KNOWN, LANES } from "./config";
+import { envNum, LANES, net, prodMarkets } from "./config";
 
 export interface GasTable {
   /** Where the numbers come from (printed with every preview). */
@@ -54,6 +54,26 @@ export const MEASURED_GAS: GasTable = {
   transfer: 21_000,
 };
 
+/**
+ * Monad TESTNET (chain 10143), measured by `npm run rehearse:testnet` on an anvil fork of the
+ * testnet with the real testnet AUSD and the real Pyth (2 markets, SOL + BTC; Pyth fee 1 wei per
+ * message) — filled from that report's gas.limits (see TESTNET_GAS_SOURCE). Auction gas = the
+ * fork's real-Pyth probe + per-account work from the MockPyth leg, like mainnet.
+ */
+export const TESTNET_MEASURED_GAS: GasTable = {
+  source: "rehearse:testnet 2026-10-07, contract v5 (bench/rehearsal/10143-fork-2026-10-07T15-51-49Z.json)",
+  executeOrder: 453_659, // average limit (single-leg max ≈ 507k; multi-leg with its appended update 691,189)
+  updateFunding: 87_713,
+  startAuction: 334_770, // fork real-Pyth probe (2 feeds) + MockPyth-leg per-account work
+  backstopTake: 584_078,
+  expire: MEASURED_GAS.expire, // no expiry on the testnet legs: the mainnet figure (higher, conservative)
+  cancelAuction: MEASURED_GAS.cancelAuction, // idem
+  pause: 33_374,
+  pythPush: 154_472, // 2 feeds; 1 feed 125,731
+  deploy: 18_050_000, // DeployProd v5 with 2 markets: 20 txs, 14.61M used
+  transfer: 21_000,
+};
+
 export interface Activity {
   days: number;
   /** Executions are paid back by users' execution fees (claimed by the keeper): float this many days. */
@@ -89,22 +109,30 @@ export interface Activity {
   otherLegs: "push" | "append";
 }
 
+/** Activity defaults per network: mainnet = the guarded beta; testnet = ~3 weeks of light demo use. */
+function defaults() {
+  return net().name === "testnet"
+    ? { days: 21, orders: 30, liquidations: 1, fundingChanges: 12, maxAge: 21_600, floor: "0.2" }
+    : { days: 14, orders: 200, liquidations: 20, fundingChanges: 48, maxAge: 3_600, floor: "0.5" };
+}
+
 export function activityFromEnv(gasPriceWei: bigint, pythFeeWei: bigint, fundingIntervalS?: number): Activity {
+  const d = defaults();
   // The keeper's funding policy (funding.ts) updates a market when its rate would change by more
   // than FUNDING_MIN_CHANGE_BPS, or at least every FUNDING_MAX_AGE_S — never more often than the
   // contract interval. Budget: one update per max-age plus BUDGET_FUNDING_CHANGES_PER_DAY.
   const interval = fundingIntervalS && fundingIntervalS > 0 ? fundingIntervalS : 60;
   const minChange = envNum("FUNDING_MIN_CHANGE_BPS", 500);
-  const maxAge = Math.max(interval, envNum("FUNDING_MAX_AGE_S", 3_600));
-  const perDay = minChange === 0 ? 86_400 / interval : Math.min(86_400 / interval, 86_400 / maxAge + envNum("BUDGET_FUNDING_CHANGES_PER_DAY", 48));
+  const maxAge = Math.max(interval, envNum("FUNDING_MAX_AGE_S", d.maxAge));
+  const perDay = minChange === 0 ? 86_400 / interval : Math.min(86_400 / interval, 86_400 / maxAge + envNum("BUDGET_FUNDING_CHANGES_PER_DAY", d.fundingChanges));
   return {
-    days: envNum("FUND_DAYS", 14),
+    days: envNum("FUND_DAYS", d.days),
     executionFloatDays: envNum("BUDGET_EXECUTION_FLOAT_DAYS", 2),
     executionFeeWei: BigInt(Math.round(envNum("BUDGET_EXECUTION_FEE_MON", 0.1) * 1e6)) * BigInt(1e12),
-    ordersPerDay: envNum("BUDGET_ORDERS_PER_DAY", 200),
-    markets: envNum("BUDGET_MARKETS", Object.keys(KNOWN.feeds).length),
+    ordersPerDay: envNum("BUDGET_ORDERS_PER_DAY", d.orders),
+    markets: envNum("BUDGET_MARKETS", Object.keys(prodMarkets()).length),
     fundingUpdatesPerDay: perDay,
-    liquidationsPerDay: envNum("BUDGET_LIQUIDATIONS_PER_DAY", 20),
+    liquidationsPerDay: envNum("BUDGET_LIQUIDATIONS_PER_DAY", d.liquidations),
     expireShare: envNum("BUDGET_EXPIRE_SHARE", 0.2),
     laneSkew: envNum("BUDGET_LANE_SKEW", 2),
     pythFeeWei,
@@ -120,14 +148,15 @@ export function activityFromEnv(gasPriceWei: bigint, pythFeeWei: bigint, funding
 }
 
 export function loadGasTable(reportPath?: string): GasTable {
-  if (!reportPath) return MEASURED_GAS;
+  const base = net().name === "testnet" ? TESTNET_MEASURED_GAS : MEASURED_GAS;
+  if (!reportPath) return base;
   if (!existsSync(reportPath)) throw new Error(`--gas-report ${reportPath} not found`);
   const r = JSON.parse(readFileSync(reportPath, "utf8")) as { gas?: Partial<GasTable> & { limits?: Partial<GasTable> & { executeOrderAvg?: number } } };
   const g = { ...(r.gas?.limits ?? r.gas) } as Partial<GasTable> & { executeOrderAvg?: number };
   if (!r.gas) throw new Error(`${reportPath} has no "gas" section (is it a rehearsal report?)`);
   // Burn is driven by the average execution; the max (a second-leg order) only matters per tx.
   if (typeof g.executeOrderAvg === "number") g.executeOrder = g.executeOrderAvg;
-  const pick = (k: keyof Omit<GasTable, "source">) => (typeof g[k] === "number" && (g[k] as number) > 0 ? (g[k] as number) : MEASURED_GAS[k]);
+  const pick = (k: keyof Omit<GasTable, "source">) => (typeof g[k] === "number" && (g[k] as number) > 0 ? (g[k] as number) : base[k]);
   return {
     source: `rehearsal report ${reportPath}`,
     executeOrder: pick("executeOrder"),
@@ -173,7 +202,7 @@ export interface Budget {
  * BUDGET_MIN_KEY_MON so it can act in an incident.
  */
 export function computeBudget(gas: GasTable, a: Activity): Budget {
-  const floor = parseEther(envStr("BUDGET_MIN_KEY_MON") ?? "0.5");
+  const floor = parseEther(envStr("BUDGET_MIN_KEY_MON") ?? defaults().floor);
   const busiest = (x: number) => (x / LANES) * a.laneSkew;
   const avg = (x: number) => x / LANES;
   const liqGas = gas.startAuction + (1 - a.expireShare) * gas.backstopTake + a.expireShare * gas.expire + 0.1 * gas.cancelAuction;
@@ -252,6 +281,12 @@ export function printAssumptions(gas: GasTable, a: Activity): void {
       ` · Pyth push mode ${a.pushMode}${a.pushMode === "interval" ? ` (${a.intervalPushesPerDay} pushes/day)` : ""}`,
   );
   console.log("        override with BUDGET_ORDERS_PER_DAY, BUDGET_LIQUIDATIONS_PER_DAY, FUND_DAYS, BUDGET_EXECUTION_FLOAT_DAYS, BUDGET_SAFETY, … (docs/RUNBOOK.md)");
+  if (a.pythFeeWei > BigInt(0)) {
+    console.log(
+      `        Pyth charges ${formatEther(a.pythFeeWei)} MON per update here, so keeper txs carry VALUE: Monad's reserve-balance rule lets a key below 10 MON send such a tx only as its first in 3 blocks.` +
+        "\n        The keeper spaces them for you (MONAD_RESERVE_GUARD); keys holding ≥ 10 MON skip the spacing. The targets below do NOT include that 10 MON reserve.",
+    );
+  }
 }
 
 function k(n: number) {

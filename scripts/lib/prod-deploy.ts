@@ -1,12 +1,16 @@
-// Production deploy flow (`npm run deploy:mainnet`, also used by `npm run rehearse:mainnet`):
+// Production deploy flow (`npm run deploy:mainnet` / `npm run deploy:testnet`, also used by
+// `npm run rehearse:mainnet`, `rehearse:testnet` and `sandbox`):
 //
-//   1. preflight  chain id 143 (or a local anvil), deployer balance, cost estimate from measured
-//                 gas, external facts re-verified on chain (AUSD code + 6 decimals, Pyth code +
-//                 version + every feed stored), owner multisig (Safe? owners/threshold, or EOA);
-//   2. confirm    real chain: refuses without --yes-mainnet (after printing all of the above);
+//   1. preflight  the profile's chain id (143 / 10143, or a local anvil), deployer balance, cost
+//                 estimate from measured gas, external facts re-verified on chain (AUSD code + 6
+//                 decimals + the verified address of THIS network, Pyth code + version + every
+//                 LISTED feed stored), owner multisig (Safe? owners/threshold, or EOA);
+//   2. confirm    real chain: refuses without --yes-mainnet / --yes-testnet;
 //   3. forge      contracts/script/DeployProd.s.sol with the env passed through the CHILD
 //                 process only (keys never in argv, never printed), --slow, Monad's 128 KB
-//                 code-size limit, output = deployments/143.json or DEPLOYMENTS_OUT (rehearsals);
+//                 code-size limit, output = deployments/<chainId>.json or DEPLOYMENTS_OUT
+//                 (rehearsals, sandbox). Testnet adds PROD_MARKETS (SOL + BTC with their feed
+//                 ids), CHAIN_ID 10143, DEPLOY_NETWORK=monad-testnet and the 600 s timelock;
 //   4. verify     on chain: owner = timelock, timelock delay + proposer/executor/canceller =
 //                 multisig, nobody else (deployer!) holds a timelock role, guardian, caps and
 //                 params as configured, AUSD / Pyth / feeds as expected, deployer powerless,
@@ -23,7 +27,7 @@ import { SenderRegistry, waitForReceipt } from "../../keeper/src/sender";
 import { HermesClient, hermesOptionsFromEnv } from "../../keeper/src/prod/hermes";
 import { clearinghouseAbi, erc20Abi, pythAbi, timelockAbi } from "../../keeper/src/prod/abi";
 import { loadGasTable } from "../../keeper/src/prod/budget";
-import { confirmMainnet, KNOWN, LANES, normaliseKey, rel, type Args, type ProdChain, type ProdRoles } from "../../keeper/src/prod/config";
+import { confirmMainnet, KNOWN, LANES, net, normaliseKey, prodMarkets, rel, type Args, type ProdChain, type ProdRoles } from "../../keeper/src/prod/config";
 import { prodDeploymentPath, readProdDeployment, type ProdDeployment } from "../../keeper/src/prod/deployment";
 
 export interface DeployInputs {
@@ -43,6 +47,8 @@ export interface DeployInputs {
   guardian: Address;
   ops: Address;
   keepers: Address[];
+  /** symbol → Pyth feed id (PROD_MARKETS, else the profile's list). */
+  markets: Record<string, Hex>;
 }
 
 export interface Check {
@@ -59,7 +65,7 @@ const SAFE_ABI = parseAbi([
 
 function addrEnv(name: string): Address {
   const v = envStr(name);
-  if (!v || !isAddress(v)) throw new Error(`${name} must be set to an address in the mainnet env`);
+  if (!v || !isAddress(v)) throw new Error(`${name} must be set to an address in the ${net().name} env`);
   return getAddress(v);
 }
 
@@ -79,15 +85,16 @@ export function deployInputs(roles: ProdRoles): DeployInputs {
     maxPriceAge: num("MAX_PRICE_AGE_SECONDS", 30),
     minExecDelay: num("MIN_EXEC_DELAY_SECONDS", 3),
     backstopWithdrawDelay: num("BACKSTOP_WITHDRAW_DELAY_SECONDS", 3_600),
-    timelockDelay: num("TIMELOCK_MIN_DELAY_SECONDS", 86_400),
+    timelockDelay: num("TIMELOCK_MIN_DELAY_SECONDS", net().defaultTimelockDelayS),
     maxDepositAusd: num("MAX_DEPOSIT_PER_ACCOUNT_AUSD", 50),
     maxTvlPerLaneAusd: num("MAX_TVL_PER_LANE_AUSD", 500),
     maxLeverage: num("MAX_LEVERAGE", 10),
-    ausd: getAddress(envStr("AUSD_ADDRESS") ?? KNOWN.ausd),
-    pyth: getAddress(envStr("PYTH_ADDRESS") ?? KNOWN.pyth),
+    ausd: getAddress(envStr("AUSD_ADDRESS") ?? net().ausd),
+    pyth: getAddress(envStr("PYTH_ADDRESS") ?? net().pyth),
     guardian: roles.guardian.address,
     ops: roles.ops.address,
     keepers: roles.keepers.map((k) => k.address),
+    markets: prodMarkets(),
   };
 }
 
@@ -101,23 +108,36 @@ export async function preflight(chain: ProdChain, inp: DeployInputs, feeds: Reco
   const dec = await c.readContract({ address: inp.ausd, abi: erc20Abi, functionName: "decimals" }).catch(() => null);
   const sym = await c.readContract({ address: inp.ausd, abi: erc20Abi, functionName: "symbol" }).catch(() => null);
   add("AUSD decimals = 6", dec === 6, `decimals ${dec} symbol ${sym}`);
-  if (!chain.fork || chain.network === "anvil-fork") add("AUSD is the verified Agora address", inp.ausd.toLowerCase() === KNOWN.ausd.toLowerCase(), inp.ausd);
+  const p = chain.profile;
+  if (!chain.fork || chain.network === "anvil-fork") add(`AUSD is the verified Agora address (${p.name})`, inp.ausd.toLowerCase() === p.ausd.toLowerCase(), inp.ausd);
+  const paused = await c.readContract({ address: inp.ausd, abi: parseAbi(["function isTransferPaused() view returns (bool)"]), functionName: "isTransferPaused" }).catch(() => null);
+  if (paused !== null) add("AUSD transfers not paused", paused === false, `isTransferPaused() = ${paused}`);
   add("Pyth has code", Boolean(pythCode && pythCode !== "0x"), inp.pyth);
   const ver = await c.readContract({ address: inp.pyth, abi: pythAbi, functionName: "version" }).catch(() => null);
   add("Pyth version()", ver !== null, String(ver));
-  if (!chain.fork || chain.network === "anvil-fork") add("Pyth is the verified Monad address", inp.pyth.toLowerCase() === KNOWN.pyth.toLowerCase(), inp.pyth);
+  if (!chain.fork || chain.network === "anvil-fork") add(`Pyth is the verified Monad address (${p.name})`, inp.pyth.toLowerCase() === p.pyth.toLowerCase(), inp.pyth);
+  if (p.name === "testnet") add("MON/AUSD not listed (the Pyth trial key is not entitled to MON)", !("MON/AUSD" in feeds) || envStr("ALLOW_MON_ON_TESTNET") === "true", Object.keys(feeds).join(", "));
   for (const [sym2, id] of Object.entries(feeds)) {
     const p = await c.readContract({ address: inp.pyth, abi: pythAbi, functionName: "getPriceUnsafe", args: [id] }).catch(() => null);
     add(`Pyth feed ${sym2} stored`, p !== null && p.price > BigInt(0), p ? `price ${p.price} expo ${p.expo} publishTime ${p.publishTime}` : `${id} not found`);
   }
-  if (ownerCode && ownerCode !== "0x") {
+  // An EIP-7702-delegated EOA carries a 23-byte designator (0xef0100 ‖ address): it is an EOA, not a Safe.
+  const delegated = Boolean(ownerCode && /^0xef0100[0-9a-fA-F]{40}$/.test(ownerCode));
+  if (delegated) {
+    add(
+      "owner is an EOA with an EIP-7702 delegation (OWNER_IS_EOA=true)",
+      inp.ownerIsEoa,
+      `${inp.owner} delegates to 0x${ownerCode!.slice(8)}: ${inp.ownerIsEoa ? "accepted as an EOA owner (make sure YOU control that delegation)" : "not a Safe; set OWNER_IS_EOA=true only for a hardware wallet"}`,
+    );
+  } else if (ownerCode && ownerCode !== "0x") {
     const [v, owners, thr] = await Promise.all([
       c.readContract({ address: inp.owner, abi: SAFE_ABI, functionName: "VERSION" }).catch(() => null),
       c.readContract({ address: inp.owner, abi: SAFE_ABI, functionName: "getOwners" }).catch(() => null),
       c.readContract({ address: inp.owner, abi: SAFE_ABI, functionName: "getThreshold" }).catch(() => null),
     ]);
     add("owner multisig is a Safe", v !== null && owners !== null, `Safe ${v} · ${owners?.length ?? "?"} owners · threshold ${thr}`);
-    if (owners && thr !== null) add("Safe threshold ≥ 2", Number(thr) >= 2 || chain.fork, `threshold ${thr} of ${owners.length}`);
+    const minThr = p.name === "testnet" ? Number(envStr("SAFE_MIN_THRESHOLD") ?? 2) : 2;
+    if (owners && thr !== null) add(`Safe threshold ≥ ${minThr}`, Number(thr) >= minThr || chain.fork, `threshold ${thr} of ${owners.length}`);
   } else {
     add(
       "owner without code allowed (OWNER_IS_EOA=true)",
@@ -131,16 +151,23 @@ export async function preflight(chain: ProdChain, inp: DeployInputs, feeds: Reco
   add("owner is not a hot key", !hot.includes(inp.owner.toLowerCase()), "OWNER_MULTISIG_ADDRESS must not be any key on the server");
   const roleKeys = [inp.guardian, ...inp.keepers].map((a) => a.toLowerCase());
   add("guardian + 8 keepers are distinct keys", new Set(roleKeys).size === roleKeys.length, "DeployProd maps keeper i → lane i and refuses duplicates");
-  add("timelock delay ≥ 1 h", inp.timelockDelay >= 3_600 || chain.fork, `${inp.timelockDelay} s`);
+  add(
+    `timelock delay ≥ ${p.minTimelockDelayS >= 3_600 ? `${p.minTimelockDelayS / 3_600} h` : `${p.minTimelockDelayS} s`}`,
+    inp.timelockDelay >= p.minTimelockDelayS || chain.fork,
+    `${inp.timelockDelay} s`,
+  );
   add("maxStoredPriceAge ≤ maxPriceAge ≤ 60 s", inp.maxStoredPriceAge <= inp.maxPriceAge && inp.maxPriceAge <= 60, `${inp.maxStoredPriceAge} / ${inp.maxPriceAge} s`);
   return checks;
 }
 
 /**
- * DeployProd's final wiring check calls markPrice() for every market, which needs the price STORED
- * in the Pyth contract to be ≤ maxPriceAge (60 s) old at simulation time. Others push MON/SOL/BTC
- * on Monad only every ~40–100 s, so refresh them first: fetch the latest signed update from
- * Hermes and push it with pyth.updatePriceFeeds from the deployer (fee 0 on Monad today).
+ * DeployProd requires every LISTED feed to have been pushed on this chain within
+ * PYTH_MAX_FEED_AGE_SECONDS (1 h). Third parties push MON/SOL/BTC on Monad mainnet constantly;
+ * nobody pushes on Monad testnet (SOL was 8 days old, BTC 45 min on 2026-10-07). If the oldest
+ * listed feed is too old, fetch the latest signed update from Hermes for the LISTED feeds only (never
+ * MON on testnet: the trial key is not entitled) and push it with pyth.updatePriceFeeds from the
+ * deployer (fee: 0 on mainnet, 1 wei per message on testnet — the deployer's first tx, so Monad's
+ * reserve-balance "emptying" exception covers the value).
  */
 export async function refreshPyth(chain: ProdChain, deployerKey: Hex, pyth: Address, feeds: Hex[]): Promise<Check> {
   const now = Number((await chain.client.getBlock({ blockTag: "latest" })).timestamp);
@@ -202,7 +229,7 @@ export async function runDeployScript(
   mkdirSync(dirname(outFile), { recursive: true });
   // Forge gets the deployer key and ADDRESSES only: strip every other secret from its environment.
   const env: NodeJS.ProcessEnv = { ...process.env };
-  for (const k of ["GUARDIAN_PRIVATE_KEY", "OPS_PRIVATE_KEY", "KEEPER_PRIVATE_KEYS", "PYTH_API_KEY", "ALERT_WEBHOOK_URL", "FUNDER_PRIVATE_KEY"]) delete env[k];
+  for (const k of ["GUARDIAN_PRIVATE_KEY", "OPS_PRIVATE_KEY", "KEEPER_PRIVATE_KEYS", "PYTH_API_KEY", "ALERT_WEBHOOK_URL", "FUNDER_PRIVATE_KEY", "PRICE_SIGNER_PRIVATE_KEY"]) delete env[k];
   Object.assign(env, {
     DEPLOYER_PRIVATE_KEY: deployerKey,
     OWNER_MULTISIG_ADDRESS: inp.owner,
@@ -218,6 +245,16 @@ export async function runDeployScript(
     OWNER_IS_EOA: inp.ownerIsEoa ? "true" : "false",
     DEPLOYMENTS_OUT: outFile,
   });
+  // Network-specific inputs. Mainnet passes none of these unless set, so its forge run is unchanged.
+  const p = chain.profile;
+  if (p.name === "testnet" || envStr("PROD_MARKETS")) {
+    env.PROD_MARKETS = Object.entries(inp.markets).map(([sym, feed]) => `${sym}=${feed}`).join(",");
+  }
+  if (p.name === "testnet") {
+    env.CHAIN_ID = String(p.chainId);
+    env.DEPLOY_NETWORK = p.slug;
+    if (inp.timelockDelay < 3_600) env.ALLOW_SHORT_TIMELOCK = "true"; // ≥ the profile's 600 s floor (preflight)
+  }
   const args = [
     "script",
     `${script}:DeployProd`,
@@ -331,9 +368,14 @@ export async function verifyDeployment(chain: ProdChain, dep: ProdDeployment, in
   add("ausd() = AUSD_ADDRESS", ausd.toLowerCase() === inp.ausd.toLowerCase(), ausd);
   add("pyth() = PYTH_ADDRESS", pyth.toLowerCase() === inp.pyth.toLowerCase(), pyth);
   const [ids, symbols, feeds] = await r<readonly [readonly Hex[], readonly string[], readonly Hex[]]>("getMarkets");
-  add("markets listed", ids.length >= 1, symbols.join(", "));
+  const wanted = Object.keys(inp.markets);
+  add(
+    "markets listed = PROD_MARKETS",
+    ids.length === wanted.length && wanted.every((w) => symbols.includes(w)),
+    `${symbols.join(", ")}${chain.profile.name === "testnet" ? " (MON not listed on testnet)" : ""}`,
+  );
   symbols.forEach((s, i) => {
-    const want = KNOWN.feeds[s];
+    const want = inp.markets[s] ?? KNOWN.feeds[s];
     add(`feed ${s}`, !want || want.toLowerCase() === feeds[i].toLowerCase(), feeds[i]);
     add(`market id ${s} = keccak256(symbol)`, ids[i].toLowerCase() === keccak256(toHex(s)).toLowerCase(), ids[i]);
   });
@@ -352,6 +394,7 @@ export async function verifyDeployment(chain: ProdChain, dep: ProdDeployment, in
   add("params readable", true, params.join(" · "));
   const pf = dep.raw.params as Record<string, unknown> | undefined;
   add('file "params" has the v2+ keys', Boolean(pf && "maxStoredPriceAgeSeconds" in pf && "backstopWithdrawDelaySeconds" in pf), pf ? Object.keys(pf).length + " keys" : "no params");
+  if (chain.profile.name === "testnet") add('file "network" = monad-testnet', dep.network === chain.profile.slug, String(dep.network));
   const deployerBal = await c.getBalance({ address: deployer });
   add("deployer leftover MON (sweep it)", true, `${formatEther(deployerBal)} MON at ${deployer}`);
   return checks;
@@ -377,7 +420,8 @@ export interface DeployResult {
 /** The whole flow (preflight → confirm → forge → verify). */
 export async function deployProd(chain: ProdChain, roles: ProdRoles, args: Args, opts: { logFile?: string; verbose?: boolean } = {}): Promise<DeployResult> {
   const deployerKeyRaw = envStr("DEPLOYER_PRIVATE_KEY");
-  if (!deployerKeyRaw) throw new Error("DEPLOYER_PRIVATE_KEY missing in the mainnet env");
+  const p = chain.profile;
+  if (!deployerKeyRaw) throw new Error(`DEPLOYER_PRIVATE_KEY missing in the ${p.name} env`);
   const deployerKey = normaliseKey("DEPLOYER_PRIVATE_KEY", deployerKeyRaw);
   const deployer = privateKeyToAccount(deployerKey).address;
   const inp = deployInputs(roles);
@@ -388,12 +432,13 @@ export async function deployProd(chain: ProdChain, roles: ProdRoles, args: Args,
     if (code && code !== "0x") throw new Error(`${rel(file)} already points at a live deployment (${existing.clearinghouse}); pass --redeploy to deploy a NEW set`);
   }
 
-  console.log(`deploy:mainnet · ${chain.label} · chain ${chain.chainId} → ${rel(file)}`);
+  console.log(`deploy:${p.name} · ${chain.label} · chain ${chain.chainId} → ${rel(file)}${p.realValue ? "" : " · TESTNET (test funds, no real value)"}`);
+  console.log(`  markets ${Object.entries(inp.markets).map(([sym, f]) => `${sym} (${f.slice(0, 10)}…)`).join(" · ")}`);
   console.log(`  deployer ${deployer} · owner (multisig) ${inp.owner} · timelock delay ${inp.timelockDelay} s`);
   console.log(`  guardian ${inp.guardian} · ops ${inp.ops} · keepers ${inp.keepers.length}`);
   console.log(`  caps: ${inp.maxDepositAusd} AUSD/account · ${inp.maxTvlPerLaneAusd} AUSD/lane TVL · ${inp.maxLeverage}x leverage`);
   console.log(`  prices: stored/lane ≤ ${inp.maxStoredPriceAge} s · supplied ≤ ${inp.maxPriceAge} s · exec delay ${inp.minExecDelay} s · LP exit delay ${inp.backstopWithdrawDelay} s · owner ${inp.ownerIsEoa ? "EOA (hardware wallet)" : "contract (Safe)"}`);
-  const pre = await preflight(chain, inp, KNOWN.feeds);
+  const pre = await preflight(chain, inp, inp.markets);
   const preOk = printChecks("preflight (on chain):", pre);
   const gas = loadGasTable(typeof args["gas-report"] === "string" ? args["gas-report"] : undefined);
   // Monad's floor is 100 gwei base + priority; an anvil fork quotes ~1 gwei, so never estimate below it.
@@ -406,10 +451,10 @@ export async function deployProd(chain: ProdChain, roles: ProdRoles, args: Args,
       `\n  deployer balance ${formatEther(bal)} MON${bal < est ? "  ← TOO LOW" : ""}`,
   );
   if (!preOk) throw new Error("preflight failed: fix the env / addresses above first");
-  if (bal < est) throw new Error(`deployer needs ≥ ${formatEther(est)} MON (keeper:fund -- --network mainnet --roles deployer)`);
+  if (bal < est) throw new Error(`deployer needs ≥ ${formatEther(est)} MON (keeper:fund -- --network ${p.name} --roles deployer)`);
   confirmMainnet(chain, args, "deploy the production contract set (DeployProd.s.sol)");
 
-  const fresh = await refreshPyth(chain, deployerKey, inp.pyth, Object.values(KNOWN.feeds));
+  const fresh = await refreshPyth(chain, deployerKey, inp.pyth, Object.values(inp.markets));
   printChecks("Pyth feeds pushed recently (DeployProd: PYTH_MAX_FEED_AGE_SECONDS):", [fresh]);
   if (!fresh.ok) throw new Error("stored Pyth prices are too old for DeployProd");
   const forge = await runDeployScript(chain, deployerKey, inp, file, opts);
@@ -420,5 +465,20 @@ export async function deployProd(chain: ProdChain, roles: ProdRoles, args: Args,
   const ok = printChecks("post-deploy verification (on chain):", post);
   console.log(`\n  forge: ${forge.txs} txs · ${(Number(forge.gasUsedTotal) / 1e6).toFixed(2)}M gas used · ${(Number(forge.gasLimitTotal) / 1e6).toFixed(2)}M gas limit`);
   if (!ok) throw new Error("post-deploy verification FAILED — do not announce or fund this deployment; see docs/RUNBOOK.md");
+  if (p.name === "testnet") stampTestnetFile(file, dep);
   return { dep, pre, post, forge, file };
+}
+
+/**
+ * Testnet deployment files carry what the app and the fallback procedure read besides DeployProd's
+ * output: the real Pyth (kept when the oracle is later switched), the price source, Agora's faucet.
+ */
+function stampTestnetFile(file: string, dep: ProdDeployment): void {
+  const raw = JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
+  raw.network = raw.network ?? "monad-testnet";
+  raw.realPyth = raw.realPyth ?? dep.realPyth;
+  raw.priceSource = raw.priceSource ?? "pyth";
+  raw.ausdFaucet = raw.ausdFaucet ?? "0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C";
+  raw.testnet = true;
+  writeFileSync(file, JSON.stringify(raw, null, 2) + "\n");
 }

@@ -21,12 +21,16 @@
 //   governance owner() must stay the timelock and the deployer must stay powerless → `gov:…`
 //   AUSD       issuer risk (Agora can pause transfers / freeze addresses / upgrade AUSD):
 //              isTransferPaused() → `ausd:paused`, isAccountFrozen(clearinghouse) → `ausd:frozen`,
-//              Pyth AUSD/USD off peg by > ALERT_DEPEG_BPS (50) → `ausd:depeg` (critical at 4×)
+//              Pyth AUSD/USD off peg by > ALERT_DEPEG_BPS (50) → `ausd:depeg` (critical at 4×;
+//              AUSD_DEPEG_CHECK, on by default on mainnet only: testnet AUSD has no value and the
+//              Pyth trial key may not cover AUSD/USD — a refused feed must not trip Hermes' breaker)
+//   oracle src the clearinghouse's live `pyth()` (testnet: Pyth, or the keeper-signed fallback after
+//              a timelocked setPyth) → the keeper switches its price source live (`gov:oracle`)
 //   rpc        head not advancing for 15 s → `rpc:stalled`
 
 import { encodeFunctionData, formatEther, parseEventLogs, type Abi, type Address, type Log } from "viem";
 import { clearinghouseAbi, pythAbi } from "./abi";
-import { short, type ProdContext } from "./context";
+import { short, switchOracle, type ProdContext } from "./context";
 import type { Head, HeadWatcher } from "./head";
 import { confBps, toFloat } from "./pyth-wire";
 import { estimate, sendTracked, type TxLedger } from "./tx";
@@ -103,6 +107,7 @@ export class Monitor {
         return fallback;
       });
 
+    await switchOracle(ctx).catch((err: unknown) => errors.push(`oracle: ${short(err)}`));
     const [balances, prices, paused, sol, caps, owner, nat, ausd, lanes, stored, poolDeposits] = await Promise.all([
       guard(this.balances(), "balances", []),
       guard(this.prices(head), "prices", {}),
@@ -220,7 +225,7 @@ export class Monitor {
   onLogs(logs: Log[]): void {
     // BackstopRepaid / MarketFeedReplaced exist from contract v3 on; unknown names just never match.
     const evs = parseEventLogs({ abi: clearinghouseAbi as Abi, logs, strict: false }).filter((e) =>
-      ["LaneHaircut", "BackstopLossAbsorbed", "BackstopPoolReset", "AccountSkipped", "BackstopRepaid", "MarketFeedReplaced", "BackstopReceivableNetted", "BackstopSwept"].includes(e.eventName ?? ""),
+      ["LaneHaircut", "BackstopLossAbsorbed", "BackstopPoolReset", "AccountSkipped", "BackstopRepaid", "MarketFeedReplaced", "BackstopReceivableNetted", "BackstopSwept", "PythUpdated"].includes(e.eventName ?? ""),
     ) as Array<{ eventName: string; args: unknown; transactionHash: string | null }>;
     for (const e of evs) {
       const a = e.args as Record<string, unknown>;
@@ -230,6 +235,11 @@ export class Monitor {
       if (now - (this.eventSeen.get(key) ?? 0) < 60_000) continue; // one page per lane per minute
       this.eventSeen.set(key, now);
       const tx = e.transactionHash;
+      if (e.eventName === "PythUpdated") {
+        // A timelocked setPyth (testnet trial-end fallback, or back to Pyth): switch the price source now.
+        void switchOracle(this.ctx).catch((err: unknown) => console.warn(`[monitor] oracle switch: ${short(err)}`));
+        continue;
+      }
       if (e.eventName === "LaneHaircut") {
         this.ctx.alerter.event(`haircut:lane${lane}`, "warning", `lane ${lane} paid a HAIRCUT withdrawal: ${a.account} debited ${Number(a.debited) / 1e6} AUSD, paid ${Number(a.paid) / 1e6} (tx ${tx})`);
       } else if (e.eventName === "BackstopLossAbsorbed") {
@@ -254,6 +264,7 @@ export class Monitor {
         if (m) {
           m.feed = newFeed;
           this.ctx.dep.feeds[m.symbol] = newFeed;
+          this.ctx.sources.signed?.setFeeds(this.ctx.markets.map((x) => ({ symbol: x.symbol, feed: x.feed })));
         }
         this.ctx.alerter.event(
           "gov:feed",
@@ -278,17 +289,20 @@ export class Monitor {
     ctx.alerter.set(transferPaused === true, "ausd:paused", "critical", "AUSD transfers are PAUSED by the issuer: deposits and withdrawals fail until Agora unpauses");
     ctx.alerter.set(clearinghouseFrozen === true, "ausd:frozen", "critical", `AUSD has FROZEN the clearinghouse ${ctx.dep.clearinghouse}: pause and contact Agora`);
     let usdPrice: number | null = null;
-    try {
-      const u = await ctx.hermes.latest([AUSD_USD_FEED]);
-      const m = u.messages.get(AUSD_USD_FEED);
-      if (m) {
-        usdPrice = toFloat(m.price, m.expo);
-        const offBps = Math.abs(usdPrice - 1) * 10_000;
-        const limit = envNum("ALERT_DEPEG_BPS", 50);
-        ctx.alerter.set(offBps > limit, "ausd:depeg", offBps > 4 * limit ? "critical" : "warning", `AUSD/USD (Pyth) at ${usdPrice.toFixed(4)}: ${offBps.toFixed(0)} bps off peg. The contract treats 1 AUSD = 1 USD`);
+    // Only against real Hermes and when enabled: never ask a source for a feed it may not serve.
+    if (ctx.config.ausdDepegCheck && ctx.hermes === ctx.sources.hermes) {
+      try {
+        const u = await ctx.hermes.latest([AUSD_USD_FEED]);
+        const m = u.messages.get(AUSD_USD_FEED);
+        if (m) {
+          usdPrice = toFloat(m.price, m.expo);
+          const offBps = Math.abs(usdPrice - 1) * 10_000;
+          const limit = envNum("ALERT_DEPEG_BPS", 50);
+          ctx.alerter.set(offBps > limit, "ausd:depeg", offBps > 4 * limit ? "critical" : "warning", `AUSD/USD (Pyth) at ${usdPrice.toFixed(4)}: ${offBps.toFixed(0)} bps off peg. The contract treats 1 AUSD = 1 USD`);
+        }
+      } catch {
+        /* depeg feed unavailable (e.g. the rehearsal's mock Hermes): informational only */
       }
-    } catch {
-      /* depeg feed unavailable (e.g. the rehearsal's mock Hermes): informational only */
     }
     return { transferPaused, clearinghouseFrozen, usdPrice, balance: balance?.toString() ?? null };
   }
@@ -308,7 +322,7 @@ export class Monitor {
         low,
         `balance:${r.role}`,
         critical ? "critical" : "warning",
-        `${r.role} ${r.address} has ${Number(formatEther(bals[i])).toFixed(3)} MON (alert below ${formatEther(r.min)}); top up with \`npm run keeper:fund -- --network mainnet\``,
+        `${r.role} ${r.address} has ${Number(formatEther(bals[i])).toFixed(3)} MON (alert below ${formatEther(r.min)}); top up with \`npm run keeper:fund -- --network ${ctx.chain.profile.name}\``,
       );
       return { role: r.role, address: r.address, mon: formatEther(bals[i]), low };
     });

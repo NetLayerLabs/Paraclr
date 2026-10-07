@@ -1,4 +1,4 @@
-// Helpers for `npm run rehearse:mainnet` (anvil processes, AUSD storage cheats, lane-ground keys,
+// Helpers for `npm run rehearse:mainnet` / `rehearse:testnet` / `sandbox` (anvil processes, AUSD storage cheats, lane-ground keys,
 // a webhook sink, time control). Rehearsal-only: nothing here is used by the production keeper.
 
 import { spawn, type ChildProcess } from "node:child_process";
@@ -10,7 +10,6 @@ import {
   encodeFunctionData,
   http,
   keccak256,
-  pad,
   toHex,
   type Address,
   type Hex,
@@ -18,7 +17,6 @@ import {
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { foundryBin } from "../../keeper/src/foundry";
-import { erc20Abi } from "../../keeper/src/prod/abi";
 import type { Client, ProdChain } from "../../keeper/src/prod/config";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -90,41 +88,8 @@ export async function setBalance(client: Client, who: Address, wei: bigint): Pro
   await rpc(client, "anvil_setBalance", [who, toHex(wei)]);
 }
 
-/**
- * Find the storage slot holding `balanceOf(holder)` of `token` (proxy-aware) and how the balance is
- * packed in it: ask the node which slots balanceOf touches (eth_createAccessList), then write
- * `probe << shift` into each candidate and see which (slot, shift) makes balanceOf return `probe`.
- * Agora AUSD on Monad, for instance, keeps flags in the low byte: balance = slot >> 8.
- */
-export async function findBalanceSlot(client: Client, token: Address, holder: Address): Promise<{ contract: Address; slot: Hex; shift: number }> {
-  const data = encodeFunctionData({ abi: erc20Abi, functionName: "balanceOf", args: [holder] });
-  const al = await rpc<{ accessList: Array<{ address: Address; storageKeys: Hex[] }> }>(client, "eth_createAccessList", [{ to: token, data }, "latest"]);
-  const probe = BigInt("0x1234567890");
-  for (const entry of al.accessList) {
-    for (const slot of entry.storageKeys) {
-      const old = await rpc<Hex>(client, "eth_getStorageAt", [entry.address, slot, "latest"]);
-      for (const shift of [0, 8, 16, 32, 64, 96, 128]) {
-        const low = BigInt(old) & ((BigInt(1) << BigInt(shift)) - BigInt(1));
-        await rpc(client, "anvil_setStorageAt", [entry.address, slot, pad(toHex((probe << BigInt(shift)) | low), { size: 32 })]);
-        // A probe of a non-balance slot (e.g. the proxy's implementation pointer) may break the call.
-        const now = await client.readContract({ address: token, abi: erc20Abi, functionName: "balanceOf", args: [holder] }).catch(() => null);
-        await rpc(client, "anvil_setStorageAt", [entry.address, slot, old]);
-        if (now === probe) return { contract: entry.address, slot, shift };
-      }
-    }
-  }
-  throw new Error(`could not locate the balance slot of ${token}`);
-}
-
-/** Set `to`'s token balance to exactly `amount` (finds the slot per holder; cheap on a local fork). */
-export async function dealToken(client: Client, token: Address, to: Address, amount: bigint): Promise<void> {
-  const { contract, slot, shift } = await findBalanceSlot(client, token, to);
-  const old = BigInt(await rpc<Hex>(client, "eth_getStorageAt", [contract, slot, "latest"]));
-  const low = old & ((BigInt(1) << BigInt(shift)) - BigInt(1));
-  await rpc(client, "anvil_setStorageAt", [contract, slot, pad(toHex((amount << BigInt(shift)) | low), { size: 32 })]);
-  const bal = await client.readContract({ address: token, abi: erc20Abi, functionName: "balanceOf", args: [to] });
-  if (bal !== amount) throw new Error(`deal failed: balance ${bal} ≠ ${amount}`);
-}
+// Balance-slot cheats live in the keeper (the sandbox faucet uses them too).
+export { dealToken, findBalanceSlot } from "../../keeper/src/prod/anvil-cheats";
 
 /** Send a contract call from a local key and wait for the receipt (rehearsal traders / treasury). */
 export async function sendAs(

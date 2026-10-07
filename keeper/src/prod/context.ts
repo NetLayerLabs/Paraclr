@@ -7,8 +7,21 @@ import { SenderRegistry } from "../sender";
 import { clearinghouseAbi, pythAbi } from "./abi";
 import { Alerter } from "./alerts";
 import { envFlag, envNum, KNOWN, LANES, type ProdChain, type ProdRoles } from "./config";
-import { loadProdDeployment, type ProdDeployment } from "./deployment";
-import { HermesClient, hermesOptionsFromEnv } from "./hermes";
+import { loadProdDeployment, resolveOracle, type ProdDeployment } from "./deployment";
+import { HermesClient, hermesOptionsFromEnv, type PriceUpdate } from "./hermes";
+import { ReserveGuard } from "./reserve";
+import { loadPriceSigner, SignedPriceSource } from "./signed";
+
+/**
+ * Where signed price updates come from: Pyth's Hermes, or (testnet, after the Pyth trial) the
+ * keeper's own signer for the KeeperSignedPyth fallback oracle. Every loop and the /hermes proxy
+ * use `ctx.hermes`, which is whichever source matches the clearinghouse's live `pyth()`.
+ */
+export interface PriceSource {
+  latest(ids: readonly Hex[]): Promise<PriceUpdate>;
+  firstAtOrAfter(publishTime: number, ids: readonly Hex[]): Promise<PriceUpdate | null>;
+  status(): { endpoints: string[]; apiKey: boolean; healthy: boolean } & Record<string, unknown>;
+}
 
 export interface ProdConfig {
   port: number;
@@ -39,6 +52,12 @@ export interface ProdConfig {
   /** Proxy Hermes for the app (/hermes/v2/...) so the API key stays server-side. */
   hermesProxy: boolean;
   hermesProxyCacheMs: number;
+  /** Pyth AUSD/USD depeg alert (mainnet default on; testnet off: test AUSD has no value, and the trial key may not cover the feed). */
+  ausdDepegCheck: boolean;
+  /** Skip max-age funding updates while a market's rate and target are both 0 (testnet default on). */
+  fundingSkipIdle: boolean;
+  /** Sandbox only (an anvil fork): POST /faucet gives fork MON + testnet AUSD. Never on a real chain. */
+  sandboxFaucet: boolean;
 }
 
 export interface MarketInfo {
@@ -66,8 +85,11 @@ export interface ProdContext {
   dep: ProdDeployment;
   roles: ProdRoles;
   senders: SenderRegistry;
+  reserve: ReserveGuard;
   alerter: Alerter;
-  hermes: HermesClient;
+  /** The LIVE price source (Hermes, or the keeper signer when the clearinghouse runs on the fallback oracle). */
+  hermes: PriceSource;
+  sources: { hermes: HermesClient; signed: SignedPriceSource | null };
   config: ProdConfig;
   markets: MarketInfo[];
   params: ChainParams;
@@ -83,10 +105,13 @@ export function loadProdConfig(chain: ProdChain): ProdConfig {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+  const p = chain.profile;
   if (!chain.fork) {
-    if (corsOrigins.length === 0) throw new Error("KEEPER_CORS_ORIGIN must list your app origin(s) on mainnet (never *)");
-    if (corsOrigins.includes("*")) throw new Error("KEEPER_CORS_ORIGIN=* is not allowed on mainnet: list the app origin(s)");
+    if (corsOrigins.length === 0) throw new Error(`KEEPER_CORS_ORIGIN must list your app origin(s) on ${p.name} (never *)`);
+    if (corsOrigins.includes("*")) throw new Error(`KEEPER_CORS_ORIGIN=* is not allowed on ${p.name}: list the app origin(s)`);
   }
+  const sandboxFaucet = envFlag("SANDBOX_FAUCET", false);
+  if (sandboxFaucet && !chain.fork) throw new Error("SANDBOX_FAUCET=1 is for the local sandbox (an anvil fork) only");
   return {
     port: Math.floor(envNum("KEEPER_PORT", envNum("PORT", 8787))),
     corsOrigins: corsOrigins.length ? corsOrigins : ["*"],
@@ -108,6 +133,9 @@ export function loadProdConfig(chain: ProdChain): ProdConfig {
     autoPauseOnInsolvency: envFlag("AUTO_PAUSE_ON_INSOLVENCY", false),
     hermesProxy: envFlag("HERMES_PROXY", true),
     hermesProxyCacheMs: envNum("HERMES_PROXY_CACHE_MS", 1_000),
+    ausdDepegCheck: envFlag("AUSD_DEPEG_CHECK", p.ausdDepegCheck),
+    fundingSkipIdle: envFlag("FUNDING_SKIP_IDLE", !p.realValue),
+    sandboxFaucet,
   };
 }
 
@@ -132,22 +160,65 @@ export async function readParams(chain: ProdChain, dep: ProdDeployment): Promise
 export async function createProdContext(chain: ProdChain, roles: ProdRoles): Promise<ProdContext> {
   const dep = await loadProdDeployment(chain);
   const config = loadProdConfig(chain);
-  const alerter = new Alerter(chain.fork ? `${chain.label}` : "Monad mainnet");
+  const alerter = new Alerter(chain.fork ? `${chain.label}` : chain.profile.label);
   const hermes = new HermesClient(hermesOptionsFromEnv(alerter));
   const markets = Object.entries(dep.markets).map(([symbol, id]) => ({ symbol, id, feed: dep.feeds[symbol] }));
   const params = await readParams(chain, dep);
+  // Testnet trial-end fallback: the signer runs whenever a fallback oracle is recorded and the key
+  // is here, so a timelocked setPyth switches over without a restart (monitor → switchOracle).
+  let signed: SignedPriceSource | null = null;
+  const signer = loadPriceSigner();
+  if (dep.fallbackOracle && signer) {
+    const hot = [roles.deployer, roles.guardian, roles.ops, ...roles.keepers].filter(Boolean).map((a) => a!.address.toLowerCase());
+    if (hot.includes(signer.address.toLowerCase())) throw new Error("PRICE_SIGNER_PRIVATE_KEY must be its own key (not a keeper / ops / guardian key)");
+    signed = new SignedPriceSource({ signer, oracle: dep.fallbackOracle, chainId: chain.chainId, client: chain.client, feeds: markets.map((m) => ({ symbol: m.symbol, feed: m.feed })) });
+    await signed.start();
+  }
+  if (dep.oracle === "keeper-signed" && !signed) {
+    throw new Error(
+      `the clearinghouse runs on the keeper-signed fallback oracle ${dep.pyth}: set PRICE_SIGNER_PRIVATE_KEY (an allowed signer of it) in the env`,
+    );
+  }
   return {
     chain,
     dep,
     roles,
     senders: new SenderRegistry(chain.client, chain.chainId),
+    reserve: new ReserveGuard(chain.client, chain.fork),
     alerter,
-    hermes,
+    hermes: dep.oracle === "keeper-signed" ? signed! : hermes,
+    sources: { hermes, signed },
     config,
     markets,
     params,
     startedAt: Date.now(),
   };
+}
+
+/**
+ * Re-read the clearinghouse's live oracle and point `ctx.hermes` / `ctx.dep.pyth` at the matching
+ * source. Called by the monitor on PythUpdated (a timelocked setPyth) and every monitor tick.
+ * Returns the new mode when it changed, else null.
+ */
+export async function switchOracle(ctx: ProdContext): Promise<"pyth" | "keeper-signed" | null> {
+  const before = ctx.dep.oracle;
+  let mode: "pyth" | "keeper-signed";
+  try {
+    mode = await resolveOracle(ctx.chain, ctx.dep);
+  } catch (err) {
+    ctx.alerter.fire("gov:oracle:unknown", "critical", `${short(err)} — the keeper cannot price anything on this oracle (governance anomaly?)`);
+    throw err;
+  }
+  ctx.alerter.resolve("gov:oracle:unknown");
+  if (mode === "keeper-signed" && !ctx.sources.signed) {
+    ctx.alerter.fire("gov:oracle:nosigner", "critical", `the clearinghouse switched to the keeper-signed oracle ${ctx.dep.pyth} but this keeper has no PRICE_SIGNER_PRIVATE_KEY: nothing can execute. Add the key and restart.`);
+    return null;
+  }
+  ctx.alerter.resolve("gov:oracle:nosigner");
+  ctx.hermes = mode === "keeper-signed" ? ctx.sources.signed! : ctx.sources.hermes;
+  if (mode === before) return null;
+  ctx.alerter.event("gov:oracle", "critical", `the clearinghouse oracle is now ${mode === "keeper-signed" ? `the KEEPER-SIGNED fallback ${ctx.dep.pyth} (testnet, after the Pyth trial)` : `Pyth ${ctx.dep.pyth}`}; the keeper switched its price source live`);
+  return mode;
 }
 
 export function laneOf(account: Address): number {

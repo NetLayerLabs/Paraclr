@@ -1,4 +1,4 @@
-// `npm run guardian:pause -- --network mainnet [--yes-mainnet] [--env PATH] [--rpc URL]`
+// `npm run guardian:pause -- --network mainnet|testnet [--yes-mainnet|--yes-testnet] [--env PATH] [--rpc URL]`
 //
 // Emergency pause from the GUARDIAN key (docs/RUNBOOK.md "Pause"). Pause blocks deposits from
 // accounts without positions, backstop deposits, and committing / executing INCREASE orders.
@@ -17,7 +17,7 @@ import { decodeRevert } from "./tx";
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  if (args.network !== "mainnet") throw new Error("pass --network mainnet");
+  if (args.network !== "mainnet" && args.network !== "testnet") throw new Error("pass --network mainnet or --network testnet");
   loadMainnetEnv(args);
   const chain = await connectMainnet(mainnetRpcUrl(args));
   const dep = await loadProdDeployment(chain);
@@ -32,6 +32,7 @@ async function main(): Promise<void> {
     const bal = await chain.client.getBalance({ address: roles.guardian.address });
     const match = roles.guardian.address.toLowerCase() === guardian.toLowerCase();
     console.log(`  guardian key ${roles.guardian.address} · ${formatEther(bal)} MON · ${match ? "matches" : "DOES NOT MATCH the on-chain guardian"}`);
+    if (!chain.fork && bal < BigInt(10) ** BigInt(16)) console.log("  WARNING the guardian key holds < 0.01 MON: pause() may not be payable (keeper:fund)");
     if (!match && !args.status) throw new Error("GUARDIAN_PRIVATE_KEY is not the contract's guardian: pause would revert (Unauthorized)");
   }
   if (args.status) return;
@@ -54,7 +55,7 @@ async function main(): Promise<void> {
   const { receipt } = await waitForReceipt(chain.client, sub.hash, { pollMs: 300, timeoutMs: 90_000 });
   console.log(`  pause() ${receipt.status} · tx ${sub.hash} · block ${receipt.blockNumber} · gas used ${receipt.gasUsed} / limit ${gas}`);
   if (receipt.status !== "success") process.exit(1);
-  console.log("PAUSED. Unpause only via the timelock: `npm run timelock -- --network mainnet prepare --call \"unpause()\"` (docs/RUNBOOK.md).");
+  console.log(`PAUSED. Unpause only via the timelock: \`npm run timelock -- --network ${chain.profile.name} prepare --call "unpause()"\` (docs/RUNBOOK.md).`);
 }
 
 main().catch((err: unknown) => {

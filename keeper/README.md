@@ -39,7 +39,7 @@ scripts/deploy.ts          `npm run deploy:anvil` / `npm run deploy:monad`
 
 ## Production (Monad mainnet)
 
-`--network mainnet` switches every command to the **production** flow. It runs against `ParaclrClearinghouseProd`, real Agora AUSD and the Pyth pull oracle, configured from `keeper/.env.mainnet`. Everything above and below this section is the demo stack (anvil / Monad testnet, the hackathon evidence), and it is unchanged.
+`--network mainnet` switches every command to the **production** flow. It runs against `ParaclrClearinghouseProd`, real Agora AUSD and the Pyth pull oracle, configured from `keeper/.env.mainnet`. `--network testnet` runs the same production flow on Monad testnet ([below](#production-on-monad-testnet-chain-10143)). Everything else in this file is the demo stack (anvil / Monad testnet with MockAUSD and MockOracle, the hackathon evidence), and it is unchanged.
 
 Procedures (deploy, launch gate, pause, timelock, key rotation, top-ups, incidents, MON budget) are in [`docs/RUNBOOK.md`](../docs/RUNBOOK.md). Hosting is in [`keeper/HOSTING.md`](HOSTING.md).
 
@@ -147,11 +147,40 @@ keeper/src/prod/tx.ts          simulate → send → track, revert decoding, gas
 keeper/src/prod/server.ts      production HTTP API + Hermes proxy
 keeper/src/prod/budget.ts      measured gas → MON targets
 keeper/src/prod/init.ts / fund.ts / guardian.ts / timelock.ts / push-cli.ts   the CLIs above
+keeper/src/prod/reserve.ts     Monad reserve-balance guard (value-carrying txs from keys < 10 MON spaced 3 blocks)
+keeper/src/prod/signed.ts      keeper-signed price source (testnet trial-end fallback)
+keeper/src/prod/oracle-switch.ts  pre-switch pushes into the fallback oracle while its setPyth is pending
+keeper/src/prod/sandbox-faucet.ts, anvil-cheats.ts   sandbox-only /faucet (anvil forks only)
 bench/pyth-cadence.ts          `npm run pyth:cadence` (read-only third-party push cadence)
-scripts/deploy-mainnet.ts, scripts/lib/prod-deploy.ts            deploy:mainnet
+scripts/deploy-mainnet.ts, scripts/lib/prod-deploy.ts            deploy:mainnet / deploy:testnet
 scripts/rehearse-mainnet.ts, scripts/lib/rehearsal.ts, scripts/lib/pyth-replay.ts   rehearse:mainnet
+scripts/rehearse-testnet.ts, scripts/testnet-oracle.ts, scripts/sandbox.ts, scripts/lib/artifacts.ts   rehearse:testnet, oracle:fallback, sandbox
+contracts/src/testnet/KeeperSignedPyth.sol                       the testnet-only fallback oracle
 keeper/Dockerfile (+ .dockerignore files), keeper/HOSTING.md
 ```
+
+### Production on Monad testnet (chain 10143)
+
+`--network testnet` selects the testnet profile (`keeper/src/prod/config.ts`): `keeper/.env.testnet` (template `keeper/.env.testnet.example`), chain 10143, Agora's testnet AUSD `0xa9012a…22dC`, the same Pyth `0x2880…C17B43` (fee 1 wei per message), markets `PROD_MARKETS=SOL/AUSD,BTC/AUSD`, a 600 s timelock, and `--yes-testnet` as the confirmation flag. Interface contract: [`docs/TESTNET_PLAN.md`](../docs/TESTNET_PLAN.md); procedures: [`docs/RUNBOOK.md` §14](../docs/RUNBOOK.md#14-monad-testnet-chain-10143-the-production-contract-on-test-funds).
+
+| Command | What it does |
+| --- | --- |
+| `npm run keeper:init -- --network testnet` | Hot keys + `PRICE_SIGNER_PRIVATE_KEY` into `keeper/.env.testnet` (mode 600), addresses only |
+| `npm run keeper:fund -- --network testnet [--send --yes-testnet --funder-env NAME]` | Budget for ~3 weeks of light demo use (testnet gas table from the testnet rehearsal) |
+| `npm run deploy:testnet [-- --yes-testnet]` | Dry run by default. DeployProd with SOL/BTC, `DEPLOY_NETWORK=monad-testnet`, the 600 s timelock; writes `deployments/10143.json` (`"production": true, "network": "monad-testnet"`) |
+| `npm run keeper -- --network testnet --yes-testnet` | The production keeper on testnet |
+| `npm run guardian:pause` / `timelock` / `pyth:push -- --network testnet …` | As on mainnet; `timelock set-pyth --to 0x…` prepares the oracle switch |
+| `npm run oracle:fallback -- --network testnet deploy\|record\|status` | The trial-end fallback oracle (KeeperSignedPyth): deploy (owner = timelock), record in the deployment file, status |
+| `npm run rehearse:testnet [-- --legs fork,fallback,mock --keep]` | Rehearsal on an anvil fork of testnet (:8955) + the fallback switch + a MockPyth auction leg (:8957) |
+| `npm run sandbox [-- --detach --smoke --stop --prices hermes\|signed]` | Local production sandbox: testnet fork :8645, keeper :8887, `deployments/sandbox/10143.json`, sandbox-only `/faucet`; the app is `npm run dev:sandbox` |
+
+Differences from mainnet inside the keeper:
+
+- **Only the listed feeds** ever go to Hermes (the trial key covers SOL/USD and BTC/USD, not MON/USD); the AUSD/USD depeg check is off (`AUSD_DEPEG_CHECK=0`), `/hermes` refuses other ids with 400.
+- **Reserve-balance guard** (`MONAD_RESERVE_GUARD=auto`): the testnet Pyth fee makes keeper txs carry value, so a key below 10 MON sends them ≥ 3 blocks after its previous tx (Monad's emptying exception). `/health.reserveGuard`.
+- **Funding:** `FUNDING_SKIP_IDLE=1` (no max-age update while a market has no skew), max age 6 h.
+- **Oracle switching** (`prod/deployment.ts resolveOracle`, `context.ts switchOracle`): `pyth()` on the clearinghouse is the truth. With `PRICE_SIGNER_PRIVATE_KEY` and a recorded `fallbackOracle`, the keeper signs prices ahead of time (`prod/signed.ts`), pushes them into the fallback while the timelocked `setPyth` is pending (`prod/oracle-switch.ts`), and switches every loop and `/hermes` to keeper-signed prices when `PythUpdated` fires (alert `gov:oracle`, `/health.priceSource: "keeper-signed"`). Mainnet refuses a keeper-signed oracle.
+- `/health` reports `mode: "monad-testnet"`, `network: "monad-testnet"` (or `"anvil"` on a fork), `testnet: true`, `sandbox` (the local sandbox), `oracle: { mode, pyth, realPyth, fallbackOracle, signer, prepush }`, `reserveGuard`.
 
 ## Local (anvil): zero config
 
@@ -546,6 +575,8 @@ The bench runs these steps:
 On Monad testnet the bench prints a cost estimate and refuses to run without `--yes`.
 
 ## Monad testnet runbook
+
+This is the **demo stack** on testnet (`keeper/.env`, MockAUSD / MockOracle, `npm run keeper:init` without `--network` or with `--network monad`). The **production** contract on testnet is `--network testnet` ([above](#production-on-monad-testnet-chain-10143)); since then `deployments/10143.json` is the production set, so the demo stack on testnet needs its own `DEPLOYMENTS_OUT` file.
 
 Monad testnet: chain id 10143, RPC `https://testnet-rpc.monad.xyz`, explorer https://testnet.monadexplorer.com.
 

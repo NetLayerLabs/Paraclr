@@ -1,6 +1,7 @@
-// `npm run keeper:init` — create keeper/.env with FRESH random keys for Monad testnet.
-// `npm run keeper:init -- --network mainnet` — production hot keys into keeper/.env.mainnet
-// (keeper/src/prod/init.ts; never touches keeper/.env).
+// `npm run keeper:init` (or `--network monad`) — create keeper/.env with FRESH random keys for the
+// DEMO stack on Monad testnet (MockAUSD / MockOracle).
+// `npm run keeper:init -- --network mainnet|testnet` — PRODUCTION hot keys into keeper/.env.mainnet /
+// keeper/.env.testnet (keeper/src/prod/init.ts; never touches keeper/.env).
 //
 // Keys are generated locally and written straight to keeper/.env (gitignored, mode 0600).
 // Only ADDRESSES are printed, so nobody ever has to copy/paste a private key anywhere.
@@ -14,9 +15,9 @@ import { initMainnet } from "./prod/init";
 
 function main(): void {
   const args = parseArgs(process.argv.slice(2));
-  if (args.network === "mainnet") return initMainnet(args);
-  if (args.network !== undefined && args.network !== "testnet" && args.network !== "monad") {
-    throw new Error(`--network must be mainnet or testnet (default), got "${String(args.network)}"`);
+  if (args.network === "mainnet" || args.network === "testnet") return initMainnet(args);
+  if (args.network !== undefined && args.network !== "monad") {
+    throw new Error(`--network must be mainnet or testnet (production), or monad / omitted (the demo stack's keeper/.env), got "${String(args.network)}"`);
   }
   const file = process.env.KEEPER_ENV_FILE || KEEPER_ENV_FILE;
   if (existsSync(file) && !args.force) {

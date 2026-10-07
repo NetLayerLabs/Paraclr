@@ -1,14 +1,22 @@
-// Production (Monad mainnet, chain 143) configuration: env file, network gate, confirmation gate,
-// hot-key roles. Used by every `--network mainnet` command (keeper, keeper:init, keeper:fund,
-// deploy:mainnet, guardian:pause, rehearse:mainnet).
+// Production configuration: network profile, env file, network gate, confirmation gate, hot-key
+// roles. Used by every `--network mainnet|testnet` command (keeper, keeper:init, keeper:fund,
+// deploy:mainnet / deploy:testnet, guardian:pause, timelock, pyth:push, rehearsals, sandbox).
+//
+// Two profiles run the SAME production contract (ParaclrClearinghouseProd v5) and the same keeper:
+//   mainnet  chain 143,   keeper/.env.mainnet, real Agora AUSD, MON/SOL/BTC, 24 h timelock, --yes-mainnet
+//   testnet  chain 10143, keeper/.env.testnet, Agora TESTNET AUSD, SOL/BTC (PROD_MARKETS), 600 s
+//            timelock, --yes-testnet (docs/TESTNET_PLAN.md). Test funds, no real value.
+// The profile is chosen once per process from `--network` (selectProdNetwork / loadMainnetEnv);
+// the default is mainnet, so every mainnet code path behaves exactly as before.
 //
 // Rules (docs/PRODUCTION_PLAN.md "Keeper / ops"):
-//   - `--network mainnet` loads keeper/.env.mainnet (or --env / KEEPER_ENV_FILE) and NOTHING
-//     else: keeper/.env (testnet keys) and keeper/.env.anvil are never read in this mode.
-//   - The RPC must report chain id 143. An anvil fork of Monad mainnet also reports 143; it is
-//     detected by its client version and labelled "anvil fork (NOT mainnet)" everywhere.
+//   - `--network <n>` loads keeper/.env.<n> (or --env / KEEPER_ENV_FILE) and NOTHING else:
+//     keeper/.env (demo-stack keys) and keeper/.env.anvil are never read in this mode.
+//   - The RPC must report the profile's chain id. An anvil fork also reports it; it is detected by
+//     its client version and labelled "anvil fork (NOT <network>)" everywhere.
 //   - Anything that sends a transaction to the real chain prints balances + a cost estimate and
-//     then refuses unless `--yes-mainnet` is passed. On an anvil fork no confirmation is needed.
+//     then refuses unless `--yes-mainnet` / `--yes-testnet` is passed. On an anvil fork no
+//     confirmation is needed.
 //   - Keys are never printed or logged, only addresses.
 
 import { existsSync, statSync } from "node:fs";
@@ -25,13 +33,17 @@ import {
   type PublicClient,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { monad } from "viem/chains";
+import { monad, monadTestnet } from "viem/chains";
 import { envStr, loadKeeperEnv, REPO_ROOT, rpcHost } from "../env";
 
 export const MAINNET_CHAIN_ID = 143;
 export const MAINNET_RPC_URL = monad.rpcUrls.default.http[0];
 export const MAINNET_ENV_FILE = join(REPO_ROOT, "keeper", ".env.mainnet");
 export const MAINNET_EXPLORER = monad.blockExplorers.default.url;
+export const TESTNET_CHAIN_ID = 10143;
+export const TESTNET_RPC_URL = monadTestnet.rpcUrls.default.http[0];
+export const TESTNET_ENV_FILE = join(REPO_ROOT, "keeper", ".env.testnet");
+export const TESTNET_EXPLORER = monadTestnet.blockExplorers.default.url;
 export const LANES = 8;
 
 /** Fixed external facts (docs/PRODUCTION_PLAN.md), re-verified on chain by deploy:mainnet and the keeper. */
@@ -53,6 +65,136 @@ export const KNOWN = {
   minGasPriceWei: BigInt(102) * BigInt(1e9),
 } as const;
 
+/**
+ * Monad TESTNET facts, verified read-only on chain 2026-10-07 (docs/RUNBOOK.md "Testnet"):
+ * Agora AUSD (proxy, 6 decimals, symbol AUSD, not paused), Agora's faucet (requestFunds(address):
+ * 10,000 AUSD per call), Pyth 1.4.6 at the same address as mainnet (same Wormhole guardian set and
+ * Pythnet data source, so mainnet-signed updates verify; fee 1 wei per update message).
+ */
+export const KNOWN_TESTNET = {
+  ausd: "0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC" as Address,
+  ausdFaucet: "0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C" as Address,
+  pyth: "0x2880aB155794e7179c9eE2e38200202908C17B43" as Address,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Network profiles
+// ---------------------------------------------------------------------------
+
+export type ProdNetworkName = "mainnet" | "testnet";
+
+export interface NetworkProfile {
+  name: ProdNetworkName;
+  chainId: number;
+  /** Goes into reports, /health and deployments/<id>.json ("network"). */
+  slug: "monad-mainnet" | "monad-testnet";
+  label: string;
+  rpcUrl: string;
+  envFile: string;
+  envExample: string;
+  explorer: string;
+  viemChain: Chain;
+  /** The confirmation flag for real-chain transactions. */
+  yesFlag: "yes-mainnet" | "yes-testnet";
+  /** Real money at stake (mainnet) or test funds (testnet). */
+  realValue: boolean;
+  ausd: Address;
+  pyth: Address;
+  /** Default market list: symbol → Pyth feed id (PROD_MARKETS overrides). */
+  markets: Record<string, Hex>;
+  /** Preflight floor for TIMELOCK_MIN_DELAY_SECONDS, and the default. */
+  minTimelockDelayS: number;
+  defaultTimelockDelayS: number;
+  /** Pyth AUSD/USD depeg alert on by default (mainnet only: testnet AUSD has no value). */
+  ausdDepegCheck: boolean;
+  /** The deploy command for messages. */
+  deployCmd: string;
+}
+
+export const PROFILES: Record<ProdNetworkName, NetworkProfile> = {
+  mainnet: {
+    name: "mainnet",
+    chainId: MAINNET_CHAIN_ID,
+    slug: "monad-mainnet",
+    label: "Monad mainnet",
+    rpcUrl: MAINNET_RPC_URL,
+    envFile: MAINNET_ENV_FILE,
+    envExample: join(REPO_ROOT, "keeper", ".env.mainnet.example"),
+    explorer: MAINNET_EXPLORER,
+    viemChain: monad,
+    yesFlag: "yes-mainnet",
+    realValue: true,
+    ausd: KNOWN.ausd,
+    pyth: KNOWN.pyth,
+    markets: { ...KNOWN.feeds },
+    minTimelockDelayS: 3_600,
+    defaultTimelockDelayS: 86_400,
+    ausdDepegCheck: true,
+    deployCmd: "npm run deploy:mainnet",
+  },
+  testnet: {
+    name: "testnet",
+    chainId: TESTNET_CHAIN_ID,
+    slug: "monad-testnet",
+    label: "Monad testnet",
+    rpcUrl: TESTNET_RPC_URL,
+    envFile: TESTNET_ENV_FILE,
+    envExample: join(REPO_ROOT, "keeper", ".env.testnet.example"),
+    explorer: TESTNET_EXPLORER,
+    viemChain: monadTestnet,
+    yesFlag: "yes-testnet",
+    realValue: false,
+    ausd: KNOWN_TESTNET.ausd,
+    pyth: KNOWN_TESTNET.pyth,
+    // MON is NOT listed on testnet: the Pyth trial key is not entitled to MON/USD (TESTNET_PLAN.md).
+    markets: { "SOL/AUSD": KNOWN.feeds["SOL/AUSD"], "BTC/AUSD": KNOWN.feeds["BTC/AUSD"] },
+    minTimelockDelayS: 600,
+    defaultTimelockDelayS: 600,
+    ausdDepegCheck: false,
+    deployCmd: "npm run deploy:testnet",
+  },
+};
+
+let active: NetworkProfile = PROFILES.mainnet;
+
+/** The profile of this process (mainnet unless `--network testnet` selected testnet). */
+export function net(): NetworkProfile {
+  return active;
+}
+
+/** Pick the profile from `--network` ("mainnet" default, "testnet"); returns it. */
+export function selectProdNetwork(name: string | true | undefined): NetworkProfile {
+  if (name === undefined || name === "mainnet") active = PROFILES.mainnet;
+  else if (name === "testnet") active = PROFILES.testnet;
+  else throw new Error(`--network must be mainnet or testnet for the production tools, got "${String(name)}"`);
+  return active;
+}
+
+/** `--network mainnet` or `--network testnet` (the production flows). */
+export function isProdNetwork(v: string | true | undefined): v is ProdNetworkName {
+  return v === "mainnet" || v === "testnet";
+}
+
+/**
+ * The markets a deployment lists: PROD_MARKETS ("SOL/AUSD,BTC/AUSD" or "SYM=0xfeed,…"), else the
+ * profile's default. Known symbols take the verified feed id (PYTH_FEED_<BASE>_USD overrides it),
+ * exactly like contracts/script/DeployProd.s.sol.
+ */
+export function prodMarkets(): Record<string, Hex> {
+  const raw = envStr("PROD_MARKETS");
+  const out: Record<string, Hex> = {};
+  const entries = raw ? raw.split(",").map((x) => x.trim()).filter(Boolean) : Object.keys(active.markets);
+  for (const e of entries) {
+    const [sym, feedRaw] = e.split("=").map((x) => x.trim());
+    const base = sym.split("/")[0];
+    const feed = feedRaw ?? envStr(`PYTH_FEED_${base}_USD`) ?? KNOWN.feeds[sym];
+    if (!feed || !/^0x[0-9a-fA-F]{64}$/.test(feed)) throw new Error(`PROD_MARKETS: no Pyth feed id for ${sym} (write ${sym}=0x<feed id>)`);
+    out[sym] = feed.toLowerCase() as Hex;
+  }
+  if (Object.keys(out).length === 0) throw new Error("PROD_MARKETS lists no market");
+  return out;
+}
+
 export type Client = PublicClient<HttpTransport, Chain>;
 
 export type Args = Record<string, string | true>;
@@ -62,29 +204,34 @@ export function isMainnet(args: Args): boolean {
 }
 
 /**
- * Load keeper/.env.mainnet (or `--env PATH`, else KEEPER_ENV_FILE). Values already in the shell
- * win (Node's loadEnvFile semantics), which is how hosted deployments pass secrets.
- * `required: false` lets keeper:init run before the file exists.
+ * Select the profile from `--network`, then load keeper/.env.<network> (or `--env PATH`, else
+ * KEEPER_ENV_FILE). Values already in the shell win (Node's loadEnvFile semantics), which is how
+ * hosted deployments pass secrets. `required: false` lets keeper:init run before the file exists.
+ * (Named for its first user; it serves both production networks.)
  */
 export function loadMainnetEnv(args: Args, opts: { required?: boolean } = {}): string | null {
+  if (args.network !== undefined) selectProdNetwork(args.network);
   const file = resolveEnvFile(args);
   process.env.KEEPER_ENV_FILE = file;
   if (!existsSync(file)) {
     if (opts.required === false || process.env.KEEPER_SECRETS_FROM_ENV === "1") return null;
     throw new Error(
-      `${rel(file)} not found. Create it with \`npm run keeper:init -- --network mainnet\` ` +
-        "(or copy keeper/.env.mainnet.example). Hosted keepers set KEEPER_SECRETS_FROM_ENV=1 and pass every variable as a secret.",
+      `${rel(file)} not found. Create it with \`npm run keeper:init -- --network ${active.name}\` ` +
+        `(or copy ${rel(active.envExample)}). Hosted keepers set KEEPER_SECRETS_FROM_ENV=1 and pass every variable as a secret.`,
     );
   }
   warnIfReadable(file);
   return loadKeeperEnv(file);
 }
 
+/** Alias with the network-neutral name. */
+export const loadProdEnv = loadMainnetEnv;
+
 export function resolveEnvFile(args: Args): string {
   if (typeof args.env === "string") return resolve(process.cwd(), args.env);
   const fromEnv = process.env.KEEPER_ENV_FILE;
   if (fromEnv && fromEnv.trim()) return resolve(REPO_ROOT, fromEnv.trim());
-  return MAINNET_ENV_FILE;
+  return active.envFile;
 }
 
 function warnIfReadable(file: string): void {
@@ -104,8 +251,11 @@ export function rel(p: string): string {
 
 export function mainnetRpcUrl(args: Args): string {
   if (typeof args.rpc === "string") return args.rpc;
-  return envStr("KEEPER_RPC_URL") ?? MAINNET_RPC_URL;
+  return envStr("KEEPER_RPC_URL") ?? active.rpcUrl;
 }
+
+/** Alias with the network-neutral name. */
+export const prodRpcUrl = mainnetRpcUrl;
 
 // ---------------------------------------------------------------------------
 // Chain
@@ -114,14 +264,16 @@ export function mainnetRpcUrl(args: Args): string {
 export interface ProdChain {
   rpcUrl: string;
   chainId: number;
-  /** True on ANY local anvil (a fork of Monad mainnet, or a plain anvil in the rehearsal's
+  /** True on ANY local anvil (a fork of Monad mainnet/testnet, or a plain anvil in a rehearsal's
    *  MockPyth leg): no real value, no confirmation needed, never the canonical deployment file. */
   fork: boolean;
   clientVersion: string;
-  /** "Monad mainnet" or "anvil fork of Monad mainnet (NOT mainnet)" / "anvil (NOT mainnet)". */
+  /** "Monad mainnet" / "Monad testnet", or "anvil fork of Monad … (NOT …)" / "plain anvil …". */
   label: string;
-  /** "monad-mainnet" | "anvil-fork" | "anvil" — goes into every report. */
-  network: "monad-mainnet" | "anvil-fork" | "anvil";
+  /** "monad-mainnet" | "monad-testnet" | "anvil-fork" | "anvil" — goes into every report. */
+  network: "monad-mainnet" | "monad-testnet" | "anvil-fork" | "anvil";
+  /** The production profile this process runs (also on a fork of that network). */
+  profile: NetworkProfile;
   chain: Chain;
   client: Client;
 }
@@ -141,10 +293,11 @@ export function makeProdClient(rpcUrl: string, chain: Chain): Client {
 }
 
 /**
- * Connect and enforce chain id 143. `allowLocal` additionally accepts a plain (non-fork) anvil
- * with any chain id — only the rehearsal's MockPyth leg uses it.
+ * Connect and enforce the profile's chain id (143 / 10143). `allowLocal` additionally accepts a
+ * plain (non-fork) anvil with any chain id — only the rehearsals' MockPyth legs use it.
  */
 export async function connectMainnet(rpcUrl: string, opts: { allowLocal?: boolean } = {}): Promise<ProdChain> {
+  const p = active;
   const probe = createPublicClient({ transport: http(rpcUrl, { retryCount: 2, timeout: 15_000 }) });
   let chainId: number;
   let clientVersion = "unknown";
@@ -157,10 +310,10 @@ export async function connectMainnet(rpcUrl: string, opts: { allowLocal?: boolea
     throw new Error(`cannot reach RPC ${rpcHost(rpcUrl)}: ${(err as Error)?.message?.split("\n")[0] ?? err}`);
   }
   const anvil = /anvil/i.test(clientVersion);
-  if (chainId !== MAINNET_CHAIN_ID && !(opts.allowLocal && anvil)) {
+  if (chainId !== p.chainId && !(opts.allowLocal && anvil)) {
     throw new Error(
-      `--network mainnet expects chain id ${MAINNET_CHAIN_ID}; ${rpcHost(rpcUrl)} reports ${chainId} (${clientVersion}). ` +
-        "Check KEEPER_RPC_URL / CHAIN_ID in keeper/.env.mainnet.",
+      `--network ${p.name} expects chain id ${p.chainId}; ${rpcHost(rpcUrl)} reports ${chainId} (${clientVersion}). ` +
+        `Check KEEPER_RPC_URL / CHAIN_ID in ${rel(p.envFile)}.`,
     );
   }
   const declared = envStr("CHAIN_ID");
@@ -172,41 +325,54 @@ export async function connectMainnet(rpcUrl: string, opts: { allowLocal?: boolea
     const info = (await probe.request({ method: "anvil_nodeInfo" as never }).catch(() => null)) as { forkConfig?: { forkUrl?: string | null } } | null;
     forked = Boolean(info?.forkConfig?.forkUrl);
   }
-  const network = !anvil ? "monad-mainnet" : forked ? "anvil-fork" : "anvil";
+  const network = !anvil ? p.slug : forked ? "anvil-fork" : "anvil";
   const label =
-    network === "monad-mainnet"
-      ? "Monad mainnet"
+    network === p.slug
+      ? p.label
       : network === "anvil-fork"
-        ? "anvil fork of Monad mainnet (NOT mainnet)"
-        : `plain anvil, chain ${chainId} (NOT mainnet, no fork)`;
+        ? `anvil fork of ${p.label} (NOT ${p.name})`
+        : `plain anvil, chain ${chainId} (NOT ${p.name}, no fork)`;
   const chain: Chain = {
-    ...monad,
+    ...p.viemChain,
     id: chainId,
-    name: network === "monad-mainnet" ? monad.name : label,
+    name: network === p.slug ? p.viemChain.name : label,
     rpcUrls: { default: { http: [rpcUrl] } },
   };
-  return { rpcUrl, chainId, fork: anvil, clientVersion, label, network, chain, client: makeProdClient(rpcUrl, chain) };
+  return { rpcUrl, chainId, fork: anvil, clientVersion, label, network, profile: p, chain, client: makeProdClient(rpcUrl, chain) };
 }
 
+/** Alias with the network-neutral name. */
+export const connectProd = connectMainnet;
+
 /**
- * The confirmation gate. On the real chain: refuse unless `--yes-mainnet` was passed (the caller
- * has already printed balances and the cost estimate). On an anvil fork it is a no-op.
+ * The confirmation gate. On the real chain: refuse unless `--yes-mainnet` (mainnet) or
+ * `--yes-testnet` (testnet) was passed (the caller has already printed balances and the cost
+ * estimate). On an anvil fork it is a no-op. The flags are NOT interchangeable.
  */
 export function confirmMainnet(chain: ProdChain, args: Args, what: string): void {
+  const p = chain.profile;
+  const tag = `[${p.name}]`;
   if (chain.fork) {
-    console.log(`[mainnet] ${chain.label}: "${what}" needs no confirmation (no real value).`);
+    console.log(`${tag} ${chain.label}: "${what}" needs no confirmation (no real chain).`);
     return;
   }
-  if (args["yes-mainnet"] === true) {
-    console.log(`[mainnet] --yes-mainnet given: ${what} on Monad MAINNET (real MON).`);
+  if (args[p.yesFlag] === true) {
+    console.log(
+      p.realValue
+        ? `${tag} --${p.yesFlag} given: ${what} on Monad MAINNET (real MON).`
+        : `${tag} --${p.yesFlag} given: ${what} on Monad TESTNET (testnet MON, no real value).`,
+    );
     return;
   }
   console.error(
-    `\n[mainnet] REFUSING: ${what} sends real transactions on Monad mainnet.\n` +
-      "          Review the balances and the cost estimate above, then re-run with --yes-mainnet.\n",
+    `\n${tag} REFUSING: ${what} sends real transactions on ${p.label}${p.realValue ? "" : " (testnet MON)"}.\n` +
+      `          Review the balances and the cost estimate above, then re-run with --${p.yesFlag}.\n`,
   );
   process.exit(2);
 }
+
+/** Alias with the network-neutral name. */
+export const confirmProd = confirmMainnet;
 
 // ---------------------------------------------------------------------------
 // Roles (hot keys)
@@ -253,9 +419,9 @@ export function loadProdRoles(required: RoleName[]): ProdRoles {
   const missing = required.filter((r) => (r === "keepers" ? keepers.length !== LANES : roles[r] === null));
   if (missing.length) {
     throw new Error(
-      `missing in the mainnet env: ${missing
+      `missing in the ${active.name} env: ${missing
         .map((r) => (r === "keepers" ? `KEEPER_PRIVATE_KEYS (exactly ${LANES}, got ${keepers.length})` : ROLE_ENV[r]))
-        .join(", ")}. Generate them locally with \`npm run keeper:init -- --network mainnet\`.`,
+        .join(", ")}. Generate them locally with \`npm run keeper:init -- --network ${active.name}\`.`,
     );
   }
   const seen = new Map<string, string>();

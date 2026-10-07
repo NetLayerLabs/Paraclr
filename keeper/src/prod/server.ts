@@ -15,6 +15,8 @@
 //   POST /faucet, /crash, /recover, /price-loop, /demo-takers, GET /runs…  → 403: the demo
 //        endpoints do not exist in production (no faucet, no price pusher, no synthetic crash,
 //        no demo bots).
+//   POST /faucet {address}  ONLY in the local sandbox (SANDBOX_FAUCET=1, refused unless the chain
+//        is an anvil fork): fork MON + testnet AUSD (sandbox-faucet.ts).
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { getAddress, isAddress, type Address, type Hex } from "viem";
@@ -26,9 +28,11 @@ import { orderJson } from "./executor";
 import type { FundingUpdater } from "./funding";
 import type { HeadWatcher } from "./head";
 import type { Monitor } from "./monitor";
+import type { FallbackPrepush } from "./oracle-switch";
 import type { PoolExitHelper } from "./poolexit";
 import type { PricePusher } from "./pricepush";
 import type { ProdSweeper } from "./sweeper";
+import { SandboxFaucet, SandboxFaucetError } from "./sandbox-faucet";
 import { txJson, type TxLedger } from "./tx";
 
 export interface ProdDeps {
@@ -41,6 +45,7 @@ export interface ProdDeps {
   ledger: TxLedger;
   pusher: PricePusher;
   poolExit: PoolExitHelper;
+  prepush?: FallbackPrepush;
 }
 
 const DISABLED = /^\/(faucet|crash|recover|price-loop|demo-takers|runs)(\/|$)/;
@@ -77,25 +82,39 @@ function send(res: ServerResponse, status: number, body: unknown, headers: Recor
   res.end(JSON.stringify(body, (_k, v) => (typeof v === "bigint" ? v.toString() : v)));
 }
 
-export function healthJson(d: ProdDeps) {
+function networkOf(ctx: ProdContext): string {
+  return ctx.chain.fork ? "anvil" : ctx.chain.profile.slug;
+}
+
+export function healthJson(d: ProdDeps, faucet: SandboxFaucet | null = null) {
   const { ctx, monitor, executor, funding, sweeper, heads, ledger } = d;
   const snap = monitor.snapshot;
   const prices = snap?.prices ?? {};
+  const p = ctx.chain.profile;
   return {
     chainId: ctx.chain.chainId,
-    mode: "monad-mainnet",
-    network: ctx.chain.fork ? "anvil" : "monad-mainnet",
-    fork: ctx.chain.fork ? { of: "monad-mainnet", chainId: ctx.chain.chainId } : null,
+    mode: p.slug,
+    network: networkOf(ctx),
+    fork: ctx.chain.fork ? { of: p.slug, chainId: ctx.chain.chainId } : null,
+    /** The local sandbox (an anvil fork with the sandbox faucet): never "live". */
+    sandbox: ctx.config.sandboxFaucet,
+    testnet: !p.realValue,
     label: ctx.chain.label,
     production: true,
     block: heads.head?.number ?? null,
     chainTime: heads.head?.timestamp ?? null,
     paused: snap?.paused ?? null,
-    priceSource: "pyth",
+    /** "pyth" (Wormhole-signed Pyth updates) or "keeper-signed" (testnet fallback after the Pyth trial). */
+    priceSource: ctx.dep.oracle === "keeper-signed" ? "keeper-signed" : "pyth",
     prices: Object.fromEntries(Object.entries(prices).map(([s, p]) => [s, p?.price ?? null])),
     pricesUpdatedAt: Object.fromEntries(Object.entries(prices).map(([s, p]) => [s, p?.publishTime ?? null])),
     oracle: {
+      mode: ctx.dep.oracle,
       pyth: ctx.dep.pyth,
+      realPyth: ctx.dep.realPyth,
+      fallbackOracle: ctx.dep.fallbackOracle,
+      signer: ctx.sources.signed?.status() ?? null,
+      prepush: d.prepush?.status() ?? null,
       feeds: ctx.dep.feeds,
       maxConfBps: ctx.params.maxConfBps,
       maxPriceAge: ctx.params.maxPriceAge,
@@ -109,6 +128,7 @@ export function healthJson(d: ProdDeps) {
     storedPriceAgeS: snap?.storedPriceAgeS ?? null,
     poolDeposits: snap?.poolDeposits ?? null,
     pricePush: d.pusher.status(),
+    reserveGuard: ctx.reserve.status(),
     poolExit: d.poolExit.status(),
     addresses: {
       clearinghouse: ctx.dep.clearinghouse,
@@ -140,9 +160,9 @@ export function healthJson(d: ProdDeps) {
     activeRunId: null,
     lastRunId: null,
     priceLoop: null,
-    faucet: null,
+    faucet: faucet ? faucet.status() : null,
     demoTakers: null,
-    disabled: ["faucet", "crash", "recover", "price-loop", "demo-takers", "runs"],
+    disabled: faucet ? ["crash", "recover", "price-loop", "demo-takers", "runs"] : ["faucet", "crash", "recover", "price-loop", "demo-takers", "runs"],
   };
 }
 
@@ -158,7 +178,7 @@ async function solvencyJson(ctx: ProdContext) {
   ]);
   return {
     chainId: ctx.chain.chainId,
-    network: ctx.chain.fork ? "anvil" : "monad-mainnet",
+    network: networkOf(ctx),
     block: Number(blockNumber),
     design: "paraclr-lanes",
     contract: ctx.dep.clearinghouse,
@@ -222,7 +242,7 @@ async function backstopJson(ctx: ProdContext, lpRaw: string | null) {
   const sum = (f: (l: (typeof lanes)[number]) => string) => lanes.reduce((s, l) => s + BigInt(f(l)), BigInt(0)).toString();
   return {
     chainId: ctx.chain.chainId,
-    network: ctx.chain.fork ? "anvil" : "monad-mainnet",
+    network: networkOf(ctx),
     block: Number(blockNumber),
     design: "paraclr-lanes",
     contract: ctx.dep.clearinghouse,
@@ -297,9 +317,27 @@ class HermesProxy {
   }
 }
 
+function readBody(req: IncomingMessage): Promise<unknown> {
+  return new Promise((resolve) => {
+    let raw = "";
+    req.on("data", (c: Buffer) => {
+      raw += c.toString();
+      if (raw.length > 10_000) req.destroy();
+    });
+    req.on("end", () => {
+      try {
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch {
+        resolve({});
+      }
+    });
+  });
+}
+
 export function startProdServer(d: ProdDeps): Server {
   const { ctx, executor, ledger } = d;
   const proxy = new HermesProxy(ctx);
+  const faucet = ctx.config.sandboxFaucet ? new SandboxFaucet(ctx) : null;
   const server = createServer(async (req, res) => {
     const h = cors(req, ctx.config.corsOrigins);
     const url = new URL(req.url ?? "/", "http://keeper.local");
@@ -310,14 +348,23 @@ export function startProdServer(d: ProdDeps): Server {
         res.end();
         return;
       }
+      if (faucet && path === "/faucet" && req.method === "POST") {
+        const body = (await readBody(req)) as { address?: unknown };
+        try {
+          return send(res, 200, await faucet.drip(body.address), h);
+        } catch (err) {
+          if (err instanceof SandboxFaucetError) throw new HttpError(err.status, err.message);
+          throw err;
+        }
+      }
       if (DISABLED.test(path)) {
         throw new HttpError(
           403,
-          "disabled in production (Monad mainnet): no faucet, no price pusher, no synthetic crash and no demo bots exist here. The X-ray evidence is from recorded testnet/anvil runs.",
+          `disabled in production (${ctx.chain.profile.label}): no faucet, no price pusher, no synthetic crash and no demo bots exist here. The X-ray evidence is from recorded testnet/anvil runs.`,
         );
       }
       if (req.method !== "GET") throw new HttpError(405, `${req.method} not allowed`);
-      if (path === "/health" || path === "/") return send(res, 200, healthJson(d), h);
+      if (path === "/health" || path === "/") return send(res, 200, healthJson(d, faucet), h);
       if (path === "/livez") {
         const st = d.heads.status();
         const ok = st.head !== null && (st.lagMs ?? Infinity) < 60_000;

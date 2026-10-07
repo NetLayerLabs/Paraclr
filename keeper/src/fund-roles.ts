@@ -5,8 +5,9 @@
 // min(its starting balance, 10 MON) unless it is the sender's first tx in 3 blocks. On Monad this
 // script therefore waits 3 blocks after each transfer, so every transfer qualifies.
 //
-// `--network mainnet` → keeper/src/prod/fund.ts (production hot keys, keeper/.env.mainnet, budget
-// from measured gas, explicit funder, --yes-mainnet). Everything below is the testnet/anvil flow.
+// `--network mainnet|testnet` → keeper/src/prod/fund.ts (production hot keys, keeper/.env.<network>,
+// budget from measured gas, explicit funder, --yes-mainnet / --yes-testnet). Everything below is the
+// DEMO stack's testnet/anvil flow (keeper/.env).
 //
 // Targets (MON, override in keeper/.env): FUND_PUSHER_MON (5), FUND_FAUCET_MON (12), FUND_KEEPER_MON (2: one
 // crash run v2 on both designs costs the busiest lane keeper ≈1.1 MON, see keeper/README.md).
@@ -23,7 +24,7 @@ function target(name: string, fallback: string): bigint {
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  if (args.network === "mainnet") return fundMainnet(args);
+  if (args.network === "mainnet" || args.network === "testnet") return fundMainnet(args);
   loadKeeperEnv();
   const rpcUrl = typeof args.rpc === "string" ? args.rpc : defaultRpcUrl();
   const info = await detectChain(rpcUrl);

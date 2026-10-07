@@ -10,6 +10,8 @@
 //     cross zero, or
 //   - the rate was last recomputed more than FUNDING_MAX_AGE_S ago (default 3600),
 // and never before fundingState(market).nextUpdate. FUNDING_MIN_CHANGE_BPS=0 → every interval.
+// FUNDING_SKIP_IDLE (default on for testnet, off for mainnet): no max-age update while the stored
+// rate AND the target are both 0 (no skew: the index does not move, an update changes nothing).
 // Anyone may call updateFunding; FundingUpdateTooSoon from a race is harmless.
 //
 // Alerts: `funding:overdue:<market>` when the rate is older than FUNDING_MAX_AGE_S + 2 intervals
@@ -82,11 +84,12 @@ export class FundingUpdater {
     const diff = target > rate ? target - rate : rate - target;
     const absRate = rate < BigInt(0) ? -rate : rate;
     const changed = this.minChangeBps === BigInt(0) ? true : diff * BPS > absRate * this.minChangeBps || (rate === BigInt(0) && target !== BigInt(0)) || (rate !== BigInt(0) && (target > BigInt(0)) !== (rate > BigInt(0)));
-    const stale = age >= this.maxAgeS;
+    const idle = this.ctx.config.fundingSkipIdle && rate === BigInt(0) && target === BigInt(0);
+    const stale = age >= this.maxAgeS && !idle;
     const reason = changed ? `rate ${rate} → ${target}` : stale ? `rate older than ${this.maxAgeS}s` : "unchanged";
     this.state.set(m.symbol, { ratePerSec: rate.toString(), target: target.toString(), lastUpdate, nextUpdate, reason });
     this.ctx.alerter.set(
-      age > this.maxAgeS + 2 * interval + 60,
+      !idle && age > this.maxAgeS + 2 * interval + 60,
       `funding:overdue:${m.symbol}`,
       "critical",
       `${m.symbol} funding rate last recomputed ${Math.round(age / 60)} min ago (policy max ${Math.round(this.maxAgeS / 60)} min): check the OPS key balance and /health`,
@@ -131,7 +134,7 @@ export class FundingUpdater {
     return {
       enabled: this.enabled,
       interval: this.ctx.params.fundingInterval,
-      policy: { minChangeBps: Number(this.minChangeBps), maxAgeS: this.maxAgeS },
+      policy: { minChangeBps: Number(this.minChangeBps), maxAgeS: this.maxAgeS, skipIdle: this.ctx.config.fundingSkipIdle },
       markets: Object.fromEntries(this.state),
       ...this.stats,
     };

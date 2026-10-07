@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:sandbox": "NEXT_PUBLIC_CHAIN_MODE=monad-testnet NEXT_PUBLIC_MONAD_TESTNET_RPC_URL=http://127.0.0.1:8645 NEXT_PUBLIC_KEEPER_URL=http://127.0.0.1:8887 PARACLR_DEPLOYMENTS_DIR=deployments/sandbox PARACLR_DIST_DIR=.next-sandbox next dev -p 3002",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -14,6 +15,7 @@
     "deploy:anvil": "tsx scripts/deploy.ts --network anvil",
     "deploy:monad": "tsx scripts/deploy.ts --network monad",
     "deploy:mainnet": "tsx scripts/deploy-mainnet.ts --network mainnet",
+    "deploy:testnet": "tsx scripts/deploy-mainnet.ts --network testnet",
     "keeper": "tsx keeper/src/index.ts",
     "keeper:init": "tsx keeper/src/init-env.ts",
     "keeper:fund": "tsx keeper/src/fund-roles.ts",
@@ -23,7 +25,10 @@
     "bench": "tsx bench/run.ts",
     "xray": "tsx bench/xray.ts",
     "pyth:cadence": "tsx bench/pyth-cadence.ts",
-    "rehearse:mainnet": "tsx scripts/rehearse-mainnet.ts"
+    "rehearse:mainnet": "tsx scripts/rehearse-mainnet.ts",
+    "rehearse:testnet": "tsx scripts/rehearse-testnet.ts",
+    "oracle:fallback": "tsx scripts/testnet-oracle.ts",
+    "sandbox": "tsx scripts/sandbox.ts"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.45.0",

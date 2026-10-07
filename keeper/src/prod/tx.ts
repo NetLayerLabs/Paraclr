@@ -11,7 +11,7 @@ import {
   type LocalAccount,
   type TransactionReceipt,
 } from "viem";
-import { waitForReceipt } from "../sender";
+import { waitForReceipt, type Observed } from "../sender";
 import { clearinghouseAbi } from "./abi";
 import type { ProdContext } from "./context";
 
@@ -180,7 +180,16 @@ export async function sendTracked(
   onDone?: (tx: ProdTx) => void,
 ): Promise<ProdTx> {
   const sender = ctx.senders.for(account);
-  const sub = await sender.send({ to: req.to, data: req.data, value: req.value ?? BigInt(0), gas: req.gas });
+  const value = req.value ?? BigInt(0);
+  // Monad reserve balance (reserve.ts): a key below 10 MON spaces value-carrying txs 3 blocks apart.
+  const maxCost = req.gas * (await ctx.senders.fees.get()).maxFeePerGas;
+  let mined!: Promise<Observed>;
+  const sub = await ctx.reserve.send(account.address, value, maxCost, async () => {
+    const s = await sender.send({ to: req.to, data: req.data, value, gas: req.gas });
+    mined = waitForReceipt(ctx.chain.client, s.hash, { pollMs: ctx.config.receiptPollMs, timeoutMs: ctx.config.receiptTimeoutMs });
+    // never an unhandled rejection: a lost tx resolves null here and is handled below
+    return { ...s, block: mined.then((r) => r.receipt.blockNumber as bigint | null, () => null) };
+  });
   const tx: ProdTx = {
     kind: info.kind,
     lane: info.lane,
@@ -200,10 +209,7 @@ export async function sendTracked(
   ledger.add(tx);
   void (async () => {
     try {
-      const { receipt, observedAt } = await waitForReceipt(ctx.chain.client, sub.hash, {
-        pollMs: ctx.config.receiptPollMs,
-        timeoutMs: ctx.config.receiptTimeoutMs,
-      });
+      const { receipt, observedAt } = await mined;
       tx.receipt = receipt;
       tx.status = receipt.status === "success" ? "success" : "reverted";
       tx.block = Number(receipt.blockNumber);

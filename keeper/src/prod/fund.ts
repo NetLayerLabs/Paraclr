@@ -1,5 +1,6 @@
-// `npm run keeper:fund -- --network mainnet` — preview (always) and top up (with --send) the
-// production hot keys from a funder key YOU choose.
+// `npm run keeper:fund -- --network mainnet|testnet` — preview (always) and top up (with --send) the
+// production hot keys from a funder key YOU choose. Testnet: --yes-testnet, testnet MON, and the
+// budget defaults to ~3 weeks of light demo use (budget.ts).
 //
 //   (no flags)                    preview: every role's balance vs its target from MEASURED gas
 //                                 (budget.ts) and the total that would be sent
@@ -49,7 +50,8 @@ export async function fundMainnet(args: Args): Promise<void> {
   loadMainnetEnv(args);
   if (typeof args.days === "string") process.env.FUND_DAYS = args.days;
   const chain = await connectMainnet(mainnetRpcUrl(args));
-  console.log(`keeper:fund · ${chain.label} · chain ${chain.chainId}`);
+  const unit = chain.profile.realValue ? "MON" : "testnet MON";
+  console.log(`keeper:fund · ${chain.label} · chain ${chain.chainId}${chain.profile.realValue ? "" : " · TESTNET (no real value)"}`);
   if (typeof args["sweep-retired"] === "string") return sweepRetired(chain, args);
 
   const roles = loadProdRoles(["ops", "keepers"]);
@@ -94,7 +96,7 @@ export async function fundMainnet(args: Args): Promise<void> {
   }
   const fees = BigInt(todo.length) * BigInt(21_000) * act.gasPriceWei;
   console.log(
-    `\n  total to send: ${formatEther(need)} MON in ${todo.length} transfer(s) + ≈${formatEther(fees)} MON gas` +
+    `\n  total to send: ${formatEther(need)} ${unit} in ${todo.length} transfer(s) + ≈${formatEther(fees)} ${unit} gas` +
       `\n  expected spend over ${act.days} days: ${Number(formatEther(plan.periodGross)).toFixed(2)} MON gross ` +
       `(≈ ${Number(formatEther(plan.perDayTotal)).toFixed(2)} MON/day + deploy); ` +
       (plan.periodNet < BigInt(0)
@@ -103,7 +105,7 @@ export async function fundMainnet(args: Args): Promise<void> {
   );
 
   if (!args.send) {
-    console.log("\npreview only. To send: add --send --yes-mainnet (and --funder deployer | --funder-env NAME).");
+    console.log(`\npreview only. To send: add --send --${chain.profile.yesFlag} (and --funder deployer | --funder-env NAME).`);
     return;
   }
   if (todo.length === 0) {
@@ -150,16 +152,17 @@ function pickFunder(args: Args, deployer: LocalAccount | null): LocalAccount {
   return deployer;
 }
 
+/** Pyth's fee per update message (`singleUpdateFeeInWei`: 0 on mainnet, 1 wei on testnet, 2026-10-07). */
 async function pythUpdateFee(chain: ProdChain): Promise<bigint> {
+  const address = (envStr("PYTH_ADDRESS") ?? chain.profile.pyth) as Address;
   try {
-    return await chain.client.readContract({
-      address: (envStr("PYTH_ADDRESS") ?? KNOWN.pyth) as Address,
-      abi: parseAbi(["function getUpdateFee(bytes[] updateData) view returns (uint256)"]),
-      functionName: "getUpdateFee",
-      args: [["0x"]],
-    });
+    return await chain.client.readContract({ address, abi: parseAbi(["function singleUpdateFeeInWei() view returns (uint256)"]), functionName: "singleUpdateFeeInWei" });
   } catch {
-    return BigInt(0);
+    try {
+      return await chain.client.readContract({ address, abi: parseAbi(["function getUpdateFee(bytes[] updateData) view returns (uint256)"]), functionName: "getUpdateFee", args: [["0x"]] });
+    } catch {
+      return BigInt(0);
+    }
   }
 }
 
@@ -201,7 +204,7 @@ async function sweepRetired(chain: ProdChain, args: Args): Promise<void> {
   for (const p of plan) console.log(`  ${p.a.address}  ${formatEther(p.bal)} MON → ${formatEther(p.amount)} to ${to}`);
   const todo = plan.filter((p) => p.amount > BigInt(0));
   if (!args.send) {
-    console.log("preview only. Add --send --yes-mainnet to sweep.");
+    console.log(`preview only. Add --send --${chain.profile.yesFlag} to sweep.`);
     return;
   }
   confirmMainnet(chain, args, `sweep ${todo.length} retired key(s) to ${to}`);

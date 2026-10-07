@@ -1,4 +1,4 @@
-// `npm run timelock -- --network mainnet <prepare|status> …` — prepare and track owner changes that
+// `npm run timelock -- --network mainnet|testnet <prepare|status|seed|feed-swap|set-pyth> …` — prepare and track owner changes that
 // go through the TimelockController (the clearinghouse owner). The keeper NEVER holds the owner
 // key: `prepare` writes Safe Transaction Builder JSON files (schedule, then execute after the
 // delay) for the multisig / hardware wallet to sign. docs/RUNBOOK.md "Timelock change procedure".
@@ -13,6 +13,12 @@
 //           operation replaceMarketFeed(market, newFeed, maxDeviationBps ≤ 1000; ≤ 5000 for a
 //           provably dead old feed on v4) and prints the
 //           steps (keep `npm run pyth:push -- --feeds 0xNEW` running when the Safe executes it)
+//   set-pyth --to 0xORACLE   (TESTNET trial-end fallback, docs/RUNBOOK.md "Testnet: trial-end fallback")
+//           prepares setPyth(0xORACLE) — the keeper-signed KeeperSignedPyth, or back to the real
+//           Pyth — and prints the steps: the new oracle must STORE every listed feed when the
+//           operation executes (the keeper pushes signed prices into it from 120 s before the
+//           operation is ready: oracle-switch.ts), then the keeper switches its price source live
+//           (gov:oracle). The default salt is what the keeper watches for: don't pass --salt.
 //   seed    --insurance 200 --pool 100 [--lanes 0-7 | 7 | 1,3]
 //           launch seeding batch for the TREASURY Safe (no timelock: fundLane / backstopDeposit are
 //           permissionless): AUSD approve + fundLane(lane, insurance) + backstopDeposit(lane, pool)
@@ -170,14 +176,42 @@ export async function impersonateSend(chain: ProdChain, from: Address, to: Addre
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const args = parseArgs(argv);
-  const cmd = argv.find((a) => !a.startsWith("--") && ["prepare", "status", "seed", "feed-swap"].includes(a));
-  if (args.network !== "mainnet" || !cmd) throw new Error("usage: npm run timelock -- --network mainnet <prepare|status|seed> --call \"fn(types)\" [--args a,b] …");
+  const cmd = argv.find((a) => !a.startsWith("--") && ["prepare", "status", "seed", "feed-swap", "set-pyth"].includes(a));
+  if ((args.network !== "mainnet" && args.network !== "testnet") || !cmd) {
+    throw new Error("usage: npm run timelock -- --network mainnet|testnet <prepare|status|seed|feed-swap|set-pyth> --call \"fn(types)\" [--args a,b] …");
+  }
   loadMainnetEnv(args, { required: false });
   const chain = await connectMainnet(mainnetRpcUrl(args));
   const dep = await loadProdDeployment(chain);
   const str = (k: string) => (typeof args[k] === "string" ? (args[k] as string) : undefined);
   console.log(`timelock ${cmd} · ${chain.label} · ${rel(dep.file)} · timelock ${dep.timelock}`);
 
+  const net = chain.profile.name;
+  const delayS = Number(await chain.client.readContract({ address: dep.timelock!, abi: timelockAbi, functionName: "getMinDelay" }));
+  const delayTxt = delayS >= 3600 ? `${(delayS / 3600).toFixed(delayS % 3600 ? 1 : 0)} h` : `${delayS} s`;
+  if (cmd === "set-pyth") {
+    const to = str("to");
+    if (!to || !isAddress(to)) throw new Error("set-pyth --to 0x<oracle> required (the KeeperSignedPyth address, or the real Pyth to switch back)");
+    if (net !== "testnet" && to.toLowerCase() !== dep.realPyth.toLowerCase()) throw new Error("a keeper-signed oracle is TESTNET ONLY; on mainnet setPyth may only target a real Pyth deployment");
+    const code = await chain.client.getCode({ address: getAddress(to) });
+    if (!code || code === "0x") throw new Error(`${to} has no code on ${chain.label}`);
+    const back = to.toLowerCase() === dep.realPyth.toLowerCase();
+    args.call = "setPyth(address)";
+    args.args = getAddress(to);
+    console.log(`  oracle switch: ${dep.pyth} → ${getAddress(to)} (${back ? "back to the REAL Pyth" : "the KEEPER-SIGNED fallback oracle, testnet only"})`);
+    console.log("  procedure (docs/RUNBOOK.md \"Testnet: trial-end fallback\"):");
+    console.log(`    1. sign + execute the SCHEDULE file below with the Safe (${delayTxt} delay starts); announce it`);
+    if (!back) {
+      console.log("    2. the running keeper (PRICE_SIGNER_PRIVATE_KEY in its env, restarted after `oracle:fallback deploy`) signs ahead of the switch and,");
+      console.log("       from 120 s before this operation is ready, pushes keeper-signed prices into the new oracle (/health.oracle.prepush):");
+      console.log("       setPyth reverts FeedNotOnPyth unless the oracle STORES every listed feed, and fresh storage serves `[]` calls right after.");
+      console.log(`       No keeper running? \`npm run pyth:push -- --network ${net} --signed --oracle ${getAddress(to)} --every 10 --yes-${net}\` (never next to a keeper with the same signer key)`);
+    } else {
+      console.log("    2. make sure Hermes works again (PYTH_API_KEY) — the keeper switches back to it");
+    }
+    console.log("    3. after the delay: sign + execute the EXECUTE file; the keeper sees PythUpdated and switches its price source live (alert gov:oracle)");
+    console.log(`    4. \`npm run oracle:fallback -- --network ${net} record --live\` updates the deployment file (app labels: "simulated after the Pyth trial"); stop the pusher`);
+  }
   if (cmd === "seed") return seedBatch(chain, dep, { insurance: Number(str("insurance") ?? 0), pool: Number(str("pool") ?? 0), out: str("out"), lanes: parseLanes(str("lanes")) });
   if (cmd === "feed-swap") {
     const sym = str("market");
@@ -189,14 +223,14 @@ async function main(): Promise<void> {
     if (dev > 1000) {
       console.log("  NOTE: > 1000 bps is accepted only if the OLD feed is provably dead on chain when the operation EXECUTES");
       console.log("        (Pyth has no stored price for it, or it is older than DEAD_FEED_AGE = 1 h; v4 MAX_DEAD_FEED_SWAP_DEVIATION_BPS = 5000).");
-      console.log("        Anyone can refute a false \"dead\" during the 24 h delay by pushing the old feed: the execute then reverts FeedSwapDeviation.");
+      console.log(`        Anyone can refute a false "dead" during the ${delayTxt} delay by pushing the old feed: the execute then reverts FeedSwapDeviation.`);
     }
     args.call = "replaceMarketFeed(bytes32,bytes32,uint256)";
     args.args = `${dep.markets[sym]},${feed},${dev}`;
     console.log(`  dead-feed swap for ${sym}: ${dep.feeds[sym] ?? "?"} → ${feed} (each lane with OI must be within ${dev / 100}% of its last price)`);
     console.log("  procedure (docs/RUNBOOK.md \"Dead feed\"):");
-    console.log("    1. sign + execute the SCHEDULE file below with the multisig (24 h delay starts)");
-    console.log(`    2. after the delay: start \`npm run pyth:push -- --network mainnet --feeds ${feed} --every 10 --yes-mainnet\` (nobody else pushes a new feed)`);
+    console.log(`    1. sign + execute the SCHEDULE file below with the multisig (${delayTxt} delay starts)`);
+    console.log(`    2. after the delay: start \`npm run pyth:push -- --network ${net} --feeds ${feed} --every 10 --yes-${net}\` (nobody else pushes a new feed)`);
     console.log("    3. sign + execute the EXECUTE file while the pusher runs (the new feed's stored price must be ≤ 15 s old)");
     console.log("    4. the keeper sees MarketFeedReplaced and switches feeds live (alert gov:feed); stop the pusher");
   }

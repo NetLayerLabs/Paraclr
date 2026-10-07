@@ -165,3 +165,8 @@ Put Caddy or nginx in front of it for TLS (`reverse_proxy 127.0.0.1:8787`).
   - per sweep (≥ 1 s), one `eth_simulateV1` per lane plus a few reads;
   - log scans, plus receipts for the keeper's own txs.
 - **Required methods.** The keeper needs `eth_simulateV1` (Monad supports it) and state overrides. It does **not** need `debug_*`: there is no X-ray on mainnet.
+
+## Monad testnet
+
+The same image runs the testnet keeper: override the command with `node keeper/src/keeper.cjs --network testnet --yes-testnet`, build it **after** `deployments/10143.json` (`"production": true, "network": "monad-testnet"`) is committed, and pass the variables of `keeper/.env.testnet.example` as secrets (`KEEPER_SECRETS_FROM_ENV=1`). After the Pyth trial, add `PRICE_SIGNER_PRIVATE_KEY` (and `KEEPER_SIGNED_PYTH_ADDRESS` until the deployment file records `fallbackOracle`); see `docs/RUNBOOK.md` §14.6. The signer writes a small state file (`SIGNER_STATE_FILE`, default `keeper/.signer-state-<chain>-<oracle>.json`): on an ephemeral filesystem a restart makes orders whose `execAfter` fell into the restart gap expire (users cancel them), which is the safe outcome.
+

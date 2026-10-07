@@ -181,6 +181,13 @@ export function readDeployment(chainId: number): Deployment | null {
   const file = deploymentPath(chainId);
   if (!existsSync(file)) return null;
   const raw = JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
+  if (raw.production === true) {
+    // deployments/10143.json is the PRODUCTION testnet set since docs/TESTNET_PLAN.md: not the demo stack.
+    throw new Error(
+      `${file} is a PRODUCTION deployment ("production": true). Run the production keeper: \`npm run keeper -- --network ${raw.chainId === 143 || raw.chainId === "143" ? "mainnet" : "testnet"}\`. ` +
+        "The demo stack (MockAUSD / MockOracle) needs its own deployment file (DEPLOYMENTS_OUT).",
+    );
+  }
   const addr = (k: string): Address => {
     const v = raw[k];
     if (typeof v !== "string" || !isAddress(v)) throw new Error(`${file}: "${k}" is not an address`);

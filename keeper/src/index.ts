@@ -4,9 +4,10 @@
 // and runs the measured 8-lane flash-crash. Reads keeper/.env; on a local anvil every setting
 // has a zero-config default (anvil dev keys), see keeper/README.md.
 //
-// `npm run keeper -- --network mainnet` runs the PRODUCTION keeper instead (keeper/src/prod/main.ts:
-// keeper/.env.mainnet, chain 143, Pyth/Hermes, order executor, funding, auctions, monitoring; no
-// faucet / price pusher / crash / demo takers). Nothing below runs in that mode.
+// `npm run keeper -- --network mainnet` (or `--network testnet`) runs the PRODUCTION keeper instead
+// (keeper/src/prod/main.ts: keeper/.env.mainnet / keeper/.env.testnet, chain 143 / 10143, Pyth/Hermes,
+// order executor, funding, auctions, monitoring; no faucet / price pusher / crash / demo takers).
+// Nothing below runs in those modes. Without --network this is the DEMO keeper (keeper/.env).
 
 import type { Server } from "node:http";
 import { encodeFunctionData, formatEther } from "viem";
@@ -134,11 +135,11 @@ async function main(): Promise<void> {
 }
 
 const cli = parseArgs(process.argv.slice(2));
-if (cli.network !== undefined && cli.network !== "mainnet") {
-  console.error(`[keeper] --network must be mainnet (production) or omitted (anvil / testnet from keeper/.env), got "${String(cli.network)}"`);
+if (cli.network !== undefined && cli.network !== "mainnet" && cli.network !== "testnet") {
+  console.error(`[keeper] --network must be mainnet or testnet (production) or omitted (demo stack: anvil / testnet from keeper/.env), got "${String(cli.network)}"`);
   process.exit(1);
 }
-(cli.network === "mainnet" ? runProdKeeper(cli) : main()).catch((err: unknown) => {
+(cli.network === "mainnet" || cli.network === "testnet" ? runProdKeeper(cli) : main()).catch((err: unknown) => {
   console.error(`[keeper] fatal: ${(err as Error)?.message ?? err}`);
   process.exit(1);
 });
