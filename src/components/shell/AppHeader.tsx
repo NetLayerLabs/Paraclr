@@ -6,6 +6,7 @@
 // bottom tab bar there).
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { signOut, unrealizedPnl, useParaclr } from "@/lib/store";
 import { shortAddress } from "@/lib/auth/demo";
@@ -91,6 +92,58 @@ function WalletChip({ onOpen }: { onOpen: () => void }) {
   );
 }
 
+/** Copies the signed-in wallet's full address; the chip itself opens the Wallet screen. */
+function CopyAddress() {
+  const address = useParaclr((s) => s.session?.address ?? null);
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  if (!address) return null;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(address);
+    } catch {
+      // No async clipboard (e.g. an insecure context): fall back to a hidden selection.
+      const ta = document.createElement("textarea");
+      ta.value = address;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      if (!ok) return;
+    }
+    setCopied(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setCopied(false), 1400);
+  };
+
+  return (
+    <button
+      type="button"
+      className={styles.copyBtn}
+      onClick={copy}
+      data-copied={copied || undefined}
+      title={copied ? "Copied" : `Copy wallet address · ${address}`}
+      aria-label={copied ? "Wallet address copied" : "Copy wallet address"}
+    >
+      {copied ? (
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <rect x="5.25" y="5.25" width="8" height="8" rx="1.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M10.75 3.25v-.5a1.5 1.5 0 0 0-1.5-1.5h-5a1.5 1.5 0 0 0-1.5 1.5v5a1.5 1.5 0 0 0 1.5 1.5h.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function SignOut() {
   const { privyEnabled } = useAuthContext();
   const method = useParaclr((s) => s.session?.method ?? null);
@@ -141,6 +194,7 @@ export function AppHeader({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void })
 
       <div className={styles.account}>
         <WalletChip onOpen={() => onTab("wallet")} />
+        <CopyAddress />
         <SignOut />
       </div>
     </header>

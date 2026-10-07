@@ -278,6 +278,37 @@
   font-size: 9.5px;
 }
 
+.copyBtn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--text-2);
+  transition:
+    color var(--dur-1),
+    border-color var(--dur-1),
+    background var(--dur-1);
+}
+
+.copyBtn:hover {
+  color: var(--text);
+  border-color: var(--accent-line);
+}
+
+.copyBtn[data-copied] {
+  color: var(--long-text);
+  border-color: var(--long-text);
+}
+
+.copyBtn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .signOut {
   height: 34px;
   padding: 0 12px;
