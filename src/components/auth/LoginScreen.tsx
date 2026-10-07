@@ -125,17 +125,11 @@ export function LoginScreen() {
   return (
     <div className={styles.root}>
       <nav className={styles.top} aria-label="Site">
-        <span className={styles.brandMark}>
+        <Link href="/" className={styles.brandMark} title="Paraclr home" aria-label="Paraclr home">
           <ParaclrLogo tone="auto" height={26} />
-        </span>
+        </Link>
         <span className={styles.topActions}>
           <ThemeToggle className={styles.themeBtn} />
-          <Link href="/" className={styles.back}>
-            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden>
-              <path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Back to home
-          </Link>
         </span>
       </nav>
 
