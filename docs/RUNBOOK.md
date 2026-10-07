@@ -604,3 +604,20 @@ Local anvils only. Output under `contracts/cache/rehearsal-testnet/<UTC>/`; trac
 
 The same day, `npm run rehearse:mainnet -- --legs fork,mock` on this code passed 38/38 (fork 23, mock 15) with DeployProd's mainnet output and gas unchanged (21 txs, 14.84M used / 18.09M limit): the testnet changes leave mainnet behaviour identical.
 
+### 14.10 Live deployment (2026-10-07)
+
+Rehearsal on the deploying commit: 36/36 (`bench/rehearsal/10143-fork-2026-10-07T18-19-41Z.json`). Dry run: 16/16 preflight checks.
+
+| | Address |
+| --- | --- |
+| Clearinghouse (v5) | `0xbC1fD0165FBfF4EF32337E42D0e2Ad59bF52b203` |
+| TimelockController (600 s) | `0xdD66E8118e0a1096D8eEC5b0A0eE9612890047Ab` |
+| Owner Safe (1.5.0, 1 of 2) | `0xCC62247E59A3872013e2dB7A52696A3117F2e4c3` |
+| Guardian | `0x35b9f469988ef7748DcD6CC232e6f3b665cCBFC8` |
+| Deployer (powerless) | `0x8bE92d6812e10B5eED203dE940Ab45E4d22D0fEb` |
+
+- Deploy: ≈ 2.02 testnet MON. Post-deploy verification 31/31. Markets SOL/AUSD and BTC/AUSD (MON not listed).
+- The first run's post-deploy verification failed on the **public RPC's rate limit**: `testnet-rpc.monad.xyz` is QuickNode-backed and refuses calls over its per-second cap with `-32007` ("50/second request limit reached", "requests limited to 15/sec"). Every call in a JSON-RPC batch counts. The contracts were already deployed; the verification was re-run read-only and passed. Since then `makeProdClient` retries rate-limited calls with backoff (keeper and scripts), and `KEEPER_RPC_BATCH_SIZE=10` keeps batches small on the public RPC. A dedicated RPC endpoint can use 50.
+- `keeper:fund --send`: 24.38 testnet MON to 10 hot keys (guardian 0.2, ops 9.02, keepers 1.90 each). ≈ 3.57 MON left on the deployer.
+- Lane seeding: the owner Safe got 10,000 AUSD from Agora's faucet; `timelock seed --insurance 200 --pool 100` → a 17-call Transaction Builder batch (approve 2,400 AUSD, then `fundLane` + `backstopDeposit` per lane) for the Safe to execute.
+
