@@ -6,6 +6,7 @@
 // bottom tab bar there).
 
 import Link from "next/link";
+import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { signOut, unrealizedPnl, useParaclr } from "@/lib/store";
 import { shortAddress } from "@/lib/auth/demo";
 import { NETWORK } from "@/lib/chain/config";
@@ -13,7 +14,6 @@ import { KeeperPill, NetworkPill } from "@/components/chain/ChainUi";
 import { useAuthContext } from "@/components/auth/AuthContext";
 import { PrivySignOutButton } from "@/components/auth/PrivyAuth";
 import { SolvencyBadge } from "@/components/solvency/SolvencyBadge";
-import { Mark } from "@/components/landing/brand/Logo";
 import { ThemeToggle } from "./theme";
 import styles from "./AppShell.module.css";
 
@@ -32,8 +32,8 @@ const fmtAusd = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits
 export function Wordmark({ className }: { className?: string }) {
   return (
     <Link href="/" className={className ?? styles.wordmark} title="Paraclr home" aria-label="Paraclr home">
-      <Mark className={styles.mark} />
-      <span className={styles.word}>Paraclr</span>
+      <ParaclrLogo tone="auto" height={26} className={styles.lockupFull} />
+      <ParaclrLogo tone="auto" variant="mark" height={26} className={styles.lockupMark} />
     </Link>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import Link from "next/link";
 import { useParaclr } from "@/lib/store";
 import { burnerAllowed, startDemoSession } from "@/lib/auth/session";
@@ -9,13 +10,11 @@ import { useAuthContext } from "./AuthContext";
 import { BiometricButton, type BiometricPhase } from "./BiometricButton";
 import { PrivyPasskeyLogin } from "./PrivyAuth";
 import { ThemeToggle } from "@/components/shell/theme";
-import { Mark } from "@/components/landing/brand/Logo";
 import styles from "./LoginScreen.module.css";
 
 const PARTNERS = [
   { name: "Monad", color: "var(--accent)" },
   { name: "Agora AUSD", color: "var(--ausd)" },
-  { name: "Chainlink", color: "var(--link)" },
   { name: "Privy", color: "var(--text)" },
 ];
 // Production prices come from Pyth (delayed orders execute against Pyth updates).
@@ -121,8 +120,7 @@ export function LoginScreen() {
     <div className={styles.root}>
       <nav className={styles.top} aria-label="Site">
         <span className={styles.brandMark}>
-          <Mark className={styles.markIcon} />
-          <span className={styles.markWord}>Paraclr</span>
+          <ParaclrLogo tone="auto" height={26} />
         </span>
         <span className={styles.topActions}>
           <ThemeToggle className={styles.themeBtn} />

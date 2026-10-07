@@ -1,0 +1,36 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+
+.logo img {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+/* tone="auto": white lockup on the dark app theme, ink lockup on the light one. */
+.ink {
+  display: none !important;
+}
+
+:global(html[data-theme="light"]) .logo[data-tone="auto"] .white {
+  display: none !important;
+}
+
+:global(html[data-theme="light"]) .logo[data-tone="auto"] .ink {
+  display: block !important;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -179,10 +179,20 @@
   }
 }
 
+/* Logo: full lockup by default; the mark alone where space is tight. */
+.lockupMark {
+  display: none !important;
+}
+
 /* Very narrow phones: the mark carries the brand alone. */
 @media (max-width: 379px) {
-  .word {
-    display: none;
+  .word,
+  .lockupFull {
+    display: none !important;
+  }
+
+  .lockupMark {
+    display: inline-flex !important;
   }
 }
 
@@ -476,8 +486,13 @@
 /* Tablets and small desktops: the mark carries the brand so nav + status +
    account fit one line. */
 @media (min-width: 640px) and (max-width: 1279px) {
-  .word {
-    display: none;
+  .word,
+  .lockupFull {
+    display: none !important;
+  }
+
+  .lockupMark {
+    display: inline-flex !important;
   }
 }
 
