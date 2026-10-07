@@ -31,6 +31,7 @@ import { trackExternalTx } from "@/lib/chain/txs";
 import { Notice, TxLink } from "@/components/chain/ChainUi";
 import { fmtAusd } from "@/components/trade/format";
 import { AuctionLanes } from "./AuctionLanes";
+import { IndexedActivity } from "./IndexedActivity";
 import { AuctionMetrics } from "./AuctionMetrics";
 import { LiveResultCard } from "./LiveResultCard";
 import { XrayPanel, type XraySource } from "./XrayPanel";
@@ -511,6 +512,9 @@ export function LiveClearing({
       />
 
       {!production && <TakeList records={feed.records} block={feed.block} params={params} />}
+
+      {/* History since deploy, from the Envio indexer (when NEXT_PUBLIC_ENVIO_GRAPHQL_URL is set). */}
+      <IndexedActivity />
 
       {report && phase === "done" && <AuctionMetrics report={report} laneBadDebt={lanes ? badDebt : null} />}
       {report && phase === "done" && <LiveResultCard report={report} records={records} me={me} />}

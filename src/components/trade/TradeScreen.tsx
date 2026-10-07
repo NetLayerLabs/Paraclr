@@ -10,6 +10,8 @@ import { OrderPanel, type OpenedMeta } from "./OrderPanel";
 import { AccountSummary } from "./AccountSummary";
 import { AuctionBanner } from "./AuctionBanner";
 import { PositionsList, type ClosedMeta } from "./PositionsList";
+import { OrderHistory } from "./OrderHistory";
+import { INDEXER_ON } from "@/lib/indexer";
 import { baseOf, fmtPrice, fmtSigned } from "./format";
 import { ProdOrderPanel } from "@/components/prod/ProdOrderPanel";
 import { PendingOrders } from "@/components/prod/PendingOrders";
@@ -32,6 +34,9 @@ export function TradeScreen() {
   const hasGas = useParaclr((s) => (s.chain.account?.native ?? 0) > 0);
   const production = useParaclr((s) => chainLive && !!s.chain.contracts?.production);
   const [toast, setToast] = useState<Toast | null>(null);
+  // Bottom panel: open positions (contract read) or the order history (Envio indexer, chain modes only).
+  const [bottom, setBottom] = useState<"positions" | "history">("positions");
+  const history = INDEXER_ON && chainLive && bottom === "history";
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const listed = useListedMarkets();
   const pn = usePriceName();
@@ -109,7 +114,23 @@ export function TradeScreen() {
         <AccountSummary />
       </aside>
       <div className={styles.positions}>
-        <PositionsList onClosed={onClosed} />
+        {INDEXER_ON && chainLive && (
+          <div className={styles.bottomTabs} role="tablist" aria-label="Positions or order history">
+            {(["positions", "history"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={bottom === t}
+                className={bottom === t ? styles.bottomTabOn : styles.bottomTab}
+                onClick={() => setBottom(t)}
+              >
+                {t === "positions" ? "Positions" : "History"}
+              </button>
+            ))}
+          </div>
+        )}
+        {history ? <OrderHistory /> : <PositionsList onClosed={onClosed} />}
       </div>
 
       {toast && (

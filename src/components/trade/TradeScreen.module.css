@@ -15,6 +15,46 @@
   min-width: 0;
 }
 
+/* Positions | History switch above the bottom panel (when the Envio indexer is configured). */
+.bottomTabs {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  margin-bottom: 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+
+.bottomTab,
+.bottomTabOn {
+  height: 28px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition:
+    color var(--dur-1),
+    background var(--dur-1);
+}
+
+.bottomTab:hover {
+  color: var(--text);
+}
+
+.bottomTabOn {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+
+.bottomTab:focus-visible,
+.bottomTabOn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 /* Ticker cell also carries the liquidation-auction banner (above the market header). */
 .ticker {
   display: flex;
