@@ -20,7 +20,7 @@ import { prodAbi } from "./abi";
 import { commitOrder, type TrackedOrder } from "./orders";
 import { priceUpdateFor, storedFreshThreshold, type PriceUpdate } from "./priceUpdate";
 import { requireRiskAck } from "./riskAck";
-import { EMPTY_PROD, readProdDynamic, readProdParams } from "./state";
+import { EMPTY_PROD, readLoose, readProdDynamic, readProdParams } from "./state";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -68,18 +68,28 @@ export interface DepositRoom {
   room: number | null;
   accountRoom: number | null;
   laneRoom: number | null;
+  /**
+   * Holders only: AUSD allowed beyond the caps right now (`topUpAllowance`,
+   * equity back to initial margin). Read at stored prices; `depositWithPrice`
+   * recomputes it at fresh prices on submit.
+   */
+  topUp: number;
+  /** The account holds positions (its deposits go through `depositWithPrice`). */
+  holder: boolean;
 }
 
-/** How much more this account may deposit: collateral after ≤ account cap, lane TVL after ≤ lane cap. */
+/** How much more this account may deposit under the caps (collateral ≤ account cap, lane TVL ≤ lane cap). */
 export function depositRoom(acct: ChainAccountSnapshot | null): DepositRoom {
   const p = getState().chain.prod;
-  if (!p || !acct) return { room: null, accountRoom: null, laneRoom: null };
+  const holder = (acct?.positions.length ?? 0) > 0;
+  const topUp = holder ? (p?.mine?.topUpAllowance ?? 0) : 0;
+  if (!p || !acct) return { room: null, accountRoom: null, laneRoom: null, topUp, holder };
   const accountRoom =
     p.params.maxDepositPerAccount === null ? null : Math.max(0, p.params.maxDepositPerAccount - acct.collateral);
   const laneRoom =
     p.params.maxTvlPerLane === null || p.lane?.tvl == null ? null : Math.max(0, p.params.maxTvlPerLane - p.lane.tvl);
   const rooms = [accountRoom, laneRoom].filter((x): x is number => x !== null);
-  return { room: rooms.length ? Math.min(...rooms) : null, accountRoom, laneRoom };
+  return { room: rooms.length ? Math.min(...rooms) : null, accountRoom, laneRoom, topUp, holder };
 }
 
 /** While paused, only accounts holding positions may deposit (margin top-ups). */
@@ -87,25 +97,41 @@ export function depositBlockedByPause(acct: ChainAccountSnapshot | null): boolea
   return getState().chain.prod?.paused === true && (acct?.positions.length ?? 0) === 0;
 }
 
+/**
+ * Why a deposit of `amount` would be refused, or null. Fresh deposits (no
+ * positions) are checked against the caps, the 1-AUSD first-deposit minimum
+ * and the lane's bad debt here. Holders' deposits aren't pre-blocked on the
+ * caps: their exemption is recomputed at fresh prices by `depositWithPrice`,
+ * and the simulation before signing reports any cap the contract enforces.
+ */
+export function depositRefusal(acct: ChainAccountSnapshot | null, amount: number): string | null {
+  const p = getState().chain.prod;
+  if (!acct || !p) return null;
+  if (depositBlockedByPause(acct)) return "Deposits paused by the guardian";
+  const holder = acct.positions.length > 0;
+  if (holder) return null;
+  if ((p.lane?.solvency?.badDebt ?? 0) > 0) return `Lane ${acct.lane + 1} is in deficit: new deposits are refused`;
+  const min = p.params.minFirstDeposit ?? 1;
+  if (!acct.registered && amount > 0 && amount < min) return `First deposit at least ${fmt(min)} AUSD`;
+  const { room } = depositRoom(acct);
+  if (room !== null && amount > room + 1e-6) return "Over the beta deposit cap";
+  return null;
+}
+
 function checkDeposit(units: bigint, snap: ChainAccountSnapshot) {
-  if (depositBlockedByPause(snap)) {
-    throw new ChainActionError("Deposits are paused by the guardian (top-ups to open positions still work). Withdrawals and closing still work.");
-  }
   if (units > snap.walletAusdUnits) {
     throw new ChainActionError(`Not enough AUSD in your wallet: need ${fmt(ausdToNumber(units))}, have ${fmt(snap.walletAusd)}.`);
   }
-  const { room, accountRoom, laneRoom } = depositRoom(snap);
-  const amount = ausdToNumber(units);
-  if (room !== null && amount > room + 1e-6) {
-    const which =
-      accountRoom !== null && (laneRoom === null || accountRoom <= laneRoom)
-        ? `the per-account deposit cap (${fmt(accountRoom)} AUSD left)`
-        : `your lane's TVL cap (${fmt(laneRoom ?? 0)} AUSD left)`;
-    throw new ChainActionError(`That deposit exceeds ${which}. This is a capped beta.`);
-  }
+  const refusal = depositRefusal(snap, ausdToNumber(units));
+  if (refusal) throw new ChainActionError(`${refusal}. This is a capped beta.`);
 }
 
-/** approve(exact) if needed, then deposit. Caller holds the serialized queue. */
+/**
+ * approve(exact) if needed, then deposit. Accounts holding positions use
+ * `depositWithPrice` with a price update when stored prices are stale, so the
+ * margin top-up exemption is computed at fresh prices. Caller holds the
+ * serialized queue.
+ */
 async function depositUnits(signer: ChainSigner, c: LiveContracts, units: bigint, snap: ChainAccountSnapshot) {
   await requireRiskAck(signer.address);
   checkDeposit(units, snap);
@@ -115,6 +141,17 @@ async function depositUnits(signer: ChainSigner, c: LiveContracts, units: bigint
       to: c.ausd,
       data: encodeFunctionData({ abi: erc20Abi, functionName: "approve", args: [c.clearinghouse, units] }),
     });
+  }
+  if (snap.positions.length > 0) {
+    // Fresh prices only widen the exemption; without them the capped part still goes through.
+    const u = await priceUpdateFor(c, true, snap.lane).catch(() => null);
+    await sendTx(signer, {
+      label: `Add ${fmt(ausdToNumber(units))} ${c.token.symbol} margin`,
+      to: c.clearinghouse,
+      data: encodeFunctionData({ abi: prodAbi, functionName: "depositWithPrice", args: [units, u?.updateData ?? []] }),
+      value: u && u.fee > BigInt(0) ? u.fee : undefined,
+    });
+    return;
   }
   await sendTx(signer, {
     label: `Deposit ${fmt(ausdToNumber(units))} ${c.token.symbol}`,
@@ -147,7 +184,8 @@ export interface StoredPriceStatus {
   needed: boolean;
   /** Oldest stored price among all listed markets, seconds (null if unknown). */
   oldestAge: number | null;
-  maxPriceAge: number | null;
+  /** The contract's `maxStoredPriceAge` (s). */
+  maxStoredAge: number | null;
   /** Stored prices are too old to use directly: a fresh update will be fetched. */
   needsFresh: boolean;
 }
@@ -155,22 +193,33 @@ export interface StoredPriceStatus {
 export function storedPriceStatus(acct: ChainAccountSnapshot | null): StoredPriceStatus {
   const p = getState().chain.prod;
   const needed = (acct?.positions.length ?? 0) > 0;
-  if (!p || p.chainTime === null) return { needed, oldestAge: null, maxPriceAge: null, needsFresh: false };
+  if (!p || p.chainTime === null) return { needed, oldestAge: null, maxStoredAge: null, needsFresh: false };
   const times = MARKETS.map((m) => p.markets[m].onchainPublishTime).filter((t): t is number => t !== null);
   const oldestAge = times.length ? Math.max(0, p.chainTime - Math.min(...times)) : null;
   return {
     needed,
     oldestAge,
-    maxPriceAge: p.params.maxPriceAge,
+    maxStoredAge: p.params.maxStoredPriceAge,
     needsFresh:
-      needed && (oldestAge === null || oldestAge >= storedFreshThreshold(p.params.maxPriceAge ?? undefined)),
+      needed && (oldestAge === null || oldestAge >= storedFreshThreshold(p.params.maxStoredPriceAge ?? undefined)),
   };
+}
+
+/** `previewWithdraw(account, amount)`: what a withdrawal would pay now (the lane haircut applies). */
+export async function previewWithdrawAmount(account: Address, amount: number): Promise<number | null> {
+  const c = getState().chain.contracts;
+  if (!c?.production) return null;
+  const [r] = await readLoose([
+    { address: c.clearinghouse, abi: prodAbi, functionName: "previewWithdraw", args: [account, ausdToUnits(amount)] },
+  ]);
+  return r.status === "success" && typeof r.result === "bigint" ? ausdToNumber(r.result) : null;
 }
 
 /** What a withdrawal would attach right now (for the wallet to show source + fee). */
 export function quoteWithdrawUpdate(): Promise<PriceUpdate> {
   const { c } = requireLive();
-  return priceUpdateFor(c, (getState().chain.account?.positions.length ?? 0) > 0);
+  const acct = getState().chain.account;
+  return priceUpdateFor(c, (acct?.positions.length ?? 0) > 0, acct?.lane ?? null);
 }
 
 /**
@@ -188,7 +237,7 @@ export function withdrawProd(amount: number | "max"): Promise<number> {
     if (units > free && !snap.estimated) {
       throw new ChainActionError(`Only ${fmt(ausdToNumber(free))} AUSD is free to withdraw.`);
     }
-    const u = await priceUpdateFor(c, snap.positions.length > 0);
+    const u = await priceUpdateFor(c, snap.positions.length > 0, snap.lane);
     await sendTx(signer, {
       label: `Withdraw ${fmt(ausdToNumber(units))} ${c.token.symbol}`,
       to: c.clearinghouse,
@@ -228,23 +277,21 @@ export function acceptablePrice(mark: number, buy: boolean, slippagePct: number)
 /**
  * AUSD the account must deposit before committing an increase. The contract
  * escrows margin against deposited collateral (collateral ≥ escrow of pending
- * orders + Σ position margins + this order's margin), and at the fill it takes
- * the trading fee from collateral and requires equity ≥ Σ margins. So the
- * deposit also covers the fee (×2 for rounding and a little price movement)
- * and any unrealized loss on the account's other legs. Rounded up to a cent.
+ * orders + Σ position margins + this order's margin); the trading fee is paid
+ * out of the order's margin at the fill. At the fill it also requires equity ≥
+ * Σ margins, so any unrealized loss on the account's other legs is covered
+ * too. Rounded up to a cent.
  */
-export function orderDepositNeeded(acct: ChainAccountSnapshot | null, marginUnits: bigint, tradingFeeUnits: bigint): bigint {
+export function orderDepositNeeded(acct: ChainAccountSnapshot | null, marginUnits: bigint): bigint {
   const zero = BigInt(0);
-  const feeBuffer = tradingFeeUnits * BigInt(2);
   let need: bigint;
   if (!acct) {
-    need = marginUnits + feeBuffer;
+    need = marginUnits;
   } else {
     const collateral = acct.collateralUnits ?? ausdToUnits(Math.max(0, acct.collateral));
     const losses =
       acct.equity !== null && acct.equity < acct.collateral ? ausdToUnits(acct.collateral - acct.equity) : zero;
-    const required =
-      (acct.reservedMarginUnits ?? zero) + (acct.marginSumUnits ?? zero) + marginUnits + feeBuffer + losses;
+    const required = (acct.reservedMarginUnits ?? zero) + (acct.marginSumUnits ?? zero) + marginUnits + losses;
     const have = collateral > zero ? collateral : zero;
     need = required > have ? required - have : zero;
   }
@@ -252,10 +299,21 @@ export function orderDepositNeeded(acct: ChainAccountSnapshot | null, marginUnit
   return ((need + cent - BigInt(1)) / cent) * cent;
 }
 
-/** Trading fee (AUSD 6 dp) the contract will charge on `notional` AUSD. */
-export function tradingFeeUnits(notional: number): bigint {
-  const bps = getState().chain.prod?.params.tradingFeeBps ?? 0;
-  return ausdToUnits((notional * bps) / 10_000);
+/**
+ * Order size (base units) for `margin` × `leverage` at `mark`. The contract
+ * checks leverage at the FILL price, so near the maximum the size is computed
+ * at the worst price the slippage setting allows (mark × (1 + slippage)):
+ * otherwise any move up between submit and fill would breach the cap and the
+ * fill would fail (`LeverageTooHigh`).
+ */
+export function orderSize(margin: number, leverage: number, mark: number, slippagePct: number): number {
+  const maxLev = getState().chain.prod?.params.maxLeverage ?? Number.POSITIVE_INFINITY;
+  const worst = mark * (1 + slippagePct / 100);
+  const notionalCap = margin * maxLev;
+  const atMark = margin * leverage;
+  // Close to the cap: size so that notional at the worst acceptable price stays within it.
+  const notional = atMark * (worst / mark) > notionalCap ? notionalCap * (mark / worst) : atMark;
+  return notional / mark;
 }
 
 /** Open or add to a position: deposit the escrow shortfall (if any), then commit. */
@@ -270,7 +328,7 @@ export function submitIncreaseOrder(args: {
   const { signer, c } = requireLive();
   const marginUnits = ausdToUnits(args.margin);
   if (marginUnits === BigInt(0)) return Promise.reject(new ChainActionError("Enter a margin amount."));
-  const size = (args.margin * args.leverage) / args.mark;
+  const size = orderSize(args.margin, args.leverage, args.mark, args.slippagePct);
   const sizeAbs = toE18(size);
   const buy = args.side === "long";
   const base = args.symbol.split("/")[0];
@@ -285,7 +343,7 @@ export function submitIncreaseOrder(args: {
     label: `${buy ? "Long" : "Short"} ${args.leverage}x ${base} · ${fmt(args.margin)} margin`,
     before: async () => {
       const snap = await readAccountSnapshot(signer.address, c);
-      const need = orderDepositNeeded(snap, marginUnits, tradingFeeUnits(args.margin * args.leverage));
+      const need = orderDepositNeeded(snap, marginUnits);
       if (need > BigInt(0)) await depositUnits(signer, c, need, snap);
     },
   });

@@ -2,8 +2,8 @@
 // ChainAccountSnapshot shape the rest of the app renders.
 //
 // Health views (`accountHealth`, `freeCollateral`) value positions at the Pyth
-// price stored on chain and revert once it is older than `maxPriceAge` (no
-// one pushed an update recently). Then the snapshot is valued at the latest
+// price stored on chain (or the lane's last price) and revert once it is older
+// than `maxStoredPriceAge` (no one pushed an update recently). Then the snapshot is valued at the latest
 // Pyth (Hermes) price this browser streams instead, flagged `estimated` and
 // labelled as such — the contract re-checks everything with a fresh price on
 // every order and withdrawal.
@@ -19,8 +19,10 @@ import { ausdToNumber, nativeToNumber, priceToNumber, sizeToNumber } from "../un
 import { prodAbi } from "./abi";
 import { big, readLoose, signedNumber, tuple, type LooseCall } from "./state";
 
+/** `getPosition` (v2+): `id` after `isLong` (orders bind to it; a taken / replaced position gets a new id). */
 interface ProdPosition {
   isLong: boolean;
+  id: bigint;
   size: bigint;
   entryPrice: bigint;
   entryNotional: bigint;

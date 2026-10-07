@@ -144,6 +144,9 @@ export function loadOrders(address: string | null) {
 }
 
 function put(o: TrackedOrder) {
+  // One entry per order id (a pending order can be discovered on chain before
+  // this browser's own commit receipt is processed).
+  if (o.orderId !== null) orders = orders.filter((x) => x.key === o.key || x.orderId !== o.orderId);
   const i = orders.findIndex((x) => x.key === o.key);
   orders = i >= 0 ? orders.map((x, j) => (j === i ? o : x)) : [...orders, o];
   persist();
@@ -402,10 +405,12 @@ async function findOutcome(c: LiveContracts, o: TrackedOrder, status: number): P
   return false;
 }
 
+/** `getOrder` (v2+): reduceOnly after status, positionId last. */
 interface OrderStruct {
   account: Address;
   commitTime: bigint;
   status: number;
+  reduceOnly: boolean;
   market: Hex;
   sizeDelta: bigint;
   marginDelta: bigint;
@@ -413,6 +418,7 @@ interface OrderStruct {
   executionFee: bigint;
   execAfter: bigint;
   deadline: bigint;
+  positionId: bigint;
 }
 
 function fromStruct(c: LiveContracts, id: bigint, s: OrderStruct): TrackedOrder | null {
@@ -420,7 +426,7 @@ function fromStruct(c: LiveContracts, id: bigint, s: OrderStruct): TrackedOrder 
   if (!symbol) return null;
   const buy = s.sizeDelta > BigInt(0);
   const pos = getState().chain.account?.positions.find((p) => p.symbol === symbol) ?? null;
-  const reduce = pos !== null && (pos.side === "long") !== buy;
+  const reduce = Boolean(s.reduceOnly);
   const execAfter = Number(s.execAfter);
   const deadline = Number(s.deadline);
   const base = symbol.split("/")[0];
@@ -470,9 +476,13 @@ export async function reconcileOrders(): Promise<void> {
   reconciling = true;
   try {
     const known = new Set(orders.map((o) => (o.orderId === null ? "" : o.orderId.toString())));
-    const unknown = Object.values(s.chain.prod?.mine?.pending ?? {}).filter(
-      (id): id is bigint => id !== undefined && !known.has(id.toString()),
-    );
+    // Skip discovery while this browser is submitting an order: its receipt will add it.
+    const submitting = orders.some((o) => o.phase === "signing");
+    const unknown = submitting
+      ? []
+      : Object.values(s.chain.prod?.mine?.pending ?? {}).filter(
+          (id): id is bigint => id !== undefined && !known.has(id.toString()),
+        );
     // Open orders, plus final ones whose outcome log hasn't been found yet (a few retries).
     const needsOutcome = (o: TrackedOrder) =>
       (o.lookups ?? 0) < 5 &&

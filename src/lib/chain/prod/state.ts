@@ -27,10 +27,17 @@ export interface ProdParams {
   minPositionNotional: number | null;
   /** Seconds between `updateFunding` calls. */
   fundingInterval: number | null;
-  /** Oldest Pyth price (s) the contract accepts for a "fresh" use. */
+  /** Oldest caller-supplied Pyth update (s) the contract accepts. */
   maxPriceAge: number | null;
+  /** Oldest Pyth-stored / lane price (s) the contract uses (what `[]` calls rely on). */
+  maxStoredPriceAge: number | null;
   /** Max Pyth confidence / price (bps). */
   maxConfBps: number | null;
+  /** LP exits: wait this long after requesting, then withdraw once within the window (s). */
+  backstopWithdrawDelay: number | null;
+  backstopWithdrawWindow: number | null;
+  /** AUSD; the first deposit of an account must be at least this. */
+  minFirstDeposit: number | null;
 }
 
 export interface ProdMarket {
@@ -45,8 +52,21 @@ export interface ProdMarket {
   globalOi: { long: number; short: number } | null;
 }
 
+/** `laneSolvency(lane)`: AUSD the lane holds vs what it owes; a haircut applies while it has bad debt. */
+export interface LaneSolvency {
+  lane: number;
+  held: number;
+  claims: number;
+  surplus: number;
+  insurance: number;
+  badDebt: number;
+  haircutBps: number;
+}
+
 export interface ProdLane {
   lane: number;
+  /** The lane's own solvency (bad debt → haircut on payouts, fresh deposits refused). */
+  solvency: LaneSolvency | null;
   /** AUSD counted against the lane TVL cap (trader collateral + pool cash). */
   tvl: number | null;
   /** AUSD notional per market (entry notional). */
@@ -60,6 +80,13 @@ export interface ProdMine {
   feesOwed: bigint | null;
   /** Pending order id per market (the contract allows one per market). */
   pending: Partial<Record<MarketSymbol, bigint>>;
+  /**
+   * AUSD this account may deposit beyond the caps right now (`topUpAllowance`:
+   * only while it holds positions with equity below initial margin; read at
+   * stored / lane prices, so 0 when those are stale — `depositWithPrice`
+   * recomputes it at fresh prices).
+   */
+  topUpAllowance: number | null;
 }
 
 export interface ProdState {
@@ -90,7 +117,11 @@ export const EMPTY_PARAMS: ProdParams = {
   minPositionNotional: null,
   fundingInterval: null,
   maxPriceAge: null,
+  maxStoredPriceAge: null,
   maxConfBps: null,
+  backstopWithdrawDelay: null,
+  backstopWithdrawWindow: null,
+  minFirstDeposit: null,
 };
 
 export const EMPTY_PROD: ProdState = {
@@ -148,19 +179,24 @@ export function signedNumber(v: bigint): number {
 export async function readProdParams(c: LiveContracts): Promise<ProdParams> {
   const ch = c.clearinghouse;
   const fn = (functionName: string): LooseCall => ({ address: ch, abi: prodAbi, functionName });
-  const [fee, minD, maxD, tfee, maxLev, depCap, tvlCap, minN, fInt, age, conf] = await readLoose([
-    fn("minExecutionFee"),
-    fn("minExecDelay"),
-    fn("maxExecDelay"),
-    fn("tradingFeeBps"),
-    fn("maxLeverage"),
-    fn("maxDepositPerAccount"),
-    fn("maxTvlPerLane"),
-    fn("minPositionNotional"),
-    fn("fundingUpdateInterval"),
-    fn("maxPriceAge"),
-    fn("maxConfBps"),
-  ]);
+  const [fee, minD, maxD, tfee, maxLev, depCap, tvlCap, minN, fInt, age, storedAge, conf, wDelay, wWindow, minFirst] =
+    await readLoose([
+      fn("minExecutionFee"),
+      fn("minExecDelay"),
+      fn("maxExecDelay"),
+      fn("tradingFeeBps"),
+      fn("maxLeverage"),
+      fn("maxDepositPerAccount"),
+      fn("maxTvlPerLane"),
+      fn("minPositionNotional"),
+      fn("fundingUpdateInterval"),
+      fn("maxPriceAge"),
+      fn("maxStoredPriceAge"),
+      fn("maxConfBps"),
+      fn("backstopWithdrawDelay"),
+      fn("BACKSTOP_WITHDRAW_WINDOW"),
+      fn("MIN_FIRST_DEPOSIT"),
+    ]);
   return {
     minExecutionFee: big(fee),
     minExecDelay: num(minD),
@@ -172,8 +208,40 @@ export async function readProdParams(c: LiveContracts): Promise<ProdParams> {
     minPositionNotional: ausd(minN),
     fundingInterval: num(fInt),
     maxPriceAge: num(age),
+    maxStoredPriceAge: num(storedAge),
     maxConfBps: num(conf),
+    backstopWithdrawDelay: num(wDelay),
+    backstopWithdrawWindow: num(wWindow),
+    minFirstDeposit: ausd(minFirst),
   };
+}
+
+const signedAusd = (v: bigint) => signedNumber(v) / 1e6;
+
+/** Decode `laneSolvency(lane)`; null if the view is missing or reverted. */
+export function laneSolvencyOf(lane: number, r: R | undefined): LaneSolvency | null {
+  const t = tuple(r);
+  if (!t) return null;
+  const [held, claims, surplus, insurance, badDebt, haircutBps] = t as readonly bigint[];
+  return {
+    lane,
+    held: ausdToNumber(held),
+    claims: signedAusd(claims),
+    surplus: signedAusd(surplus),
+    insurance: ausdToNumber(insurance),
+    badDebt: ausdToNumber(badDebt),
+    haircutBps: Number(haircutBps),
+  };
+}
+
+/** Every lane's `laneSolvency` (the solvency dialog). */
+export async function readLaneSolvencies(c: LiveContracts): Promise<LaneSolvency[] | null> {
+  const lanes = Array.from({ length: 8 }, (_, l) => l);
+  const res = await readLoose(
+    lanes.map((l) => ({ address: c.clearinghouse, abi: prodAbi, functionName: "laneSolvency", args: [l] })),
+  );
+  const out = lanes.map((l) => laneSolvencyOf(l, res[l]));
+  return out.every((x) => x !== null) ? (out as LaneSolvency[]) : null;
 }
 
 /** Per-block state: pause, funding, on-chain Pyth prices, the account's lane and own orders/fees. */
@@ -200,10 +268,12 @@ export async function readProdDynamic(
     calls.push(call("laneTvl", [lane]));
     ids.forEach((id) => calls.push(call("laneOpenInterest", [lane, id])));
     ids.forEach((id) => calls.push(call("laneOiCap", [lane, id])));
+    calls.push(call("laneSolvency", [lane]));
   }
   if (account) {
     calls.push(call("executionFeesOwed", [account]));
     ids.forEach((id) => calls.push(call("pendingOrderOf", [account, id])));
+    calls.push(call("topUpAllowance", [account]));
   }
   const [res, head] = await Promise.all([
     readLoose(calls),
@@ -223,8 +293,10 @@ export async function readProdDynamic(
     const tvl = res[i++];
     const ois = MARKETS.map(() => tuple(res[i++]));
     const caps = MARKETS.map(() => res[i++]);
+    const solv = res[i++];
     laneState = {
       lane,
+      solvency: laneSolvencyOf(lane, solv),
       tvl: ausd(tvl),
       oi: Object.fromEntries(
         MARKETS.map((m, k) => {
@@ -244,7 +316,7 @@ export async function readProdDynamic(
       const id = big(res[i++]);
       if (id !== null && id !== BigInt(0)) pending[m] = id;
     });
-    mine = { feesOwed: owed, pending };
+    mine = { feesOwed: owed, pending, topUpAllowance: ausd(res[i++]) };
   }
 
   const markets = Object.fromEntries(

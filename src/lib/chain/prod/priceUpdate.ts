@@ -1,18 +1,19 @@
 // Pyth price data for production calls that take a `priceUpdate`
 // (withdraw, cancelAuction, take, backstopDeposit / backstopWithdraw).
 //
-// On Monad mainnet the Pyth price *stored* on chain is pushed irregularly (seen
-// up to ~2 min old at random blocks) while the contract accepts at most
-// `maxPriceAge` (60 s). So:
-//   1. every listed feed's stored price younger than storedFreshThreshold()
-//      (70% of the contract's maxPriceAge) → send `[]`
-//      (no fee, no network round trip);
-//   2. otherwise fetch Hermes "latest" for ALL listed feeds (the contract
-//      rejects a partial update) from the keeper's `/hermes` proxy — or
-//      NEXT_PUBLIC_PYTH_HERMES_URL if set — and attach it with
-//      `msg.value = IPyth.getUpdateFee(update)` (0 on Monad today, but read);
-//   3. proxy unreachable and the stored price too old → "Prices are
-//      refreshing — retry in a few seconds."
+// Every state-changing call prices a market with the newest of: the update we
+// send, the Pyth-stored price and the price this lane last used (both of the
+// latter only while younger than `maxStoredPriceAge`, 15 s on v4). On Monad
+// mainnet the stored price is pushed irregularly, so:
+//   1. if, for every listed market, the newer of the stored and the lane price
+//      is younger than storedFreshThreshold() (70% of `maxStoredPriceAge`)
+//      → send `[]` (no fee, no network round trip);
+//   2. otherwise fetch Hermes "latest" for ALL listed feeds (partial updates are
+//      fine for the contract; one request is simpler) from the keeper's
+//      `/hermes` proxy — or NEXT_PUBLIC_PYTH_HERMES_URL if set — and attach it
+//      with `msg.value = IPyth.getUpdateFee(update)` (0 on Monad today, but read);
+//   3. proxy unreachable and those prices too old → "Prices are refreshing —
+//      retry in a few seconds."
 //
 // The proxy holds the Pyth API key server-side; the browser never sees it.
 // The update data is Pyth's Wormhole-signed accumulator payload and is
@@ -29,20 +30,20 @@ import type { LiveContracts } from "../runtime";
 import { prodAbi, pythAbi } from "./abi";
 import { readLoose } from "./state";
 
-const DEFAULT_MAX_PRICE_AGE_S = 60;
+const DEFAULT_MAX_STORED_AGE_S = 15;
 
-/** The contract's `maxPriceAge` (s), from the production state read. */
-function maxPriceAge(): number {
-  return getState().chain.prod?.params.maxPriceAge ?? DEFAULT_MAX_PRICE_AGE_S;
+/** The contract's `maxStoredPriceAge()` (s): how old a stored / lane price may be for a `[]` call. */
+function maxStoredAge(): number {
+  return getState().chain.prod?.params.maxStoredPriceAge ?? DEFAULT_MAX_STORED_AGE_S;
 }
 
 /**
- * Stored prices younger than this are used as-is: 70% of the contract's
- * `maxPriceAge`, leaving room for the block or two until the tx lands
- * (60 s → 42 s; 15 s → 10 s).
+ * Stored / lane prices younger than this are used as-is: 70% of
+ * `maxStoredPriceAge`, leaving room for the block or two until the tx lands
+ * (15 s → 10 s).
  */
-export function storedFreshThreshold(maxAge: number = maxPriceAge()): number {
-  return Math.max(5, Math.floor(maxAge * 0.7));
+export function storedFreshThreshold(maxAge: number = maxStoredAge()): number {
+  return Math.max(3, Math.floor(maxAge * 0.7));
 }
 
 export const REFRESHING = "Prices are refreshing — retry in a few seconds.";
@@ -71,28 +72,41 @@ function allFeeds(c: LiveContracts): Hex[] {
   return MARKETS.map((m) => c.pythFeeds[m]).filter((x): x is Hex => !!x);
 }
 
-/** Age (s) of the oldest Pyth price stored on chain across every listed market, at the latest block. */
-export async function oldestStoredAge(c: LiveContracts): Promise<number | null> {
+/**
+ * Age (s), at the latest block, of the oldest usable price across every listed
+ * market, where a market's price is the newer of the Pyth-stored price and the
+ * price `lane` last used (`lanePrice`), when a lane is given.
+ */
+export async function oldestStoredAge(c: LiveContracts, lane: number | null = null): Promise<number | null> {
+  const calls = MARKETS.map((m: MarketSymbol) => ({
+    address: c.clearinghouse,
+    abi: prodAbi,
+    functionName: "latestPrice",
+    args: [c.markets[m]] as readonly unknown[],
+  }));
+  if (lane !== null) {
+    MARKETS.forEach((m) =>
+      calls.push({ address: c.clearinghouse, abi: prodAbi, functionName: "lanePrice", args: [lane, c.markets[m]] }),
+    );
+  }
   const [res, head] = await Promise.all([
-    readLoose(
-      MARKETS.map((m: MarketSymbol) => ({
-        address: c.clearinghouse,
-        abi: prodAbi,
-        functionName: "latestPrice",
-        args: [c.markets[m]],
-      })),
-    ),
+    readLoose(calls),
     publicClient()
       .getBlock({ blockTag: "latest" })
       .catch(() => null),
   ]);
   if (!head) return null;
+  const now = Number(head.timestamp);
   let oldest = 0;
-  for (const r of res) {
-    // An unreadable stored price counts as infinitely old.
-    if (r.status !== "success" || !Array.isArray(r.result)) return Number.POSITIVE_INFINITY;
-    const publishTime = Number((r.result as readonly bigint[])[2]);
-    oldest = Math.max(oldest, Number(head.timestamp) - publishTime);
+  for (let i = 0; i < MARKETS.length; i++) {
+    const stored = res[i];
+    const lanePx = lane !== null ? res[i + MARKETS.length] : undefined;
+    const t = (r: typeof stored | undefined, idx: number) =>
+      r && r.status === "success" && Array.isArray(r.result) ? Number((r.result as readonly bigint[])[idx]) : 0;
+    const newest = Math.max(t(stored, 2), t(lanePx, 1));
+    // No usable price at all counts as infinitely old.
+    if (newest === 0) return Number.POSITIVE_INFINITY;
+    oldest = Math.max(oldest, now - newest);
   }
   return oldest;
 }
@@ -134,12 +148,13 @@ export async function pythUpdateFee(c: LiveContracts, updateData: Hex[]): Promis
 
 /**
  * The `priceUpdate` (and `msg.value`) for one production call. `needed` is
- * false when the call prices nothing (e.g. a withdrawal with no positions).
- * Throws ChainActionError(REFRESHING) when no usable price is available.
+ * false when the call prices nothing (e.g. a withdrawal with no positions);
+ * `lane` is the lane whose last-used prices also count (the caller's, or the
+ * pool's). Throws ChainActionError(REFRESHING) when no usable price exists.
  */
-export async function priceUpdateFor(c: LiveContracts, needed: boolean): Promise<PriceUpdate> {
+export async function priceUpdateFor(c: LiveContracts, needed: boolean, lane: number | null = null): Promise<PriceUpdate> {
   if (!needed) return { updateData: [], fee: BigInt(0), source: "none", storedAge: null };
-  const age = await oldestStoredAge(c).catch(() => null);
+  const age = await oldestStoredAge(c, lane).catch(() => null);
   if (age !== null && age < storedFreshThreshold()) {
     return { updateData: [], fee: BigInt(0), source: "stored", storedAge: age };
   }
@@ -148,8 +163,8 @@ export async function priceUpdateFor(c: LiveContracts, needed: boolean): Promise
     const fee = await pythUpdateFee(c, updateData);
     return { updateData, fee, source: "fresh", storedAge: age };
   } catch {
-    // Proxy down: the stored prices still work while they're within the contract's limit.
-    if (age !== null && age < maxPriceAge() - 2) return { updateData: [], fee: BigInt(0), source: "stored", storedAge: age };
+    // Proxy down: the stored / lane prices still work while they're within the contract's limit.
+    if (age !== null && age < maxStoredAge() - 2) return { updateData: [], fee: BigInt(0), source: "stored", storedAge: age };
     throw new ChainActionError(REFRESHING);
   }
 }
