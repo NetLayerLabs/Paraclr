@@ -1,0 +1,1075 @@
+/* Production-only UI: beta banner, pause strip, risk acknowledgement modal,
+   delayed-order panel extras, pending orders, market risk strip, wallet
+   (deposit / withdraw / limits). Tokens only; brand: docs/DESIGN.md. */
+
+/* ---- persistent banners -------------------------------------------------- */
+/* Honest status, styled as part of the design: a tinted strip with a dot,
+   one bold clause and the links to /terms and /risk. */
+
+.beta,
+.paused {
+  --tone: var(--warn);
+  --tone-text: var(--warn-text);
+  flex: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-height: 34px;
+  padding: 6px max(var(--gutter), env(safe-area-inset-right)) 6px max(var(--gutter), env(safe-area-inset-left));
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text-2);
+  background: var(--warn-soft);
+  border-bottom: 1px solid var(--warn-line);
+}
+
+.paused {
+  --tone: var(--short);
+  --tone-text: var(--short-text);
+  background: var(--short-soft);
+  border-bottom-color: var(--short-line);
+}
+
+.beta b,
+.paused b {
+  font-weight: 650;
+  color: var(--tone-text);
+}
+
+.bannerDot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.bannerText {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.bannerLinks {
+  display: inline-flex;
+  gap: 14px;
+  flex: none;
+  font-weight: 550;
+}
+
+.bannerLinks a {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--text) 35%, transparent);
+  text-underline-offset: 3px;
+  color: var(--text);
+}
+
+.bannerLinks a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* ---- risk acknowledgement modal ------------------------------------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  background: var(--scrim);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.modal {
+  width: min(580px, 100%);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px 20px;
+  border-radius: 20px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-pop), var(--card-highlight);
+}
+
+/* The modal scrolls; every block keeps its full height (never clip a risk point). */
+.modal > * {
+  flex: none;
+}
+
+.overlay .modal:focus,
+.overlay .modal:focus-visible {
+  outline: none;
+}
+
+.modalKicker {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 7px;
+  min-height: 26px;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warn-text);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+}
+
+.modalKicker::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--warn);
+}
+
+.modal h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.modal p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.points {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.points li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 9px 12px;
+}
+
+.points li + li {
+  border-top: 1px solid var(--border);
+}
+
+.points li::before {
+  content: none;
+}
+
+.points b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.points a {
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--accent-text);
+  white-space: nowrap;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent-text) 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+}
+
+.check {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1),
+    background var(--dur-1);
+}
+
+.check:hover {
+  border-color: var(--border-strong);
+}
+
+.check[data-on] {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.check b {
+  font-weight: 600;
+}
+
+.check small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.modalLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.modalLinks a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent-text) 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+.modalLinks a:hover {
+  text-decoration-color: currentColor;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+/* Pill buttons: primary purple (one per view), secondary quiet outline. */
+.btnPrimary,
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+
+.btnPrimary {
+  color: var(--on-accent);
+  background: var(--accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 24px -12px color-mix(in srgb, var(--accent) 75%, transparent);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+.btnPrimary:disabled {
+  color: var(--text-dim);
+  background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+  cursor: not-allowed;
+}
+
+.btnGhost {
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+}
+
+.btnGhost:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--text-dim);
+}
+
+.btnGhost:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- order panel extras --------------------------------------------------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.slip {
+  display: flex;
+  gap: 4px;
+}
+
+.slipChip {
+  height: 26px;
+  min-width: 46px;
+  padding: 0 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border);
+  transition:
+    border-color var(--dur-1),
+    color var(--dur-1);
+}
+
+.slipChip:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.slipChip[aria-checked="true"] {
+  color: var(--accent-text);
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.slipInput {
+  width: 64px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: var(--radius-pill);
+  font: 500 11.5px var(--font-mono);
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  outline: none;
+}
+
+.slipInput::placeholder {
+  color: var(--placeholder);
+}
+
+.slipInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.fees {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.fees > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fees dt {
+  color: var(--text-dim);
+}
+
+.fees dd {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.fees dd small {
+  color: var(--text-dim);
+}
+
+.feesTotal {
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.how {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.how b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+details.how summary {
+  cursor: pointer;
+  list-style-position: inside;
+  color: var(--text-2);
+  font-weight: 550;
+}
+
+details.how summary:hover {
+  color: var(--text);
+}
+
+details.how[open] summary {
+  margin-bottom: 4px;
+}
+
+.tokenTest {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--warn-text);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  vertical-align: 1px;
+}
+
+/* ---- caps / utilisation ---------------------------------------------------- */
+
+.caps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cap {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.capHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-dim);
+}
+
+.capHead :global(.mono) {
+  color: var(--text);
+}
+
+.bar {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.bar[data-tone="warn"] span {
+  background: var(--warn);
+}
+
+.bar[data-tone="full"] span {
+  background: var(--short);
+}
+
+/* ---- market risk strip (funding / OI) --------------------------------------- */
+
+.mstrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.mcell {
+  flex: 1 1 120px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 12px;
+  border-radius: var(--radius-panel);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
+  font-size: 12.5px;
+}
+
+.mcell small {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.mcell[data-tone="long"] b {
+  color: var(--long-text);
+}
+
+.mcell[data-tone="short"] b {
+  color: var(--short-text);
+}
+
+.mcell b {
+  font-weight: 600;
+}
+
+.mcell em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ---- pending orders ------------------------------------------------------- */
+
+.orders {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-panel);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
+}
+
+.ordersHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.ordersHead button {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.order {
+  --tone: var(--accent);
+  --tone-text: var(--accent-text);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid color-mix(in srgb, var(--tone) 32%, var(--border));
+}
+
+.order[data-phase="filled"] {
+  --tone: var(--long);
+  --tone-text: var(--long-text);
+}
+
+.order[data-phase="expired"],
+.order[data-phase="failed"] {
+  --tone: var(--short);
+  --tone-text: var(--short-text);
+}
+
+.order[data-phase="cancelled"],
+.order[data-phase="settled"] {
+  --tone: var(--text-dim);
+  --tone-text: var(--text-2);
+}
+
+.orderTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.orderTop b {
+  font-weight: 650;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phase {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--tone-text);
+  background: color-mix(in srgb, var(--tone) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tone) 30%, transparent);
+}
+
+.phase i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.order[data-phase="waiting"] .phase i,
+.order[data-phase="executing"] .phase i,
+.order[data-phase="signing"] .phase i {
+  animation: blink 1s ease-in-out infinite;
+}
+
+.orderMsg {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.orderMsg b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.step {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+  overflow: hidden;
+}
+
+.step span {
+  display: block;
+  height: 100%;
+  background: var(--tone);
+  transition: width 0.25s linear;
+}
+
+.stepLabels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+.stepLabels span[data-on] {
+  color: var(--text);
+}
+
+.orderMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.orderActions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.orderActions button {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+}
+
+.orderActions button[data-primary] {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.orderActions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- wallet (production) ---------------------------------------------------- */
+
+.wallet {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 14px 0 24px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
+  min-width: 0;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.big {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px 14px;
+}
+
+.kv div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.kv dt {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.kv dd {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kv dd[data-low] {
+  color: var(--warn-text);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 40px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+}
+
+.tabs button {
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition:
+    color var(--dur-1),
+    background var(--dur-1);
+}
+
+.tabs button:hover {
+  color: var(--text);
+}
+
+.tabs button[aria-selected="true"] {
+  color: var(--bg-elev);
+  background: var(--text);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 14px 0 16px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  transition:
+    border-color var(--dur-1),
+    box-shadow var(--dur-1);
+}
+
+.field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font: 600 20px var(--font-mono);
+}
+
+.field input::placeholder {
+  color: var(--placeholder);
+}
+
+.field span {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.quick {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.quick button {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.quick button:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.submit {
+  height: 48px;
+  border-radius: var(--radius-pill);
+  font-size: 14.5px;
+  font-weight: 650;
+  color: var(--on-accent);
+  background: var(--accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 24px -12px color-mix(in srgb, var(--accent) 75%, transparent);
+  transition:
+    background var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+.submit:disabled {
+  color: var(--text-dim);
+  background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+  cursor: not-allowed;
+}
+
+.fine {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.fine a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.addrRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.addrRow code {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 13px var(--font-mono);
+}
+
+.addrRow button,
+.addrRow a {
+  flex: none;
+  height: 30px;
+  padding: 0 13px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+}
+
+.addrRow button:hover,
+.addrRow a:hover {
+  background: var(--bg-hover);
+}
+
+/* ---- blocking "mainnet unavailable" screen --------------------------------- */
+
+.blocked {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 24px var(--gutter);
+}
+
+.blockedCard {
+  width: min(580px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--bg-elev);
+  border: 1px solid var(--short-line);
+  box-shadow: var(--shadow-2), var(--card-highlight);
+}
+
+.blockedCard h1 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.blockedCard p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.blockedCard code {
+  font: 12.5px var(--font-mono);
+  color: var(--text);
+  word-break: break-word;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ---- wider screens ---------------------------------------------------------- */
+
+@media (min-width: 640px) {
+  .wallet {
+    padding: 18px var(--gutter) 28px;
+  }
+
+  .modal {
+    padding: 26px 26px 24px;
+  }
+
+  .modal h2 {
+    font-size: 26px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wallet {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: start;
+    padding: 20px 24px 32px;
+  }
+  .walletWide {
+    grid-column: 1 / -1;
+  }
+  .orders {
+    flex: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order .phase i {
+    animation: none !important;
+  }
+
+  .btnPrimary:hover:not(:disabled),
+  .submit:hover:not(:disabled) {
+    transform: none;
+  }
+}

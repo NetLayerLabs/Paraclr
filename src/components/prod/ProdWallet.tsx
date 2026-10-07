@@ -1,0 +1,440 @@
+"use client";
+
+// Production wallet: real balances from chain, deposit (risk acknowledgement +
+// caps + exact-amount approve), withdraw with a fresh Pyth price update (its
+// fee shown first), and the beta limits with their utilisation. No faucet.
+
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { formatEther } from "viem";
+import { signOut, useParaclr } from "@/lib/store";
+import { addressUrl, NETWORK } from "@/lib/chain/config";
+import { readableError } from "@/lib/chain/errors";
+import {
+  claimExecutionFees,
+  depositBlockedByPause,
+  depositProd,
+  depositRoom,
+  quoteWithdrawUpdate,
+  storedPriceStatus,
+  withdrawProd,
+} from "@/lib/chain/prod/actions";
+import { showRiskAck, useRiskAcked } from "@/lib/chain/prod/riskAck";
+import type { PriceUpdate } from "@/lib/chain/prod/priceUpdate";
+import { Notice, TxTray } from "@/components/chain/ChainUi";
+import { useAuthContext } from "@/components/auth/AuthContext";
+import { PrivySignOutButton } from "@/components/auth/PrivyAuth";
+import { fmtAusd } from "@/components/trade/format";
+import { TokenSymbol, useCollateral } from "./Token";
+import { fmtDuration } from "./util";
+import styles from "./Prod.module.css";
+
+const fmtMon = (wei: bigint | null | undefined, max = 6) =>
+  wei === null || wei === undefined
+    ? "—"
+    : Number(formatEther(wei)).toLocaleString("en-US", { maximumFractionDigits: max });
+
+function clean(raw: string): string {
+  const c = raw.replace(/,/g, ".").replace(/[^\d.]/g, "");
+  const parts = c.split(".");
+  return parts.length > 1 ? `${parts[0]}.${parts.slice(1).join("").slice(0, 6)}` : c;
+}
+
+function CapBar({ label, used, cap }: { label: string; used: number | null; cap: number | null }) {
+  const pct = used !== null && cap ? Math.min(1, Math.max(0, used / cap)) : 0;
+  const tone = pct >= 0.999 ? "full" : pct >= 0.8 ? "warn" : undefined;
+  return (
+    <div className={styles.cap}>
+      <div className={styles.capHead}>
+        <span>{label}</span>
+        <span>
+          <span className="mono">{used === null ? "—" : fmtAusd(used)}</span> /{" "}
+          <span className="mono">{cap === null ? "—" : fmtAusd(cap)}</span> AUSD
+        </span>
+      </div>
+      <div className={styles.bar} data-tone={tone}>
+        <span style={{ width: `${pct * 100}%` }} />
+      </div>
+    </div>
+  );
+}
+
+export function ProdWallet() {
+  const session = useParaclr((s) => s.session);
+  const acct = useParaclr((s) => s.chain.account);
+  const accountError = useParaclr((s) => s.chain.accountError);
+  const wallet = useParaclr((s) => s.chain.wallet);
+  const prod = useParaclr((s) => s.chain.prod);
+  const { privyEnabled } = useAuthContext();
+  const token = useCollateral();
+  const acked = useRiskAcked(session?.address);
+  const [tab, setTab] = useState<"deposit" | "withdraw">("deposit");
+  const [amountStr, setAmountStr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<number | undefined>(undefined);
+  const feesOwed = useParaclr((s) => s.chain.prod?.mine?.feesOwed ?? BigInt(0));
+  const [claiming, setClaiming] = useState(false);
+  const claim = async () => {
+    setClaiming(true);
+    setMsg(null);
+    try {
+      await claimExecutionFees();
+      setMsg({ tone: "ok", text: "Claimed your execution fees / refunds." });
+    } catch (e) {
+      setMsg({ tone: "error", text: readableError(e) });
+    } finally {
+      setClaiming(false);
+    }
+  };
+  useEffect(() => () => window.clearTimeout(copyTimer.current), []);
+
+  // When the stored Pyth prices are too old to use directly, preview the signed
+  // update a withdrawal would attach (via the keeper's /hermes proxy) and its fee.
+  const [quote, setQuote] = useState<{ q: PriceUpdate | null; error: string | null }>({ q: null, error: null });
+  const holds = (acct?.positions.length ?? 0) > 0;
+  useEffect(() => {
+    if (tab !== "withdraw" || !wallet.ready || !holds) return;
+    let cancelled = false;
+    const load = () =>
+      quoteWithdrawUpdate().then(
+        (q) => !cancelled && setQuote({ q, error: null }),
+        (e) => !cancelled && setQuote({ q: null, error: readableError(e) }),
+      );
+    void load();
+    const id = setInterval(load, 10_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [tab, wallet.ready, holds]);
+
+  if (!session || !NETWORK) return null;
+
+  const explorer = addressUrl(session.address);
+  // The health check uses the Pyth prices stored on chain (the app never sends update data).
+  const priced = storedPriceStatus(acct);
+  const params = prod?.params ?? null;
+  const room = depositRoom(acct);
+  const paused = prod?.paused === true;
+  const depositPaused = depositBlockedByPause(acct);
+  const walletAusd = acct?.walletAusd ?? 0;
+  const free = acct?.freeCollateral ?? 0;
+  const maxDeposit = room.room === null ? walletAusd : Math.min(walletAusd, room.room);
+  const amount = Number.parseFloat(amountStr) || 0;
+  const isPasskey = session.method === "passkey";
+
+  const depositReason = !wallet.ready
+    ? (wallet.error ?? "Connecting wallet…")
+    : !acct
+      ? "Reading account…"
+      : depositPaused
+        ? "Deposits paused by the guardian"
+        : amount <= 0
+          ? "Enter an amount"
+          : amount > walletAusd + 1e-9
+            ? `Not enough ${token.symbol} in your wallet`
+            : room.room !== null && amount > room.room + 1e-9
+              ? "Over the beta deposit cap"
+              : acct.native <= 0
+                ? `Need ${NETWORK.nativeSymbol} for gas`
+                : null;
+  const withdrawReason = !wallet.ready
+    ? (wallet.error ?? "Connecting wallet…")
+    : !acct
+      ? "Reading account…"
+      : acct.auction?.active
+        ? "Frozen while in a liquidation auction"
+        : amount <= 0
+          ? "Enter an amount"
+          : amount > free + 1e-9
+            ? "More than your free collateral"
+            : priced.needed && quote.error
+              ? "Prices are refreshing — retry in a few seconds"
+              : acct.native <= 0
+                ? `Need ${NETWORK.nativeSymbol} for gas`
+                : null;
+  const reason = tab === "deposit" ? depositReason : withdrawReason;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(session.address);
+      setCopied(true);
+      window.clearTimeout(copyTimer.current);
+      copyTimer.current = window.setTimeout(() => setCopied(false), 1400);
+    } catch {
+      /* clipboard blocked */
+    }
+  };
+
+  const submit = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      if (tab === "deposit") {
+        await depositProd(amount);
+        setMsg({ tone: "ok", text: `Deposited ${fmtAusd(amount)} ${token.symbol} into the clearinghouse.` });
+      } else {
+        const all = Math.abs(amount - free) < 0.005;
+        const got = await withdrawProd(all ? "max" : amount);
+        setMsg({ tone: "ok", text: `Withdrew ${fmtAusd(got)} ${token.symbol} to your wallet.` });
+      }
+      setAmountStr("");
+    } catch (e) {
+      setMsg({ tone: "error", text: readableError(e) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className={styles.wallet}>
+      <section className={styles.card}>
+        <div className={styles.cardTitle}>
+          <span>Wallet · {NETWORK.label}</span>
+          <span>{isPasskey ? "Passkey · Privy" : "Rehearsal burner (local only)"}</span>
+        </div>
+        <div className={styles.addrRow}>
+          <code title={session.address}>{session.address}</code>
+          <button type="button" onClick={copy}>
+            {copied ? "Copied" : "Copy"}
+          </button>
+          {explorer && (
+            <a href={explorer} target="_blank" rel="noreferrer">
+              Monadscan ↗
+            </a>
+          )}
+        </div>
+        <p className={styles.fine}>
+          Send {token.test ? `the test ${token.symbol}` : "Agora AUSD"} and some {NETWORK.nativeSymbol} (gas, order
+          execution and Pyth fees) to this address on {NETWORK.isMainnet && !NETWORK.local ? "Monad mainnet" : NETWORK.label}.
+          There is no faucet.
+        </p>
+        <dl className={styles.kv}>
+          <div>
+            <dt>
+              Wallet <TokenSymbol />
+            </dt>
+            <dd className="mono">{acct ? fmtAusd(walletAusd) : "…"}</dd>
+          </div>
+          <div>
+            <dt>{NETWORK.nativeSymbol} for fees</dt>
+            <dd className="mono" data-low={acct && acct.native < 0.05 ? "" : undefined}>
+              {acct ? fmtMon(acct.nativeUnits, 4) : "…"}
+            </dd>
+          </div>
+          <div>
+            <dt>Deposited</dt>
+            <dd className="mono">{acct ? fmtAusd(acct.collateral) : "…"}</dd>
+          </div>
+          <div>
+            <dt>Equity</dt>
+            <dd className="mono">{acct?.equity != null ? fmtAusd(acct.equity) : "—"}</dd>
+          </div>
+          <div>
+            <dt>Free to withdraw</dt>
+            <dd className="mono">{acct?.freeCollateral != null ? fmtAusd(acct.freeCollateral) : "—"}</dd>
+          </div>
+          <div>
+            <dt>Lane</dt>
+            <dd className="mono">{acct ? acct.lane + 1 : "…"}</dd>
+          </div>
+        </dl>
+        {feesOwed > BigInt(0) && (
+          <div className={styles.row}>
+            <span className={styles.fine}>
+              Claimable execution fees / refunds: <span className="mono">{fmtMon(feesOwed)}</span> {NETWORK.nativeSymbol}
+            </span>
+            <button type="button" className={styles.btnGhost} disabled={claiming} onClick={claim}>
+              {claiming ? "Claiming…" : "Claim"}
+            </button>
+          </div>
+        )}
+        {accountError && <Notice tone="warn">Couldn&apos;t read your account: {accountError}</Notice>}
+        {acct?.healthError && <p className={styles.fine}>{acct.healthError}</p>}
+      </section>
+
+      <section className={styles.card}>
+        <div className={styles.tabs} role="tablist" aria-label="Deposit or withdraw">
+          {(["deposit", "withdraw"] as const).map((t) => (
+            <button
+              key={t}
+              role="tab"
+              aria-selected={tab === t}
+              onClick={() => {
+                setTab(t);
+                setMsg(null);
+                setAmountStr("");
+              }}
+            >
+              {t === "deposit" ? "Deposit" : "Withdraw"}
+            </button>
+          ))}
+        </div>
+        {tab === "deposit" && paused && (
+          <Notice tone="warn">
+            {depositPaused
+              ? "Deposits are paused by the guardian. Withdrawals and closing positions still work."
+              : "Paused by the guardian: you can still top up margin for your open positions, and withdraw or close."}
+          </Notice>
+        )}
+        <label className={styles.field}>
+          <input
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder="0.00"
+            value={amountStr}
+            onChange={(e) => setAmountStr(clean(e.target.value))}
+            aria-label={tab === "deposit" ? "Deposit amount" : "Withdraw amount"}
+          />
+          <TokenSymbol />
+        </label>
+        <div className={styles.quick}>
+          {tab === "deposit"
+            ? [0.25, 0.5, 1].map((f) => (
+                <button key={f} type="button" disabled={maxDeposit <= 0} onClick={() => setAmountStr(String(Math.floor(maxDeposit * f * 100) / 100))}>
+                  {f === 1 ? "Max allowed" : `${f * 100}%`}
+                </button>
+              ))
+            : [0.25, 0.5, 1].map((f) => (
+                <button key={f} type="button" disabled={free <= 0} onClick={() => setAmountStr(String(Math.floor(free * f * 1e6) / 1e6))}>
+                  {f === 1 ? "All free" : `${f * 100}%`}
+                </button>
+              ))}
+        </div>
+        {tab === "deposit" ? (
+          <dl className={styles.fees}>
+            <div>
+              <dt>Room under your account cap</dt>
+              <dd className="mono">{room.accountRoom === null ? "—" : fmtAusd(room.accountRoom)}</dd>
+            </div>
+            <div>
+              <dt>Room under lane {acct ? acct.lane + 1 : ""} TVL cap</dt>
+              <dd className="mono">{room.laneRoom === null ? "—" : fmtAusd(room.laneRoom)}</dd>
+            </div>
+            <div className={styles.feesTotal}>
+              <dt>Approval</dt>
+              <dd>exact amount, never unlimited</dd>
+            </div>
+          </dl>
+        ) : (
+          <dl className={styles.fees}>
+            <div>
+              <dt>Health check priced at</dt>
+              <dd>
+                {!priced.needed
+                  ? "not needed (no open positions)"
+                  : quote.q?.source === "fresh"
+                    ? "fresh signed Pyth update (via the keeper)"
+                    : `Pyth price stored on chain${priced.oldestAge !== null ? ` (${Math.round(priced.oldestAge)}s old)` : ""}`}
+              </dd>
+            </div>
+            <div>
+              <dt>Price age limit</dt>
+              <dd className="mono">{priced.maxPriceAge !== null ? fmtDuration(priced.maxPriceAge) : "—"}</dd>
+            </div>
+            <div className={styles.feesTotal}>
+              <dt>Pyth update fee</dt>
+              <dd className="mono">
+                {quote.q?.source === "fresh" ? (
+                  <>
+                    {fmtMon(quote.q.fee, 9)} <small>{NETWORK.nativeSymbol}</small>
+                  </>
+                ) : priced.needed && quote.error ? (
+                  "update unavailable"
+                ) : (
+                  "none (no update needed)"
+                )}
+              </dd>
+            </div>
+          </dl>
+        )}
+        {tab === "withdraw" && priced.needed && quote.error && (
+          <Notice tone="warn">
+            Prices are refreshing: the Pyth price stored on chain is too old for the contract and a fresh update
+            couldn&apos;t be fetched right now. Retry in a few seconds.
+          </Notice>
+        )}
+        {tab === "deposit" && !acked && !depositPaused && (
+          <p className={styles.fine}>Your first deposit asks you to confirm the beta risk notice.</p>
+        )}
+        <button type="button" className={styles.submit} disabled={busy || reason !== null} onClick={submit}>
+          {busy
+            ? "Confirming on chain…"
+            : (reason ?? (tab === "deposit" ? `Deposit ${fmtAusd(amount)} ${token.symbol}` : `Withdraw ${fmtAusd(amount)} ${token.symbol}`))}
+        </button>
+        {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
+        <p className={styles.fine}>
+          Withdrawals stay open while trading is paused. The health check uses the Pyth price stored on chain when
+          it&apos;s fresh, else a Pyth-signed update relayed by the keeper (verified on chain, so the relay can&apos;t alter
+          it).
+        </p>
+      </section>
+
+      <section className={styles.card}>
+        <div className={styles.cardTitle}>
+          <span>Beta limits</span>
+          <span>changeable only via the timelock</span>
+        </div>
+        <div className={styles.caps}>
+          <CapBar label="Your deposits" used={acct ? Math.max(0, acct.collateral) : null} cap={params?.maxDepositPerAccount ?? null} />
+          <CapBar label={`Lane ${acct ? acct.lane + 1 : ""} TVL`} used={prod?.lane?.tvl ?? null} cap={params?.maxTvlPerLane ?? null} />
+        </div>
+        <dl className={styles.kv}>
+          <div>
+            <dt>Max leverage</dt>
+            <dd className="mono">{params?.maxLeverage != null ? `${params.maxLeverage}x` : "—"}</dd>
+          </div>
+          <div>
+            <dt>Min position</dt>
+            <dd className="mono">{params?.minPositionNotional != null ? fmtAusd(params.minPositionNotional) : "—"}</dd>
+          </div>
+          <div>
+            <dt>Trading fee</dt>
+            <dd className="mono">{params?.tradingFeeBps != null ? `${(params.tradingFeeBps / 100).toFixed(2)}%` : "—"}</dd>
+          </div>
+          <div>
+            <dt>Execution fee</dt>
+            <dd className="mono">
+              {fmtMon(params?.minExecutionFee)} {NETWORK.nativeSymbol}
+            </dd>
+          </div>
+          <div>
+            <dt>Order fill window</dt>
+            <dd className="mono">
+              {params?.minExecDelay != null && params.maxExecDelay != null
+                ? `${fmtDuration(params.minExecDelay)}–${fmtDuration(params.maxExecDelay)}`
+                : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt>Funding interval</dt>
+            <dd className="mono">{params?.fundingInterval != null ? fmtDuration(params.fundingInterval) : "—"}</dd>
+          </div>
+        </dl>
+        <p className={styles.fine}>
+          Unaudited beta: use only what you can afford to lose. <Link href="/terms" target="_blank">Terms</Link> ·{" "}
+          <Link href="/risk" target="_blank">Risks</Link> ·{" "}
+          <button type="button" className={styles.fine} style={{ textDecoration: "underline" }} onClick={() => showRiskAck(session.address)}>
+            Re-read the risk notice
+          </button>
+        </p>
+      </section>
+
+      <div>
+        <TxTray />
+      </div>
+
+      <div className={styles.walletWide}>
+        {privyEnabled && isPasskey ? (
+          <PrivySignOutButton className={styles.btnGhost} />
+        ) : (
+          <button type="button" className={styles.btnGhost} onClick={signOut}>
+            Sign out
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
