@@ -57,16 +57,24 @@ export function PrivyPasskeyLogin() {
     setOfferSignup(true);
   }, []);
 
-  const { loginWithPasskey } = useLoginWithPasskey({ onComplete: complete, onError });
-  const { signupWithPasskey } = useSignupWithPasskey({ onComplete: complete, onError });
+  // Sign-up failures are a different problem (e.g. passkey sign-up turned off for the
+  // Privy app, or the browser prompt was dismissed), so say so instead of "not recognised".
+  const onSignupError = useCallback(() => {
+    setPhase("error");
+    setError("Couldn't create a passkey. Passkey sign-up may be unavailable right now; try again or use the demo.");
+    setOfferSignup(true);
+  }, []);
 
-  const run = async (fn: () => Promise<void>) => {
+  const { loginWithPasskey } = useLoginWithPasskey({ onComplete: complete, onError });
+  const { signupWithPasskey } = useSignupWithPasskey({ onComplete: complete, onError: onSignupError });
+
+  const run = async (fn: () => Promise<void>, fail: () => void = onError) => {
     setError(null);
     setPhase("scanning");
     try {
       await fn();
     } catch {
-      onError();
+      fail();
     }
   };
 
@@ -79,11 +87,15 @@ export function PrivyPasskeyLogin() {
         onClick={() => run(() => loginWithPasskey())}
       />
       {error && <p className={styles.error}>{error}</p>}
-      {offerSignup && (
-        <button className={styles.linkBtn} onClick={() => run(signupWithPasskey)}>
-          New here? Create a passkey
-        </button>
-      )}
+      {/* Always offered: on localhost the browser may suggest passkeys from other apps,
+          which this Privy app doesn't know, so first-time users need a direct path. */}
+      <button
+        className={styles.linkBtn}
+        disabled={!ready || phase === "scanning" || phase === "success"}
+        onClick={() => run(signupWithPasskey, onSignupError)}
+      >
+        {offerSignup ? "New here? Create a passkey" : "First time? Create a passkey"}
+      </button>
     </>
   );
 }
