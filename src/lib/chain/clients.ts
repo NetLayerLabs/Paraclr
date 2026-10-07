@@ -16,6 +16,24 @@ import { NETWORK } from "./config";
 
 export type ChainPublicClient = PublicClient<HttpTransport, Chain>;
 
+const RATE_LIMITED = /"code"\s*:\s*-32007|request limit|requests? limited to|rate.?limit|too many requests/i;
+
+/**
+ * fetch for the RPC transports that waits and retries when the provider refuses a request
+ * for its per-second cap. Monad's public RPC (QuickNode) answers -32007 inside an HTTP 200,
+ * which viem doesn't retry, so a burst of reads on load would fail the whole connection.
+ * A refused request wasn't processed, so resending it (even a raw transaction) is safe.
+ */
+export const rateLimitedFetch: typeof fetch = async (input, init) => {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(input, init);
+    if (attempt >= 6) return res;
+    const limited = res.status === 429 || (res.ok && RATE_LIMITED.test(await res.clone().text()));
+    if (!limited) return res;
+    await new Promise((r) => setTimeout(r, Math.min(4_000, 250 * 2 ** attempt) * (0.75 + Math.random() / 2)));
+  }
+};
+
 let client: ChainPublicClient | null = null;
 
 /** Public client for the active chain mode. Throws in sim mode. */
@@ -24,7 +42,7 @@ export function publicClient(): ChainPublicClient {
   if (!client) {
     client = createPublicClient({
       chain: NETWORK.chain,
-      transport: http(NETWORK.rpcUrl, { timeout: 10_000, retryCount: 1 }),
+      transport: http(NETWORK.rpcUrl, { timeout: 10_000, retryCount: 1, fetchFn: rateLimitedFetch }),
       pollingInterval: NETWORK.pollMs,
     });
   }

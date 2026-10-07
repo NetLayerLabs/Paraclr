@@ -5,6 +5,7 @@
 //   demo    → a burner key generated in this browser and kept in localStorage,
 //             always labelled "Demo burner wallet" in the UI.
 
+import { rateLimitedFetch } from "./clients";
 import {
   createWalletClient,
   custom,
@@ -81,7 +82,7 @@ export function burnerSigner(key: BurnerKey): ChainSigner {
     kind: "burner",
     address: account.address,
     walletClient: async () => {
-      if (!wc) wc = createWalletClient({ account, chain: net.chain, transport: http(net.rpcUrl) });
+      if (!wc) wc = createWalletClient({ account, chain: net.chain, transport: http(net.rpcUrl, { fetchFn: rateLimitedFetch }) });
       return wc;
     },
   };
