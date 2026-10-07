@@ -188,7 +188,7 @@ export function Footer({ live }: { live: boolean }) {
           <div className={s.fineRow}>
             <p>
               © 2026 Paraclr · Built for the Monad Metropolis hackathon (Onchain Finance &amp; Trading). Not affiliated
-              with or endorsed by Monad, Agora, Pyth, Privy, Safe or OpenZeppelin.
+              with or endorsed by Monad, Agora, Pyth, Privy, Envio, Safe or OpenZeppelin.
             </p>
             <BuiltByBadge tone="dark" className={s.builtBy} />
           </div>

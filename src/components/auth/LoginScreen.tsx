@@ -12,15 +12,18 @@ import { PrivyOtherLogin, PrivyPasskeyLogin } from "./PrivyAuth";
 import { ThemeToggle } from "@/components/shell/theme";
 import styles from "./LoginScreen.module.css";
 
-// Official marks (public/partners/): Monad and Agora from their published SVGs, Pyth and Privy
-// recoloured white from their official icons. The brand panel is dark in both themes.
+// Official marks (public/partners/): Monad, Agora and Envio from their published SVGs (Envio's symbol
+// without its black tile), Pyth and Privy recoloured white from their official icons. The brand
+// panel is dark in both themes.
 const MONAD = { name: "Monad", logo: "/partners/monad.svg" };
 const AGORA = { name: "Agora AUSD", logo: "/partners/agora.svg" };
 const PYTH = { name: "Pyth", logo: "/partners/pyth-white.png" };
 const PRIVY = { name: "Privy", logo: "/partners/privy-white.png" };
+const ENVIO = { name: "Envio", logo: "/partners/envio.svg" };
 const PARTNERS = [MONAD, AGORA, PRIVY];
-// Production prices come from Pyth (delayed orders execute against Pyth updates).
-const PARTNERS_PROD = [MONAD, AGORA, PYTH, PRIVY];
+// Production: prices from Pyth (delayed orders execute against Pyth updates); order history and
+// activity from the Envio indexer.
+const PARTNERS_PROD = [MONAD, AGORA, PYTH, PRIVY, ENVIO];
 
 /**
  * Without a Privy app id, the FaceID button plays the biometric flow and enters

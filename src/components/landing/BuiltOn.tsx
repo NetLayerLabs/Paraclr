@@ -45,9 +45,17 @@ function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: bo
     },
     {
       name: "Privy",
-      body: "Passkey (WebAuthn) login and an embedded wallet in the app, through the public SDK.",
+      body: "Sign-in with a passkey, email, a social account or your own wallet, and an embedded wallet for everyone else, through the public SDK.",
       chip: "Login + wallet",
       tone: "neutral",
+    },
+    {
+      name: "Envio",
+      body: testnetLive
+        ? "HyperIndex reads the clearinghouse through HyperSync: every order, fill, auction and backstop flow. The app's order history and activity since deploy come from its GraphQL API, hosted on Envio Cloud."
+        : "HyperIndex indexes the clearinghouse's orders, fills, auctions and backstop flows for the app's order history and activity since deploy.",
+      chip: testnetLive ? "Indexer · live on testnet" : "Indexer",
+      tone: testnetLive ? "pos" : "neutral",
     },
     {
       name: "Safe",
@@ -152,7 +160,7 @@ export function BuiltOn({
       </div>
 
       <p className={`${b.container} ${s.disclaimer}`}>
-        Built for the Monad Metropolis hackathon. Not affiliated with or endorsed by Monad, Agora, Pyth, Privy, Safe or
+        Built for the Monad Metropolis hackathon. Not affiliated with or endorsed by Monad, Agora, Pyth, Privy, Envio, Safe or
         OpenZeppelin.
       </p>
     </section>

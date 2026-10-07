@@ -15,7 +15,9 @@ fair, fast liquidation you can check.
 Built for **Monad Metropolis** (Onchain Finance & Trading track). You trade on it in the browser with a passkey and
 AUSD-denominated margin: a desktop trading terminal that collapses to a touch layout with swipe-to-trade on phones.
 
-> **Status.** The hackathon demo runs on Monad testnet and local anvil with a test token and no real value. A
+> **Status.** The production contracts run on **Monad testnet** with Agora's testnet AUSD and Pyth prices, test
+> funds and no real value (addresses [below](#deployed-contracts-monad-testnet-chain-id-10143)); the measured crash
+> runs come from the demo stack on local anvil. A
 > **capped, unaudited beta with real Agora AUSD on Monad mainnet** is built as a separate contract set and launches
 > only if its [launch gate](#production-beta-monad-mainnet-gated) passes; until `deployments/143.json` with
 > `"production": true` is committed, nothing of ours is on mainnet. Every number in this repo and in the app is
@@ -154,6 +156,21 @@ transactions **don't depend on each other's writes**.
   |   each lane: insurance, bad debt, OI per market, backstop pool, auctions, ledger, accounts  |
   +---------------------------------------------------------------------------------------------+
 ```
+
+## Indexer: Envio
+
+[`indexer/`](indexer/README.md) is an [Envio HyperIndex](https://docs.envio.dev) indexer for the production
+clearinghouse on Monad testnet. It reads the chain through Envio's **HyperSync** from the deploy block and records
+every order (commit, fill, failure, cancel: fill price, realized PnL, fee, seconds to fill), every per-lane auction
+and its outcome (taken by a backstop pool or externally, cured, expired; discount, payment, equity returned),
+position changes, collateral and backstop flows, plus running totals per account, lane, market, day and protocol.
+
+It runs on **Envio Cloud** (indexer `paraclr-testnet`, deployed from the `envio` branch). Its GraphQL API
+(`NEXT_PUBLIC_ENVIO_GRAPHQL_URL`, currently `https://indexer.dev.hyperindex.xyz/e9de9e4/v1/graphql`) feeds the app's
+**order history** (Trade tab, Positions | History) and **activity since deploy** with the latest auctions (Clearing
+tab). Positions, balances and solvency are still read from the contract itself. Its totals were checked against the
+chain: AUSD held = insurance + backstop + deposits, and the executed-order count matches the keeper.
+`cd indexer && pnpm test` runs the handler tests on simulated events.
 
 ## What's on-chain and what's simulated (demo stack)
 
@@ -380,20 +397,24 @@ How to read it:
 
 ## Deployed contracts (Monad testnet, chain id 10143)
 
-<!-- Copy from deployments/10143.json after the testnet deploy. -->
+The production contract set runs on Monad testnet with Agora's testnet AUSD and Pyth prices: test funds, no real
+value. Addresses from [`deployments/10143.json`](deployments/10143.json) (deploy block 69,041,758); operations in
+[`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14.
 
-| Contract | Address | Explorer |
+| Contract / role | Address | Explorer |
 |---|---|---|
-| `ParaclrClearinghouseDemo` | `[TBD]` | `https://testnet.monadexplorer.com/address/[TBD]` |
-| `NaiveClearinghouseDemo` (X-ray baseline only) | `[TBD]` | `https://testnet.monadexplorer.com/address/[TBD]` |
-| `MockOracle` | `[TBD]` | `https://testnet.monadexplorer.com/address/[TBD]` |
-| `MockAUSD` (testnet AUSD stand-in) | `[TBD]` | `https://testnet.monadexplorer.com/address/[TBD]` |
-| Deploy block | `[TBD]` | |
+| `ParaclrClearinghouseProd` (v5) | `0xbC1fD0165FBfF4EF32337E42D0e2Ad59bF52b203` | `https://testnet.monadexplorer.com/address/0xbC1fD0165FBfF4EF32337E42D0e2Ad59bF52b203` |
+| `TimelockController` (600 s), the owner | `0xdD66E8118e0a1096D8eEC5b0A0eE9612890047Ab` | `https://testnet.monadexplorer.com/address/0xdD66E8118e0a1096D8eEC5b0A0eE9612890047Ab` |
+| Owner Safe (proposes and executes through the timelock) | `0xCC62247E59A3872013e2dB7A52696A3117F2e4c3` | `https://testnet.monadexplorer.com/address/0xCC62247E59A3872013e2dB7A52696A3117F2e4c3` |
+| Guardian (pause only) | `0x35b9f469988ef7748DcD6CC232e6f3b665cCBFC8` | `https://testnet.monadexplorer.com/address/0x35b9f469988ef7748DcD6CC232e6f3b665cCBFC8` |
+| AUSD (Agora, testnet, external) | `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` | `https://testnet.monadexplorer.com/address/0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` |
+| Pyth (external) | `0x2880aB155794e7179c9eE2e38200202908C17B43` | `https://testnet.monadexplorer.com/address/0x2880aB155794e7179c9eE2e38200202908C17B43` |
 
-`ParaclrClearinghouseDemo` extends `ParaclrClearinghouse` with one demo-only function, `seedAccounts` (owner only),
-which creates synthetic accounts with collateral and open positions, funded from the owner's AUSD so the solvency
-identity still holds. Auctions run the unchanged production code. `NaiveClearinghouseDemo` exists only so the X-ray
-has a fair baseline; nothing in the app trades on it.
+Markets: SOL/AUSD and BTC/AUSD (MON isn't listed: the Pyth data access these prices run on doesn't cover it). Caps:
+50 AUSD per account, 500 AUSD per lane, 10x.
+
+The measured crash runs and X-rays in [Results](#results) come from the demo stack
+(`ParaclrClearinghouseDemo`, `NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`) on local anvil, labelled as such.
 
 ---
 
@@ -406,6 +427,7 @@ contracts/src/prod/ the production set for the mainnet beta (Pyth, real AUSD, de
                     timelock + guardian); DeployProd.s.sol writes deployments/143.json
 keeper/             Node keeper: price loop, faucet, per-lane sweeper, crash runner, Conflict X-ray, bench CLI;
                     keeper/src/prod/: mainnet executor, funding, Hermes client, alerts. Hosting: keeper/HOSTING.md
+indexer/            Envio HyperIndex: orders, auctions, positions, flows and totals over GraphQL (Envio Cloud)
 bench/results/      RunReport JSON from bench runs, committed as evidence
 bench/xray/         XrayReport JSON (lanes vs naive), committed as evidence
 deployments/        <chainId>.json: deployed addresses + market ids, read by the app
@@ -437,6 +459,6 @@ docs/               PRODUCTION_PLAN.md, FAIR_LIQUIDATION_PLAN.md, ONCHAIN_PLAN.m
 
 ## Affiliation
 
-We are entering the Monad Metropolis hackathon. Sponsor tools are used through their public SDKs (Privy) and public
-contracts (Agora's AUSD, Pyth). We have no partnership with or endorsement from Monad, Agora, Pyth, Privy, Chainlink or
-any other sponsor.
+We are entering the Monad Metropolis hackathon. Sponsor tools are used through their public SDKs and services (Privy,
+Envio HyperIndex, HyperSync and Envio Cloud) and public contracts (Agora's AUSD, Pyth). We have no partnership with or
+endorsement from Monad, Agora, Pyth, Privy, Envio, Chainlink or any other sponsor.
