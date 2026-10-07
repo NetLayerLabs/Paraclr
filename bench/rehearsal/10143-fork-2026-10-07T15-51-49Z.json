@@ -1,0 +1,2856 @@
+{
+  "kind": "paraclr-testnet-rehearsal",
+  "startedAt": "2026-10-07T15:51:49.284Z",
+  "finishedAt": "2026-10-07T15:58:01.835Z",
+  "notTestnet": "Every number here comes from local anvil chains (a fork of Monad testnet with the real testnet AUSD and Pyth, and a plain anvil with the TEST MockPyth). Nothing was sent to Monad testnet or mainnet.",
+  "contract": {
+    "name": "ParaclrClearinghouseProd",
+    "version": "v5",
+    "sourceSha256": "1643014507eaf16afd06d25a50d2f9bdac8a0556ede00f960cc9fcbda702a5ed",
+    "file": "contracts/src/prod/ParaclrClearinghouseProd.sol"
+  },
+  "fork": {
+    "harvest": {
+      "mainnetHead": 111364322,
+      "mainnetFrom": 111360322,
+      "updates": 56,
+      "usableSolBtc": 56,
+      "firstT": 1791387118,
+      "lastT": 1791388289,
+      "gapS": {
+        "min": 2,
+        "max": 101
+      }
+    },
+    "chain": {
+      "label": "anvil fork of Monad testnet (NOT testnet)",
+      "network": "anvil-fork",
+      "chainId": 10143,
+      "forkBlock": 69006306,
+      "forkedFrom": "testnet-rpc.monad.xyz"
+    },
+    "facts": {
+      "ausd": {
+        "decimals": 6,
+        "symbol": "AUSD",
+        "transferPaused": false
+      },
+      "pyth": {
+        "version": "1.4.6",
+        "singleUpdateFeeInWei": "1"
+      },
+      "agoraFaucet": {
+        "dripAusd": 10000,
+        "maxDripFrequencyS": 60,
+        "maxAmountToOwnAusd": 100000
+      }
+    },
+    "ownerSafe": {
+      "safe": "0x4283e8a533A3f3D24a4F91F342BEfa3092860840",
+      "signers": [
+        "0x83201962F062ec65843b62260021C5A2028397e7",
+        "0x86Fab2dD528a1923dbD75Ac526D9560b38a0556C"
+      ],
+      "threshold": 2
+    },
+    "fundPreview": [
+      "  deployer    0xD3f69727ebbD2d29B09A01aE1839491D05777767        0.0000         3.6399         3.6399 ",
+      "  guardian    0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1        0.0000         0.2000         0.2000 ",
+      "  ops         0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2        0.0000         9.0183         9.0183 ",
+      "  keeper[0]   0x816eCEA0D290C8dBE0d82951934b6367e4344bED        0.0000         1.8957         1.8957 ",
+      "  keeper[1]   0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F        0.0000         1.8957         1.8957 ",
+      "  keeper[2]   0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c        0.0000         1.8957         1.8957 ",
+      "  keeper[3]   0x2012F42661784e74BF843B79fc95ca2cbdBD37E7        0.0000         1.8957         1.8957 ",
+      "  keeper[4]   0xa29Cb81a76947391a875867957b9488665262021        0.0000         1.8957         1.8957 ",
+      "  keeper[5]   0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2        0.0000         1.8957         1.8957 ",
+      "  keeper[6]   0xa57548774FcA54B3F29C54F14Ea93417ab394817        0.0000         1.8957         1.8957 ",
+      "  keeper[7]   0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7        0.0000         1.8957         1.8957 ",
+      "  deployer: one DeployProd run ≈ 18.1M gas limit (+ Pyth refresh) × forge's 1.3 estimate margin; sweep the rest after deploy",
+      "  guardian: pause() ≈ 33k gas; the floor keeps it able to act",
+      "  ops: 2 markets × 16 funding updates/day × 88k gas for 21 days",
+      "  total to send: 28.023709736000000608 testnet MON in 11 transfer(s) + ≈0.023562 testnet MON gas",
+      "  expected spend over 21 days: 42.40 MON gross (≈ 1.93 MON/day + deploy); users' execution fees (63.00 MON at the minimum fee) more than cover it (+20.60 MON)"
+    ],
+    "deployment": {
+      "ausd": "0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC",
+      "backstopOperators": [
+        "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+        "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+        "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+        "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+        "0xa29Cb81a76947391a875867957b9488665262021",
+        "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+        "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+        "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7"
+      ],
+      "chainId": 10143,
+      "clearinghouse": "0x0C09fA42ADE42402f89f20619F74F8bE91cA031a",
+      "contract": "ParaclrClearinghouseProd",
+      "deployBlock": 69006356,
+      "deployedAt": 1791387119,
+      "guardian": "0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1",
+      "markets": {
+        "BTC/AUSD": "0x628531487c91f9cd06c8d62aab932566f40de1dc235b08c6ace72becc017e727",
+        "SOL/AUSD": "0x71404ecadb92f5a36fa398992a182993209814fdb029f79c89cc01dad48a01f6"
+      },
+      "network": "monad-testnet",
+      "oracle": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+      "owner": "0x4283e8a533A3f3D24a4F91F342BEfa3092860840",
+      "params": {
+        "auctionMaxDiscountBps": 500,
+        "auctionStepBps": 25,
+        "backstopMinDiscountBps": 75,
+        "backstopWithdrawDelaySeconds": 3600,
+        "backstopWithdrawWindowSeconds": 3600,
+        "executionFeeWei": "100000000000000000",
+        "fundingIntervalSeconds": 60,
+        "laneInsuranceSeedAusd": 0,
+        "liquidationFeeBps": 100,
+        "maintenanceMarginBps": 250,
+        "maxConfBps": 200,
+        "maxDepositPerAccountAusd": 50,
+        "maxExecDelaySeconds": 60,
+        "maxFundingBpsPerDay": 100,
+        "maxLeverage": 10,
+        "maxOiPerLaneMarketAusd": 5000,
+        "maxPriceAgeSeconds": 30,
+        "maxStoredPriceAgeSeconds": 15,
+        "maxTvlPerLaneAusd": 500,
+        "minExecDelaySeconds": 3,
+        "minPositionSizeAusd": 10,
+        "oiCapMultiplierBps": 50000,
+        "skewScaleAusd": 10000,
+        "timelockMinDelaySeconds": 600,
+        "topUpTargetBps": 10000,
+        "tradingFeeBps": 5
+      },
+      "production": true,
+      "pyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+      "pythFeeds": {
+        "BTC/AUSD": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+        "SOL/AUSD": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d"
+      },
+      "timelock": "0x67F418b3590FC88539A4c502AC2a38840a6A694a",
+      "realPyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+      "priceSource": "pyth",
+      "ausdFaucet": "0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C",
+      "testnet": true
+    },
+    "agoraFaucet": {
+      "gasUsed": "84127",
+      "frequency": "global (another address within 60 s reverts: reverted with reason: custom error 0x20e5bc67)",
+      "sameRecipient": "the same recipient may claim again after 60 s"
+    },
+    "healthAtStart": {
+      "chainId": 10143,
+      "mode": "monad-testnet",
+      "network": "anvil",
+      "fork": {
+        "of": "monad-testnet",
+        "chainId": 10143
+      },
+      "sandbox": false,
+      "testnet": true,
+      "label": "anvil fork of Monad testnet (NOT testnet)",
+      "production": true,
+      "block": 69006415,
+      "chainTime": 1791387238,
+      "paused": false,
+      "priceSource": "pyth",
+      "prices": {
+        "BTC/AUSD": 83202.79568145,
+        "SOL/AUSD": 116.34098698
+      },
+      "pricesUpdatedAt": {
+        "BTC/AUSD": 1791387221,
+        "SOL/AUSD": 1791387221
+      },
+      "oracle": {
+        "mode": "pyth",
+        "pyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "realPyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "fallbackOracle": null,
+        "signer": null,
+        "prepush": {
+          "active": false,
+          "pushes": 0,
+          "failures": 0,
+          "lastError": null,
+          "operationId": null,
+          "readyAt": null,
+          "lastPushAt": 0,
+          "forcedEveryS": 0
+        },
+        "feeds": {
+          "BTC/AUSD": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+          "SOL/AUSD": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d"
+        },
+        "maxConfBps": 200,
+        "maxPriceAge": 30,
+        "prices": {
+          "BTC/AUSD": {
+            "price": 83202.79568145,
+            "confBps": 5,
+            "publishTime": 1791387221,
+            "ageS": 17
+          },
+          "SOL/AUSD": {
+            "price": 116.34098698,
+            "confBps": 3,
+            "publishTime": 1791387221,
+            "ageS": 17
+          }
+        },
+        "hermes": {
+          "endpoints": [
+            "127.0.0.1:9056"
+          ],
+          "apiKey": true,
+          "healthy": true,
+          "consecutiveFailures": 0,
+          "lastSuccessAt": 1791388425540,
+          "outageMs": 0,
+          "backoffMs": 0,
+          "lastError": null,
+          "requests": 3,
+          "failures": 0
+        }
+      },
+      "caps": {
+        "maxLeverage": 10,
+        "maxDepositPerAccount": "50000000",
+        "maxTvlPerLane": "500000000",
+        "laneTvl": [
+          "150000000",
+          "150000000",
+          "150000000",
+          "150000000",
+          "150000000",
+          "150000000",
+          "150000000",
+          "150000000"
+        ],
+        "tvlUtilisationPct": [
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30
+        ],
+        "laneOiCap": {
+          "BTC/AUSD": [
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000"
+          ],
+          "SOL/AUSD": [
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000",
+            "1000000000"
+          ]
+        },
+        "oiUtilisationPct": {
+          "BTC/AUSD": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "SOL/AUSD": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "solvency": {
+        "ausdHeld": "2800000000",
+        "liabilities": "2800000000",
+        "surplus": "0",
+        "solvent": true
+      },
+      "laneSolvency": [
+        {
+          "lane": 0,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 1,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 2,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 3,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 4,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 5,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 6,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 7,
+          "held": "350000000",
+          "claims": "150000000",
+          "surplus": "200000000",
+          "insurance": "200000000",
+          "badDebt": "0",
+          "haircutBps": 0
+        }
+      ],
+      "nativeSolvency": {
+        "held": "0",
+        "liabilities": "0",
+        "solvent": true
+      },
+      "storedPriceAgeS": {
+        "BTC/AUSD": 214,
+        "SOL/AUSD": 214
+      },
+      "poolDeposits": [
+        {
+          "lane": 0,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 1,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 2,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 3,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 4,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 5,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 6,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 7,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        }
+      ],
+      "pricePush": {
+        "mode": "on-demand",
+        "maxStoredPriceAge": 15,
+        "marginS": 4,
+        "intervalS": null,
+        "pushes": 0,
+        "feedsPushed": 0,
+        "skippedFresh": 0,
+        "failures": 0,
+        "gasLimit": "0",
+        "lastError": null,
+        "lastPushAt": 0
+      },
+      "reserveGuard": {
+        "enabled": true,
+        "reserveMon": 10,
+        "k": 3,
+        "spaced": 0,
+        "waitedMs": 0,
+        "passedAboveReserve": 0
+      },
+      "poolExit": {
+        "tracked": 0,
+        "reductions": 0,
+        "failures": 0,
+        "lastError": null
+      },
+      "addresses": {
+        "clearinghouse": "0x0C09fA42ADE42402f89f20619F74F8bE91cA031a",
+        "ausd": "0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC",
+        "oracle": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "pyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "timelock": "0x67F418b3590FC88539A4c502AC2a38840a6A694a",
+        "guardian": "0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1",
+        "ops": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+        "keepers": [
+          "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "0xa29Cb81a76947391a875867957b9488665262021",
+          "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+          "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+          "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7"
+        ],
+        "naive": null
+      },
+      "owner": "0x67F418b3590FC88539A4c502AC2a38840a6A694a",
+      "ausd": {
+        "transferPaused": false,
+        "clearinghouseFrozen": false,
+        "usdPrice": null,
+        "balance": "2800000000"
+      },
+      "markets": {
+        "BTC/AUSD": "0x628531487c91f9cd06c8d62aab932566f40de1dc235b08c6ace72becc017e727",
+        "SOL/AUSD": "0x71404ecadb92f5a36fa398992a182993209814fdb029f79c89cc01dad48a01f6"
+      },
+      "hotKeys": [
+        {
+          "role": "keeper[0]",
+          "address": "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "keeper[1]",
+          "address": "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "keeper[2]",
+          "address": "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "keeper[3]",
+          "address": "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "keeper[4]",
+          "address": "0xa29Cb81a76947391a875867957b9488665262021",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "keeper[5]",
+          "address": "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "keeper[6]",
+          "address": "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "keeper[7]",
+          "address": "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7",
+          "mon": "1.895692491000000076",
+          "low": false
+        },
+        {
+          "role": "ops",
+          "address": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "mon": "9.018299808",
+          "low": false
+        },
+        {
+          "role": "guardian",
+          "address": "0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1",
+          "mon": "0.2",
+          "low": false
+        }
+      ],
+      "params": {
+        "minExecDelay": 3,
+        "maxExecDelay": 60,
+        "fundingInterval": 60,
+        "maxConfBps": 200,
+        "maxPriceAge": 30,
+        "maxStoredPriceAge": 15,
+        "auctionStepBps": 25,
+        "auctionMaxDiscountBps": 500,
+        "readAt": 1791388425504
+      },
+      "features": {
+        "auctions": true,
+        "backstop": true,
+        "solvency": true,
+        "orders": true
+      },
+      "executor": {
+        "otherLegs": "append",
+        "scannedTo": 69006415,
+        "minExecDelay": 3,
+        "maxExecDelay": 60,
+        "pending": 0,
+        "perLane": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "executed": 0,
+        "userFailed": 0,
+        "expired": 0,
+        "unfillable": 0,
+        "failures": 0,
+        "late": 0,
+        "maxLatencyS": 0,
+        "claims": 0,
+        "lastError": null
+      },
+      "funding": {
+        "enabled": true,
+        "interval": 60,
+        "policy": {
+          "minChangeBps": 500,
+          "maxAgeS": 21600,
+          "skipIdle": true
+        },
+        "markets": {
+          "BTC/AUSD": {
+            "ratePerSec": "0",
+            "target": "0",
+            "lastUpdate": 1791387124,
+            "nextUpdate": 1791387184,
+            "reason": "unchanged"
+          },
+          "SOL/AUSD": {
+            "ratePerSec": "0",
+            "target": "0",
+            "lastUpdate": 1791387123,
+            "nextUpdate": 1791387183,
+            "reason": "unchanged"
+          }
+        },
+        "sent": 0,
+        "success": 0,
+        "skippedUnchanged": 2,
+        "failures": 0,
+        "lastError": null
+      },
+      "sweeper": {
+        "ticks": 1,
+        "sent": 0,
+        "failures": 0,
+        "lastError": null,
+        "lastBlock": 69006415,
+        "liquidatable": 0,
+        "inAuction": 0,
+        "method": "pending",
+        "chunkedBatches": 0,
+        "params": {
+          "stepBps": 25,
+          "maxBps": 500,
+          "minBps": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "cureBps": 10000
+        },
+        "chunking": {
+          "targetGas": 24000000,
+          "headroom": 0.8,
+          "perAccountGas": {
+            "startAuctions": 74000,
+            "backstopTakeBatch": 95000,
+            "expireBatch": 80000
+          },
+          "simCalls": 100
+        }
+      },
+      "alerts": {
+        "webhook": true,
+        "active": []
+      },
+      "txs": {},
+      "monitorAt": 1791388425546,
+      "monitorErrors": [],
+      "uptimeS": 0,
+      "crashed": false,
+      "activeRunId": null,
+      "lastRunId": null,
+      "priceLoop": null,
+      "faucet": null,
+      "demoTakers": null,
+      "disabled": [
+        "faucet",
+        "crash",
+        "recover",
+        "price-loop",
+        "demo-takers",
+        "runs"
+      ]
+    },
+    "executeOrderGas": {
+      "singleLegMaxLimit": 506867,
+      "multiLegLimits": [
+        691189
+      ],
+      "valuesWei": [
+        "1",
+        "4"
+      ]
+    },
+    "realPythProbeGas": {
+      "startAuctions": "214335",
+      "backstopTakeBatch": "194982",
+      "expireBatch": "190327",
+      "cancelAuction": "59540"
+    },
+    "pythPushGas": {
+      "oneFeed": "114300",
+      "twoFeeds": "140429"
+    },
+    "hermes": {
+      "requests": 86,
+      "statuses": {
+        "200": 62,
+        "503": 24
+      },
+      "feedsRequested": [
+        "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+        "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d"
+      ]
+    },
+    "healthAtEnd": {
+      "chainId": 10143,
+      "mode": "monad-testnet",
+      "network": "anvil",
+      "fork": {
+        "of": "monad-testnet",
+        "chainId": 10143
+      },
+      "sandbox": false,
+      "testnet": true,
+      "label": "anvil fork of Monad testnet (NOT testnet)",
+      "production": true,
+      "block": 69006486,
+      "chainTime": 1791392576,
+      "paused": true,
+      "priceSource": "pyth",
+      "prices": {
+        "BTC/AUSD": 83354.79000000001,
+        "SOL/AUSD": 116.63228388
+      },
+      "pricesUpdatedAt": {
+        "BTC/AUSD": 1791388289,
+        "SOL/AUSD": 1791388289
+      },
+      "oracle": {
+        "mode": "pyth",
+        "pyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "realPyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "fallbackOracle": null,
+        "signer": null,
+        "prepush": {
+          "active": false,
+          "pushes": 0,
+          "failures": 0,
+          "lastError": null,
+          "operationId": null,
+          "readyAt": null,
+          "lastPushAt": 0,
+          "forcedEveryS": 0
+        },
+        "feeds": {
+          "BTC/AUSD": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+          "SOL/AUSD": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d"
+        },
+        "maxConfBps": 200,
+        "maxPriceAge": 30,
+        "prices": {
+          "BTC/AUSD": {
+            "price": 83354.79000000001,
+            "confBps": 3,
+            "publishTime": 1791388289,
+            "ageS": 3681
+          },
+          "SOL/AUSD": {
+            "price": 116.63228388,
+            "confBps": 3,
+            "publishTime": 1791388289,
+            "ageS": 3681
+          }
+        },
+        "hermes": {
+          "endpoints": [
+            "127.0.0.1:9056"
+          ],
+          "apiKey": true,
+          "healthy": true,
+          "consecutiveFailures": 0,
+          "lastSuccessAt": 1791388490172,
+          "outageMs": 0,
+          "backoffMs": 0,
+          "lastError": "127.0.0.1:9056: HTTP 503",
+          "requests": 86,
+          "failures": 8
+        }
+      },
+      "caps": {
+        "maxLeverage": 10,
+        "maxDepositPerAccount": "50000000",
+        "maxTvlPerLane": "500000000",
+        "laneTvl": [
+          "124970000",
+          "149965472",
+          "148957646",
+          "148953944",
+          "149980000",
+          "149975000",
+          "149970000",
+          "149965000"
+        ],
+        "tvlUtilisationPct": [
+          24.99,
+          29.99,
+          29.79,
+          29.79,
+          29.99,
+          29.99,
+          29.99,
+          29.99
+        ],
+        "laneOiCap": {
+          "BTC/AUSD": [
+            "1000150000",
+            "1000172640",
+            "1000211770",
+            "1000230280",
+            "1000100000",
+            "1000125000",
+            "1000150000",
+            "1000175000"
+          ],
+          "SOL/AUSD": [
+            "1000150000",
+            "1000172640",
+            "1000211770",
+            "1000230280",
+            "1000100000",
+            "1000125000",
+            "1000150000",
+            "1000175000"
+          ]
+        },
+        "oiUtilisationPct": {
+          "BTC/AUSD": [
+            1.99,
+            2.49,
+            0,
+            5.99,
+            0,
+            4.99,
+            0,
+            6.99
+          ],
+          "SOL/AUSD": [
+            3.99,
+            0,
+            4.99,
+            0,
+            3.99,
+            0,
+            5.99,
+            0
+          ]
+        }
+      },
+      "solvency": {
+        "ausdHeld": "2773000000",
+        "liabilities": "2773000000",
+        "surplus": "0",
+        "solvent": true
+      },
+      "laneSolvency": [
+        {
+          "lane": 0,
+          "held": "325000000",
+          "claims": "124970000",
+          "surplus": "200030000",
+          "insurance": "200030000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 1,
+          "held": "350000000",
+          "claims": "149965472",
+          "surplus": "200034528",
+          "insurance": "200034528",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 2,
+          "held": "349000000",
+          "claims": "148957646",
+          "surplus": "200042354",
+          "insurance": "200042354",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 3,
+          "held": "349000000",
+          "claims": "148953944",
+          "surplus": "200046056",
+          "insurance": "200046056",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 4,
+          "held": "350000000",
+          "claims": "149980000",
+          "surplus": "200020000",
+          "insurance": "200020000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 5,
+          "held": "350000000",
+          "claims": "149975000",
+          "surplus": "200025000",
+          "insurance": "200025000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 6,
+          "held": "350000000",
+          "claims": "149970000",
+          "surplus": "200030000",
+          "insurance": "200030000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 7,
+          "held": "350000000",
+          "claims": "149965000",
+          "surplus": "200035000",
+          "insurance": "200035000",
+          "badDebt": "0",
+          "haircutBps": 0
+        }
+      ],
+      "nativeSolvency": {
+        "held": "1300000000000000000",
+        "liabilities": "1300000000000000000",
+        "solvent": true
+      },
+      "storedPriceAgeS": {
+        "BTC/AUSD": 4946,
+        "SOL/AUSD": 4946
+      },
+      "poolDeposits": [
+        {
+          "lane": 0,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 1,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 2,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 3,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 4,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 5,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 6,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 7,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        }
+      ],
+      "pricePush": {
+        "mode": "on-demand",
+        "maxStoredPriceAge": 15,
+        "marginS": 4,
+        "intervalS": null,
+        "pushes": 0,
+        "feedsPushed": 0,
+        "skippedFresh": 0,
+        "failures": 0,
+        "gasLimit": "0",
+        "lastError": null,
+        "lastPushAt": 0
+      },
+      "reserveGuard": {
+        "enabled": true,
+        "reserveMon": 10,
+        "k": 3,
+        "spaced": 5,
+        "waitedMs": 144,
+        "passedAboveReserve": 0
+      },
+      "poolExit": {
+        "tracked": 0,
+        "reductions": 0,
+        "failures": 0,
+        "lastError": null
+      },
+      "addresses": {
+        "clearinghouse": "0x0C09fA42ADE42402f89f20619F74F8bE91cA031a",
+        "ausd": "0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC",
+        "oracle": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "pyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "timelock": "0x67F418b3590FC88539A4c502AC2a38840a6A694a",
+        "guardian": "0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1",
+        "ops": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+        "keepers": [
+          "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "0xa29Cb81a76947391a875867957b9488665262021",
+          "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+          "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+          "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7"
+        ],
+        "naive": null
+      },
+      "owner": "0x67F418b3590FC88539A4c502AC2a38840a6A694a",
+      "ausd": {
+        "transferPaused": false,
+        "clearinghouseFrozen": false,
+        "usdPrice": null,
+        "balance": "2773000000"
+      },
+      "markets": {
+        "BTC/AUSD": "0x628531487c91f9cd06c8d62aab932566f40de1dc235b08c6ace72becc017e727",
+        "SOL/AUSD": "0x71404ecadb92f5a36fa398992a182993209814fdb029f79c89cc01dad48a01f6"
+      },
+      "hotKeys": [
+        {
+          "role": "keeper[0]",
+          "address": "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "mon": "1.894632237938042351",
+          "low": false
+        },
+        {
+          "role": "keeper[1]",
+          "address": "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "mon": "1.894977489927415334",
+          "low": false
+        },
+        {
+          "role": "keeper[2]",
+          "address": "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "mon": "1.894972165074418943",
+          "low": false
+        },
+        {
+          "role": "keeper[3]",
+          "address": "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "mon": "1.894972130013553139",
+          "low": false
+        },
+        {
+          "role": "keeper[4]",
+          "address": "0xa29Cb81a76947391a875867957b9488665262021",
+          "mon": "1.895058794866850714",
+          "low": false
+        },
+        {
+          "role": "keeper[5]",
+          "address": "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+          "mon": "1.895246201032336275",
+          "low": false
+        },
+        {
+          "role": "keeper[6]",
+          "address": "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+          "mon": "1.895246093029924095",
+          "low": false
+        },
+        {
+          "role": "keeper[7]",
+          "address": "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7",
+          "mon": "1.8952460960299911",
+          "low": false
+        },
+        {
+          "role": "ops",
+          "address": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "mon": "9.017901109840342125",
+          "low": false
+        },
+        {
+          "role": "guardian",
+          "address": "0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1",
+          "mon": "0.19997218775330756",
+          "low": false
+        }
+      ],
+      "params": {
+        "minExecDelay": 3,
+        "maxExecDelay": 60,
+        "fundingInterval": 60,
+        "maxConfBps": 200,
+        "maxPriceAge": 30,
+        "maxStoredPriceAge": 15,
+        "auctionStepBps": 25,
+        "auctionMaxDiscountBps": 500,
+        "readAt": 1791388425504
+      },
+      "features": {
+        "auctions": true,
+        "backstop": true,
+        "solvency": true,
+        "orders": true
+      },
+      "executor": {
+        "otherLegs": "append",
+        "scannedTo": 69006486,
+        "minExecDelay": 3,
+        "maxExecDelay": 60,
+        "pending": 0,
+        "perLane": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "executed": 12,
+        "userFailed": 1,
+        "expired": 1,
+        "unfillable": 0,
+        "failures": 0,
+        "late": 1,
+        "maxLatencyS": 27,
+        "claims": 0,
+        "lastError": null
+      },
+      "funding": {
+        "enabled": true,
+        "interval": 60,
+        "policy": {
+          "minChangeBps": 500,
+          "maxAgeS": 21600,
+          "skipIdle": true
+        },
+        "markets": {
+          "BTC/AUSD": {
+            "ratePerSec": "-868091180",
+            "target": "-868091180",
+            "lastUpdate": 1791388362,
+            "nextUpdate": 1791388422,
+            "reason": "unchanged"
+          },
+          "SOL/AUSD": {
+            "ratePerSec": "-347307314",
+            "target": "-347307314",
+            "lastUpdate": 1791387335,
+            "nextUpdate": 1791387395,
+            "reason": "unchanged"
+          }
+        },
+        "sent": 5,
+        "success": 5,
+        "skippedUnchanged": 5,
+        "failures": 0,
+        "lastError": null
+      },
+      "sweeper": {
+        "ticks": 60,
+        "sent": 0,
+        "failures": 0,
+        "lastError": "hermes: Hermes backing off for 361 ms after 8 failures (127.0.0.1:9056: HTTP 503)",
+        "lastBlock": 69006486,
+        "liquidatable": 0,
+        "inAuction": 0,
+        "method": "eth_simulateV1",
+        "chunkedBatches": 0,
+        "params": {
+          "stepBps": 25,
+          "maxBps": 500,
+          "minBps": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "cureBps": 10000
+        },
+        "chunking": {
+          "targetGas": 24000000,
+          "headroom": 0.8,
+          "perAccountGas": {
+            "startAuctions": 74000,
+            "backstopTakeBatch": 95000,
+            "expireBatch": 80000
+          },
+          "simCalls": 100
+        }
+      },
+      "alerts": {
+        "webhook": true,
+        "active": [
+          {
+            "key": "paused",
+            "severity": "warning",
+            "message": "contract is paused",
+            "since": 1791388438102
+          },
+          {
+            "key": "oracle:stale:BTC/AUSD",
+            "severity": "critical",
+            "message": "BTC/AUSD latest Pyth price is 3681s old (publishTime 1791388289)",
+            "since": 1791388488164
+          },
+          {
+            "key": "oracle:stale:SOL/AUSD",
+            "severity": "critical",
+            "message": "SOL/AUSD latest Pyth price is 3681s old (publishTime 1791388289)",
+            "since": 1791388488164
+          }
+        ]
+      },
+      "txs": {
+        "executeOrder": {
+          "sent": 13,
+          "success": 13,
+          "reverted": 0,
+          "lost": 0,
+          "gasLimit": "5897575",
+          "gasUsed": "5188627",
+          "maxGasLimit": "691189",
+          "avgGasLimit": "453659"
+        },
+        "updateFunding": {
+          "sent": 5,
+          "success": 5,
+          "reverted": 0,
+          "lost": 0,
+          "gasLimit": "438565",
+          "gasUsed": "398695",
+          "maxGasLimit": "87713",
+          "avgGasLimit": "87713"
+        }
+      },
+      "monitorAt": 1791388488168,
+      "monitorErrors": [],
+      "uptimeS": 65,
+      "crashed": false,
+      "activeRunId": null,
+      "lastRunId": null,
+      "priceLoop": null,
+      "faucet": null,
+      "demoTakers": null,
+      "disabled": [
+        "faucet",
+        "crash",
+        "recover",
+        "price-loop",
+        "demo-takers",
+        "runs"
+      ]
+    },
+    "reserveGuard": {
+      "enabled": true,
+      "reserveMon": 10,
+      "k": 3,
+      "spaced": 5,
+      "waitedMs": 144,
+      "passedAboveReserve": 0
+    },
+    "keeperTxs": {
+      "byKind": {
+        "executeOrder": {
+          "sent": 13,
+          "success": 13,
+          "reverted": 0,
+          "lost": 0,
+          "gasLimit": "5897575",
+          "gasUsed": "5188627",
+          "maxGasLimit": "691189",
+          "avgGasLimit": "453659"
+        },
+        "updateFunding": {
+          "sent": 5,
+          "success": 5,
+          "reverted": 0,
+          "lost": 0,
+          "gasLimit": "438565",
+          "gasUsed": "398695",
+          "maxGasLimit": "87713",
+          "avgGasLimit": "87713"
+        }
+      },
+      "recent": [
+        {
+          "kind": "executeOrder",
+          "lane": 0,
+          "from": "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "hash": "0xae77bca2082de908572ed2f3f8219797b75c9d7a78728f1c704a3228d9cb0783",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506752",
+          "gasUsed": "446283",
+          "value": "1",
+          "submittedAt": 1791388429910,
+          "confirmedAt": 1791388430781,
+          "meta": {
+            "orderId": "39399487462587268157692116497728311761537957152941570608489815509300175437825",
+            "market": "SOL/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 5,
+          "from": "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+          "hash": "0x9e6ee1c3b53d785fc6a940984cb5b1da37ae59e0cf6160409848777d602e7ae0",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506748",
+          "gasUsed": "446280",
+          "value": "1",
+          "submittedAt": 1791388429910,
+          "confirmedAt": 1791388430781,
+          "meta": {
+            "orderId": "65760601888807935089314804037105648995743889441118651507201479792257203699713",
+            "market": "BTC/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 6,
+          "from": "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+          "hash": "0x4b01d078419c2c70064f5ac687489334f61aa6504cb81d0c52989c8041c4f4b8",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506867",
+          "gasUsed": "446388",
+          "value": "1",
+          "submittedAt": 1791388429910,
+          "confirmedAt": 1791388430781,
+          "meta": {
+            "orderId": "59212427898486422454633431325545854113062176666684473499534060358906459193345",
+            "market": "SOL/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 7,
+          "from": "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7",
+          "hash": "0xd6d13f6d78f6e3a2e94c9596438461438b448db0b016c0762183a1891a3ead0d",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506864",
+          "gasUsed": "446385",
+          "value": "1",
+          "submittedAt": 1791388429910,
+          "confirmedAt": 1791388430781,
+          "meta": {
+            "orderId": "88405955911926741645603982277737484185224440090503081911476568185738633412609",
+            "market": "BTC/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 1,
+          "from": "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "hash": "0x4fa5c1a195c0bd6e2330fee14f5388333a4c18f407e56e60f4d90e9f6c567d11",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506748",
+          "gasUsed": "446280",
+          "value": "1",
+          "submittedAt": 1791388429916,
+          "confirmedAt": 1791388430640,
+          "meta": {
+            "orderId": "12718989239572590326473346203100358232820664395304926856254033401646688501761",
+            "market": "BTC/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 2,
+          "from": "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "hash": "0x1de1060396cce430e8d9875e4e7488d1309615dffc6ceda8d11cea763cf87fc9",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506854",
+          "gasUsed": "446376",
+          "value": "1",
+          "submittedAt": 1791388429916,
+          "confirmedAt": 1791388430641,
+          "meta": {
+            "orderId": "79677282026737373881074648286259348344340998609949963921034979281246420467713",
+            "market": "SOL/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 3,
+          "from": "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "hash": "0x44592776d12d2ed1f5e707beb5cc7af9252499118dc99321dd343456d0473b64",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506864",
+          "gasUsed": "446385",
+          "value": "1",
+          "submittedAt": 1791388429916,
+          "confirmedAt": 1791388430641,
+          "meta": {
+            "orderId": "92406401722832874599453089442811440839389395648562536707029373282830988083201",
+            "market": "BTC/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 4,
+          "from": "0xa29Cb81a76947391a875867957b9488665262021",
+          "hash": "0x8cf0f8b0eccfe7a9a04eb49bc63eb5d020bf6065de0fb676db95db0169074391",
+          "status": "success",
+          "block": 69006421,
+          "blockTimestamp": 1791387263,
+          "gasLimit": "506752",
+          "gasUsed": "446283",
+          "value": "1",
+          "submittedAt": 1791388429916,
+          "confirmedAt": 1791388430641,
+          "meta": {
+            "orderId": "33689968805744767042337695196670554490258664490717452307354273432822278520833",
+            "market": "SOL/AUSD",
+            "execAfter": 1791387262,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "updateFunding",
+          "lane": null,
+          "from": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "hash": "0xd932934b74883026bc0df318f0b81c326bd14282caccd9ebae89617107edc6e9",
+          "status": "success",
+          "block": 69006422,
+          "blockTimestamp": 1791387270,
+          "gasLimit": "87713",
+          "gasUsed": "79739",
+          "value": "0",
+          "submittedAt": 1791388430625,
+          "confirmedAt": 1791388431197,
+          "meta": {
+            "market": "BTC/AUSD",
+            "ageS": 139,
+            "reason": "rate 0 → -462962962"
+          }
+        },
+        {
+          "kind": "updateFunding",
+          "lane": null,
+          "from": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "hash": "0x00d010e07c575f817426f30baba53b7d86fe62c8fa6e57057c778dc01cd1b231",
+          "status": "success",
+          "block": 69006422,
+          "blockTimestamp": 1791387270,
+          "gasLimit": "87713",
+          "gasUsed": "79739",
+          "value": "0",
+          "submittedAt": 1791388430629,
+          "confirmedAt": 1791388431049,
+          "meta": {
+            "market": "SOL/AUSD",
+            "ageS": 140,
+            "reason": "rate 0 → -462962962"
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 1,
+          "from": "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "hash": "0xf58e430f9a46ce77320246f0ccb2cb1cd806a1ded864a5ea04cb7fe590ad4a5c",
+          "status": "success",
+          "block": 69006426,
+          "blockTimestamp": 1791387274,
+          "gasLimit": "306139",
+          "gasUsed": "268708",
+          "value": "1",
+          "submittedAt": 1791388434143,
+          "confirmedAt": 1791388434995,
+          "meta": {
+            "orderId": "12718989239572590326473346203100358232820664395304926856254033401646688501762",
+            "market": "BTC/AUSD",
+            "execAfter": 1791387273,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 4,
+          "from": "0xa29Cb81a76947391a875867957b9488665262021",
+          "hash": "0x153302da1f8149da33ceb8e64c1696cceb89d096737c5724b7115cfad436c64d",
+          "status": "success",
+          "block": 69006426,
+          "blockTimestamp": 1791387274,
+          "gasLimit": "221982",
+          "gasUsed": "187401",
+          "value": "1",
+          "submittedAt": 1791388434143,
+          "confirmedAt": 1791388434995,
+          "meta": {
+            "orderId": "33689968805744767042337695196670554490258664490717452307354273432822278520834",
+            "market": "SOL/AUSD",
+            "execAfter": 1791387273,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 0,
+          "from": "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "hash": "0x9b66d8e41594a159b946380bb1214370d514ac5750163007bcd973ec232181c0",
+          "status": "success",
+          "block": 69006426,
+          "blockTimestamp": 1791387274,
+          "gasLimit": "691189",
+          "gasUsed": "613953",
+          "value": "4",
+          "submittedAt": 1791388434273,
+          "confirmedAt": 1791388435147,
+          "meta": {
+            "orderId": "39399487462587268157692116497728311761537957152941570608489815509300175437826",
+            "market": "BTC/AUSD",
+            "execAfter": 1791387273,
+            "otherLegs": 1
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 2,
+          "from": "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "hash": "0x70e8c41c3bd5a3e5944be8e6931957de35bce00224164463dafc13caf4b16ceb",
+          "status": "success",
+          "block": 69006435,
+          "blockTimestamp": 1791387305,
+          "gasLimit": "311893",
+          "gasUsed": "273939",
+          "value": "1",
+          "submittedAt": 1791388442451,
+          "confirmedAt": 1791388443312,
+          "meta": {
+            "orderId": "79677282026737373881074648286259348344340998609949963921034979281246420467714",
+            "market": "SOL/AUSD",
+            "execAfter": 1791387304,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "updateFunding",
+          "lane": null,
+          "from": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "hash": "0xe6de82a64aadd49695efe6a238326318bdb5660af184f553ea8c586f884dd61b",
+          "status": "success",
+          "block": 69006460,
+          "blockTimestamp": 1791387335,
+          "gasLimit": "87713",
+          "gasUsed": "79739",
+          "value": "0",
+          "submittedAt": 1791388466829,
+          "confirmedAt": 1791388467671,
+          "meta": {
+            "market": "BTC/AUSD",
+            "ageS": 64,
+            "reason": "rate -462962962 → -983761874"
+          }
+        },
+        {
+          "kind": "updateFunding",
+          "lane": null,
+          "from": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "hash": "0x4be9a6ff1e26379a245616389f75616227d3b45d13227385ea37be25707e3a96",
+          "status": "success",
+          "block": 69006460,
+          "blockTimestamp": 1791387335,
+          "gasLimit": "87713",
+          "gasUsed": "79739",
+          "value": "0",
+          "submittedAt": 1791388466833,
+          "confirmedAt": 1791388467535,
+          "meta": {
+            "market": "SOL/AUSD",
+            "ageS": 64,
+            "reason": "rate -462962962 → -347307314"
+          }
+        },
+        {
+          "kind": "executeOrder",
+          "lane": 3,
+          "from": "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "hash": "0x0a7a8795d590306a4bcab31829e21adb17a0890644826eabe6f98ca6d9b2facc",
+          "status": "success",
+          "block": 69006466,
+          "blockTimestamp": 1791387341,
+          "gasLimit": "311923",
+          "gasUsed": "273966",
+          "value": "1",
+          "submittedAt": 1791388472917,
+          "confirmedAt": 1791388473796,
+          "meta": {
+            "orderId": "92406401722832874599453089442811440839389395648562536707029373282830988083202",
+            "market": "BTC/AUSD",
+            "execAfter": 1791387314,
+            "otherLegs": 0
+          }
+        },
+        {
+          "kind": "updateFunding",
+          "lane": null,
+          "from": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "hash": "0xe860e5f2cf0c869c6a2ec39c3b0e2ab83acb79e9ae07cc0db2c407abdcf3fbc1",
+          "status": "success",
+          "block": 69006478,
+          "blockTimestamp": 1791388362,
+          "gasLimit": "87713",
+          "gasUsed": "79739",
+          "value": "0",
+          "submittedAt": 1791388483185,
+          "confirmedAt": 1791388484054,
+          "meta": {
+            "market": "BTC/AUSD",
+            "ageS": 1026,
+            "reason": "rate -983761874 → -868091180"
+          }
+        }
+      ]
+    },
+    "orders": [
+      {
+        "label": "A",
+        "publishTime": 1791387262,
+        "harvestedTx": "0xf2c7155c57bbec25feb533b01e2e1dafd654386e91b10874b091efb665d7430e",
+        "orders": [
+          {
+            "label": "A:lane0-SOL/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane1-BTC/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane2-SOL/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane3-BTC/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane4-SOL/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane5-BTC/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane6-SOL/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane7-BTC/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          }
+        ]
+      },
+      {
+        "label": "B",
+        "publishTime": 1791387273,
+        "harvestedTx": "0x7ca9cda9a1edb2433be025b1d7a2132301a62442fbd72c5a4b1c6d925372a99d",
+        "orders": [
+          {
+            "label": "B:lane0-second-leg",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "B:lane1-reduce",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "B:lane4-slippage",
+            "status": 3,
+            "latencyS": 1
+          }
+        ]
+      },
+      {
+        "label": "C-paused",
+        "publishTime": 1791387304,
+        "harvestedTx": "0x59aa3aaf81761341effaecb5922c1ef2762a9d68020e27768c5354a351be4df2",
+        "orders": [
+          {
+            "label": "C-paused:lane2-reduce-while-paused",
+            "status": 2,
+            "latencyS": 1
+          }
+        ]
+      },
+      {
+        "label": "D-outage",
+        "publishTime": 1791387314,
+        "harvestedTx": "0x53475d68879be9aaa433c9f096e16f5cfa3b68ab556744de127429895100b8f5",
+        "orders": [
+          {
+            "label": "D-outage:lane3-reduce-during-outage",
+            "status": 2,
+            "latencyS": 27
+          }
+        ]
+      }
+    ]
+  },
+  "fallback": {
+    "oracle": "0x022BA2D830042343bDF8e3b39431e5dF262D1460",
+    "orders": [
+      {
+        "label": "F:lane6-sol-reduce",
+        "status": 2,
+        "latencyS": 2
+      },
+      {
+        "label": "F:lane7-btc-increase",
+        "status": 2,
+        "latencyS": 2
+      }
+    ],
+    "healthAtEnd": {
+      "chainId": 10143,
+      "mode": "monad-testnet",
+      "network": "anvil",
+      "fork": {
+        "of": "monad-testnet",
+        "chainId": 10143
+      },
+      "sandbox": false,
+      "testnet": true,
+      "label": "anvil fork of Monad testnet (NOT testnet)",
+      "production": true,
+      "block": 69006515,
+      "chainTime": 1791393200,
+      "paused": false,
+      "priceSource": "keeper-signed",
+      "prices": {
+        "BTC/AUSD": 83373.35779642001,
+        "SOL/AUSD": 116.65444128
+      },
+      "pricesUpdatedAt": {
+        "BTC/AUSD": 1791393196,
+        "SOL/AUSD": 1791393196
+      },
+      "oracle": {
+        "mode": "keeper-signed",
+        "pyth": "0x022BA2D830042343bDF8e3b39431e5dF262D1460",
+        "realPyth": "0x2880aB155794e7179c9eE2e38200202908C17B43",
+        "fallbackOracle": "0x022BA2D830042343bDF8e3b39431e5dF262D1460",
+        "signer": {
+          "kind": "keeper-signed",
+          "endpoints": [
+            "pyth-mainnet via rpc.monad.xyz"
+          ],
+          "apiKey": false,
+          "healthy": true,
+          "signer": "0xBC225dDfa382BdE37A73b292a9E178841bF54B7F",
+          "oracle": "0x022BA2D830042343bDF8e3b39431e5dF262D1460",
+          "source": "pyth-mainnet",
+          "newestPublishTime": {
+            "BTC/AUSD": 1791393199,
+            "SOL/AUSD": 1791393199
+          },
+          "sourceTime": {
+            "BTC/AUSD": 1791388472,
+            "SOL/AUSD": 1791388472
+          },
+          "signed": 42,
+          "requests": 20,
+          "sourceErrors": 0,
+          "lastSourceError": null,
+          "lastSignedAt": 1791388516625,
+          "staleSkips": 0
+        },
+        "prepush": {
+          "active": false,
+          "pushes": 3,
+          "failures": 0,
+          "lastError": null,
+          "operationId": "0x83b50f90f4a181dd638f7df9bb82404cb54e0358d922a32f69682f69a14da8c0",
+          "readyAt": null,
+          "lastPushAt": 1791388506111,
+          "forcedEveryS": 0
+        },
+        "feeds": {
+          "BTC/AUSD": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+          "SOL/AUSD": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d"
+        },
+        "maxConfBps": 200,
+        "maxPriceAge": 30,
+        "prices": {
+          "BTC/AUSD": {
+            "price": 83373.35779642001,
+            "confBps": 3,
+            "publishTime": 1791393196,
+            "ageS": 1
+          },
+          "SOL/AUSD": {
+            "price": 116.65444128,
+            "confBps": 3,
+            "publishTime": 1791393196,
+            "ageS": 1
+          }
+        },
+        "hermes": {
+          "kind": "keeper-signed",
+          "endpoints": [
+            "pyth-mainnet via rpc.monad.xyz"
+          ],
+          "apiKey": false,
+          "healthy": true,
+          "signer": "0xBC225dDfa382BdE37A73b292a9E178841bF54B7F",
+          "oracle": "0x022BA2D830042343bDF8e3b39431e5dF262D1460",
+          "source": "pyth-mainnet",
+          "newestPublishTime": {
+            "BTC/AUSD": 1791393199,
+            "SOL/AUSD": 1791393199
+          },
+          "sourceTime": {
+            "BTC/AUSD": 1791388472,
+            "SOL/AUSD": 1791388472
+          },
+          "signed": 42,
+          "requests": 20,
+          "sourceErrors": 0,
+          "lastSourceError": null,
+          "lastSignedAt": 1791388516625,
+          "staleSkips": 0
+        }
+      },
+      "caps": {
+        "maxLeverage": 10,
+        "maxDepositPerAccount": "50000000",
+        "maxTvlPerLane": "500000000",
+        "laneTvl": [
+          "124970000",
+          "149965472",
+          "148957646",
+          "148953944",
+          "149980000",
+          "149975000",
+          "149970000",
+          "149965000"
+        ],
+        "tvlUtilisationPct": [
+          24.99,
+          29.99,
+          29.79,
+          29.79,
+          29.99,
+          29.99,
+          29.99,
+          29.99
+        ],
+        "laneOiCap": {
+          "BTC/AUSD": [
+            "1000150000",
+            "1000172640",
+            "1000211770",
+            "1000230280",
+            "1000100000",
+            "1000125000",
+            "1000150000",
+            "1000175000"
+          ],
+          "SOL/AUSD": [
+            "1000150000",
+            "1000172640",
+            "1000211770",
+            "1000230280",
+            "1000100000",
+            "1000125000",
+            "1000150000",
+            "1000175000"
+          ]
+        },
+        "oiUtilisationPct": {
+          "BTC/AUSD": [
+            1.99,
+            2.49,
+            0,
+            5.99,
+            0,
+            4.99,
+            0,
+            6.99
+          ],
+          "SOL/AUSD": [
+            3.99,
+            0,
+            4.99,
+            0,
+            3.99,
+            0,
+            5.99,
+            0
+          ]
+        }
+      },
+      "solvency": {
+        "ausdHeld": "2773000000",
+        "liabilities": "2773000000",
+        "surplus": "0",
+        "solvent": true
+      },
+      "laneSolvency": [
+        {
+          "lane": 0,
+          "held": "325000000",
+          "claims": "124970000",
+          "surplus": "200030000",
+          "insurance": "200030000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 1,
+          "held": "350000000",
+          "claims": "149965472",
+          "surplus": "200034528",
+          "insurance": "200034528",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 2,
+          "held": "349000000",
+          "claims": "148957646",
+          "surplus": "200042354",
+          "insurance": "200042354",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 3,
+          "held": "349000000",
+          "claims": "148953944",
+          "surplus": "200046056",
+          "insurance": "200046056",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 4,
+          "held": "350000000",
+          "claims": "149980000",
+          "surplus": "200020000",
+          "insurance": "200020000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 5,
+          "held": "350000000",
+          "claims": "149975000",
+          "surplus": "200025000",
+          "insurance": "200025000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 6,
+          "held": "350000000",
+          "claims": "149970000",
+          "surplus": "200030000",
+          "insurance": "200030000",
+          "badDebt": "0",
+          "haircutBps": 0
+        },
+        {
+          "lane": 7,
+          "held": "350000000",
+          "claims": "149965000",
+          "surplus": "200035000",
+          "insurance": "200035000",
+          "badDebt": "0",
+          "haircutBps": 0
+        }
+      ],
+      "nativeSolvency": {
+        "held": "1500000000000000000",
+        "liabilities": "1500000000000000000",
+        "solvent": true
+      },
+      "storedPriceAgeS": {
+        "BTC/AUSD": 10,
+        "SOL/AUSD": 10
+      },
+      "poolDeposits": [
+        {
+          "lane": 0,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 1,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 2,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 3,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 4,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 5,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 6,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        },
+        {
+          "lane": 7,
+          "open": true,
+          "receivable": "0",
+          "unrealizedUncapped": "0",
+          "closedForS": 0
+        }
+      ],
+      "pricePush": {
+        "mode": "on-demand",
+        "maxStoredPriceAge": 15,
+        "marginS": 4,
+        "intervalS": null,
+        "pushes": 0,
+        "feedsPushed": 0,
+        "skippedFresh": 0,
+        "failures": 0,
+        "gasLimit": "0",
+        "lastError": null,
+        "lastPushAt": 0
+      },
+      "reserveGuard": {
+        "enabled": true,
+        "reserveMon": 10,
+        "k": 3,
+        "spaced": 0,
+        "waitedMs": 0,
+        "passedAboveReserve": 0
+      },
+      "poolExit": {
+        "tracked": 0,
+        "reductions": 0,
+        "failures": 0,
+        "lastError": null
+      },
+      "addresses": {
+        "clearinghouse": "0x0C09fA42ADE42402f89f20619F74F8bE91cA031a",
+        "ausd": "0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC",
+        "oracle": "0x022BA2D830042343bDF8e3b39431e5dF262D1460",
+        "pyth": "0x022BA2D830042343bDF8e3b39431e5dF262D1460",
+        "timelock": "0x67F418b3590FC88539A4c502AC2a38840a6A694a",
+        "guardian": "0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1",
+        "ops": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+        "keepers": [
+          "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "0xa29Cb81a76947391a875867957b9488665262021",
+          "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+          "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+          "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7"
+        ],
+        "naive": null
+      },
+      "owner": "0x67F418b3590FC88539A4c502AC2a38840a6A694a",
+      "ausd": {
+        "transferPaused": false,
+        "clearinghouseFrozen": false,
+        "usdPrice": null,
+        "balance": "2773000000"
+      },
+      "markets": {
+        "BTC/AUSD": "0x628531487c91f9cd06c8d62aab932566f40de1dc235b08c6ace72becc017e727",
+        "SOL/AUSD": "0x71404ecadb92f5a36fa398992a182993209814fdb029f79c89cc01dad48a01f6"
+      },
+      "hotKeys": [
+        {
+          "role": "keeper[0]",
+          "address": "0x816eCEA0D290C8dBE0d82951934b6367e4344bED",
+          "mon": "1.894632237938042351",
+          "low": false
+        },
+        {
+          "role": "keeper[1]",
+          "address": "0xc2aa981fC5aa656d2690AA1C55B7D6acB81B9A4F",
+          "mon": "1.894977489927415334",
+          "low": false
+        },
+        {
+          "role": "keeper[2]",
+          "address": "0xF74C11eB41F80D1Ef17921c39D4e38b66681c39c",
+          "mon": "1.894972165074418943",
+          "low": false
+        },
+        {
+          "role": "keeper[3]",
+          "address": "0x2012F42661784e74BF843B79fc95ca2cbdBD37E7",
+          "mon": "1.894972130013553139",
+          "low": false
+        },
+        {
+          "role": "keeper[4]",
+          "address": "0xa29Cb81a76947391a875867957b9488665262021",
+          "mon": "1.895058794866850714",
+          "low": false
+        },
+        {
+          "role": "keeper[5]",
+          "address": "0x33514184d2Bd832B5294a2945C70cFCf0F0d50f2",
+          "mon": "1.895246201032336275",
+          "low": false
+        },
+        {
+          "role": "keeper[6]",
+          "address": "0xa57548774FcA54B3F29C54F14Ea93417ab394817",
+          "mon": "1.895246093029924095",
+          "low": false
+        },
+        {
+          "role": "keeper[7]",
+          "address": "0xf30B67edd94bd9213a8e91522cAc7692Bb1026a7",
+          "mon": "1.8952460960299911",
+          "low": false
+        },
+        {
+          "role": "ops",
+          "address": "0x7E798BEabA9Da8Fa30C9CD04f0229dC4a7b839A2",
+          "mon": "9.016092288827680378",
+          "low": false
+        },
+        {
+          "role": "guardian",
+          "address": "0x71563546EF9eEb5Bb47E45fAED97b5465Bcb4aC1",
+          "mon": "0.19997218775330756",
+          "low": false
+        }
+      ],
+      "params": {
+        "minExecDelay": 3,
+        "maxExecDelay": 60,
+        "fundingInterval": 60,
+        "maxConfBps": 200,
+        "maxPriceAge": 30,
+        "maxStoredPriceAge": 15,
+        "auctionStepBps": 25,
+        "auctionMaxDiscountBps": 500,
+        "readAt": 1791388495431
+      },
+      "features": {
+        "auctions": true,
+        "backstop": true,
+        "solvency": true,
+        "orders": true
+      },
+      "executor": {
+        "otherLegs": "append",
+        "scannedTo": 69006515,
+        "minExecDelay": 3,
+        "maxExecDelay": 60,
+        "pending": 0,
+        "perLane": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "executed": 2,
+        "userFailed": 0,
+        "expired": 0,
+        "unfillable": 0,
+        "failures": 0,
+        "late": 0,
+        "maxLatencyS": 2,
+        "claims": 0,
+        "lastError": null
+      },
+      "funding": {
+        "enabled": true,
+        "interval": 60,
+        "policy": {
+          "minChangeBps": 500,
+          "maxAgeS": 21600,
+          "skipIdle": true
+        },
+        "markets": {
+          "BTC/AUSD": {
+            "ratePerSec": "-868091180",
+            "target": "-983831909",
+            "lastUpdate": 1791388362,
+            "nextUpdate": 1791388422,
+            "reason": "rate -868091180 → -983831909"
+          },
+          "SOL/AUSD": {
+            "ratePerSec": "-347307314",
+            "target": "-231903564",
+            "lastUpdate": 1791387335,
+            "nextUpdate": 1791387395,
+            "reason": "rate -347307314 → -231903564"
+          }
+        },
+        "sent": 2,
+        "success": 0,
+        "skippedUnchanged": 8,
+        "failures": 0,
+        "lastError": null
+      },
+      "sweeper": {
+        "ticks": 20,
+        "sent": 0,
+        "failures": 0,
+        "lastError": null,
+        "lastBlock": 69006515,
+        "liquidatable": 0,
+        "inAuction": 0,
+        "method": "eth_simulateV1",
+        "chunkedBatches": 0,
+        "params": {
+          "stepBps": 25,
+          "maxBps": 500,
+          "minBps": [
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75,
+            75
+          ],
+          "cureBps": 10000
+        },
+        "chunking": {
+          "targetGas": 24000000,
+          "headroom": 0.8,
+          "perAccountGas": {
+            "startAuctions": 74000,
+            "backstopTakeBatch": 95000,
+            "expireBatch": 80000
+          },
+          "simCalls": 100
+        }
+      },
+      "alerts": {
+        "webhook": true,
+        "active": []
+      },
+      "txs": {
+        "pythPush": {
+          "sent": 3,
+          "success": 3,
+          "reverted": 0,
+          "lost": 0,
+          "gasLimit": "191124",
+          "gasUsed": "173748",
+          "maxGasLimit": "63708",
+          "avgGasLimit": "63708"
+        },
+        "executeOrder": {
+          "sent": 2,
+          "success": 2,
+          "reverted": 0,
+          "lost": 0,
+          "gasLimit": "469828",
+          "gasUsed": "403116",
+          "maxGasLimit": "244814",
+          "avgGasLimit": "234914"
+        },
+        "updateFunding": {
+          "sent": 2,
+          "success": 0,
+          "reverted": 0,
+          "lost": 0,
+          "gasLimit": "175426",
+          "gasUsed": "0",
+          "maxGasLimit": "87713",
+          "avgGasLimit": "87713"
+        }
+      },
+      "monitorAt": 1791388514255,
+      "monitorErrors": [],
+      "uptimeS": 22,
+      "crashed": false,
+      "activeRunId": null,
+      "lastRunId": null,
+      "priceLoop": null,
+      "faucet": null,
+      "demoTakers": null,
+      "disabled": [
+        "faucet",
+        "crash",
+        "recover",
+        "price-loop",
+        "demo-takers",
+        "runs"
+      ]
+    },
+    "executeOrderAvgGasLimit": 234914
+  },
+  "mock": {
+    "chain": {
+      "label": "plain anvil, chain 10143 (NOT testnet, no fork)",
+      "network": "anvil",
+      "chainId": 10143,
+      "pyth": "TEST MockPyth",
+      "ausd": "MockAUSD (6 dp)"
+    },
+    "mockPythProbeGas": {
+      "startAuctions": "127294",
+      "backstopTakeBatch": "108141",
+      "expireBatch": "103486",
+      "cancelAuction": "33260"
+    },
+    "auctions": {
+      "started": 8,
+      "taken": 8,
+      "expired": 0
+    }
+  },
+  "steps": [
+    {
+      "leg": "fork",
+      "name": "harvest real Wormhole-signed Pyth updates (SOL + BTC) from Monad MAINNET txs (read-only)",
+      "ok": true,
+      "ms": 6795,
+      "detail": "56 signed updates from 56 mainnet txs; 56 carry SOL+BTC (gaps 2–101 s)"
+    },
+    {
+      "leg": "fork",
+      "name": "anvil --fork-url testnet-rpc.monad.xyz --fork-block-number 69006306 (:8955, chain 10143, 128 KB code limit)",
+      "ok": true,
+      "ms": 482,
+      "detail": "fork at testnet block 69006306"
+    },
+    {
+      "leg": "fork",
+      "name": "on-chain facts on the fork: testnet AUSD (6 dp, AUSD, not paused), Agora faucet, Pyth 1.4.6 (fee 1 wei/message), real mainnet-signed update verifies",
+      "ok": true,
+      "ms": 1357,
+      "detail": "AUSD 6 dp AUSD · Pyth 1.4.6, 1 wei/message · Agora faucet 10000 AUSD per call, every 60 s, recipients ≤ 100000 AUSD"
+    },
+    {
+      "leg": "fork",
+      "name": "owner = a real Safe (2-of-2) through the canonical SafeProxyFactory 1.4.1 deployed on Monad testnet",
+      "ok": true,
+      "ms": 561,
+      "detail": "Safe 0x4283e8a533A3f3D24a4F91F342BEfa3092860840 (2 owners, threshold 2)",
+      "data": {
+        "detail": "Safe 0x4283e8a533A3f3D24a4F91F342BEfa3092860840 (2 owners, threshold 2)",
+        "safe": "0x4283e8a533A3f3D24a4F91F342BEfa3092860840"
+      }
+    },
+    {
+      "leg": "fork",
+      "name": "keeper:init --network testnet (hot keys + price signer → rehearsal env, mode 600; addresses only)",
+      "ok": true,
+      "ms": 557,
+      "detail": "keys + price signer in the rehearsal env (never printed)"
+    },
+    {
+      "leg": "fork",
+      "name": "keeper:fund --network testnet (preview from measured gas with the testnet budget, then --send from a funder)",
+      "ok": true,
+      "ms": 45527,
+      "detail": "preview: 28.023709736000000608 testnet MON for 11 keys; 11 transfers sent (3-block spacing)"
+    },
+    {
+      "leg": "fork",
+      "name": "deploy:testnet (DeployProd.s.sol: PROD_MARKETS=SOL/AUSD,BTC/AUSD, 600 s timelock, Safe owner; preflight + on-chain verification)",
+      "ok": true,
+      "ms": 21991,
+      "detail": "deployed + verified (20 txs, 14.61M gas used / 18.05M limit)"
+    },
+    {
+      "leg": "fork",
+      "name": "deployment file: \"production\": true, \"network\": \"monad-testnet\", markets + pythFeeds = SOL/BTC only, params, realPyth, ausdFaucet",
+      "ok": true,
+      "ms": 0,
+      "detail": "markets BTC/AUSD,SOL/AUSD; timelock 600 s; caps 50/500/10x; ausd 0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC; priceSource pyth"
+    },
+    {
+      "leg": "fork",
+      "name": "testnet AUSD from Agora's faucet (requestFunds) on the fork: who may call it, limits; storage cheats for the rest",
+      "ok": true,
+      "ms": 2913,
+      "detail": "requestFunds(treasury) by a third party: +10,000 AUSD (84127 gas); frequency global (another address within 60 s reverts: reverted with reason: custom error 0x20e5bc67); the same recipient may claim again after 60 s; traders funded by storage cheat"
+    },
+    {
+      "leg": "fork",
+      "name": "treasury Safe batch (`timelock -- --network testnet seed`): 8 × fundLane 200 + 8 × backstopDeposit 100 AUSD",
+      "ok": true,
+      "ms": 17944,
+      "detail": "17 calls (Safe Builder JSON, chainId 10143); solvency() held 2400 AUSD"
+    },
+    {
+      "leg": "fork",
+      "name": "8 traders (one per lane) deposit the 50 AUSD cap; the 51st reverts DepositCapExceeded",
+      "ok": true,
+      "ms": 15823,
+      "detail": "8 × 50 AUSD; cap enforced"
+    },
+    {
+      "leg": "fork",
+      "name": "start the production keeper (--network testnet): /health mode monad-testnet, priceSource pyth, reserve guard on; demo endpoints 403",
+      "ok": true,
+      "ms": 1012,
+      "detail": "mode monad-testnet · network anvil · priceSource pyth · markets BTC/AUSD,SOL/AUSD · /faucet 403"
+    },
+    {
+      "leg": "fork",
+      "name": "round A: 8 lanes open SOL/BTC positions (long/short, 2–5x), executed by 8 lane keepers with REAL Pyth updates (testnet fee paid as msg.value)",
+      "ok": true,
+      "ms": 5139,
+      "detail": "8/8 executed at the first update ≥ execAfter (1791387262); latency 1–1 s",
+      "data": {
+        "detail": "8/8 executed at the first update ≥ execAfter (1791387262); latency 1–1 s",
+        "res": [
+          {
+            "label": "A:lane0-SOL/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane1-BTC/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane2-SOL/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane3-BTC/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane4-SOL/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane5-BTC/AUSD-long",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane6-SOL/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "A:lane7-BTC/AUSD-short",
+            "status": 2,
+            "latencyS": 1
+          }
+        ]
+      }
+    },
+    {
+      "leg": "fork",
+      "name": "round B: second leg (appended update), partial reduce, slippage miss → OrderFailed (executor paid)",
+      "ok": true,
+      "ms": 4472,
+      "detail": "second leg executed with the appended update (gas 691189); reduce executed; slippage → Failed; executeOrder msg.value 1/4 wei (testnet Pyth fee)",
+      "data": {
+        "detail": "second leg executed with the appended update (gas 691189); reduce executed; slippage → Failed; executeOrder msg.value 1/4 wei (testnet Pyth fee)",
+        "res": [
+          {
+            "label": "B:lane0-second-leg",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "B:lane1-reduce",
+            "status": 2,
+            "latencyS": 1
+          },
+          {
+            "label": "B:lane4-slippage",
+            "status": 3,
+            "latencyS": 1
+          }
+        ]
+      }
+    },
+    {
+      "leg": "fork",
+      "name": "withdraw with an update fetched through the keeper's /hermes proxy; the proxy refuses MON and AUSD/USD feed ids",
+      "ok": true,
+      "ms": 619,
+      "detail": "trader 2 withdrew 1 AUSD with the proxied real update (fee 2 wei, 257280 gas); MON → 400, AUSD/USD → 400"
+    },
+    {
+      "leg": "fork",
+      "name": "gas probes with a REAL 2-feed testnet update: startAuctions / backstopTakeBatch / expireBatch / cancelAuction / pyth.updatePriceFeeds",
+      "ok": true,
+      "ms": 92,
+      "detail": "startAuctions 214335 · backstopTakeBatch 194982 · expireBatch 190327 · cancelAuction 59540 · push 1 feed 114300 / 2 feeds 140429"
+    },
+    {
+      "leg": "fork",
+      "name": "guardian:pause --network testnet → paused; deposit and increase orders revert IsPaused; withdraw still works",
+      "ok": true,
+      "ms": 2869,
+      "detail": "paused; deposit → IsPaused; increase → IsPaused; withdraw OK"
+    },
+    {
+      "leg": "fork",
+      "name": "while paused: a reduce order still commits and executes",
+      "ok": true,
+      "ms": 4457,
+      "detail": "reduce executed while paused",
+      "data": {
+        "detail": "reduce executed while paused",
+        "res": [
+          {
+            "label": "C-paused:lane2-reduce-while-paused",
+            "status": 2,
+            "latencyS": 1
+          }
+        ]
+      }
+    },
+    {
+      "leg": "fork",
+      "name": "Hermes outage drill: 25 s of 503s → backoff + `hermes:down`, recovery, late execution",
+      "ok": true,
+      "ms": 34427,
+      "detail": "executed after the outage (latency 27 s); alerts hermes:down, resolved:hermes:down, exec:late:lane3",
+      "data": {
+        "detail": "executed after the outage (latency 27 s); alerts hermes:down, resolved:hermes:down, exec:late:lane3",
+        "res": [
+          {
+            "label": "D-outage:lane3-reduce-during-outage",
+            "status": 2,
+            "latencyS": 27
+          }
+        ]
+      }
+    },
+    {
+      "leg": "fork",
+      "name": "expired order: no update in [execAfter, deadline] → `exec:expired`; the user cancels and gets the fee back",
+      "ok": true,
+      "ms": 7159,
+      "detail": "alerted; cancelOrder → Cancelled (escrow + fee refunded)"
+    },
+    {
+      "leg": "fork",
+      "name": "funding: updateFunding landed for both markets; every FundingUpdated rate equals the keeper's formula",
+      "ok": true,
+      "ms": 54,
+      "detail": "5 updateFunding txs (avg gas limit 87713); 5 FundingUpdated rates match"
+    },
+    {
+      "leg": "fork",
+      "name": "LP two-step exit: request → WithdrawNotReady → 1 h (warped) → withdraw in the window → single-use",
+      "ok": true,
+      "ms": 1914,
+      "detail": "withdrew 25 AUSD after the delay; reuse → NoWithdrawRequest"
+    },
+    {
+      "leg": "fork",
+      "name": "unpause through the 600 s timelock: Safe Builder JSON, the Safe impersonated, delay warped",
+      "ok": true,
+      "ms": 3256,
+      "detail": "scheduled → 605 s → executed as the Safe; paused=false"
+    },
+    {
+      "leg": "fork",
+      "name": "Hermes was never asked for MON or AUSD/USD (the trial key covers SOL/BTC only); solvency holds",
+      "ok": true,
+      "ms": 4,
+      "detail": "86 Hermes requests, feeds BTC+SOL only; AUSD held 2773 ≥ liabilities 2773"
+    },
+    {
+      "leg": "fallback",
+      "name": "oracle:fallback deploy: KeeperSignedPyth (owner = the timelock, signer = PRICE_SIGNER), seeded with keeper-signed SOL/BTC, recorded in the deployment file",
+      "ok": true,
+      "ms": 2762,
+      "detail": "KeeperSignedPyth 0x022BA2D830042343bDF8e3b39431e5dF262D1460 (owner = timelock 0x67F418b3590FC88539A4c502AC2a38840a6A694a); seed push 131916 gas",
+      "data": {
+        "detail": "KeeperSignedPyth 0x022BA2D830042343bDF8e3b39431e5dF262D1460 (owner = timelock 0x67F418b3590FC88539A4c502AC2a38840a6A694a); seed push 131916 gas",
+        "addr": "0x022BA2D830042343bDF8e3b39431e5dF262D1460"
+      }
+    },
+    {
+      "leg": "fallback",
+      "name": "restart the keeper with the price signer: still on Pyth, signing ahead of the switch (/health.oracle)",
+      "ok": true,
+      "ms": 1350,
+      "detail": "priceSource pyth; signer healthy (source pyth-mainnet, 2 messages); prepush armed"
+    },
+    {
+      "leg": "fallback",
+      "name": "timelock set-pyth (Safe files; scheduled as the Safe) → the keeper pushes signed prices into the fallback from 120 s before it is ready",
+      "ok": true,
+      "ms": 4444,
+      "detail": "scheduled (ready at 2026-10-07T17:13:03.000Z, 600 s); keeper pushed signed SOL/BTC into the fallback (stored ages 502/502 s)"
+    },
+    {
+      "leg": "fallback",
+      "name": "execute setPyth as the Safe → PythUpdated → the keeper switches live (gov:oracle, priceSource keeper-signed)",
+      "ok": true,
+      "ms": 9534,
+      "detail": "pyth() = 0x022BA2D830042343bDF8e3b39431e5dF262D1460; keeper priceSource keeper-signed; alert gov:oracle"
+    },
+    {
+      "leg": "fallback",
+      "name": "orders fill on KEEPER-SIGNED prices (first signed message ≥ execAfter, unique parse): a SOL reduce and a BTC increase",
+      "ok": true,
+      "ms": 5989,
+      "detail": "2/2 executed on keeper-signed prices (latency 2/2 s); proxy serves PKS1 blobs",
+      "data": {
+        "detail": "2/2 executed on keeper-signed prices (latency 2/2 s); proxy serves PKS1 blobs",
+        "res": [
+          {
+            "label": "F:lane6-sol-reduce",
+            "status": 2,
+            "latencyS": 2
+          },
+          {
+            "label": "F:lane7-btc-increase",
+            "status": 2,
+            "latencyS": 2
+          }
+        ]
+      }
+    },
+    {
+      "leg": "fallback",
+      "name": "withdraw with a keeper-signed update from the /hermes proxy (fee 0); record --live updates the deployment file",
+      "ok": true,
+      "ms": 942,
+      "detail": "withdrew 1 AUSD (169382 gas, fee 0); file: pyth = fallback, priceSource keeper-signed, realPyth kept; solvent"
+    },
+    {
+      "leg": "mock",
+      "name": "deploy:testnet against MockAUSD + MockPyth (same DeployProd + verification; SOL/BTC, 600 s timelock, OWNER_IS_EOA)",
+      "ok": true,
+      "ms": 39490,
+      "detail": "deployed + verified"
+    },
+    {
+      "leg": "mock",
+      "name": "seed insurance 200 + backstop pool 150 on every lane",
+      "ok": true,
+      "ms": 33995,
+      "detail": "seeded"
+    },
+    {
+      "leg": "mock",
+      "name": "8 lanes open ~9.5x longs (SOL on lanes 0–6, BTC on lane 7) through the keeper's executor",
+      "ok": true,
+      "ms": 56016,
+      "detail": "8/8 positions open"
+    },
+    {
+      "leg": "mock",
+      "name": "gas probes with a MockPyth update on a healthy account (the per-account part of the auction budget)",
+      "ok": true,
+      "ms": 21,
+      "detail": "startAuctions 127294 · backstopTakeBatch 108141 · expireBatch 103486 · cancelAuction 33260"
+    },
+    {
+      "leg": "mock",
+      "name": "guardian pause, THEN SOL and BTC −10 % (mock Hermes) → the sweeper starts 8 auctions while paused; lane pools take them",
+      "ok": true,
+      "ms": 12441,
+      "detail": "auctions started 8 while paused · taken by lane pools 8 · expired 0"
+    },
+    {
+      "leg": "mock",
+      "name": "solvency holds; unpause through the 600 s timelock (owner EOA impersonated)",
+      "ok": true,
+      "ms": 3601,
+      "detail": "solvent (AUSD 3200 ≥ 3200); unpaused after 605 s"
+    }
+  ],
+  "gas": {
+    "limits": {
+      "deploy": 18050000,
+      "pause": 33374,
+      "executeOrder": 691189,
+      "executeOrderAvg": 453659,
+      "updateFunding": 87713,
+      "updateFundingAvg": 87713,
+      "fallbackDeploy": 1503157,
+      "fallbackPush": 63708,
+      "startAuctions:mockPyth": 239025,
+      "backstopTakeBatch:mockPyth": 488553,
+      "startAuction": 334770,
+      "backstopTake": 584078,
+      "expire": 209360,
+      "cancelAuction": 65495,
+      "pythPush": 154472,
+      "pythPush1": 125731,
+      "transfer": 21000
+    },
+    "used": {
+      "deploy": 14610000,
+      "pause": 27812,
+      "executeOrder": 399125,
+      "updateFunding": 79739,
+      "fallbackSeedPush": 131916
+    },
+    "notes": [
+      "startAuction/backstopTake/expire/cancelAuction = fork real-Pyth probe + (MockPyth-leg tx − MockPyth probe), gas LIMITs with the keeper's 10% margin"
+    ]
+  },
+  "alerts": {
+    "fork": [
+      "keeper:start",
+      "pause",
+      "paused",
+      "hermes:down",
+      "resolved:hermes:down",
+      "exec:late:lane3",
+      "exec:expired:lane0",
+      "oracle:stale:BTC/AUSD",
+      "oracle:stale:SOL/AUSD"
+    ],
+    "fallback": [
+      "keeper:start",
+      "oracle:stale:BTC/AUSD",
+      "oracle:stale:SOL/AUSD",
+      "gov:oracle",
+      "resolved:oracle:stale:BTC/AUSD",
+      "resolved:oracle:stale:SOL/AUSD"
+    ],
+    "mock": [
+      "keeper:start",
+      "pause",
+      "paused",
+      "pause"
+    ]
+  },
+  "summary": {
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0
+  }
+}
