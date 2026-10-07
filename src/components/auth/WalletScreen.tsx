@@ -13,6 +13,7 @@ import { useAuthContext } from "./AuthContext";
 import { PrivySignOutButton } from "./PrivyAuth";
 import { ProdWallet } from "@/components/prod/ProdWallet";
 import { TokenSymbol } from "@/components/prod/Token";
+import { isPrivyMethod, METHOD_LABEL } from "@/lib/types";
 import styles from "./WalletScreen.module.css";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -63,7 +64,7 @@ function SimWallet() {
 
   if (!session) return null;
 
-  const isPasskey = session.method === "passkey";
+  const isPasskey = isPrivyMethod(session.method);
   const margin = positions.reduce((sum, p) => sum + p.margin, 0);
   const pnl = positions.reduce((sum, p) => sum + unrealizedPnl(p, prices[p.symbol]?.price ?? p.entryPrice), 0);
   const equity = free + margin + pnl;
@@ -77,7 +78,7 @@ function SimWallet() {
           <p className={styles.name}>{session.displayName}</p>
         </div>
         <span className={isPasskey ? styles.badgePasskey : styles.badgeDemo}>
-          {isPasskey ? "Passkey" : "Demo"}
+          {METHOD_LABEL[session.method]}
         </span>
       </header>
 
@@ -157,7 +158,7 @@ function SimWallet() {
           <p className={styles.keyTitle}>{isPasskey ? "Privy embedded wallet" : "Demo mode — nothing is signed"}</p>
           <p className={styles.note}>
             {isPasskey
-              ? "Your passkey unlocks a Privy embedded wallet. In this mode trading is simulated in the browser, so no transactions are sent."
+              ? "You're signed in with Privy. In this mode trading is simulated in the browser, so no transactions are sent."
               : "Balances and positions are simulated in this browser. There is no key and no on-chain transaction."}
           </p>
         </div>
@@ -190,7 +191,7 @@ function ChainWallet() {
 
   if (!session || !NETWORK) return null;
 
-  const isPasskey = session.method === "passkey";
+  const isPasskey = isPrivyMethod(session.method);
   const explorer = addressUrl(session.address);
   const positions = acct?.positions ?? [];
   const pnl = positions.reduce((sum, p) => sum + unrealizedPnl(p, prices[p.symbol]?.price ?? p.entryPrice), 0);
@@ -228,7 +229,7 @@ function ChainWallet() {
           <p className={styles.name}>{session.displayName}</p>
         </div>
         <span className={isPasskey ? styles.badgePasskey : styles.badgeDemo}>
-          {isPasskey ? "Passkey · Privy" : "Demo burner wallet"}
+          {isPasskey ? `${METHOD_LABEL[session.method]} · Privy` : "Demo burner wallet"}
         </span>
       </header>
 
@@ -381,10 +382,14 @@ function ChainWallet() {
           </svg>
         </div>
         <div>
-          <p className={styles.keyTitle}>{isPasskey ? "Privy embedded wallet" : "Demo burner wallet"}</p>
+          <p className={styles.keyTitle}>
+            {session.method === "wallet" ? "Your wallet, through Privy" : isPasskey ? "Privy embedded wallet" : "Demo burner wallet"}
+          </p>
           <p className={styles.note}>
-            {isPasskey
-              ? "Your passkey unlocks a Privy embedded wallet. Its confirmation popups are turned off, so trades are sent as soon as you place them. There are no session keys or scoped permissions."
+            {session.method === "wallet"
+              ? "Your own wallet signs every transaction, and asks you to confirm each one."
+              : isPasskey
+                ? `Your ${session.method === "email" ? "email sign-in" : "passkey"} unlocks a Privy embedded wallet. Its confirmation popups are turned off, so trades are sent as soon as you place them. There are no session keys or scoped permissions.`
               : wallet.persisted
                 ? "A throwaway key generated in this browser and stored unencrypted in localStorage. Testnet only — never send real funds to it."
                 : "A throwaway key generated in this browser and kept in memory only (storage is blocked), so it's lost on reload. Testnet only."}

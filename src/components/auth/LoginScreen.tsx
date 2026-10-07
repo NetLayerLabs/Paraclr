@@ -8,7 +8,7 @@ import { burnerAllowed, startDemoSession } from "@/lib/auth/session";
 import { CHAIN_MODE_ON, MAINNET_MODE, NETWORK, PRODUCTION_MODE } from "@/lib/chain/config";
 import { useAuthContext } from "./AuthContext";
 import { BiometricButton, type BiometricPhase } from "./BiometricButton";
-import { PrivyPasskeyLogin } from "./PrivyAuth";
+import { PrivyOtherLogin, PrivyPasskeyLogin } from "./PrivyAuth";
 import { ThemeToggle } from "@/components/shell/theme";
 import styles from "./LoginScreen.module.css";
 
@@ -174,7 +174,10 @@ export function LoginScreen() {
               <p className={styles.signSub}>{venueLine(status, production, agora)}</p>
             </header>
             {privyEnabled ? (
-              <PrivyPasskeyLogin />
+              <>
+                <PrivyPasskeyLogin />
+                <PrivyOtherLogin disabled={connecting} />
+              </>
             ) : MAINNET_MODE && !burner ? (
               <p className={styles.hint}>
                 Sign-in isn&apos;t configured for this deployment (Privy app id missing). There is no demo or burner
@@ -215,11 +218,11 @@ export function LoginScreen() {
               {MAINNET_MODE
                 ? rehearsal
                   ? "Local mainnet-fork rehearsal: a burner key generated in this browser, for testing only. On real mainnet only passkey sign-in is offered."
-                  : "Passkey → Privy embedded wallet. Every transaction asks for your confirmation."
+                  : "Passkey or email → a Privy embedded wallet; a wallet sign-in uses your own wallet. Every transaction asks for your confirmation."
                 : NETWORK?.isTestnetProd
-                  ? "Passkey → Privy embedded wallet on Monad testnet. Demo → a burner key generated and stored in this browser (testnet only, never on mainnet)."
+                  ? "Passkey or email → a Privy embedded wallet on Monad testnet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only, never on mainnet)."
                   : chainLive
-                    ? "Passkey → Privy embedded wallet. Demo → a burner key generated and stored in this browser (testnet only)."
+                    ? "Passkey or email → a Privy embedded wallet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only)."
                     : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
             </p>
           </section>

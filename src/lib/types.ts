@@ -91,8 +91,22 @@ export interface ClearingRunSummary {
   perThread: number[]; // accounts processed per thread
 }
 
+/** How the user signed in: through Privy (passkey, email, an external wallet) or the demo/burner path. */
+export type SignInMethod = "passkey" | "email" | "wallet" | "demo";
+
 export interface Session {
   address: string;
-  method: "passkey" | "demo";
+  method: SignInMethod;
   displayName: string;
 }
+
+/** Signed in through Privy (an embedded wallet, or the user's own wallet for "wallet"). */
+export const isPrivyMethod = (m: SignInMethod | null | undefined): boolean =>
+  m === "passkey" || m === "email" || m === "wallet";
+
+export const METHOD_LABEL: Record<SignInMethod, string> = {
+  passkey: "Passkey",
+  email: "Email",
+  wallet: "Wallet",
+  demo: "Demo",
+};

@@ -32,6 +32,7 @@ import { fmtAusd } from "@/components/trade/format";
 import { TestnetFunds } from "./TestnetFunds";
 import { TokenSymbol, useCollateral } from "./Token";
 import { fmtDuration, useKeeperSigned } from "./util";
+import { isPrivyMethod, METHOD_LABEL } from "@/lib/types";
 import styles from "./Prod.module.css";
 
 const fmtMon = (wei: bigint | null | undefined, max = 6) =>
@@ -151,10 +152,10 @@ export function ProdWallet() {
   const maxDeposit = Math.min(walletAusd, (room.room === null ? walletAusd : room.room) + room.topUp);
   const laneDebt = prod?.lane?.solvency?.badDebt ?? 0;
   const amount = Number.parseFloat(amountStr) || 0;
-  const isPasskey = session.method === "passkey";
+  const isPasskey = isPrivyMethod(session.method);
   const testnet = NETWORK.isTestnetProd;
   const walletKind = isPasskey
-    ? "Passkey · Privy"
+    ? `${METHOD_LABEL[session.method]} · Privy`
     : testnet
       ? NETWORK.sandbox
         ? "Demo burner · local sandbox"

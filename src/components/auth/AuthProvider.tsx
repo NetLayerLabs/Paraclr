@@ -41,7 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       appId={PRIVY_APP_ID}
       clientId={PRIVY_CLIENT_ID}
       config={{
-        loginMethods: ["passkey"],
+        // Passkey is the primary button; email and external wallets open in Privy's modal.
+        loginMethods: ["passkey", "email", "wallet"],
         appearance: { theme: "#08070D", accentColor: "#6E54FF", walletChainType: "ethereum-only" },
         defaultChain: PRIVY_CHAIN,
         supportedChains: [PRIVY_CHAIN],

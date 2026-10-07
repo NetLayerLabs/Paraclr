@@ -11,6 +11,7 @@ import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { signOut, unrealizedPnl, useParaclr } from "@/lib/store";
 import { shortAddress } from "@/lib/auth/demo";
 import { NETWORK } from "@/lib/chain/config";
+import { isPrivyMethod, METHOD_LABEL } from "@/lib/types";
 import { KeeperPill, NetworkPill } from "@/components/chain/ChainUi";
 import { useAuthContext } from "@/components/auth/AuthContext";
 import { PrivySignOutButton } from "@/components/auth/PrivyAuth";
@@ -63,8 +64,10 @@ function WalletChip({ onOpen }: { onOpen: () => void }) {
   if (!session) return null;
   const hue = Number.parseInt(session.address.slice(2, 8), 16) % 360 || 0;
   const kind =
-    session.method === "passkey"
-      ? "Passkey wallet"
+    session.method === "wallet"
+      ? "Your wallet (Privy)"
+      : isPrivyMethod(session.method)
+        ? `${METHOD_LABEL[session.method]} · Privy embedded wallet`
       : chainLive
         ? NETWORK?.isMainnet
           ? "Rehearsal burner wallet (local fork)"
@@ -147,7 +150,7 @@ function CopyAddress() {
 function SignOut() {
   const { privyEnabled } = useAuthContext();
   const method = useParaclr((s) => s.session?.method ?? null);
-  if (privyEnabled && method === "passkey") return <PrivySignOutButton className={styles.signOut} />;
+  if (privyEnabled && isPrivyMethod(method)) return <PrivySignOutButton className={styles.signOut} />;
   return (
     <button type="button" className={styles.signOut} onClick={signOut}>
       Sign out
