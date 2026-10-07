@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { BuiltByBadge } from "@/components/brand/BuiltByBadge";
 import { Mark } from "./brand/Logo";
-import { ArrowRight, ArrowUpRight, CodeIcon } from "./icons";
+import { ArrowRight, ArrowUpRight, CodeIcon, XIcon } from "./icons";
 import { GITHUB_BLOB, GITHUB_URL, X_URL } from "./content";
 import { AUDIT_STATUS, BETA_LABEL, RISK_PATH, TERMS_PATH } from "./disclosures";
 import b from "./brand/Brand.module.css";
@@ -78,7 +79,6 @@ export function FinalCta({ live }: { live: boolean }) {
   );
 }
 
-const hasX = X_URL !== "#";
 
 /** Shared by the landing page and /terms, /risk, so in-page links are absolute (`/#faq`). */
 export function Footer({ live }: { live: boolean }) {
@@ -108,7 +108,6 @@ export function Footer({ live }: { live: boolean }) {
         { href: `${GITHUB_BLOB}/docs/PRODUCTION_PLAN.md`, label: "Production plan", external: true },
         { href: RISK_PATH, label: "Risk disclosure" },
         { href: TERMS_PATH, label: "Terms (draft)" },
-        { href: X_URL, label: "X", external: true, soon: !hasX },
       ],
     },
   ];
@@ -118,15 +117,14 @@ export function Footer({ live }: { live: boolean }) {
       <div className={`${b.container} ${s.footerGrid}`}>
         <div className={s.brandCol}>
           <Link href="/" className={s.brand} aria-label="Paraclr home">
-            <Mark className={s.brandMark} />
-            <span className={s.brandWord}>Paraclr</span>
+            <ParaclrLogo tone="white" height={32} />
           </Link>
           <p className={s.tagline}>
             The fair-liquidation clearinghouse for Monad: per-block auctions in 8 lanes, backstop LPs, a Conflict X-ray
             and a live solvency proof.
           </p>
-          <a href={GITHUB_URL} className={s.social} target="_blank" rel="noreferrer" aria-label="Source code on GitHub">
-            <CodeIcon className={s.socialIcon} />
+          <a href={X_URL} className={s.social} target="_blank" rel="noopener noreferrer" aria-label="Paraclr on X">
+            <XIcon className={s.socialIcon} />
           </a>
         </div>
 
@@ -137,7 +135,6 @@ export function Footer({ live }: { live: boolean }) {
               {col.links.map((l) => (
                 <li key={l.label}>
                   {l.soon ? (
-                    // TODO: point X_URL (content.ts) at the project's X profile once it exists.
                     <span className={s.soon}>
                       {l.label} <small>soon</small>
                     </span>
@@ -181,7 +178,7 @@ export function Footer({ live }: { live: boolean }) {
           <div className={s.fineRow}>
             <p>
               © 2026 Paraclr · Built for the Monad Metropolis hackathon (Onchain Finance &amp; Trading). Not affiliated
-              with or endorsed by Monad, Agora, Pyth, Privy, Safe, OpenZeppelin or Chainlink.
+              with or endorsed by Monad, Agora, Pyth, Privy, Safe or OpenZeppelin.
             </p>
             <BuiltByBadge tone="dark" className={s.builtBy} />
           </div>

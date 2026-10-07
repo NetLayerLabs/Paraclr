@@ -5,7 +5,7 @@ export const GITHUB_TREE = `${GITHUB_URL}/tree/main`;
 export const GITHUB_BLOB = `${GITHUB_URL}/blob/main`;
 
 // TODO: replace with the project's X / Twitter profile URL once it exists.
-export const X_URL = "#";
+export const X_URL = "https://x.com/Paraclr";
 
 export const MONAD_EXPLORER = "https://testnet.monadexplorer.com";
 

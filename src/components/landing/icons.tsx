@@ -1,5 +1,5 @@
 // Line icons for the brand pages: 24-unit grid, 1.6 stroke, round joins.
-// Generic glyphs only: no third-party logos (GitHub is a neutral code glyph).
+// Generic glyphs, plus the X (Twitter) mark for the project's own X profile link.
 import type { ReactNode } from "react";
 
 type IconProps = { className?: string };
@@ -177,4 +177,11 @@ export const Key = (p: IconProps) => (
     <circle cx="8" cy="15" r="4" />
     <path d="m11 12 8.5-8.5M16 7l2.5 2.5M18 5l2 2" />
   </Svg>
+);
+
+/** X (formerly Twitter) logo, filled; used for the link to the project's X profile. */
+export const XIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
 );
