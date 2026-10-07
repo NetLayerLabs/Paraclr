@@ -37,8 +37,15 @@ export function AccountSummary() {
       <section className={styles.panel} aria-label="Account">
         <header className={styles.head}>
           <span>Account</span>
-          <span className={`${styles.tag} mono`} title="Read from the clearinghouse contract">
-            {acct?.block != null ? `on-chain · #${acct.block}` : "on-chain"}
+          <span
+            className={`${styles.tag} mono`}
+            title={
+              acct?.estimated
+                ? "Valued at the latest Pyth price: the price stored on chain is older than the contract's views accept"
+                : "Read from the clearinghouse contract"
+            }
+          >
+            {acct?.estimated ? "est. at Pyth price" : acct?.block != null ? `on-chain · #${acct.block}` : "on-chain"}
           </span>
         </header>
         <dl className={styles.list}>
@@ -48,6 +55,9 @@ export function AccountSummary() {
           <Row label="Initial margin" value={acct ? dash(im) : "…"} />
           <Row label="Maintenance margin" value={acct ? dash(acct.maintenanceMargin) : "…"} />
           <Row label="Wallet AUSD (not deposited)" value={acct ? fmtAusd(acct.walletAusd) : "…"} />
+          {acct?.reservedMarginUnits !== undefined && acct.reservedMarginUnits > BigInt(0) && (
+            <Row label="Escrowed by pending orders" value={fmtAusd(Number(acct.reservedMarginUnits) / 1e6)} />
+          )}
         </dl>
         <div className={styles.usage} title="Initial margin / equity">
           <div className={styles.usageLabel}>

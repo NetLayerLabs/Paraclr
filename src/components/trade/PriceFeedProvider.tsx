@@ -6,12 +6,16 @@
 //     configured, simulator otherwise, with the flash-crash `priceShock`;
 //   - chain mode live: the on-chain oracle (OraclePriceSource) — the exact
 //     marks the clearinghouse uses. No client-side shock is ever applied to
-//     it; on chain the crash is a real oracle transaction.
+//     it; on chain the crash is a real oracle transaction;
+//   - production contracts: Pyth prices from Hermes (PythPriceSource) — the
+//     price stream delayed orders are executed against.
 
 import { useEffect } from "react";
 import { getState, pushPrice, useParaclr } from "@/lib/store";
+import { CHAIN_MODE } from "@/lib/chain/config";
 import { CANDLE_MS, MAX_CANDLES, OraclePriceSource, createPriceSource, type PriceSource } from "@/lib/prices";
 import { ingestTick, resetFeeds, seedHistory } from "@/lib/prices/feedStore";
+import { PythPriceSource } from "@/lib/chain/prod/pythPrices";
 
 // The applied shock follows `priceShock` through an under-damped spring, so a
 // jump 1 → 0.8 plays out as a ~1.5s slide that overshoots a couple of percent
@@ -27,15 +31,23 @@ export function PriceFeedProvider() {
   const oracle = useParaclr((s) => s.chain.contracts?.oracle ?? null);
   const markets = useParaclr((s) => s.chain.contracts?.markets ?? null);
   const deployBlock = useParaclr((s) => s.chain.contracts?.deployBlock ?? null);
+  const production = useParaclr((s) => s.chain.contracts?.production ?? false);
+  const feeds = useParaclr((s) => s.chain.contracts?.pythFeeds ?? null);
+  const clearinghouse = useParaclr((s) => s.chain.contracts?.clearinghouse ?? null);
 
   useEffect(() => {
     // Chain mode still probing: wait so we don't mix simulated and on-chain ticks.
     if (status === "connecting") return;
+    // Mainnet that failed to connect shows a blocking screen, never simulated prices.
+    if (status === "unavailable" && CHAIN_MODE === "monad-mainnet") return;
 
     const onChain = status === "ready" && oracle !== null && markets !== null;
-    const source: PriceSource = onChain
-      ? new OraclePriceSource({ oracle, markets, deployBlock })
-      : createPriceSource();
+    const source: PriceSource =
+      onChain && production && feeds
+        ? new PythPriceSource({ feeds, clearinghouse: clearinghouse as `0x${string}`, markets })
+        : onChain
+          ? new OraclePriceSource({ oracle, markets, deployBlock })
+          : createPriceSource();
 
     let cancelled = false;
     let stop: (() => void) | null = null;
@@ -99,7 +111,7 @@ export function PriceFeedProvider() {
       stop?.();
       if (spring) clearInterval(spring);
     };
-  }, [status, oracle, markets, deployBlock]);
+  }, [status, oracle, markets, deployBlock, production, feeds, clearinghouse]);
 
   return null;
 }

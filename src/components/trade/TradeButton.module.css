@@ -1,47 +1,46 @@
+/* Click-to-trade submit (mouse / trackpad): a full-width pill in the side's colour. */
+
 .btn {
   --side: var(--long);
-  --side-glow: rgba(61, 220, 151, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  height: 48px;
-  border-radius: 10px;
+  height: 50px;
+  border-radius: var(--radius-pill);
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.005em;
-  color: #07060c;
+  letter-spacing: -0.005em;
+  color: var(--on-fill);
   background: var(--side);
   box-shadow:
-    0 6px 22px var(--side-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 10px 24px -12px color-mix(in srgb, var(--side) 80%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
   transition:
-    filter 0.15s,
-    transform 0.1s,
-    box-shadow 0.2s,
-    background 0.2s;
+    filter var(--dur-1),
+    transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease),
+    background var(--dur-2);
 }
 
 .short {
   --side: var(--short);
-  --side-glow: rgba(255, 92, 122, 0.35);
 }
 
 .btn:hover:not(:disabled) {
-  filter: brightness(1.08);
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 30px -12px color-mix(in srgb, var(--side) 85%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .btn:active:not(:disabled) {
   transform: translateY(1px);
 }
 
-.btn:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px var(--bg),
-    0 0 0 4px var(--accent);
-}
+/* Focus: the app-wide 2px ring (AppShell.module.css), pill-shaped. */
 
 .disabled {
   cursor: not-allowed;
@@ -49,6 +48,11 @@
   font-weight: 550;
   background: var(--bg-elev-2);
   box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.disabled:hover {
+  filter: none;
+  transform: none;
 }
 
 .pending {
@@ -62,9 +66,9 @@
 }
 
 .failed {
-  color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 12%, var(--bg-elev-2));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 45%, transparent);
+  color: var(--warn-text);
+  background: var(--warn-soft);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
   animation: shake 0.35s;
 }
 
@@ -72,8 +76,8 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 2px solid rgba(7, 6, 12, 0.25);
-  border-top-color: #07060c;
+  border: 2px solid color-mix(in srgb, var(--on-fill) 25%, transparent);
+  border-top-color: var(--on-fill);
   animation: spin 0.8s linear infinite;
 }
 
@@ -85,7 +89,7 @@
 
 @keyframes breathe {
   50% {
-    filter: brightness(0.82);
+    filter: brightness(0.85);
   }
 }
 
@@ -103,5 +107,9 @@
   .failed,
   .spinner {
     animation: none;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: none;
   }
 }

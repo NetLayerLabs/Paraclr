@@ -1,3 +1,6 @@
+/* Positions: cards on phones, a dense comparison-style table from 720px,
+   a panel filling the terminal's positions cell on desktop. Tokens only. */
+
 .section {
   display: flex;
   flex-direction: column;
@@ -8,6 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 }
 .title {
   display: flex;
@@ -15,17 +19,21 @@
   gap: 8px;
   font-size: 15px;
   font-weight: 650;
+  letter-spacing: -0.01em;
 }
 .count {
   min-width: 20px;
   height: 20px;
-  padding: 0 6px;
-  border-radius: 999px;
+  padding: 0 7px;
+  border-radius: var(--radius-pill);
   display: inline-grid;
   place-items: center;
+  font-family: var(--font-mono);
   font-size: 11px;
+  font-weight: 500;
   background: var(--accent-soft);
-  color: var(--accent);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-text);
 }
 .totalWrap {
   display: inline-flex;
@@ -34,20 +42,22 @@
 }
 .totalLabel {
   display: none;
-  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 .total {
   font-size: 13px;
   font-weight: 600;
 }
 .up {
-  color: var(--long);
+  color: var(--long-text);
 }
 .down {
-  color: var(--short);
+  color: var(--short-text);
 }
 
 .list {
@@ -57,18 +67,19 @@
 }
 
 .card {
-  padding: 12px 14px;
+  padding: 13px 14px;
   border-radius: var(--radius);
   background: var(--bg-elev);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
   animation: enter 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1);
 }
 .cardLiq {
   border-color: var(--short);
-  box-shadow: 0 0 0 3px rgba(255, 92, 122, 0.15);
+  box-shadow: 0 0 0 3px var(--short-soft);
   animation: alarm 1s ease-in-out infinite;
 }
 @keyframes enter {
@@ -79,7 +90,7 @@
 }
 @keyframes alarm {
   50% {
-    box-shadow: 0 0 0 6px rgba(255, 92, 122, 0.05);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--short) 6%, transparent);
   }
 }
 
@@ -96,19 +107,25 @@
 }
 .badgeLong,
 .badgeShort {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 3px 7px;
-  border-radius: 6px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
 }
 .badgeLong {
-  color: var(--long);
-  background: rgba(61, 220, 151, 0.14);
+  color: var(--long-text);
+  background: var(--long-soft);
+  border-color: var(--long-line);
 }
 .badgeShort {
-  color: var(--short);
-  background: rgba(255, 92, 122, 0.14);
+  color: var(--short-text);
+  background: var(--short-soft);
+  border-color: var(--short-line);
 }
 .sym {
   font-size: 15px;
@@ -137,7 +154,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px 10px;
+  gap: 9px 10px;
 }
 .grid div {
   min-width: 0;
@@ -153,7 +170,7 @@
   text-overflow: ellipsis;
 }
 .liq {
-  color: var(--warn);
+  color: var(--warn-text);
 }
 
 .bottom {
@@ -165,7 +182,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 .healthLabel {
   display: flex;
@@ -175,54 +192,65 @@
 }
 .healthBar {
   height: 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
   overflow: hidden;
 }
 .healthFill {
   height: 100%;
   width: calc(var(--h) * 100%);
-  border-radius: 999px;
-  background: color-mix(
-    in srgb,
-    var(--long) calc(var(--h) * 100%),
-    var(--short)
-  );
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--long) calc(var(--h) * 100%), var(--short));
   transition: width 0.25s linear;
 }
 
 .close {
   height: 34px;
-  padding: 0 16px;
-  border-radius: 10px;
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
   font-size: 13px;
   font-weight: 600;
-  background: var(--bg-elev-2);
-  border: 1px solid var(--border);
+  background: transparent;
+  border: 1px solid var(--border-strong);
   transition:
-    background 0.15s,
+    background var(--dur-1),
+    border-color var(--dur-1),
+    color var(--dur-1),
     transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 .close:active {
-  transform: scale(0.95);
-  background: var(--border);
+  transform: scale(0.96);
+  background: var(--bg-hover);
+}
+.close:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   padding: 22px 12px;
   border-radius: var(--radius);
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-strong);
   color: var(--text-dim);
   text-align: center;
 }
+/* The icon sits in the landing's icon tile. */
 .empty svg {
-  color: var(--accent);
-  margin-bottom: 4px;
+  box-sizing: content-box;
+  width: 22px;
+  height: 22px;
+  padding: 10px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-elev-2);
+  color: var(--accent-text);
 }
 .empty p {
   color: var(--text);
@@ -230,7 +258,9 @@
   font-weight: 600;
 }
 .empty span {
-  font-size: 12px;
+  max-width: 46ch;
+  font-size: 12.5px;
+  line-height: 1.5;
 }
 
 .chainNote {
@@ -240,18 +270,13 @@
   font-family: var(--font-mono);
 }
 
-.close:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
 /* ---- table (>=720px; PositionsList switches with MQ_TABLE) ----------------- */
 
 .tableWrap {
   min-height: 0;
   overflow: auto;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   background: var(--bg-elev);
 }
 
@@ -268,19 +293,20 @@
   z-index: 1;
   padding: 8px 12px;
   text-align: left;
-  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
-  background: var(--bg-elev);
+  background: var(--bg-subtle);
   box-shadow: inset 0 -1px 0 var(--border);
 }
 
 .table td {
   padding: 0 12px;
-  height: 44px;
-  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  height: 46px;
+  border-top: 1px solid var(--border);
   vertical-align: middle;
 }
 
@@ -289,7 +315,7 @@
 }
 
 .table tbody tr:hover td {
-  background: color-mix(in srgb, var(--bg-hover) 60%, transparent);
+  background: var(--bg-hover);
 }
 
 .table .num {
@@ -307,7 +333,7 @@
 .lev {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .unit {
@@ -347,25 +373,69 @@
 .actionCell {
   width: 1%;
   text-align: right;
+  white-space: nowrap;
+}
+
+.actionCell .closeSm + .closeSm {
+  margin-left: 6px;
+}
+
+/* Production: reduce a position by a fraction (delayed order). */
+.reduceRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.reduceRow button {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  transition:
+    border-color var(--dur-1),
+    background var(--dur-1);
+}
+
+.reduceRow button:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.reduceRow button:last-child {
+  font-family: var(--font-sans);
+}
+
+.reduceRow button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .closeSm {
   height: 28px;
   padding: 0 14px;
-  border-radius: 7px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: 600;
-  background: var(--bg-elev-2);
-  border: 1px solid var(--border);
+  background: transparent;
+  border: 1px solid var(--border-strong);
   transition:
-    background 0.15s,
-    border-color 0.15s,
-    color 0.15s;
+    background var(--dur-1),
+    border-color var(--dur-1),
+    color var(--dur-1);
 }
 .closeSm:hover:not(:disabled) {
-  color: var(--short);
-  border-color: color-mix(in srgb, var(--short) 45%, var(--border));
-  background: color-mix(in srgb, var(--short) 8%, var(--bg-elev-2));
+  color: var(--short-text);
+  border-color: var(--short-line);
+  background: var(--short-soft);
 }
 .closeSm:disabled {
   opacity: 0.6;
@@ -373,7 +443,7 @@
 }
 
 .rowLiq td {
-  background: color-mix(in srgb, var(--short) 9%, transparent);
+  background: var(--short-soft);
 }
 .rowLiq td:first-child {
   box-shadow: inset 2px 0 0 var(--short);
@@ -400,14 +470,22 @@
     display: inline-block;
     align-self: center;
     margin-left: 2px;
-    padding: 2px 6px;
+    padding: 1px 6px;
     font-size: 9.5px;
   }
   .table th {
-    padding: 8px 8px;
+    padding: 8px 7px;
+    font-size: 9.5px;
+    letter-spacing: 0.05em;
   }
   .table td {
-    padding: 0 8px;
+    padding: 0 7px;
+  }
+  .closeSm {
+    padding: 0 11px;
+  }
+  .actionCell .closeSm + .closeSm {
+    margin-left: 4px;
   }
   .table th:first-child,
   .table td:first-child {
@@ -445,23 +523,17 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-panel);
     background: var(--bg-elev);
+    box-shadow: var(--shadow-1), var(--card-highlight);
     overflow: hidden;
   }
   .head {
     flex: none;
-    height: 42px;
-    padding: 0 14px;
+    height: 44px;
+    padding: 0 14px 0 16px;
     border-bottom: 1px solid var(--border);
   }
   .title {
-    font-size: 13px;
-  }
-  .title::before {
-    content: "";
-    width: 3px;
-    height: 14px;
-    border-radius: 2px;
-    background: var(--accent);
+    font-size: 13.5px;
   }
   .section > *:not(.head):not(.tableWrap):not(.empty) {
     margin: 10px 14px 0;
@@ -478,5 +550,17 @@
     border: none;
     border-radius: 0;
     padding: 12px;
+  }
+  .close:hover:not(:disabled) {
+    color: var(--short-text);
+    border-color: var(--short-line);
+    background: var(--short-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .cardLiq {
+    animation: none;
   }
 }

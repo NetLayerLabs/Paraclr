@@ -12,6 +12,7 @@
     border-radius: var(--radius-panel);
     border: 1px solid var(--border);
     background: var(--bg-elev);
+    box-shadow: var(--shadow-1), var(--card-highlight);
   }
 }
 
@@ -20,11 +21,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
 .tag {
@@ -35,17 +37,22 @@
 }
 
 .sim {
-  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-weight: 500;
   font-size: 9.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--warn);
+  color: var(--warn-text);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .row {
@@ -66,19 +73,19 @@
 }
 
 .up {
-  color: var(--long);
+  color: var(--long-text);
 }
 
 .down {
-  color: var(--short);
+  color: var(--short-text);
 }
 
 .usage {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding-top: 8px;
-  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  gap: 6px;
+  padding-top: 9px;
+  border-top: 1px solid var(--border);
 }
 
 .usageLabel {
@@ -90,8 +97,9 @@
 
 .bar {
   height: 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev-2);
+  box-shadow: inset 0 0 0 1px var(--border);
   overflow: hidden;
 }
 
@@ -105,5 +113,5 @@
 
 .note {
   font-size: 11px;
-  color: var(--warn);
+  color: var(--warn-text);
 }

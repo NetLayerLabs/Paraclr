@@ -1,3 +1,5 @@
+/* Candle chart. Colours come from the theme tokens, so it follows dark/light. */
+
 .card {
   margin: 0 -16px;
   padding: 10px 0 4px 16px;
@@ -12,7 +14,7 @@
   justify-content: space-between;
   gap: 8px;
   padding-right: 12px;
-  min-height: 22px;
+  min-height: 24px;
 }
 
 .tf {
@@ -21,21 +23,27 @@
   gap: 8px;
 }
 .tfActive {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 5px;
+  font-weight: 600;
   background: var(--bg-elev-2);
+  border: 1px solid var(--border);
   color: var(--text);
 }
 .live {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--long);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--long-text);
 }
 .liveDot {
   width: 6px;
@@ -63,10 +71,10 @@
   color: var(--text);
 }
 .up {
-  color: var(--long);
+  color: var(--long-text);
 }
 .down {
-  color: var(--short);
+  color: var(--short-text);
 }
 
 .wrap {
@@ -85,10 +93,8 @@
 }
 
 .grid {
-  stroke: var(--border);
+  stroke: var(--chart-grid);
   stroke-width: 1;
-  stroke-dasharray: 2 4;
-  opacity: 0.7;
 }
 .axisText {
   font-family: var(--font-mono);
@@ -118,18 +124,21 @@
   fill: var(--c);
 }
 .bodyLive {
-  filter: drop-shadow(0 0 4px var(--c));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--c) 70%, transparent));
 }
 
 /* position levels */
 .lvLong {
   --lv: var(--long);
+  --lv-text: var(--long-text);
 }
 .lvShort {
   --lv: var(--short);
+  --lv-text: var(--short-text);
 }
 .lvLiq {
   --lv: var(--warn);
+  --lv-text: var(--warn-text);
 }
 .lvLine {
   stroke: var(--lv);
@@ -142,7 +151,7 @@
   stroke-width: 1.25;
 }
 .lvTag {
-  fill: var(--bg);
+  fill: var(--bg-elev);
   stroke: var(--lv);
   stroke-width: 1;
 }
@@ -150,13 +159,14 @@
   font-family: var(--font-mono);
   font-size: 9.5px;
   font-weight: 600;
-  fill: var(--lv);
+  fill: var(--lv-text);
 }
 .lvLabel {
+  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  fill: var(--lv);
+  fill: var(--lv-text);
   paint-order: stroke;
   stroke: var(--bg-elev);
   stroke-width: 3px;
@@ -182,7 +192,7 @@
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
-  fill: #07060c;
+  fill: var(--on-fill);
 }
 
 .cross {
@@ -207,6 +217,7 @@
     padding: 12px 0 6px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    box-shadow: var(--shadow-1), var(--card-highlight);
   }
   .wrap {
     height: 340px;
@@ -239,7 +250,10 @@
     gap: 12px;
     font-size: 11.5px;
   }
-  .tfActive {
-    font-size: 11.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveDot {
+    animation: none;
   }
 }

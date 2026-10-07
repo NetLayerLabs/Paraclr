@@ -11,6 +11,10 @@ import { AccountSummary } from "./AccountSummary";
 import { AuctionBanner } from "./AuctionBanner";
 import { PositionsList, type ClosedMeta } from "./PositionsList";
 import { baseOf, fmtPrice, fmtSigned } from "./format";
+import { ProdOrderPanel } from "@/components/prod/ProdOrderPanel";
+import { PendingOrders } from "@/components/prod/PendingOrders";
+import { MarketRisk } from "@/components/prod/MarketRisk";
+import type { TrackedOrder } from "@/lib/chain/prod/orders";
 import styles from "./TradeScreen.module.css";
 
 interface Toast {
@@ -25,6 +29,7 @@ export function TradeScreen() {
   const chainLive = useParaclr((s) => s.chain.status === "ready");
   const faucet = useParaclr((s) => s.chain.faucet);
   const hasGas = useParaclr((s) => (s.chain.account?.native ?? 0) > 0);
+  const production = useParaclr((s) => chainLive && !!s.chain.contracts?.production);
   const [toast, setToast] = useState<Toast | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -45,6 +50,13 @@ export function TradeScreen() {
         (meta?.block !== undefined ? ` · block #${meta.block}` : ""),
     });
 
+  const onSubmitted = (o: TrackedOrder) =>
+    show({
+      tone: o.side === "long" ? "long" : "short",
+      title: `Order submitted · ${o.label}`,
+      detail: "Waiting for the next Pyth price — track it under Orders.",
+    });
+
   const onClosed = (p: Position, realized: number, meta?: ClosedMeta) =>
     show({
       tone: "neutral",
@@ -60,15 +72,16 @@ export function TradeScreen() {
       <div className={styles.ticker}>
         <AuctionBanner />
         <MarketHeader symbol={symbol} />
+        {production && <MarketRisk symbol={symbol} />}
       </div>
       <div className={styles.chart}>
         <CandleChart symbol={symbol} />
       </div>
       <aside className={styles.side} aria-label="Order entry">
-        {chainLive && (faucet.status === "checking" || faucet.status === "requesting") && (
+        {chainLive && !production && (faucet.status === "checking" || faucet.status === "requesting") && (
           <Notice>{faucet.message ?? "Checking your wallet balance…"}</Notice>
         )}
-        {chainLive && faucet.status === "failed" && (
+        {chainLive && !production && faucet.status === "failed" && (
           <Notice tone="warn">
             Auto-funding failed: {faucet.message}{" "}
             {hasGas
@@ -76,7 +89,15 @@ export function TradeScreen() {
               : "Retry from the Wallet tab once the keeper is reachable."}
           </Notice>
         )}
-        <OrderPanel symbol={symbol} onOpened={onOpened} />
+        {production ? (
+          <>
+            {/* Orders first: right after a submit, its status is what matters. */}
+            <PendingOrders max={3} />
+            <ProdOrderPanel symbol={symbol} onSubmitted={onSubmitted} />
+          </>
+        ) : (
+          <OrderPanel symbol={symbol} onOpened={onOpened} />
+        )}
         {chainLive && <TxTray />}
         <AccountSummary />
       </aside>

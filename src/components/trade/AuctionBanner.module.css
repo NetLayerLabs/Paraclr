@@ -2,6 +2,7 @@
 
 .banner {
   --tone: var(--warn);
+  --tone-text: var(--warn-text);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -9,22 +10,25 @@
   border-radius: var(--radius);
   border: 1px solid color-mix(in srgb, var(--tone) 55%, var(--border));
   background:
-    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--tone) 16%, transparent), transparent 65%),
+    linear-gradient(90deg, color-mix(in srgb, var(--tone) 10%, transparent), transparent 70%),
     var(--bg-elev);
-  box-shadow: 0 0 28px color-mix(in srgb, var(--tone) 14%, transparent);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   animation: bannerIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .banner[data-tone="taken"] {
   --tone: var(--accent);
+  --tone-text: var(--accent-text);
 }
 
 .banner[data-tone="cured"] {
   --tone: var(--long);
+  --tone-text: var(--long-text);
 }
 
 .banner[data-tone="expired"] {
   --tone: var(--short);
+  --tone-text: var(--short-text);
 }
 
 .main {
@@ -40,12 +44,16 @@
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  color: #07060c;
+  color: var(--on-fill);
   background: var(--tone);
   font-family: var(--font-mono);
   font-size: 12.5px;
   font-weight: 800;
   box-shadow: 0 6px 18px color-mix(in srgb, var(--tone) 40%, transparent);
+}
+
+.banner[data-tone="taken"] .icon {
+  color: var(--on-accent);
 }
 
 .banner[data-tone="auction"] .icon {
@@ -70,7 +78,7 @@
   font-size: 13.5px;
   font-weight: 700;
   line-height: 1.35;
-  color: color-mix(in srgb, var(--tone) 45%, var(--text));
+  color: var(--tone-text);
 }
 
 .text > span {
@@ -85,7 +93,7 @@
 }
 
 .text a {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .clock {
@@ -126,7 +134,7 @@
   align-items: center;
   gap: 6px;
   height: 40px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: 10px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -152,13 +160,15 @@
 
 .cureBtn {
   height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
   font-size: 13px;
   font-weight: 700;
-  color: #07060c;
+  color: var(--on-fill);
   background: var(--long);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--long) 30%, transparent);
+  box-shadow:
+    0 8px 20px -10px color-mix(in srgb, var(--long) 80%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
   white-space: nowrap;
 }
 
@@ -190,11 +200,12 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   color: var(--text-dim);
-  background: var(--bg-elev-2);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
 }
 
 .dismiss:hover {
@@ -203,7 +214,7 @@
 
 .cureBtn:focus-visible,
 .dismiss:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 

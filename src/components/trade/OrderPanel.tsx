@@ -8,6 +8,7 @@ import { crossLiquidationPrice } from "@/lib/chain/account";
 import { readableError } from "@/lib/chain/errors";
 import { openPositionOnChain } from "@/lib/chain/trading";
 import { Notice } from "@/components/chain/ChainUi";
+import { TokenSymbol } from "@/components/prod/Token";
 import { baseOf, fmtAusd, fmtCompact, fmtPct, fmtPrice, fmtSize } from "./format";
 import { MQ_FINE_POINTER, useMedia } from "@/components/shell/useMedia";
 import { SwipeToTrade } from "./SwipeToTrade";
@@ -223,7 +224,7 @@ export function OrderPanel({
           <span className={styles.tokenDot} aria-hidden>
             A
           </span>
-          AUSD
+          <TokenSymbol />
         </span>
       </label>
       <div className={styles.chips}>

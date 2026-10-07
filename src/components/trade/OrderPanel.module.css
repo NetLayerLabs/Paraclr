@@ -1,3 +1,5 @@
+/* Order entry (also used by the production delayed-order panel). Tokens only. */
+
 .panel {
   display: flex;
   flex-direction: column;
@@ -6,9 +8,10 @@
   border-radius: var(--radius);
   background: var(--bg-elev);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
 }
 
-/* ---- side toggle ---- */
+/* ---- side toggle: a pill track with a sliding green / red pill ---- */
 .sideToggle {
   --ind: var(--long);
   position: relative;
@@ -16,8 +19,9 @@
   grid-template-columns: 1fr 1fr;
   height: 42px;
   padding: 3px;
-  border-radius: 12px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev-2);
+  border: 1px solid var(--border);
 }
 .sideShort {
   --ind: var(--short);
@@ -28,9 +32,11 @@
   bottom: 3px;
   left: 3px;
   width: calc(50% - 3px);
-  border-radius: 9px;
+  border-radius: var(--radius-pill);
   background: var(--ind);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--ind) 40%, transparent);
+  box-shadow:
+    0 6px 16px -6px color-mix(in srgb, var(--ind) 70%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition:
     transform 0.28s cubic-bezier(0.3, 1.2, 0.4, 1),
     background 0.2s;
@@ -44,15 +50,18 @@
   z-index: 1;
   font-size: 14px;
   font-weight: 650;
-  border-radius: 9px;
+  border-radius: var(--radius-pill);
   transition: color 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 .sideBtn {
   color: var(--text-dim);
 }
+.sideBtn:hover {
+  color: var(--text);
+}
 .sideActive {
-  color: #07060c;
+  color: var(--on-fill);
 }
 
 /* ---- fields ---- */
@@ -63,11 +72,12 @@
   margin-top: 4px;
 }
 .label {
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 .avail {
   font-size: 11.5px;
@@ -81,14 +91,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 50px;
-  padding: 0 12px 0 14px;
+  height: 52px;
+  padding: 0 12px 0 16px;
   border-radius: 12px;
   background: var(--bg);
   border: 1px solid var(--border);
   transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
+    border-color var(--dur-1),
+    box-shadow var(--dur-1);
+}
+.inputWrap:hover {
+  border-color: var(--border-strong);
 }
 .inputWrap:focus-within {
   border-color: var(--accent);
@@ -105,12 +118,17 @@
   font-weight: 600;
 }
 .input::placeholder {
-  color: var(--border);
+  color: var(--placeholder);
 }
 .token {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  height: 30px;
+  padding: 0 10px 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
   font-size: 13px;
   font-weight: 600;
 }
@@ -122,10 +140,11 @@
   place-items: center;
   font-size: 11px;
   font-weight: 800;
-  color: #07060c;
+  color: var(--on-fill);
   background: var(--ausd);
 }
 
+/* Quick-size chips: pills. */
 .chips {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -133,24 +152,26 @@
 }
 .chip {
   height: 30px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-dim);
-  background: var(--bg-elev-2);
-  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border);
   transition:
-    background 0.15s,
-    color 0.15s,
+    background var(--dur-1),
+    color var(--dur-1),
+    border-color var(--dur-1),
     transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 .chip:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 .chipActive {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent-line);
   background: var(--accent-soft);
 }
 
@@ -158,11 +179,11 @@
 .levValue {
   font-size: 18px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-text);
   transition: color 0.2s;
 }
 .levHot {
-  color: var(--warn);
+  color: var(--warn-text);
 }
 
 .sliderWrap {
@@ -192,6 +213,7 @@
     color-mix(in srgb, var(--accent) 60%, var(--warn)) var(--pct),
     var(--bg-elev-2) var(--pct)
   );
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 .slider::-moz-range-track {
   height: 6px;
@@ -205,30 +227,35 @@
 }
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
-  margin-top: -9px;
+  width: 22px;
+  height: 22px;
+  margin-top: -8px;
   border-radius: 50%;
-  background: #fff;
+  background: #ffffff;
   border: 5px solid var(--accent);
-  box-shadow: 0 2px 10px rgba(131, 110, 249, 0.55);
+  box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--accent) 60%, transparent);
   transition: transform 0.12s;
 }
 .slider:active::-webkit-slider-thumb {
   transform: scale(1.15);
 }
+.slider:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 3px var(--bg-elev),
+    0 0 0 5px var(--focus);
+}
 .slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: #fff;
+  background: #ffffff;
   border: 5px solid var(--accent);
 }
 
 .marks {
   position: absolute;
-  left: 23px;
-  right: 23px;
+  left: 22px;
+  right: 22px;
   bottom: 0;
   height: 20px;
 }
@@ -240,6 +267,10 @@
   font-family: var(--font-mono);
   color: var(--text-dim);
   padding: 2px 4px;
+  border-radius: 6px;
+}
+.mark:hover {
+  color: var(--text);
 }
 .markOn {
   color: var(--text);
@@ -249,16 +280,16 @@
 .summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--bg);
-  border: 1px dashed var(--border);
+  gap: 9px 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
 }
 .summary div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 }
 .summary dt {
@@ -272,17 +303,18 @@
   text-overflow: ellipsis;
 }
 .liq {
-  color: var(--warn);
+  color: var(--warn-text);
 }
 .liqDist {
   margin-left: 6px;
   font-size: 10.5px;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .footnote {
   text-align: center;
   font-size: 10.5px;
+  line-height: 1.5;
   color: var(--text-dim);
 }
 
@@ -295,13 +327,10 @@
     border-radius: var(--radius-panel);
   }
   .inputWrap {
-    height: 48px;
-    border-radius: 10px;
-  }
-  .sideToggle {
-    border-radius: 10px;
+    height: 50px;
   }
   .chip:hover:not(.chipActive) {
     color: var(--text);
+    border-color: var(--border-strong);
   }
 }

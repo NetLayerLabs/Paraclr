@@ -5,6 +5,9 @@ import type { Position } from "@/lib/types";
 import { closePosition, liquidationPrice, unrealizedPnl, useParaclr } from "@/lib/store";
 import { readableError } from "@/lib/chain/errors";
 import { closePositionOnChain } from "@/lib/chain/trading";
+import { submitReduceOrder } from "@/lib/chain/prod/actions";
+import { isOpen, orderLabelId, useOrders } from "@/lib/chain/prod/orders";
+import { useSlippage } from "@/components/prod/util";
 import { Notice } from "@/components/chain/ChainUi";
 import { MQ_FINE_POINTER, MQ_TABLE, useMedia } from "@/components/shell/useMedia";
 import { baseOf, fmtAusd, fmtPct, fmtPrice, fmtSigned, fmtSize } from "./format";
@@ -22,8 +25,18 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
   const chainLive = useParaclr((s) => s.chain.status === "ready");
   const walletReady = useParaclr((s) => s.chain.wallet.ready);
   const inAuction = useParaclr((s) => s.chain.status === "ready" && (s.chain.account?.auction?.active ?? false));
+  const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
+  const orders = useOrders();
+  const [slip] = useSlippage();
   const [closing, setClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+  const [reduceOpen, setReduceOpen] = useState(false);
+  // Production: the contract allows one pending order per market (an expired
+  // one keeps blocking until it is cancelled from the Orders list).
+  const pendingId = useParaclr((s) => s.chain.prod?.mine?.pending[p.symbol] ?? null);
+  const exitPending =
+    production && (pendingId !== null || orders.some((o) => o.symbol === p.symbol && (isOpen(o) || o.phase === "signing")));
   const pnl = unrealizedPnl(p, mark);
   const roe = (pnl / p.margin) * 100;
   const liq = liquidationPrice(p);
@@ -31,10 +44,32 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
   const health = Math.max(0, Math.min(1, (mark - liq) / (p.entryPrice - liq || 1)));
   const liquidatable = health <= 0;
 
+  /** Production: close (fraction 1) or reduce with a delayed order at the Pyth price. */
+  const exitOrder = async (fraction: number) => {
+    setError(null);
+    setNote(null);
+    setClosing(true);
+    setReduceOpen(false);
+    try {
+      const o = await submitReduceOrder({ position: p, fraction, mark, slippagePct: slip });
+      setNote(
+        `${fraction >= 1 ? "Close" : `Reduce ${Math.round(fraction * 100)}%`} order submitted${o.orderId !== null ? ` (${orderLabelId(o)})` : ""} — fills at the next Pyth price. Track it under Orders.`,
+      );
+    } catch (e) {
+      setError(readableError(e));
+    } finally {
+      setClosing(false);
+    }
+  };
+
   const close = async () => {
     if (!chainLive) {
       closePosition(p.id);
       onClosed(p, Math.max(-p.margin, pnl));
+      return;
+    }
+    if (production) {
+      await exitOrder(1);
       return;
     }
     setError(null);
@@ -59,10 +94,43 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     up: pnl >= 0,
     closing,
     error,
+    note,
     close,
     inAuction,
-    closeDisabled: closing || (chainLive && !walletReady) || inAuction,
+    production,
+    exitPending,
+    reduceOpen,
+    setReduceOpen,
+    exitOrder,
+    closeDisabled: closing || (chainLive && !walletReady) || inAuction || exitPending,
   };
+}
+
+type PositionModel = ReturnType<typeof usePositionModel>;
+
+/** Production: reduce by a fraction with a delayed order. */
+function ReduceChips({ m }: { m: PositionModel }) {
+  if (!m.production || !m.reduceOpen) return null;
+  return (
+    <div className={styles.reduceRow} role="group" aria-label="Reduce position">
+      <span>Reduce by</span>
+      {[0.25, 0.5, 0.75].map((f) => (
+        <button key={f} type="button" disabled={m.closeDisabled} onClick={() => void m.exitOrder(f)}>
+          {f * 100}%
+        </button>
+      ))}
+      <button type="button" onClick={() => m.setReduceOpen(false)}>
+        Cancel
+      </button>
+    </div>
+  );
+}
+
+function closeLabel(m: PositionModel): string {
+  if (m.closing) return m.production ? "Submitting…" : "Closing…";
+  if (m.inAuction) return "Frozen";
+  if (m.exitPending) return "Order pending";
+  return "Close";
 }
 
 function HealthBar({ health }: { health: number }) {
@@ -132,16 +200,35 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
           </div>
           <HealthBar health={m.health} />
         </div>
+        {m.production && (
+          <button
+            type="button"
+            className={styles.close}
+            disabled={m.closeDisabled}
+            onClick={() => m.setReduceOpen(!m.reduceOpen)}
+            title="Reduce with a delayed order at the next Pyth price"
+          >
+            Reduce
+          </button>
+        )}
         <button
           type="button"
           className={styles.close}
           disabled={m.closeDisabled}
           onClick={m.close}
-          title={m.inAuction ? "Frozen during the liquidation auction — cure it from the banner above" : undefined}
+          title={
+            m.inAuction
+              ? "Frozen during the liquidation auction — cure it from the banner above"
+              : m.production
+                ? "Close with a delayed order at the next Pyth price"
+                : undefined
+          }
         >
-          {m.closing ? "Closing…" : m.inAuction ? "Frozen" : "Close"}
+          {closeLabel(m)}
         </button>
       </div>
+      <ReduceChips m={m} />
+      {m.note && <Notice tone="ok">{m.note}</Notice>}
       {m.error && <Notice tone="error">{m.error}</Notice>}
     </article>
   );
@@ -193,24 +280,43 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
           <span className="mono">{m.inAuction ? "AUCTION" : m.liquidatable ? "LIQ" : `${Math.round(m.health * 100)}%`}</span>
         </td>
         <td className={styles.actionCell}>
+          {m.production && (
+            <button
+              type="button"
+              className={styles.closeSm}
+              disabled={m.closeDisabled}
+              onClick={() => m.setReduceOpen(!m.reduceOpen)}
+              title="Reduce with a delayed order at the next Pyth price"
+            >
+              Reduce
+            </button>
+          )}
           <button
             type="button"
             className={styles.closeSm}
             disabled={m.closeDisabled}
             onClick={m.close}
-            title={m.inAuction ? "Frozen during the liquidation auction — cure it from the banner above" : undefined}
+            title={
+              m.inAuction
+                ? "Frozen during the liquidation auction — cure it from the banner above"
+                : m.production
+                  ? "Close with a delayed order at the next Pyth price"
+                  : undefined
+            }
           >
-            {m.closing ? "Closing…" : m.inAuction ? "Frozen" : "Close"}
+            {closeLabel(m)}
           </button>
         </td>
       </tr>
-      {m.error && (
+      {(m.reduceOpen && m.production) || m.note || m.error ? (
         <tr className={styles.errorRow}>
           <td colSpan={COLUMNS}>
-            <Notice tone="error">{m.error}</Notice>
+            <ReduceChips m={m} />
+            {m.note && <Notice tone="ok">{m.note}</Notice>}
+            {m.error && <Notice tone="error">{m.error}</Notice>}
           </td>
         </tr>
-      )}
+      ) : null}
     </>
   );
 }

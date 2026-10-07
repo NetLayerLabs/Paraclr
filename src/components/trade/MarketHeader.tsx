@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { MARKETS, type MarketSymbol } from "@/lib/types";
 import { selectMarket, useParaclr } from "@/lib/store";
 import { useMarketFeed } from "@/lib/prices/feedStore";
 import { MARKET_META } from "@/lib/prices/markets";
 import { NETWORK } from "@/lib/chain/config";
+import { getPythFeedMode, subscribePythFeedMode } from "@/lib/chain/prod/pythPrices";
 import { fmtPct, fmtPrice } from "./format";
 import styles from "./MarketHeader.module.css";
 
@@ -74,7 +75,7 @@ function OracleBadge({ symbol }: { symbol: MarketSymbol }) {
   const age = feed.observedAt && now ? Math.max(0, now - feed.observedAt) : null;
   const tone =
     age == null ? styles.dotIdle : age < 3_000 ? styles.dotLive : age < 10_000 ? styles.dotWarn : styles.dotStale;
-  const net = NETWORK?.isMonad ? "Monad testnet" : "local anvil";
+  const net = NETWORK?.mode === "anvil" ? "local anvil" : (NETWORK?.shortLabel ?? "chain");
 
   return (
     <div
@@ -97,8 +98,49 @@ function OracleBadge({ symbol }: { symbol: MarketSymbol }) {
   );
 }
 
+/**
+ * Production: Pyth prices from Hermes — the price stream delayed orders are
+ * executed against. Age is publish-time based (1 s resolution).
+ */
+function PythBadge({ symbol }: { symbol: MarketSymbol }) {
+  const feed = useMarketFeed(symbol);
+  const mode = useSyncExternalStore(subscribePythFeedMode, getPythFeedMode, () => "connecting" as const);
+  const [now, setNow] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(id);
+  }, []);
+
+  const age = feed.observedAt && now ? Math.max(0, now - feed.observedAt) : null;
+  const tone =
+    age == null ? styles.dotIdle : age < 4_000 ? styles.dotLive : age < 15_000 ? styles.dotWarn : styles.dotStale;
+  return (
+    <div
+      className={`${styles.badge} ${styles.badgeOracle}`}
+      title={
+        mode === "onchain"
+          ? "Pyth price stored on chain (Hermes unavailable here). Orders fill at the first Pyth price published after their minimum delay, verified on chain."
+          : "Pyth price (Hermes). Orders fill at the first Pyth price published after their minimum delay, verified on chain."
+      }
+    >
+      <span className={styles.badgeBrand}>
+        <BlockMark />
+      </span>
+      <span className={styles.badgeText}>
+        Pyth <span className={styles.badgeSep}>·</span> {mode === "onchain" ? "on-chain" : "Hermes"}
+      </span>
+      <span className={styles.badgeAge}>
+        <span className={`${styles.dot} ${tone}`} />
+        <span className="mono">{age == null ? "—" : age < 60_000 ? `${Math.floor(age / 1000)}s` : "stale"}</span>
+      </span>
+    </div>
+  );
+}
+
 export function LatencyBadge({ symbol }: { symbol: MarketSymbol }) {
   const feed = useMarketFeed(symbol);
+  if (feed.source === "pyth") return <PythBadge symbol={symbol} />;
   if (feed.source === "oracle") return <OracleBadge symbol={symbol} />;
   return <StreamsBadge symbol={symbol} />;
 }
@@ -150,7 +192,8 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
     return { hi: Number.isFinite(hi) ? hi : null, lo: Number.isFinite(lo) ? lo : null };
   }, [feed.candles]);
 
-  const isOracle = feed.source === "oracle";
+  const isOracle = feed.source === "oracle" || feed.source === "pyth";
+  const isPyth = feed.source === "pyth";
   const dirClass = feed.dir > 0 ? styles.up : feed.dir < 0 ? styles.down : "";
   const flashClass = feed.dir > 0 ? styles.flashUp : feed.dir < 0 ? styles.flashDown : "";
 
@@ -169,7 +212,7 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
           <span className={styles.perpTag}>PERP</span>
         </div>
         <span className={styles.venue}>
-          {NETWORK && isOracle ? (NETWORK.isMonad ? "Monad testnet" : "Local anvil (not Monad)") : "Monad"} ·
+          {NETWORK && isOracle ? (NETWORK.mode === "anvil" ? "Local anvil (not Monad)" : NETWORK.label) : "Monad"} ·
           AUSD-margined
         </span>
       </div>
@@ -184,9 +227,11 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
             <span
               className={styles.changeLabel}
               title={
-                isOracle
-                  ? "Change since the first on-chain price this session loaded"
-                  : "Simulation mode: change vs a simulated reference price, not real 24h market data"
+                isPyth
+                  ? "Change since the first Pyth price this session loaded"
+                  : isOracle
+                    ? "Change since the first on-chain price this session loaded"
+                    : "Simulation mode: change vs a simulated reference price, not real 24h market data"
               }
             >
               {isOracle ? "session" : "sim"}
@@ -206,7 +251,12 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
           <span className={styles.statLabel}>5m Low</span>
           <span className="mono">{fmtPrice(symbol, lo)}</span>
         </div>
-        {isOracle ? (
+        {isPyth ? (
+          <div className={styles.stat}>
+            <span className={styles.statLabel}>Published</span>
+            <span className="mono">{feed.observedAt ? new Date(feed.observedAt).toISOString().slice(11, 19) : "—"}</span>
+          </div>
+        ) : isOracle ? (
           <div className={styles.stat}>
             <span className={styles.statLabel}>Read at block</span>
             <span className="mono">{feed.block != null ? `#${feed.block}` : "—"}</span>
@@ -223,7 +273,9 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
           <span>
             {feed.source === "chainlink"
               ? "Chainlink"
-              : feed.source === "oracle"
+              : feed.source === "pyth"
+                ? "Pyth"
+                : feed.source === "oracle"
                 ? "On-chain"
                 : feed.source
                   ? "Simulated"
