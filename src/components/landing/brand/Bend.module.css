@@ -1,0 +1,150 @@
+/* Section bend. --r is the corner radius; lanes sit --d apart on the dark side.
+   Lane k is a box whose single rounded corner has radius r + k·d and whose
+   rounded corner shares the fill's centre, so every lane is concentric with
+   the curve and runs straight along the section edge before and after it. */
+
+.bend {
+  --r: var(--pc-bend-r, 160px);
+  --d: calc(var(--r) * 0.046);
+  --pad: calc(var(--d) * 9 + 4px); /* room for the lanes outside the bend box */
+
+  position: relative;
+  z-index: 1;
+  height: var(--r);
+  margin: -1px 0;
+  background: #08070d;
+  pointer-events: none;
+}
+
+/* The light neighbour's content may sit inside the bend's flat half (as long
+   as it stays inside the container, it never reaches the curve), so the bend
+   doesn't read as a gap. The neighbour paints above the bend with a
+   transparent band where they overlap. */
+.intoDark {
+  margin-top: calc(var(--r) * -0.5);
+}
+
+.intoLight {
+  margin-bottom: calc(var(--r) * -0.5);
+}
+
+:has(+ .bend.intoDark) {
+  position: relative;
+  z-index: 2;
+  padding-bottom: 0;
+  background: linear-gradient(to top, transparent calc(var(--pc-bend-r) * 0.5), #ffffff 0);
+}
+
+.bend.intoLight + * {
+  position: relative;
+  z-index: 2;
+  padding-top: 0;
+  background: linear-gradient(to bottom, transparent calc(var(--pc-bend-r) * 0.5), #ffffff 0);
+}
+
+/* The dark neighbour keeps clear of the 8 lanes that run along its edge. */
+.bend.intoDark + * {
+  padding-top: calc(var(--pc-bend-r) * 0.37 + clamp(40px, 5vw, 64px));
+}
+
+:has(+ .bend.intoLight) {
+  padding-bottom: calc(var(--pc-bend-r) * 0.37 + clamp(40px, 5vw, 64px));
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+}
+
+.intoDark .fill {
+  top: -1px;
+}
+
+.intoLight .fill {
+  bottom: -1px;
+}
+
+.intoDark.right .fill {
+  border-bottom-right-radius: var(--r);
+}
+
+.intoDark.left .fill {
+  border-bottom-left-radius: var(--r);
+}
+
+.intoLight.right .fill {
+  border-top-right-radius: var(--r);
+}
+
+.intoLight.left .fill {
+  border-top-left-radius: var(--r);
+}
+
+/* The lane layer is taller than the bend so its fade mask covers the lanes
+   that run into the neighbouring dark section. */
+.lanes {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--pad) * -1);
+  bottom: calc(var(--pad) * -1);
+}
+
+.right .lanes {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 58%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 58%);
+}
+
+.left .lanes {
+  -webkit-mask-image: linear-gradient(to left, transparent 0%, #000 58%);
+  mask-image: linear-gradient(to left, transparent 0%, #000 58%);
+}
+
+.lanes i {
+  --len: calc(var(--r) + var(--k) * var(--d));
+  position: absolute;
+  height: var(--len);
+  border: 0 solid #8f7cff;
+  opacity: calc(0.78 - var(--k) * 0.075);
+}
+
+/* Light above, dark below: lanes run along the top of the dark section. */
+.intoDark .lanes i {
+  top: var(--pad);
+  border-bottom-width: 1px;
+}
+
+.intoDark.right .lanes i {
+  left: -2px;
+  right: calc(var(--k) * var(--d) * -1);
+  border-right-width: 1px;
+  border-bottom-right-radius: var(--len);
+}
+
+.intoDark.left .lanes i {
+  right: -2px;
+  left: calc(var(--k) * var(--d) * -1);
+  border-left-width: 1px;
+  border-bottom-left-radius: var(--len);
+}
+
+/* Dark above, light below: lanes run along the bottom of the dark section. */
+.intoLight .lanes i {
+  bottom: var(--pad);
+  border-top-width: 1px;
+}
+
+.intoLight.right .lanes i {
+  left: -2px;
+  right: calc(var(--k) * var(--d) * -1);
+  border-right-width: 1px;
+  border-top-right-radius: var(--len);
+}
+
+.intoLight.left .lanes i {
+  right: -2px;
+  left: calc(var(--k) * var(--d) * -1);
+  border-left-width: 1px;
+  border-top-left-radius: var(--len);
+}
