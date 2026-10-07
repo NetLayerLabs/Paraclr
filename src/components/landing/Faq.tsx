@@ -8,8 +8,18 @@ import { RISK_ANCHORS, RISK_PATH } from "./disclosures";
 import b from "./brand/Brand.module.css";
 import s from "./Faq.module.css";
 
-export function Faq({ monadDeployed, production }: { monadDeployed: boolean; production: ProductionStatus }) {
+export function Faq({
+  monadDeployed,
+  production,
+  testnetProd = null,
+}: {
+  monadDeployed: boolean;
+  production: ProductionStatus;
+  /** deployments/10143.json with "production": true. */
+  testnetProd?: ProductionStatus | null;
+}) {
   const live = production.live;
+  const testnetLive = testnetProd?.live ?? false;
   const maxDelay = production.params.maxExecDelaySeconds;
 
   const items: { q: string; a: ReactNode }[] = [
@@ -120,13 +130,25 @@ export function Faq({ monadDeployed, production }: { monadDeployed: boolean; pro
             passes. Until <code className={b.code}>{PRODUCTION_FILE}</code> is committed, Paraclr has no contracts on
             mainnet: anything there that claims to be Paraclr isn&rsquo;t ours.
           </p>
-          <p>
-            {monadDeployed
-              ? "The demo contracts are deployed on Monad testnet (chain 10143); local anvil is used for development."
-              : "Today the demo contracts run on a local anvil chain; the Monad testnet (chain 10143) deploy is next."}{" "}
-            No real value is involved in the demo. Its AUSD is <code className={b.code}>MockAUSD</code>, a 6-decimal
-            stand-in with a capped faucet, not Agora&rsquo;s token.
-          </p>
+          {testnetLive ? (
+            <p>
+              The production contracts are live on{" "}
+              <a className={b.link} href="#testnet">
+                Monad testnet
+              </a>{" "}
+              (chain 10143) with Agora&rsquo;s testnet AUSD and Pyth prices: test funds, no real value. The measured
+              runs on this page come from the demo stack (local anvil, labelled), whose AUSD is{" "}
+              <code className={b.code}>MockAUSD</code>, a 6-decimal stand-in, not Agora&rsquo;s token.
+            </p>
+          ) : (
+            <p>
+              {monadDeployed
+                ? "The demo contracts are deployed on Monad testnet (chain 10143); local anvil is used for development."
+                : "Today the demo contracts run on a local anvil chain; the Monad testnet (chain 10143) deploy is next."}{" "}
+              No real value is involved in the demo. Its AUSD is <code className={b.code}>MockAUSD</code>, a 6-decimal
+              stand-in with a capped faucet, not Agora&rsquo;s token.
+            </p>
+          )}
         </>
       ),
     },

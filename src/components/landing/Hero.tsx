@@ -16,8 +16,11 @@ interface Badge {
   external?: boolean;
 }
 
-/** Every badge is true for the current build: status follows deployments/143.json. */
-function badges(live: boolean, repo: RepoFacts): Badge[] {
+/**
+ * Every badge is true for the current build: status follows deployments/143.json
+ * (mainnet) and deployments/10143.json with "production": true (testnet).
+ */
+function badges(live: boolean, testnetLive: boolean, repo: RepoFacts): Badge[] {
   const tests: Badge = {
     href: `${GITHUB_TREE}/contracts/test`,
     label: repo.foundryTests ? `${fmtInt(repo.foundryTests)} tests` : "Foundry tests",
@@ -34,6 +37,19 @@ function badges(live: boolean, repo: RepoFacts): Badge[] {
         href: `${RISK_PATH}#${RISK_ANCHORS.smartContract}`,
         label: "Unaudited",
         sub: "use what you can lose",
+        dot: "muted",
+      },
+    ];
+  }
+  if (testnetLive) {
+    return [
+      { href: "#testnet", label: "Live on testnet", sub: "Monad · no real value", dot: "pos" },
+      tests,
+      { href: "#beta", label: "Mainnet beta", sub: "pending launch gate", dot: "warn" },
+      {
+        href: `${RISK_PATH}#${RISK_ANCHORS.smartContract}`,
+        label: "Not audited",
+        sub: "review + Slither only",
         dot: "muted",
       },
     ];
@@ -58,8 +74,21 @@ const DOT: Record<Badge["dot"], string> = {
   muted: s.dotMuted,
 };
 
-/** `live`: deployments/143.json exists with "production": true (see production.server.ts). */
-export function Hero({ live, repo, xray }: { live: boolean; repo: RepoFacts; xray: XrayEvidence | null }) {
+/**
+ * `live`: deployments/143.json exists with "production": true (see production.server.ts).
+ * `testnetLive`: deployments/10143.json exists with "production": true.
+ */
+export function Hero({
+  live,
+  testnetLive = false,
+  repo,
+  xray,
+}: {
+  live: boolean;
+  testnetLive?: boolean;
+  repo: RepoFacts;
+  xray: XrayEvidence | null;
+}) {
   return (
     <section id="top" className={`${b.light} ${b.surface} ${s.hero}`} aria-labelledby="hero-title">
       <div className={`${b.container} ${s.grid}`}>
@@ -87,7 +116,7 @@ export function Hero({ live, repo, xray }: { live: boolean; repo: RepoFacts; xra
             </a>
           </div>
           <ul className={s.trust} aria-label="Status at a glance">
-            {badges(live, repo).map((x) => (
+            {badges(live, testnetLive, repo).map((x) => (
               <li key={x.label}>
                 <a href={x.href} className={s.badge} {...(x.external ? { target: "_blank", rel: "noreferrer" } : {})}>
                   <span className={`${b.dot} ${DOT[x.dot]}`} aria-hidden="true" />

@@ -1,7 +1,9 @@
 // Server-only: reads the committed evidence for the landing page:
 //   bench/results/*.json   RunReport (v1: liquidateBatch crash; v2 adds auctions + underwater)
 //   bench/xray/*.json      XrayReport (Conflict X-ray: lanes vs naive shared state)
-//   deployments/10143.json Monad testnet addresses
+//   deployments/10143.json Monad testnet addresses of the DEMO stack (a file with
+//                          `"production": true` is the production deployment,
+//                          handled by production.server.ts, not this one)
 //   contracts/test/*.sol   test counts (declared test / invariant functions)
 // Uses node:fs, so import it only from Server Components (src/app/page.tsx).
 //
@@ -148,7 +150,7 @@ export interface LandingEvidence {
   monadHeadline: BenchRun | null;
   /** Monad testnet X-ray if one exists, else the latest anvil one, else null. */
   xray: XrayEvidence | null;
-  /** deployments/10143.json exists and has a clearinghouse address. */
+  /** deployments/10143.json exists, is the demo-stack format (no `"production": true`) and has a clearinghouse address. */
   monadDeployment: {
     clearinghouse: string;
     naive: string | null;
@@ -455,8 +457,10 @@ export async function loadLandingEvidence(): Promise<LandingEvidence> {
   const xray = pick(MONAD_TESTNET_CHAIN_ID, monadRuns) ?? pick(ANVIL_CHAIN_ID, anvilRuns);
 
   const dep = await readJson(join(root, "deployments", `${MONAD_TESTNET_CHAIN_ID}.json`));
+  // Every reader of 10143.json branches on `production` (docs/TESTNET_PLAN.md):
+  // the production deployment is not the demo stack the runs were measured on.
   const monadDeployment =
-    isObj(dep) && str(dep.clearinghouse)
+    isObj(dep) && dep.production !== true && str(dep.clearinghouse)
       ? { clearinghouse: str(dep.clearinghouse)!, naive: str(dep.naive), ausd: str(dep.ausd), oracle: str(dep.oracle) }
       : null;
 

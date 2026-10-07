@@ -528,9 +528,19 @@
   gap: 12px;
 }
 
+/* The testnet block's limits sit under its two cards. */
+.testnetGrid {
+  margin-top: 20px;
+}
+
 @media (max-width: 1099px) {
   .limitGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Five testnet tiles in two columns: the last one spans the row. */
+  .testnetGrid > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 
   .features {

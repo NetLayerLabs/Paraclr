@@ -13,24 +13,34 @@ interface Item {
 }
 
 /** Text wordmarks only (no third-party logos). Chips say what each one is used for, and where. */
-function items(repo: RepoFacts, live: boolean, testnet: boolean): Item[] {
+function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: boolean): Item[] {
   return [
     {
       name: "Monad",
       body: "The chain Paraclr is built for. 8 lanes of disjoint storage give its optimistic parallel executor no reason to re-execute one lane's work because of another's.",
-      chip: live ? "Mainnet beta · chain 143" : testnet ? "Testnet demo · mainnet pending" : "Mainnet beta pending",
-      tone: live ? "pos" : "warn",
+      chip: live
+        ? "Mainnet beta · chain 143"
+        : testnetLive
+          ? "Live on testnet · mainnet pending"
+          : testnet
+            ? "Testnet demo · mainnet pending"
+            : "Mainnet beta pending",
+      tone: live || testnetLive ? "pos" : "warn",
     },
     {
       name: "Pyth",
-      body: "Pull-oracle prices for the production contracts, verified on chain: staleness, confidence and a positive price. The demo uses a simulated feed.",
-      chip: live ? "Used for prices" : "Prices · beta contracts",
+      body: testnetLive
+        ? "Pull-oracle prices for the production contracts, verified on chain: staleness, confidence and a positive price. Used on Monad testnet now, during a Pyth data trial. The measured demo runs use a simulated feed."
+        : "Pull-oracle prices for the production contracts, verified on chain: staleness, confidence and a positive price. The demo uses a simulated feed.",
+      chip: live ? "Used for prices" : testnetLive ? "Prices · testnet, data trial" : "Prices · beta contracts",
       tone: "accent",
     },
     {
       name: "Agora AUSD",
-      body: "The single quote and margin asset. Real AUSD on the mainnet beta; the demo uses MockAUSD, a 6-decimal stand-in with no value.",
-      chip: "Collateral (mainnet beta)",
+      body: testnetLive
+        ? "The single quote and margin asset. Agora's testnet AUSD on Monad testnet (test funds, no value), real AUSD on the mainnet beta; the measured demo runs use MockAUSD, a 6-decimal stand-in."
+        : "The single quote and margin asset. Real AUSD on the mainnet beta; the demo uses MockAUSD, a 6-decimal stand-in with no value.",
+      chip: testnetLive ? "Collateral · testnet AUSD now" : "Collateral (mainnet beta)",
       tone: "accent",
     },
     {
@@ -101,8 +111,18 @@ function Card({ item }: { item: Item }) {
   );
 }
 
-export function BuiltOn({ repo, live, testnet }: { repo: RepoFacts; live: boolean; testnet: boolean }) {
-  const list = items(repo, live, testnet);
+export function BuiltOn({
+  repo,
+  live,
+  testnet,
+  testnetLive = false,
+}: {
+  repo: RepoFacts;
+  live: boolean;
+  testnet: boolean;
+  testnetLive?: boolean;
+}) {
+  const list = items(repo, live, testnet, testnetLive);
   return (
     <section className={`${b.dark} ${b.surface} ${b.section} ${s.section}`} aria-labelledby="built-title">
       <div className={b.container}>

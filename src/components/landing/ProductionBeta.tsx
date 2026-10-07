@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
+import { TESTNET_PROD_MODE } from "@/lib/chain/config";
 import type { ProdParams, ProductionStatus } from "./production.server";
-import { MONADSCAN, PRODUCTION_FILE } from "./production.server";
+import { PRODUCTION_FILE } from "./production.server";
 import { ArrowRight, ArrowUpRight, Check, Clock, Coin, Cross, Gauge, Lanes, Percent, Pulse } from "./icons";
 import { GITHUB_BLOB, GITHUB_TREE } from "./content";
 import { AUDIT_STATUS, BETA_LABEL, RISK_ANCHORS, RISK_PATH, TERMS_PATH } from "./disclosures";
@@ -13,12 +14,41 @@ const SET_AT_LAUNCH = "set at launch";
 
 /* ---- Announcement bar (top of the page, above the nav) ------------------ */
 
-/** `testnetDeployed`: deployments/10143.json exists (the demo stack is on Monad testnet). */
-export function StatusBar({ status, testnetDeployed }: { status: ProductionStatus; testnetDeployed: boolean }) {
+/**
+ * `testnetDeployed`: deployments/10143.json is the demo stack on Monad testnet.
+ * `testnet`: deployments/10143.json is the production deployment ("production": true).
+ */
+export function StatusBar({
+  status,
+  testnet,
+  testnetDeployed,
+}: {
+  status: ProductionStatus;
+  testnet: ProductionStatus;
+  testnetDeployed: boolean;
+}) {
   return (
     <div className={`${b.dark} ${s.bar}`} role="note" aria-label="Deployment status">
       <div className={`${b.container} ${s.barInner}`}>
-        {status.live ? (
+        {!status.live && testnet.live ? (
+          <>
+            <span className={s.barPill}>
+              <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
+              Live on Monad testnet
+            </span>
+            <span className={s.barNote}>
+              Production contracts with Agora&rsquo;s testnet AUSD and{" "}
+              {testnet.pricesSimulated ? "prices simulated after the Pyth trial" : "Pyth prices"}: test funds, no real
+              value. Unaudited. Mainnet beta: pending launch gate.
+            </span>
+            <span className={s.barLinks}>
+              <a href="#testnet">
+                Contracts <ArrowRight className={s.barIcon} />
+              </a>
+              <Link href={RISK_PATH}>Risks</Link>
+            </span>
+          </>
+        ) : status.live ? (
           <>
             <span className={s.barPill}>
               <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
@@ -157,51 +187,181 @@ function Contracts({ status }: { status: ProductionStatus }) {
         </span>
       </div>
       <h3 className={s.cardTitle}>Check every address.</h3>
-      <div
-        className={`${b.scrollX} ${s.tableWrap}`}
-        tabIndex={0}
-        role="region"
-        aria-label="Monad mainnet contract addresses"
-      >
-        <table className={s.table}>
-          <thead>
-            <tr>
-              <th scope="col">Contract / role</th>
-              <th scope="col">Address</th>
-            </tr>
-          </thead>
-          <tbody>
-            {status.contracts.map((c) => (
-              <tr key={`${c.key}-${c.address}`}>
-                <td>
-                  <span className={s.cName}>
-                    {c.name}
-                    {c.external ? <span className={s.extTag}>external</span> : null}
-                  </span>
-                  {c.role ? <span className={s.cRole}>{c.role}</span> : null}
-                </td>
-                <td>
-                  <a
-                    className={s.addr}
-                    href={`${MONADSCAN}/address/${c.address}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    title={c.address}
-                  >
-                    {shortHash(c.address, 6, 4)}
-                    <ArrowUpRight className={s.addrIcon} />
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ContractTable status={status} label="Monad mainnet contract addresses" />
       <p className={s.fine}>
-        From <code className={b.code}>{PRODUCTION_FILE}</code>
+        From <code className={b.code}>{status.file}</code>
         {status.deployBlock !== null ? <> · deploy block #{fmtInt(status.deployBlock)}</> : null}
         {status.markets.length ? <> · markets {status.markets.join(", ")}</> : null}. Links open monadscan.com.
       </p>
+    </div>
+  );
+}
+
+/** Contract / role rows with explorer links (the status's own explorer: Monadscan or the testnet explorer). */
+function ContractTable({ status, label }: { status: ProductionStatus; label: string }) {
+  return (
+    <div className={`${b.scrollX} ${s.tableWrap}`} tabIndex={0} role="region" aria-label={label}>
+      <table className={s.table}>
+        <thead>
+          <tr>
+            <th scope="col">Contract / role</th>
+            <th scope="col">Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          {status.contracts.map((c) => (
+            <tr key={`${c.key}-${c.address}`}>
+              <td>
+                <span className={s.cName}>
+                  {c.name}
+                  {c.external ? <span className={s.extTag}>external</span> : null}
+                </span>
+                {c.role ? <span className={s.cRole}>{c.role}</span> : null}
+              </td>
+              <td>
+                <a
+                  className={s.addr}
+                  href={`${status.explorer}/address/${c.address}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={c.address}
+                >
+                  {shortHash(c.address, 6, 4)}
+                  <ArrowUpRight className={s.addrIcon} />
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ---- Testnet deployment ------------------------------------------------- */
+
+const base = (market: string) => market.split("/")[0];
+
+/** deployments/10143.json with "production": true: the same production contracts on Monad testnet. */
+function TestnetDeployment({ status }: { status: ProductionStatus }) {
+  const p = status.params;
+  const markets = status.markets;
+  const monListed = markets.some((m) => base(m) === "MON");
+  const tiles: { k: string; v: string | null; sub: string }[] = [
+    { k: "Markets", v: markets.length ? markets.map(base).join(" · ") : null, sub: "quoted in AUSD" },
+    { k: "Max leverage", v: p.maxLeverage === null ? null : `${fmtNum(p.maxLeverage)}x`, sub: "per position" },
+    {
+      k: "Deposit cap",
+      v: p.depositCapPerAccount === null ? null : `${fmtNum(p.depositCapPerAccount)} AUSD`,
+      sub: "per account",
+    },
+    { k: "TVL cap", v: p.tvlCapPerLane === null ? null : `${fmtNum(p.tvlCapPerLane)} AUSD`, sub: "per lane" },
+    {
+      k: "Timelock delay",
+      v: p.timelockDelaySeconds === null ? null : fmtDuration(p.timelockDelaySeconds),
+      sub: "before any change applies",
+    },
+  ];
+  return (
+    <div id="testnet" className={s.block}>
+      <div className={s.blockHead}>
+        <h3 className={s.blockTitle}>Live on Monad testnet</h3>
+        <p className={s.blockSub}>
+          The production contracts, the same code the mainnet beta would run, deployed on Monad testnet (chain 10143).
+          Test funds, no real value.
+        </p>
+      </div>
+      <div className={s.topGrid}>
+        <div className={`${b.card} ${s.gate}`}>
+          <div className={s.cardHead}>
+            <p className={s.kicker}>Testnet · chain 10143</p>
+            <span className={`${b.chip} ${b.chipPos}`}>
+              <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
+              live
+            </span>
+          </div>
+          <h3 className={s.cardTitle}>Real integrations, no real money.</h3>
+          <ul className={s.gateList}>
+            <li>
+              <span className={s.gateNum} aria-hidden="true">
+                1
+              </span>
+              <span>
+                <b>Markets: {markets.length ? markets.join(" and ") : "per the deployment file"}.</b>
+                {monListed
+                  ? null
+                  : " MON/AUSD isn't listed on testnet: the Pyth data access these prices run on doesn't cover MON yet."}
+              </span>
+            </li>
+            <li>
+              <span className={s.gateNum} aria-hidden="true">
+                2
+              </span>
+              <span>
+                <b>Collateral: Agora&rsquo;s testnet AUSD.</b> Claim it in the app from Agora&rsquo;s testnet
+                faucet. It has no value.
+              </span>
+            </li>
+            <li>
+              <span className={s.gateNum} aria-hidden="true">
+                3
+              </span>
+              {status.pricesSimulated ? (
+                <span>
+                  <b>Prices: simulated after the Pyth trial.</b> The keeper signs them for a testnet-only oracle
+                  contract that the timelock switched in; Pyth doesn&rsquo;t attest them.
+                </span>
+              ) : (
+                <span>
+                  <b>Prices: Pyth, during the current data trial.</b> The keeper relays Pyth&rsquo;s signed updates
+                  and the contract verifies each one on chain, exactly as on mainnet.
+                </span>
+              )}
+            </li>
+            <li>
+              <span className={s.gateNum} aria-hidden="true">
+                4
+              </span>
+              <span>
+                <b>Same rules as the beta.</b> Unaudited, capped, owned by a timelock and a multisig; delayed orders,
+                fees, funding and per-lane auctions all on.
+              </span>
+            </li>
+          </ul>
+          <p className={s.fine}>
+            {TESTNET_PROD_MODE ? (
+              <>
+                <Link className={b.link} href="/app">
+                  Open the app
+                </Link>{" "}
+                to trade it with a passkey or a labelled demo wallet.{" "}
+              </>
+            ) : null}
+            Nothing here is on Monad mainnet; that still waits for the launch gate below.
+          </p>
+        </div>
+        <div className={`${b.card} ${s.contracts}`}>
+          <div className={s.cardHead}>
+            <p className={s.kicker}>Testnet contracts · chain 10143</p>
+          </div>
+          <h3 className={s.cardTitle}>Check every address.</h3>
+          <ContractTable status={status} label="Monad testnet contract addresses" />
+          <p className={s.fine}>
+            From <code className={b.code}>{status.file}</code>
+            {status.deployBlock !== null ? <> · deploy block #{fmtInt(status.deployBlock)}</> : null}. Links open
+            testnet.monadexplorer.com.
+          </p>
+        </div>
+      </div>
+      <dl className={`${s.limitGrid} ${s.testnetGrid}`} aria-label="Testnet deployment limits">
+        {tiles.map((t) => (
+          <div key={t.k} className={s.limit}>
+            <dt>{t.k}</dt>
+            <dd className={t.v === null ? s.limitPending : s.limitValue}>{t.v ?? "not in the file"}</dd>
+            <dd className={s.limitSub}>{t.sub}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
@@ -498,16 +658,21 @@ function Powers({ status }: { status: ProductionStatus }) {
 
 /* ---- Section ------------------------------------------------------------ */
 
-export function ProductionBeta({ status }: { status: ProductionStatus }) {
+/** `testnet`: deployments/10143.json with "production": true (see production.server.ts). */
+export function ProductionBeta({ status, testnet }: { status: ProductionStatus; testnet: ProductionStatus }) {
   return (
     <section id="beta" className={`${b.light} ${b.surface} ${b.section} ${s.section}`} aria-labelledby="beta-title">
       <div className={b.container}>
         <div className={b.sectionHead}>
-          <p className={b.eyebrow}>Mainnet beta</p>
+          <p className={b.eyebrow}>{testnet.live && !status.live ? "Production contracts" : "Mainnet beta"}</p>
           <h2 id="beta-title" className={b.h2}>
             {status.live ? (
               <>
                 Live on Monad mainnet, <em>capped and unaudited.</em>
+              </>
+            ) : testnet.live ? (
+              <>
+                Live on testnet. <em>Real money waits for a launch gate.</em>
               </>
             ) : (
               <>
@@ -522,9 +687,13 @@ export function ProductionBeta({ status }: { status: ProductionStatus }) {
             timelock and a multisig.{" "}
             {status.live
               ? "They are deployed on Monad mainnet as a small, capped beta."
-              : "They go to Monad mainnet only if every check in the launch gate passes."}
+              : testnet.live
+                ? "They run on Monad testnet now with Agora's testnet AUSD (no real value), and go to Monad mainnet only if every check in the launch gate passes."
+                : "They go to Monad mainnet only if every check in the launch gate passes."}
           </p>
         </div>
+
+        {testnet.live && !status.live ? <TestnetDeployment status={testnet} /> : null}
 
         <div className={s.topGrid}>
           <LaunchGate status={status} />

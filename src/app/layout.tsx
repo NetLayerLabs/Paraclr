@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { loadProductionStatus } from "@/components/landing/production.server";
+import { loadProductionStatus, loadTestnetProductionStatus } from "@/components/landing/production.server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,6 +21,9 @@ const SITE_DESCRIPTION_BASE =
 // The status sentence follows deployments/143.json ("production": true), read at build time.
 const STATUS_LIVE = "Capped, unaudited beta on Monad mainnet: use only what you can afford to lose.";
 const STATUS_PENDING = "Testnet build for Monad Metropolis; the mainnet beta is pending its launch gate.";
+// deployments/10143.json with "production": true.
+const STATUS_TESTNET =
+  "Production contracts live on Monad testnet (test funds, no real value); the mainnet beta is pending its launch gate.";
 
 // Absolute base for OG/Twitter image URLs. Set NEXT_PUBLIC_SITE_URL (e.g.
 // https://paraclr.example) on the host; unset, Next falls back to its default
@@ -37,8 +40,8 @@ function siteUrl(): URL | undefined {
 const SITE_URL = siteUrl();
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { live } = await loadProductionStatus();
-  const description = `${SITE_DESCRIPTION_BASE} ${live ? STATUS_LIVE : STATUS_PENDING}`;
+  const [{ live }, testnet] = await Promise.all([loadProductionStatus(), loadTestnetProductionStatus()]);
+  const description = `${SITE_DESCRIPTION_BASE} ${live ? STATUS_LIVE : testnet.live ? STATUS_TESTNET : STATUS_PENDING}`;
   return {
     ...(SITE_URL ? { metadataBase: SITE_URL } : {}),
     title: { default: SITE_TITLE, template: "%s · Paraclr" },

@@ -1,5 +1,6 @@
 // Server-only: reads `deployments/143.json` (Monad mainnet) for the landing page,
-// the /terms and /risk pages, the root metadata and the OG card.
+// the /terms and /risk pages, the root metadata and the OG card, and
+// `deployments/10143.json` (Monad testnet) for the landing's testnet state.
 //
 // The mainnet beta counts as LIVE only when that file exists, parses, names
 // chain 143 (or no chain), carries `"production": true` and lists at least one
@@ -7,6 +8,14 @@
 // never claim live before the file exists, and we never invent a parameter: a
 // value that isn't in the file (under one of the keys below) shows as "set at
 // launch".
+//
+// The same rules decide "Live on Monad testnet" from deployments/10143.json
+// (chain 10143). That file name is shared with the older demo stack, whose
+// format has no `"production"` flag: without `"production": true` it is NOT
+// the production deployment and the testnet state stays off (the demo stack
+// is reported by benchResults.server.ts instead). Both files are read from the
+// repo's deployments/ only (never PARACLR_DEPLOYMENTS_DIR): the landing claims
+// what is committed, not a local rehearsal.
 //
 // The file is written by contracts/script/DeployProd.s.sol (contracts agent).
 // Keys read here (see docs/PRODUCTION_PLAN.md, Deviations, content agent):
@@ -37,6 +46,11 @@ import { cache } from "react";
 export const MONAD_MAINNET_CHAIN_ID = 143;
 export const MONADSCAN = "https://monadscan.com";
 export const PRODUCTION_FILE = `deployments/${MONAD_MAINNET_CHAIN_ID}.json`;
+
+export const MONAD_TESTNET_CHAIN_ID = 10143;
+/** Monad testnet explorer (viem `monadTestnet.blockExplorers.default`). */
+export const MONAD_TESTNET_EXPLORER = "https://testnet.monadexplorer.com";
+export const TESTNET_PRODUCTION_FILE = `deployments/${MONAD_TESTNET_CHAIN_ID}.json`;
 
 export interface ProdContract {
   key: string;
@@ -70,12 +84,25 @@ export interface ProductionStatus {
   live: boolean;
   /** Why an existing file doesn't count as live (server logs only; never shown as a claim). */
   problem: string | null;
+  /** Which deployment this describes. */
+  network: "mainnet" | "testnet";
+  /** Repo path of the deployment file. */
+  file: string;
+  /** Explorer base URL for the contract links. */
+  explorer: string;
   chainId: number;
   deployBlock: number | null;
   deployedAt: string | null;
   contracts: ProdContract[];
   params: ProdParams;
   markets: string[];
+  /**
+   * Testnet only: the file records that the clearinghouse was switched to the
+   * keeper-signed fallback oracle after the Pyth data trial (`oracle` equal to
+   * `fallbackOracle`, as `oracle:fallback record --live` writes). Prices are
+   * then labelled "simulated after the Pyth trial".
+   */
+  pricesSimulated: boolean;
 }
 
 type Json = Record<string, unknown>;
@@ -108,16 +135,28 @@ const EMPTY_PARAMS: ProdParams = {
   fundingIntervalSeconds: null,
 };
 
-const PENDING: ProductionStatus = {
-  live: false,
-  problem: null,
-  chainId: MONAD_MAINNET_CHAIN_ID,
-  deployBlock: null,
-  deployedAt: null,
-  contracts: [],
-  params: EMPTY_PARAMS,
-  markets: [],
-};
+const NETWORKS = {
+  mainnet: { chainId: MONAD_MAINNET_CHAIN_ID, file: PRODUCTION_FILE, explorer: MONADSCAN },
+  testnet: { chainId: MONAD_TESTNET_CHAIN_ID, file: TESTNET_PRODUCTION_FILE, explorer: MONAD_TESTNET_EXPLORER },
+} as const;
+
+function pending(network: ProductionStatus["network"]): ProductionStatus {
+  const n = NETWORKS[network];
+  return {
+    live: false,
+    problem: null,
+    network,
+    file: n.file,
+    explorer: n.explorer,
+    chainId: n.chainId,
+    deployBlock: null,
+    deployedAt: null,
+    contracts: [],
+    params: EMPTY_PARAMS,
+    markets: [],
+    pricesSimulated: false,
+  };
+}
 
 /** Known contract / role keys → display name + one-line role. Unknown keys are humanized. */
 const KNOWN: Record<string, { name: string; role: string; external?: boolean; order: number }> = {
@@ -136,6 +175,21 @@ const KNOWN: Record<string, { name: string; role: string; external?: boolean; or
   guardian: { name: "Guardian", role: "Can pause deposits and new increase orders. Cannot unpause or change parameters", order: 4 },
   ops: { name: "Ops key", role: "Funding-rate updates and monitoring", order: 5 },
   ausd: { name: "AUSD (Agora)", role: "Collateral token. Issued by Agora, not by Paraclr", external: true, order: 6 },
+  backstopoperators: { name: "Lane keeper", role: "May reduce its own lane's backstop pool only", order: 5 },
+  // Testnet files (deploy:testnet, oracle:fallback; docs/TESTNET_PLAN.md Deviations).
+  realpyth: { name: "Pyth", role: "Price oracle contract. Run by Pyth, not by Paraclr", external: true, order: 7 },
+  ausdfaucet: {
+    name: "AUSD faucet (Agora)",
+    role: "Agora's testnet faucet: 10,000 test AUSD per claim, one claim a minute across everyone",
+    external: true,
+    order: 6,
+  },
+  fallbackoracle: {
+    name: "Fallback oracle (standby)",
+    role: "Testnet only: keeper-signed prices for after the Pyth trial. Not in use until the timelock switches to it",
+    order: 7,
+  },
+  fallbacksigner: { name: "Fallback price signer", role: "Signs the fallback oracle's prices; holds no funds", order: 8 },
   pyth: { name: "Pyth", role: "Price oracle contract. Run by Pyth, not by Paraclr", external: true, order: 7 },
   deployer: { name: "Deployer", role: "Deploy key. The deploy script renounces its powers", order: 9 },
 };
@@ -171,7 +225,8 @@ function collectContracts(dep: Json): ProdContract[] {
       if (isAddress(v)) add(k, v);
       else if (isObj(v) && isAddress(v.address)) add(k, v.address); // e.g. pyth: { address, feeds }
       else if (Array.isArray(v) && v.length > 0 && v.every(isAddress)) {
-        v.forEach((a, i) => add(k, a, ` ${i}`));
+        // backstopOperators[i] is lane i's keeper; lanes are numbered from 1 in the UI.
+        v.forEach((a, i) => add(k, a, norm(k) === "backstopoperators" ? ` · lane ${i + 1}` : ` ${i}`));
       }
     }
   };
@@ -258,42 +313,104 @@ function parseParams(dep: Json): ProdParams {
   };
 }
 
-async function load(): Promise<ProductionStatus> {
-  const path = join(process.cwd(), "deployments", `${MONAD_MAINNET_CHAIN_ID}.json`);
-  let text: string;
-  try {
-    text = await readFile(path, "utf8");
-  } catch {
-    return PENDING; // not deployed: the normal pre-launch state
-  }
-  let dep: unknown;
-  try {
-    dep = JSON.parse(text);
-  } catch {
-    return { ...PENDING, problem: `${PRODUCTION_FILE} is not valid JSON` };
-  }
-  if (!isObj(dep)) return { ...PENDING, problem: `${PRODUCTION_FILE} is not an object` };
+/** Pure: a parsed deployment JSON → status (exported for checks against fixtures). */
+export function parseProductionStatus(dep: unknown, network: ProductionStatus["network"]): ProductionStatus {
+  const base = pending(network);
+  const file = base.file;
+  if (!isObj(dep)) return { ...base, problem: `${file} is not an object` };
   const chainId = toNumber(dep.chainId);
-  if (chainId !== null && chainId !== MONAD_MAINNET_CHAIN_ID) {
-    return { ...PENDING, problem: `${PRODUCTION_FILE} says chainId ${chainId}` };
+  if (chainId !== null && chainId !== base.chainId) {
+    return { ...base, problem: `${file} says chainId ${chainId}` };
   }
-  if (dep.production !== true) return { ...PENDING, problem: `${PRODUCTION_FILE} has no "production": true` };
-  const contracts = collectContracts(dep);
-  if (contracts.length === 0) return { ...PENDING, problem: `${PRODUCTION_FILE} lists no contract addresses` };
+  if (dep.production !== true) return { ...base, problem: `${file} has no "production": true` };
+  let contracts = collectContracts(dep);
+  const lc = (v: unknown) => (isAddress(v) ? v.toLowerCase() : null);
+  const fallback = lc(dep.fallbackOracle);
+  // `oracle:fallback record --live` (testnet, after the Pyth trial) points pyth / oracle at the fallback.
+  const pricesSimulated =
+    network === "testnet" &&
+    (dep.priceSource === "keeper-signed" ||
+      (fallback !== null && lc(dep.oracle) === fallback && dep.priceSource !== "pyth"));
+  // One row per address and meaning: DeployProd writes `oracle` = `pyth`; testnet files add
+  // `realPyth` (= `pyth` until the switch) and `fallbackOracle` (= `pyth` after it).
+  const realPyth = lc(dep.realPyth) ?? lc(dep.pyth);
+  contracts = contracts
+    .filter((c) => {
+      const k = norm(c.key);
+      const a = c.address.toLowerCase();
+      if (k === "oracle") return a !== lc(dep.pyth) && a !== realPyth && a !== fallback;
+      if (k === "pyth") return a === realPyth && !contracts.some((o) => norm(o.key) === "realpyth" && o.address.toLowerCase() === a);
+      return true;
+    })
+    .map((c) =>
+      norm(c.key) === "fallbackoracle" && pricesSimulated
+        ? {
+            ...c,
+            name: "Price oracle (keeper-signed)",
+            role: "Testnet only, after the Pyth trial: prices signed by the Paraclr keeper, not attested by Pyth",
+          }
+        : c,
+    );
+  if (network === "testnet") {
+    contracts = contracts.map((c) =>
+      norm(c.key) === "ausd"
+        ? { ...c, name: "AUSD (Agora, testnet)", role: "Agora's testnet AUSD: test funds, no real value. Issued by Agora, not by Paraclr" }
+        : c,
+    );
+  }
+  if (contracts.length === 0) return { ...base, problem: `${file} lists no contract addresses` };
 
-  const markets = isObj(dep.markets) ? Object.keys(dep.markets) : [];
-  const deployedAt = typeof dep.deployedAt === "string" ? dep.deployedAt : null;
+  // The app's market order (MON, SOL, BTC), then anything else alphabetically.
+  const ORDER = ["MON", "SOL", "BTC"];
+  const rank = (m: string) => {
+    const i = ORDER.indexOf(m.split("/")[0]);
+    return i === -1 ? ORDER.length : i;
+  };
+  const markets = isObj(dep.markets)
+    ? Object.keys(dep.markets).sort((x, y) => rank(x) - rank(y) || x.localeCompare(y))
+    : [];
+  const deployedAt =
+    typeof dep.deployedAt === "string"
+      ? dep.deployedAt
+      : toNumber(dep.deployedAt) !== null
+        ? new Date(toNumber(dep.deployedAt)! * 1000).toISOString()
+        : null;
   return {
+    ...base,
     live: true,
     problem: null,
-    chainId: MONAD_MAINNET_CHAIN_ID,
     deployBlock: toNumber(dep.deployBlock),
     deployedAt,
     contracts,
     params: parseParams(dep),
     markets,
+    pricesSimulated,
   };
 }
 
-/** Memoized per render (layout metadata, page and OG card share one read). */
-export const loadProductionStatus = cache(load);
+async function load(network: ProductionStatus["network"]): Promise<ProductionStatus> {
+  const n = NETWORKS[network];
+  const path = join(process.cwd(), "deployments", `${n.chainId}.json`);
+  let text: string;
+  try {
+    text = await readFile(path, "utf8");
+  } catch {
+    return pending(network); // not deployed: the normal pre-launch state
+  }
+  let dep: unknown;
+  try {
+    dep = JSON.parse(text);
+  } catch {
+    return { ...pending(network), problem: `${n.file} is not valid JSON` };
+  }
+  return parseProductionStatus(dep, network);
+}
+
+/** Mainnet beta (deployments/143.json). Memoized per render (layout metadata, page and OG card share one read). */
+export const loadProductionStatus = cache(() => load("mainnet"));
+
+/**
+ * Production contracts on Monad testnet (deployments/10143.json with
+ * `"production": true`; the older demo-stack file doesn't count).
+ */
+export const loadTestnetProductionStatus = cache(() => load("testnet"));
