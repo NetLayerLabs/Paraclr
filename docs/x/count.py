@@ -45,6 +45,14 @@ FILL = {
     "[E_NAIVE]": "9,999",
     "[XTXS]": "999",
     "[METHOD]": "local anvil-fork replay",
+    # mainnet beta (docs/x/mainnet-beta.md), from deployments/143.json
+    "[CAP_DEPOSIT]": "10,000",
+    "[CAP_LANE]": "100,000",
+    "[MAX_LEV]": "20",
+    "[TIMELOCK_H]": "168",
+    "[MIN_DELAY]": "120 s",
+    "[FEE_BPS]": "100",
+    "[CHECK]": "the adversarial internal review",
 }
 LINK_RE = re.compile(r"\[LINK:[^\]]*\]")
 HANDLE_RE = re.compile(r"\[HANDLE:[^\]]*\]")

@@ -26,6 +26,7 @@ Status: DRAFT. A human reviews and posts each one. Handles are unverified placeh
 | Sat Oct 10 | Live on Monad testnet: first measured auction crash | `deployments/10143.json` and a `bench/results/10143-*.json` with `auctions` are committed |
 | Sun Oct 11 | The X-ray on Monad testnet, then the technical deep dive (`technical-deep-dive.md`) | A `bench/xray/10143-*.json` is committed; contracts and keeper owners reviewed the deep dive |
 | Mon Oct 12 | Demo video + submitted | Submission sent; video uploaded |
+| Launch day (any day) | Mainnet beta thread (`mainnet-beta.md`), or its fallback post if the gate failed | Thread: `deployments/143.json` committed with `"production": true`, every launch-gate check passed, legal review of `/terms` and `/risk` done. Fallback: the decision not to launch is final for the submission |
 | Tue Oct 13 | Deadline buffer | If the submission slipped, submit first, then post the Oct 12 entry |
 
 ---

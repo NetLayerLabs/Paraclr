@@ -11,7 +11,10 @@ re-execution counts), backstop returns "earned since deploy" (never APY), lanes 
 2. (126 chars) `Liquidations priced by the block clock, not gas bidding. Backstop LPs per lane, a Conflict X-ray per crash. Building on Monad.`
 3. (136 chars) `Paraclr: fair liquidations on Monad testnet. Auctions per lane, solvency checked every block, AUSD margin (test token). Hackathon build.`
 
-Bio 3 says "Monad testnet", so use it only after the testnet deploy. Until then, use bio 1.
+4. (121 chars) `Fair liquidations on Monad. Capped, unaudited mainnet beta: real AUSD, Pyth prices. Use only what you can afford to lose.`
+
+Bio 3 says "Monad testnet", so use it only after the testnet deploy. Bio 4 is for after the mainnet beta launches
+(`deployments/143.json` with `"production": true`); never before. Until then, use bio 1.
 
 Name field suggestion: `Paraclr` (optionally `Paraclr | fair liquidations`).
 Link field: the repo or demo URL once it's public. Until then, leave it blank.
@@ -86,6 +89,18 @@ No. Those aren't observable from outside the node. It shows read/write dependenc
 
 ```
 No. Contracts can't choose Monad's execution threads. Our 8 lanes are a storage layout: everything resolving an account writes lives in its lane, so lanes' auction txs don't share writes and Monad has no reason to re-run one because of another.
+```
+
+**"Is this live / on mainnet?", after the mainnet beta launches** (207 chars)
+
+```
+Yes, as a small capped beta on Monad mainnet with real AUSD. Not audited: internal review and Slither only. Check the contract addresses on our landing page before approving anything: [LINK: landing contracts]
+```
+
+**"Is this live / on mainnet?", testnet deployed, mainnet gate not passed** (215 chars)
+
+```
+Testnet, not mainnet. A capped mainnet beta launches only if every check in our launch gate passes, and it hasn't yet. Nothing of ours is on mainnet; anything claiming to be is fake. Testnet: [LINK: explorer]
 ```
 
 **"Is this live / on mainnet?", after the testnet deploy** (220 chars)

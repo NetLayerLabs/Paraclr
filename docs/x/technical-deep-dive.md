@@ -22,12 +22,12 @@ Character counts are X-weighted lengths, measured by `docs/x/count.py`, excludin
 
 ## Version A: post before measured Monad testnet numbers exist
 
-### 1/10 (252 chars)
+### 1/10 (250 chars)
 
 ```
 How do you make liquidations fair, and fast enough to matter, on a parallel EVM?
 
-Paraclr's answer: price them with a clock instead of a race, give every lane a guaranteed taker, and publish the dependency graph of every crash.
+Paraclr's answer: price them with a clock instead of a race, give every lane a standing taker, and publish the dependency graph of every crash.
 
 A thread on the design:
 ```

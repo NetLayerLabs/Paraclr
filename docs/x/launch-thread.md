@@ -34,6 +34,10 @@ Streams isn't live in our demo.
   say "on Monad testnet". Anvil numbers say "local anvil, not Monad". No simulation timings in this thread.
 - **Testnet honesty:** test AUSD (stand-in token), simulated price feed pushed on-chain, seeded synthetic accounts,
   operator-seeded backstop pools, unaudited, no session keys.
+- **Mainnet beta:** never mention real money, mainnet or real AUSD as live unless `deployments/143.json` is committed
+  with `"production": true`. Launch-day posts, the fallback if the launch gate fails, and replies are in
+  `mainnet-beta.md`. Never "audited", "safe" or "guaranteed"; the label is "Unaudited beta · capped · use only what
+  you can afford to lose".
 
 Character counts are X-weighted lengths, measured by `docs/x/count.py`. A URL counts as 23. "Filled" is the worst-case
 length after the `[PLACEHOLDERS]` are replaced (sizes in the script). Media placeholders sit outside the text blocks
