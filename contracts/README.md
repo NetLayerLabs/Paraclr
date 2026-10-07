@@ -16,6 +16,10 @@ Built with Foundry. Solidity `0.8.24`, `evm_version = cancun`.
 | `src/oracles/MockOracle.sol` | Prices set by the owner or an allowlisted updater. Includes `shockPrice(id, 8000)` / `shockPrices(ids, 8000)` for the "-20% flash crash" |
 | `src/oracles/ChainlinkStreamsOracle.sol` | Data Streams adapter. Signed v3 reports are verified through the `verifier` (VerifierProxy) |
 | `script/Deploy.s.sol` | Deploys MockAUSD, MockOracle, ParaclrClearinghouseDemo and NaiveClearinghouseDemo (same oracle and AUSD). Lists MON/SOL/BTC on both, allowlists the price pusher, funds every lane's insurance and seeds every lane's backstop pool on both, then writes `../deployments/<chainId>.json` |
+| `src/prod/ParaclrClearinghouseProd.sol` | **Production (guarded mainnet beta, unaudited).** Real AUSD, verified Pyth prices, delayed orders, fees, funding, caps, fair-liquidation auctions, pause and timelock admin. See [*Production*](#production-monad-mainnet-guarded-beta) |
+| `script/DeployProd.s.sol` | Production deploy: verifies AUSD and Pyth on chain, deploys a TimelockController and the clearinghouse, applies the beta caps, hands ownership to the timelock |
+| `SECURITY_NOTES.md` | Slither triage, internal review findings and residual risks of the production set |
+| `REVIEW.md` | Internal adversarial review of the production set. Its PoCs in `test/review/` are flipped into regressions (each asserts the exploit fails) |
 
 ## Why lanes? (the parallel-execution design)
 
@@ -345,3 +349,423 @@ To use live Chainlink Data Streams, deploy `ChainlinkStreamsOracle(owner, verifi
 - Each market allows one position per account. There is no increasing, partial closing or flipping. Close the position and reopen instead. An external taker can't inherit a market it already holds.
 - `ParaclrClearinghouseDemo.seedAccounts` and `NaiveClearinghouseDemo` are benchmark conveniences. A production deployment would use `ParaclrClearinghouse` with `sharedState = false`.
 - Not yet deployed to Monad testnet: so far it has only been run on local anvil (`bench/results/31337-*.json`). The Monad deploy is one command once funded keys exist; see `keeper/README.md`.
+
+---
+
+## Production (Monad mainnet guarded beta)
+
+> **Unaudited beta · capped · use only what you can afford to lose.** Launch only if every item of the launch gate in
+> [`docs/PRODUCTION_PLAN.md`](../docs/PRODUCTION_PLAN.md) passes. Review record and residual risks:
+> [`SECURITY_NOTES.md`](SECURITY_NOTES.md).
+
+The production set is a separate contract, `src/prod/ParaclrClearinghouseProd.sol`. The demo contracts above are
+unchanged and remain the hackathon evidence. The production contract keeps the demo's lane design and its
+fair-liquidation mechanism. It adds:
+
+- real AUSD as collateral;
+- Pyth prices verified on chain;
+- delayed orders;
+- trading fees and funding;
+- caps;
+- a guardian who can only pause;
+- a TimelockController as owner.
+
+It has no demo functions: no `seedAccounts`, `sharedState`, `liquidateBatch`, MockOracle or faucet.
+
+### Verified facts (2026-10-07)
+
+| Fact | Value | Source / how verified |
+| --- | --- | --- |
+| Chain | Monad mainnet, chain id 143 | `cast chain-id --rpc-url https://rpc.monad.xyz` |
+| Max contract size | **128 KB** runtime, 256 KB initcode | [docs.monad.xyz/developer-essentials/differences](https://docs.monad.xyz/developer-essentials/differences): "The maximum contract code size limit is 128 KB (up from 24 KB in Ethereum)" |
+| EVM | Fusaka opcodes; TSTORE/TLOAD, MCOPY and PUSH0 live | Monad docs; also checked with `eth_call` of initcode that exercises each opcode on mainnet |
+| Gas billing | charged on the **gas limit**, not gas used; block limit 150M, tx limit 30M; base fee 100 gwei | [docs.monad.xyz/developer-essentials/gas-pricing](https://docs.monad.xyz/developer-essentials/gas-pricing); `cast block latest` |
+| AUSD | `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a`, symbol "AUSD", **6 decimals**, `version()` 2.1.0 | [docs.agora.finance/developer/contract-deployments](https://docs.agora.finance/developer/contract-deployments); `cast call … decimals()` |
+| AUSD behaviour | EIP-1967 proxy (impl `0xc1e3c7d4…12da`, `AgoraDollar`, verified on Sourcify). Upgradeable **instantly** by an EOA-owned ProxyAdmin. Roles (EOAs) can **freeze** any account (a frozen sender **or** recipient reverts), **pause** transfers and **burn** from any address. **No** fee-on-transfer and **no** rebasing in the current code. Has EIP-2612 permit and EIP-3009. All pause and upgrade flags currently false | Sourcify source + `cast call`/`cast storage` (EIP-1967 slots), [docs.agora.finance/developer/rbac](https://docs.agora.finance/developer/rbac) |
+| Pyth (used) | `0x2880aB155794e7179c9eE2e38200202908C17B43`, ERC1967 proxy, impl `0xd35e56c0…4b71`, `version()` **1.4.6**. Has `parsePriceFeedUpdatesUnique` (selector `0xaccca7f9`). Update fee **0** (`singleUpdateFeeInWei` = 0, `getUpdateFee` = 0) | [Monad protocol registry `pyth.jsonc`](https://raw.githubusercontent.com/monad-crypto/protocols/main/mainnet/pyth.jsonc) (linked from [docs.monad.xyz/tooling-and-infra/oracles](https://docs.monad.xyz/tooling-and-infra/oracles)); bytecode selector scan; `cast call` |
+| Pyth semantics | `parsePriceFeedUpdatesUnique` accepts an update only if `min ≤ publishTime ≤ max` **and** `prevPublishTime < min`. It does not store anything. Excess `msg.value` is **not** refunded | Pyth.sol at 1.4.6 (pyth-crosschain); **replayed a real mainnet payload with `eth_call`**: it accepts only `min == publishTime` (1791330282) and rejects `min = publishTime ± 1` |
+| Pyth (alternative) | `0xB754BA51E3861Ac0Cb67f73CD046dE790A36508d` ("upgraded", `version()` 1.4.5-alpha.1) also parses today's payloads. It is listed on [docs.pyth.network/price-feeds/core/upgrade/contracts](https://docs.pyth.network/price-feeds/core/upgrade/contracts); switching is a timelocked `setPyth` | same `eth_call` replay |
+| Hermes | Since 2026-08-26, `/v2/updates/*` requires an API key (`Authorization: Bearer $PYTH_API_KEY`). `/v2/price_feeds` stays open. Pyth recommends `https://pyth.dourolabs.app/hermes` | HTTP 401 from hermes.pyth.network; [docs.pyth.network/price-feeds/core/upgrade/preparing](https://docs.pyth.network/price-feeds/core/upgrade/preparing) |
+| Feed ids | MON/USD `0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1`, SOL/USD `0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d`, BTC/USD `0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43` (all expo −8). They are pushed on chain every few seconds (seen 0–30 s old) | Hermes `/v2/price_feeds?query=…`; `getPriceUnsafe` on mainnet |
+| Safe | Deployed on 143: SafeL2 1.4.1 `0x29fc…C762`, ProxyFactory `0x4e1D…ec67`, MultiSend `0x3886…B526`; code hashes match safe-deployments. The Safe UI supports Monad (tx service `api.safe.global/tx-service/monad`) | [safe-deployments](https://github.com/safe-global/safe-deployments) network lists; [safe-config chains/143](https://safe-config.safe.global/api/v1/chains/143/); `cast codesize` |
+
+### Design (v5, after the adversarial review and the v2, v3 and v4 re-reviews)
+
+The contract was revised four times after internal adversarial reviews ([`REVIEW.md`](REVIEW.md)). Every finding, its fix
+and its regression test are listed in [`SECURITY_NOTES.md`](SECURITY_NOTES.md) §1.
+
+- **Lanes:** `lane = uint160(account) % 8`.
+  - Every per-trade accumulator and cap is lane-local or account-local: insurance, bad debt, OI, ledgers, AUSD held,
+    the last-used price, the pool, the auction list, keeper rewards and execution fees owed.
+  - Order ids are `uint160(account) << 96 | nonce`, so there is no global counter.
+  - The reentrancy lock, the per-call price cache and the Pyth-fee meter use transient storage.
+  - `test/prod/ProdParallel.t.sol` proves with `vm.record` that lane-3 and lane-5 transactions do not conflict on
+    storage: commits, executions, auction batches, and an order against the other lane's pool take. A negative control
+    shows that two transactions in the same lane do conflict.
+- **Prices (Pyth), per-lane monotonic:**
+  - Every state-changing call uses, per market, the **newest** of three sources: the caller-supplied update (≤
+    `maxPriceAge` = 30 s), the Pyth-stored price (≤ `maxStoredPriceAge` = 15 s), and **the newest price this lane has
+    already used** (`lanePrice`, also ≤ 15 s). It then records that price for the lane. Within a lane, prices never
+    move backwards.
+  - Each price is expo-normalised to 1e18 and rejected if `price ≤ 0`, if the exponent is outside [−30, 12], or if
+    `conf / price > maxConfBps`.
+  - **Only the markets a call touches** are parsed and validated: the account's, the batch accounts', or the pool's.
+    Partial update blobs are fine. An unusable market is cached as unusable and only reverts where it is needed;
+    batches skip such accounts (`AccountSkipped`).
+  - Order fills use Pyth's **unique first update at or after `execAfter`**. That price is historical and does not
+    advance the lane's price.
+  - **Dead feeds:** `replaceMarketFeed(market, newFeed, maxDeviationBps)` (timelock) repoints a market even with open
+    interest. The new feed's stored price must be within `maxDeviationBps` of the market's newest price in every lane
+    with OI: ≤ 10% while the old feed is live, ≤ 50% once it is provably dead on chain (no stored price, older than
+    `DEAD_FEED_AGE` = 1 h, or unusable: a "zombie" with a non-positive price or too-wide confidence). A lane that never
+    recorded a price is checked against the old feed's stored price (confidence ignored), else the market's newest
+    price in any lane. The procedure is in SECURITY_NOTES §4.
+- **Delayed orders:**
+  - `commitOrder` escrows the margin (a reservation) and the native MON execution fee. It records `reduceOnly` and the
+    id of the position the order applies to.
+  - `executeOrder` (anyone) must run in [`execAfter`, `deadline`]. The account's **other legs** are priced from the
+    executor's update **through the per-lane monotonic path** (never older than the lane price), so no separate Pyth
+    push is needed.
+  - If the position changed since commit (taken, closed, inherited), the fill fails (`PositionChanged`). A reduce can
+    never increase.
+  - Fill-level failures mark the order **Failed**: escrow is released and the executor is still paid. Oracle problems,
+    out-of-gas and panics revert the whole call instead.
+  - `cancelOrder` (anyone) works only after the deadline and refunds the fee to the account.
+  - **An account in auction may commit reduce-only orders.** One fills only if it leaves the account at or above
+    maintenance, at both the fill price and the current price, and that ends the auction. The current price must be
+    strictly newer than `execAfter` and at most `maxStoredPriceAge` old, whatever the blob order (else `StalePrice`
+    and the order stays pending).
+- **Fees:** the trading fee is `tradingFeeBps` × notional, rounded up, and goes to the lane: bad debt first, then the
+  pool's receivable, then insurance. **On increases it is paid out of the order's margin**, so "deposit 50, trade at
+  10x with all 50" fills; leverage is checked on the gross margin. **An increase that adds margin may not leave margin
+  above notional** (≥ 1x).
+- **Funding:** the global-skew rate is set by a rate-limited `updateFunding` and settled on touch. Backstop pools pay
+  and receive funding too.
+- **Caps:**
+  - `maxLeverage`.
+  - `maxDepositPerAccount` and `maxTvlPerLane` bind every deposit, except **`topUpAllowance(account)`**. That
+    exemption exists only while an account holding positions has equity **below its initial margin**, and only up to
+    the amount that restores **100%** of initial margin (never above, so exempt money cannot fund new margin).
+    `depositWithPrice(amount, priceUpdate)` computes it at fresh prices when Pyth storage is stale. Holders may
+    deposit while paused.
+  - **No new margin above the account cap:** while collateral is above `maxDepositPerAccount`, a margin-adding
+    increase is refused at commit and again at fill (`CollateralAboveCap`), so exempt top-ups only ever offset the
+    account's own losses.
+  - `maxTvlPerLane`: trader collateral plus pool cash.
+  - **OI cap per lane, market and side** = `min(maxLaneOi, lane insurance × oiCapMultiplierBps)`. Pool cash does not
+    count.
+  - `minPositionNotional`; the first deposit must be ≥ 1 AUSD.
+- **Liquidation:** the fair-liquidation Dutch auction.
+  - The pool and external takers are **both paid at most the trader's remaining equity**, `min(P, max(E, 0))`.
+  - Accounts whose equity is **already negative** at `startAuctions` are not auctioned. They are **closed out at
+    once** (`AuctionExpired`), so their loss is booked immediately.
+  - **Cure** (`cancelAuction`) needs equity ≥ maintenance and never works in the start block.
+  - Expiry is the 1% legacy close-out.
+- **Backstop pools:**
+  - Shares belong to an **epoch**. When a flat pool's cash goes negative it first nets its receivable
+    (`BackstopReceivableNetted`). Only if cash + receivable ≤ 0 is the rest written off and every share retired
+    (`BackstopPoolReset`); the next deposit starts fresh at 1:1.
+  - **Deposits are refused while the pool has a receivable outstanding** (`BackstopReceivableOutstanding`) **or while
+    its unrealised gain exceeds lane insurance** (`BackstopGainCapBinding`), so a deposit is always priced at the full
+    NAV. `backstopDepositStatus(lane)` tells the app in advance.
+  - When the last LP leaves, the receivable is forgiven and any orphaned cash goes to the lane (`BackstopSwept`).
+  - **LP exits are two-step:** `backstopRequestWithdraw`, then wait `backstopWithdrawDelay` (1 h), then
+    `backstopWithdraw` **once** within a 1 h window, at the NAV of that moment. Any withdrawal consumes the request.
+  - **Exits count unrealised gains (and the receivable) as 0 until realised**: an exit is paid its share of
+    `cash + min(unrealised, 0)`, so nothing that moves with lane insurance can lift it. `backstopNav` reports this
+    exit NAV. Deposits are priced at the full NAV.
+  - **The last shares cannot leave while the pool holds any position** (`BackstopPositionsOpen`); the lane operator
+    unwinds the remainder first, so the sweep always runs.
+- **Lane isolation (solvency):**
+  - AUSD is accounted per lane (`held`). A lane's losses flow insurance → the lane's pool cash (`BackstopLossAbsorbed`)
+    → bad debt.
+  - Inflows (trader losses, fees, funding, `fundLane`) repay bad debt → the pool's receivable (`BackstopRepaid`,
+    `backstopReceivable`) → insurance. What the pool pays out is a loan to the lane.
+  - Bad debt is borne inside the lane by a **pro-rata haircut on every payout** from that lane (`held / (held +
+    badDebt)`), which also retires the matching debt (`LaneHaircut`).
+  - A lane never pays out more than it holds (`LaneInsolvent`). Fresh deposits and pool deposits into a lane with bad
+    debt are refused (`LaneInDeficit`); `fundLane` repays debt first.
+- **Admin:** owner = OpenZeppelin `TimelockController` (multisig proposer, executor and canceller, self-administered).
+  - The guardian can only call `pause()`. Pause blocks fresh deposits, pool deposits, and committing or executing
+    increase orders. Everything else keeps working; withdrawals are deliberately unpausable (SECURITY_NOTES §4).
+  - `backstopReduce` operators are **per lane**. `renounceOwnership` is disabled.
+
+### External API (`ParaclrClearinghouseProd`)
+
+Units: AUSD 6 dp, prices 1e18, sizes 1e18, funding index 1e18 = 100% of entry notional, bps.
+`marketId = keccak256(bytes("MON/AUSD"))`. Every `bytes[] priceUpdate` is **optional** Pyth update data for (some of)
+the markets the call touches: an empty array means Pyth storage or the lane price. Pass `IPyth.getUpdateFee(priceUpdate)`
+as `msg.value`; any excess is refunded.
+
+```solidity
+constructor(address initialOwner, IERC20 ausd, IPyth pyth);           // ausd must report 6 decimals
+
+// collateral
+function deposit(uint256 amount);  // caps (and >= 1 AUSD first, not into a deficit lane) apply to amount − topUpAllowance;
+                                   // accounts without positions cannot deposit while paused
+function depositWithPrice(uint256 amount, bytes[] priceUpdate) payable; // same, with topUpAllowance at the update's
+                                   // prices (lane-monotonic); the update is ignored for accounts without positions
+function withdraw(uint256 amount, bytes[] priceUpdate) payable;        // debits <= freeCollateral; pays previewWithdraw (lane haircut)
+function previewWithdraw(address account, uint256 amount) view returns (uint256 paid);
+function topUpAllowance(address account) view returns (uint256);       // deposit allowed outside the caps now (to 100% IM)
+function fundLane(uint8 lane, uint256 amount);                         // anyone; repays lane bad debt first
+function claimKeeperRewards() returns (uint256 paid);                  // AUSD expiry rewards, per-lane haircut
+function claimExecutionFees() returns (uint256);                       // native MON credited
+
+// orders
+function commitOrder(bytes32 market, int256 sizeDelta, uint256 marginDelta, uint256 acceptablePrice) payable returns (uint256 orderId);
+         // marginDelta > 0 refused while collateral > maxDepositPerAccount (CollateralAboveCap; re-checked at fill)
+function executeOrder(uint256 orderId, bytes[] priceUpdate) payable;   // unique fill update + (optional) latest for other legs
+function cancelOrder(uint256 orderId);                                 // after the deadline
+function getOrder(uint256) view returns (Order);  // (account, commitTime, status, reduceOnly, market, sizeDelta, marginDelta,
+                                                  //  acceptablePrice, executionFee, execAfter, deadline, positionId)
+function pendingOrderOf(address account, bytes32 market) view returns (uint256);
+// status: 0 None, 1 Pending, 2 Executed, 3 Failed (fill impossible, executor paid), 4 Cancelled (fee refunded)
+
+// funding
+function updateFunding(bytes32 market) returns (int256 ratePerSec);
+function fundingState(bytes32 market) view returns (int256 index, int256 ratePerSec, uint256 lastUpdate, int256 indexNow, uint256 nextUpdate);
+
+// auctions (batches revert AccountNotInLane on an out-of-lane account; unpriceable accounts are skipped)
+function startAuctions(uint8 lane, address[] accounts, bytes[] priceUpdate) payable returns (uint256 started); // E < 0: closed out at once
+function take(address account, bytes[] priceUpdate) payable returns (uint256 payment);      // min(P, max(E, 0))
+function backstopTakeBatch(uint8 lane, address[] accounts, bytes[] priceUpdate) payable returns (uint256 taken); // pool paid min(P, max(E, 0))
+function cancelAuction(address account, bytes[] priceUpdate) payable returns (bool);  // equity >= MM, not in the start block
+function expireBatch(uint8 lane, address[] accounts, bytes[] priceUpdate) payable returns (uint256 expired);
+function auctionOf(address) view returns (bool active, uint64 startBlock, uint16 discountBps);
+function auctionStats(uint8 lane) view returns (uint256 active, uint256 started, uint256 taken, uint256 cancelled, uint256 expired);
+function getAuctionAccounts(uint8 lane, uint256 offset, uint256 limit) view returns (address[]);
+function getLiquidatableAccounts(uint8 lane, uint256 offset, uint256 limit) view returns (address[]); // skips unpriceable
+
+// backstop pools
+function backstopDeposit(uint8 lane, uint256 amount, bytes[] priceUpdate) payable returns (uint256 shares);
+         // refused while a receivable is outstanding or the pool's gain exceeds lane insurance
+function backstopDepositStatus(uint8 lane) view returns (bool open, uint256 receivable, int256 unrealizedUncapped, uint256 insurance);
+function backstopRequestWithdraw(uint8 lane, uint256 shares);          // step 1 (0 cancels); works while paused
+function backstopWithdraw(uint8 lane, uint256 shares, bytes[] priceUpdate) payable returns (uint256 paid); // step 2;
+         // at the exit NAV; the last shares revert BackstopPositionsOpen while the pool holds a position
+function backstopWithdrawRequest(uint8 lane, address lp) view returns (uint256 shares, uint256 readyAt, uint256 expiresAt);
+function backstopReduce(uint8 lane, bytes32 market, uint256 size, bytes[] priceUpdate) payable returns (int256 realizedPnl); // owner or THIS lane's operator
+function backstopNav(uint8 lane) view returns (int256 equity, int256 cash, int256 unrealized, uint256 shareSupply);
+         // EXIT NAV: equity = cash + min(unrealised, 0); unrealized = equity - cash (<= 0)
+function backstopSharesOf(uint8 lane, address lp) view returns (uint256);   // current epoch only
+function backstopEpoch(uint8 lane) view returns (uint256);
+function backstopReceivable(uint8 lane) view returns (uint256);         // pool cash lent to the lane, repaid before insurance;
+                                                                        // forgiven when the last LP leaves
+function backstopPositions(uint8 lane) view returns (bytes32[] markets, int256[] signedSizes, uint256[] entryPrices);
+function backstopStats(uint8 lane) view returns (uint256 taken, uint256 discountEarned, uint256 notionalAbsorbed);
+function backstopMinDiscountBps(uint8 lane) view returns (uint256);
+
+// accounts, risk, caps
+function laneOf(address) pure returns (uint8);
+function accountHealth(address) view returns (int256 equity, uint256 maintenanceMargin, uint256 initialMargin, uint256 notional);
+function isLiquidatable(address) view returns (bool);
+function freeCollateral(address) view returns (uint256);
+function getAccount(address) view returns (int256 collateral, uint8 lane, bool registered, bytes32[] openMarkets, uint256 reservedMargin, uint256 orderNonce);
+function getPosition(address, bytes32) view returns (Position);     // (isLong, id, size, entryPrice, entryNotional, margin, fundingIndex)
+function unrealizedPnl(address, bytes32) view returns (int256 pnl, int256 funding);
+function laneTvl(uint8 lane) view returns (uint256);
+function laneOiCap(uint8 lane, bytes32 market) view returns (uint256);   // insurance-based
+function laneOpenInterest(uint8 lane, bytes32 market) view returns (uint256 longNotional, uint256 shortNotional);
+function openInterest(bytes32 market) view returns (uint256 longNotional, uint256 shortNotional);
+function getLane(uint8 lane) view returns (uint256 insuranceFund, uint256 badDebt, uint256 totalLiquidations, uint256 lastSettledAt, uint256 accountCount);
+function getLaneAccounts(uint8 lane, uint256 offset, uint256 limit) view returns (address[]);
+function keeperRewards(address) view returns (uint256);
+function executionFeesOwed(address) view returns (uint256);
+
+// markets and prices
+function getMarkets() view returns (bytes32[] ids, string[] symbols, bytes32[] feeds);
+function getMarket(bytes32) view returns (bool listed, string symbol, bytes32 feedId, uint256 skewScale, uint256 maxLaneOi, uint256 maxFundingBpsPerDay);
+function isMarketListed(bytes32) view returns (bool);
+function markPrice(bytes32) view returns (uint256);                    // Pyth-stored only, <= 15 s, validated
+function markPriceInLane(uint8 lane, bytes32) view returns (uint256);  // what that lane would use with priceUpdate = []
+function lanePrice(uint8 lane, bytes32) view returns (uint256 price, uint256 publishTime); // the lane's monotonic marker
+function latestPrice(bytes32) view returns (uint256 price, uint256 conf, uint256 publishTime); // raw, unchecked (display)
+
+// solvency
+function solvency() view returns (uint256 ausdHeld, uint256 liabilities, int256 surplus, bool solvent); // token vs Σ lanes' held
+function laneSolvency(uint8 lane) view returns (uint256 held, int256 claims, int256 surplus, uint256 insurance, uint256 badDebt, uint256 haircutBps);
+function nativeSolvency() view returns (uint256 held, uint256 liabilities, bool solvent);
+function laneLedger(uint8 lane) view returns (int256 collateral, uint256 insurance, int256 backstopCash, uint256 keeperRewardsOwed, uint256 badDebt, uint256 nativeEscrow, uint256 nativeOwed);
+
+// parameters (public getters): pyth, ausd, guardian, paused, owner, maxLeverage, tradingFeeBps, minPositionNotional,
+// maxDepositPerAccount, maxTvlPerLane, oiCapMultiplierBps, maxPriceAge, maxStoredPriceAge, maxConfBps, minExecDelay,
+// maxExecDelay, minExecutionFee, fundingUpdateInterval, backstopWithdrawDelay, auctionStepBps, auctionMaxDiscountBps,
+// isBackstopOperator(address, uint8 lane); constants incl. TOP_UP_TARGET_BPS (10000), MAX_FEED_SWAP_DEVIATION_BPS (1000),
+// MAX_DEAD_FEED_SWAP_DEVIATION_BPS (5000), DEAD_FEED_AGE (1 h), MAX_AUCTION_DISCOUNT_BPS, BACKSTOP_WITHDRAW_WINDOW (1 h)
+
+// roles
+function pause();                                                      // guardian or owner
+function unpause();                                                    // owner (timelock)
+// owner (timelock) only: setGuardian, setPyth, listMarket, setMarketConfig (feed change needs OI == 0),
+// replaceMarketFeed(market, newFeed, maxDeviationBps) (dead-feed recovery with OI; deviation <= 10%, <= 50% if the
+// old feed's stored price is missing or older than 1 h),
+// setRiskParams, setCaps (oi multiplier <= 10x), setOracleParams(maxPriceAge, maxStoredPriceAge, maxConfBps) (ages <= 60 s,
+// conf <= 5%), setOrderParams, setFundingParams, setBackstopParams(withdrawDelay) (1 min .. 7 days),
+// setAuctionParams (max discount <= 5%), setBackstopMinDiscount, setBackstopOperator(operator, lane, allowed),
+// transferOwnership. `selfFill` is internal plumbing (self-call only).
+```
+
+**Events:**
+
+- Orders: `OrderCommitted`, `OrderExecuted`, `OrderFailed`, `OrderCancelled` (each with `orderId`, `account` and
+  `market` indexed), `ExecutionFeeCredited`.
+- Positions and funding: `PositionUpdated`, `FundingSettled`, `BackstopFundingSettled`, `FundingUpdated`.
+- Collateral: `Deposit`, `Withdraw` (amount = **paid**), `LaneHaircut(lane, account, debited, paid)`, `AccountRegistered`,
+  `LaneFunded`, `KeeperRewardsClaimed`, `ExecutionFeesClaimed`, `BadDebtRealized`, `BackstopLossAbsorbed(lane, amount)`,
+  `BackstopRepaid(lane, amount)`.
+- Auctions and pools:
+  - `AuctionStarted`, `AuctionTaken`, `AuctionCancelled`, `AuctionExpired`. In `AuctionTaken`, `payment` is
+    `min(P, max(E, 0))` for both kinds of taker, and `badDebt` is the negative equity written off.
+  - `AccountSkipped(lane, account)`.
+  - `BackstopDeposit`, `BackstopWithdrawRequested(lane, lp, shares, readyAt)`, `BackstopWithdraw` (amount = paid),
+    `BackstopReduced`, `BackstopPoolReset(lane, epoch, retiredShares, deficit)`,
+    `BackstopReceivableNetted(lane, amount)`, `BackstopSwept(lane, cash, receivableForgiven)`.
+- Admin: `Paused`, `Unpaused`, `GuardianUpdated`, `PythUpdated`, `MarketListed`, `MarketConfigUpdated`,
+  `MarketFeedReplaced(market, oldFeed, newFeed, newPrice)`,
+  `RiskParamsUpdated`, `CapsUpdated`, `OracleParamsUpdated(maxPriceAge, maxStoredPriceAge, maxConfBps)`,
+  `OrderParamsUpdated`, `FundingParamsUpdated`, `BackstopParamsUpdated`, `AuctionParamsUpdated`,
+  `BackstopMinDiscountUpdated`, `BackstopOperatorSet(operator, lane, allowed)`, `OwnershipTransferred`.
+
+### Global storage slots and their only writers
+
+| Slot(s) | Written by |
+| --- | --- |
+| `_owner` (Ownable) | the timelock (`transferOwnership`) |
+| `pyth`, `guardian`, all params, `_markets` / `_marketIds`, `isBackstopOperator[addr][lane]` | the timelock |
+| `paused` | guardian or timelock (`pause`), timelock (`unpause`) |
+| `_funding[market]` (one slot) | `updateFunding` (anyone, at most once per interval) and `listMarket`. **Trades only read it** |
+
+Everything else is keyed by lane or account, including `_lanePrice[lane][market]` (the monotonic price) and
+`LaneLedger.held`. Value transfers also write shared EVM balances: AUSD `balanceOf(clearinghouse)` and the
+clearinghouse's native balance. The keeper hot paths (`executeOrder` and auction batches) move no value while Pyth's
+update fee is 0.
+
+### Defaults (constructor), bounds and setters
+
+| Parameter | Default | Bounds | Setter (timelock) |
+| --- | --- | --- | --- |
+| `maxLeverage` / `tradingFeeBps` / `minPositionNotional` | 10 / 5 / 10 AUSD | 1..20 / ≤ 100 / any | `setRiskParams` |
+| `maxDepositPerAccount` / `maxTvlPerLane` | 50 / 500 AUSD | any | `setCaps` |
+| `oiCapMultiplierBps` (× lane insurance) | 50,000 (5×) | ≤ 100,000 | `setCaps` |
+| `maxPriceAge` (supplied) / `maxStoredPriceAge` (stored and lane) | 30 s / 15 s | 5..60 s each | `setOracleParams` |
+| `maxConfBps` | 200 (2%) | 1..500 | `setOracleParams` |
+| `minExecDelay` / `maxExecDelay` / `minExecutionFee` | 3 s / 60 s / 0.1 MON | min 1..60; max ≥ min + 5, ≤ 1 h | `setOrderParams` |
+| `fundingUpdateInterval` | 60 s | 10 s .. 1 day | `setFundingParams` |
+| `backstopWithdrawDelay` | 1 h (single-use, 1 h window) | 1 min .. 7 days | `setBackstopParams` |
+| auction step / max discount | 25 / 500 bps | 0 < step ≤ max ≤ 500 | `setAuctionParams` |
+| pool min discount | 75 bps per lane | ≤ 10,000 | `setBackstopMinDiscount` |
+| Constants | MM 250 bps (cure at MM); top-up target 100% of IM; feed-swap deviation ≤ 10% (≤ 50% for a dead feed, older than 1 h); expiry penalty 100 bps (half to the caller); pool margin 10%; first deposit ≥ 1 AUSD; pool deposit ≥ 1 AUSD; 8 lanes, ≤ 8 markets | — | — |
+
+### For keepers and the app
+
+- **Prices.**
+  - Keep Pyth storage fresh: push `updatePriceFeeds` (≤ 15 s apart), because stored and lane prices expire after 15 s.
+  - `priceUpdate` may carry any subset of feeds. Include those the call touches; an all-feeds Hermes blob also works.
+  - The browser can always send `[]` (Hermes needs an API key). If it reverts with `StalePrice`, storage is stale:
+    retry after the next push.
+- **Orders.** Send `[latest blob for the account's feeds, the update whose publish_time is the first one ≥ execAfter
+  for the order's feed]`. Other legs are priced from that blob through the lane path, so no Pyth push is needed. An
+  order fails (`PositionChanged`) if its position was taken or replaced. Reduce-only orders work while the account
+  is in auction; their latest message must be strictly newer than `execAfter` (execute ≥ 1 s after it) and ≤ 15 s old.
+- **Batches** skip unpriceable accounts (`AccountSkipped`), and close out negative-equity accounts at once
+  (`AuctionExpired`, counted in `auctionStats.expired`). A cure needs equity ≥ MM and at least one block after the
+  start. Chunk batches at about 200 accounts (R2-09).
+- **LP exits** are two calls, with `backstopWithdrawDelay` (1 h) between them: request, then withdraw **once** within
+  1 h, at the exit NAV (`backstopNav`). Exiting while the pool has an unrealised gain or `backstopReceivable(lane) > 0`
+  forfeits the LP's share of it. The last LP's exit reverts `BackstopPositionsOpen` until the lane's operator has
+  unwound every pool position (`backstopReduce(lane, market, type(uint256).max, update)`).
+- **Pool deposits:** check `backstopDepositStatus(lane).open` first (bad debt, receivable outstanding, or gain above
+  insurance: refused). **Ops:** alert when it stays `false` (deposit-closure DoS, SECURITY_NOTES §4.6).
+- **Orders:** an account whose collateral is above the cap gets `CollateralAboveCap` on margin-adding increases; the
+  app should offer "withdraw down to the cap" instead.
+- **Pyth fees:** an in-auction reduce parses the update three times; read `getUpdateFee` per call.
+- **Deposits:** show `topUpAllowance(account)` as "add margin beyond the cap"; anything above it is capped. Holders
+  should deposit with `depositWithPrice(amount, latest update for their feeds)` so the exemption does not depend on
+  Pyth storage being ≤ 15 s old.
+- **Withdrawals** pay `previewWithdraw` (lane haircut). Monitor `laneSolvency(lane).surplus < 0` (lane bad debt) and
+  `solvency().surplus < 0` (token-level loss, e.g. an issuer burn).
+- **Operators:** `KEEPER_ADDRESSES[i]` may reduce lane *i*'s pool only.
+
+### Deploying (`script/DeployProd.s.sol`)
+
+The keeper's deploy flow passes the `keeper/.env.mainnet` values. Variables added in v2: `MAX_STORED_PRICE_AGE_SECONDS`
+(15), `BACKSTOP_WITHDRAW_DELAY_SECONDS` (3600) and `OWNER_IS_EOA` (false). Defaults changed: `MIN_EXEC_DELAY_SECONDS`
+is now 3 and `MAX_PRICE_AGE_SECONDS` is now 30. Before deploying anything, the script checks on chain:
+
+- the chain id;
+- AUSD has code, 6 decimals, symbol "AUSD", non-zero supply, and transfers are not paused;
+- Pyth has code, and every feed exists, is positive, has a sane exponent and confidence, and was pushed in the last
+  hour;
+- the owner has code (a Safe) unless `OWNER_IS_EOA=true`;
+- the guardian, multisig, deployer and keepers are all distinct.
+
+v3 `params` keys: `topUpTargetBps` and `backstopWithdrawWindowSeconds` (3600). `cureBufferBps` is gone. In v4
+`topUpTargetBps` is 10000 (read from the contract); no new variables.
+
+It then deploys `TimelockController(minDelay, [multisig], [multisig], address(0))` and the clearinghouse, lists MON, SOL
+and BTC, applies caps and parameters, sets the guardian, makes keeper *i* the operator of **lane *i* only**, optionally
+seeds lane insurance, hands ownership to the timelock, and asserts the deployer holds no power.
+
+On a real broadcast it writes `deployments/143.json`, or `DEPLOYMENTS_OUT`, which must be under `../deployments` or
+`./cache`:
+
+```json
+{ "chainId": 143, "production": true, "contract": "ParaclrClearinghouseProd", "clearinghouse": "0x…", "ausd": "0x…",
+  "pyth": "0x…", "oracle": "0x…(= pyth)", "timelock": "0x…", "owner": "0x…", "guardian": "0x…",
+  "backstopOperators": ["0x…(lane 0)", "0x…(lane 1)"], "deployBlock": 0, "deployedAt": 0,
+  "markets": { "MON/AUSD": "0x…" }, "pythFeeds": { "MON/AUSD": "0x…" },
+  "params": { "maxLeverage": 10, "maxDepositPerAccountAusd": 50, "maxTvlPerLaneAusd": 500, "maxOiPerLaneMarketAusd": 5000,
+              "oiCapMultiplierBps": 50000, "minPositionSizeAusd": 10, "tradingFeeBps": 5, "maintenanceMarginBps": 250,
+              "liquidationFeeBps": 100, "maxConfBps": 200, "executionFeeWei": "100000000000000000",
+              "minExecDelaySeconds": 3, "maxExecDelaySeconds": 60, "maxPriceAgeSeconds": 30,
+              "maxStoredPriceAgeSeconds": 15, "backstopWithdrawDelaySeconds": 3600,
+              "backstopWithdrawWindowSeconds": 3600, "topUpTargetBps": 10000,
+              "timelockMinDelaySeconds": 86400, "fundingIntervalSeconds": 60, "maxFundingBpsPerDay": 100,
+              "skewScaleAusd": 10000, "auctionStepBps": 25, "auctionMaxDiscountBps": 500,
+              "backstopMinDiscountBps": 75, "laneInsuranceSeedAusd": 0 } }
+```
+
+`executionFeeWei` is a string. `maxOiPerLaneMarketAusd` is the absolute per-market cap; the live cap is also bounded
+by lane insurance × multiplier. With `LANE_INSURANCE_SEED_AUSD = 0`, every OI cap is 0 until lanes are funded.
+
+**The contract is 51,876 B (initcode 53,238 B, above Ethereum's 49,152 but within Monad's 256 KB).** Every local or
+forked EVM needs `anvil --code-size-limit 131072` (which also raises the initcode limit) and
+`forge script … --code-size-limit 131072`; tests read `code_size_limit` from `foundry.toml`. `forge build --sizes`
+still flags EIP-170, as expected.
+
+**Rehearsed** as a read-only simulation on a Monad-mainnet fork (no broadcast). Every on-chain check passed. Estimate:
+**18.08M gas, about 3.65 MON at 202 gwei** (v5; v4 17.95M, v3 17.5M). Monad bills the gas limit, so budget about 4.5 MON.
+
+### Tests
+
+```bash
+forge test --match-path "test/prod/*"                 # unit + fuzz (incl. the deploy script)
+forge test --match-path "test/review/*"               # the adversarial review's PoCs, flipped into regressions
+forge test --match-path "test/prod/invariant/*" -vv   # 16 invariants, 256 runs x 100 calls (+ 2 handler coverage tests)
+PROD_INV_COVERAGE=cache/prod-inv-coverage.txt forge test --match-test invariant_SolvencyIdentity
+MONAD_FORK_RPC=https://rpc.monad.xyz forge test --match-contract ProdForkTest -vv  # real AUSD + real Pyth, read-only fork
+forge test --match-contract ProdGasTest --gas-report
+```
+
+### Gas (v5)
+
+From `forge test --match-contract ProdGasTest --gas-report`, using MockPyth (Pyth's own verification is excluded). The
+figures include the 21k intrinsic cost and cold access. These are local Foundry figures, not Monad measurements.
+
+| Call | Gas |
+| --- | ---: |
+| `deposit` | 138k – 173k |
+| `depositWithPrice` (successful calls in the R3-04 tests) | 138k – 173k |
+| `commitOrder` | 208k – 244k |
+| `executeOrder` (mock Pyth) | 159k – 376k |
+| `executeOrder` with **real Pyth** (mainnet fork, 20-feed signed blob) | **854k** |
+| `cancelOrder` | 52k |
+| `withdraw` (no update / update) | 147k / 155k |
+| `updateFunding` | 80k |
+| `startAuctions` ×1 / ×7 | 193k / 725k (≈ 58k per extra account) |
+| `backstopTakeBatch` ×1 / ×7 | 340k / 718k (≈ 74k per extra account) |
+| `take` (external) | 334k |
+| `expireBatch` ×7 | 588k |
+| `backstopDeposit` / `backstopRequestWithdraw` / `backstopWithdraw` / `backstopReduce` | 135k / 55k / 66k–121k / 87k |
+| `claimExecutionFees` | 54k |
