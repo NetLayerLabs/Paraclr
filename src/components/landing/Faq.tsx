@@ -169,19 +169,21 @@ export function Faq({
       ),
     },
     {
-      q: "In the demo, what's on-chain and what's simulated?",
+      q: "What's real, and what's simulated?",
       a: (
         <>
           <p>
-            <strong>On-chain (testnet and anvil chain modes):</strong> collateral, positions and margin; auctions,
-            backstop pools and the solvency ledgers; every start, take, cure and expiry, sent by the keeper&rsquo;s 8
-            lane keys or by anyone; and the flash crash, which is one oracle transaction.
+            <strong>The app on Monad testnet:</strong> the production contracts with real Pyth prices verified on
+            chain and Agora&rsquo;s testnet AUSD. Orders, positions, funding, auctions, backstop pools and the solvency
+            ledgers are all on chain. There is no crash button: prices follow the market, so auctions run when the
+            market moves. Test funds, no real value.
           </p>
           <p>
-            <strong>Simulated or synthetic:</strong> the price feed (a simulated feed the keeper pushes on-chain, not a
-            real market), the hundreds of crash-run accounts (synthetic, created by a demo-only{" "}
-            <code className={b.code}>seedAccounts</code>), and the app&rsquo;s Simulated mode, an in-browser model
-            labelled as such.
+            <strong>The measured crash runs (local anvil):</strong> the demo stack, where the price feed is simulated
+            (the keeper pushes it on chain and the flash crash is one oracle transaction), the hundreds of crash-run
+            accounts are synthetic (created by a demo-only{" "}
+            <code className={b.code}>seedAccounts</code>), and the collateral is MockAUSD. The app&rsquo;s Simulated
+            mode is an in-browser model, labelled as such.
           </p>
         </>
       ),

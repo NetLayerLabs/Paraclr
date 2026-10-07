@@ -321,22 +321,14 @@ function MonadPending() {
           <span className={`${b.dot} ${s.dotIdle}`} aria-hidden="true" />
           Monad testnet · chain 10143
         </span>
-        <h3 className={s.pendingTitle}>Monad testnet run: pending</h3>
+        <h3 className={s.pendingTitle}>Monad testnet: live on real prices</h3>
         <p className={s.pendingBody}>
-          The headline numbers will come from a real −20% crash on Monad testnet. When that run is committed as{" "}
-          <code className={b.code}>bench/results/10143-*.json</code>, this card fills in from it automatically:
-          accounts, auctions and how they resolved, time underwater, equity returned to traders, block numbers and
-          explorer links.
+          The production contracts on Monad testnet run on real Pyth prices, so a crash can&rsquo;t be staged there:
+          their auctions run when the market moves. The staged −20% crash runs below are measured on local anvil. A
+          crash run committed as <code className={b.code}>bench/results/10143-*.json</code> would fill this card
+          automatically, with block numbers and explorer links.
         </p>
       </div>
-      <dl className={s.ghostTiles} aria-label="Monad testnet metrics, not measured yet">
-        {["Accounts scanned", "Went to auction", "Longest time underwater", "Equity returned to traders"].map((k) => (
-          <div key={k}>
-            <dt>{k}</dt>
-            <dd>pending</dd>
-          </div>
-        ))}
-      </dl>
     </div>
   );
 }
@@ -403,7 +395,7 @@ export function Results({ evidence }: { evidence: LandingEvidence }) {
                 <b>Measured on local anvil, not Monad.</b>{" "}
                 {monad
                   ? "anvil executes sequentially. Kept for reference: these runs check the contracts and the keeper end to end and say nothing about Monad's parallel execution."
-                  : "anvil executes sequentially; Monad testnet numbers are coming. These runs check the contracts and the keeper end to end. They say nothing about Monad's parallel execution."}
+                  : "anvil executes sequentially. These runs check the contracts and the keeper end to end. They say nothing about Monad's parallel execution."}
               </p>
               <span className={s.bannerChain}>
                 chain {anvil.chainId}

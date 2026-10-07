@@ -39,7 +39,7 @@ export function StatusBar({
             <span className={s.barNote}>
               Production contracts with Agora&rsquo;s testnet AUSD and{" "}
               {testnet.pricesSimulated ? "prices simulated after the Pyth trial" : "Pyth prices"}: test funds, no real
-              value. Unaudited. Mainnet beta: pending launch gate.
+              value. Unaudited. Mainnet beta: launch pending.
             </span>
             <span className={s.barLinks}>
               <a href="#testnet">
@@ -109,9 +109,9 @@ function LaunchGate({ status }: { status: ProductionStatus }) {
     <div className={`${b.card} ${s.gate}`}>
       <div className={s.cardHead}>
         <p className={s.kicker}>Launch gate</p>
-        <span className={`${b.chip} ${status.live ? b.chipPos : b.chipWarn}`}>
-          <span className={`${b.dot} ${status.live ? b.dotPos : b.dotWarn}`} aria-hidden="true" />
-          {status.live ? "deployed" : "pending"}
+        <span className={`${b.chip} ${b.chipPos}`}>
+          <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
+          {status.live ? "deployed" : "passed"}
         </span>
       </div>
       <h3 className={s.cardTitle}>All five, or no mainnet.</h3>
@@ -138,12 +138,19 @@ function LaunchGate({ status }: { status: ProductionStatus }) {
           </>
         ) : (
           <>
-            If any check fails, the hackathon submission stays on testnet with no real value, and production waits for
-            an external audit. The plan is in{" "}
-            <a className={b.link} href={`${GITHUB_BLOB}/docs/PRODUCTION_PLAN.md`} target="_blank" rel="noreferrer">
-              docs/PRODUCTION_PLAN.md
+            All five passed on the v5 contract (sha256 <code className={b.code}>1643014507ea…</code>): the review in{" "}
+            <a className={b.link} href={`${GITHUB_BLOB}/contracts/REVIEW.md`} target="_blank" rel="noreferrer">
+              contracts/REVIEW.md
             </a>
-            .
+            , Slither and the risks accepted in writing in{" "}
+            <a className={b.link} href={`${GITHUB_BLOB}/contracts/SECURITY_NOTES.md`} target="_blank" rel="noreferrer">
+              contracts/SECURITY_NOTES.md
+            </a>
+            , and a 43/43 mainnet-fork rehearsal in{" "}
+            <a className={b.link} href={`${GITHUB_TREE}/bench/rehearsal`} target="_blank" rel="noreferrer">
+              bench/rehearsal
+            </a>
+            . The mainnet launch itself is pending: it waits on Pyth price-data access for Monad mainnet.
           </>
         )}
       </p>
@@ -337,7 +344,7 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
                 to trade it with a passkey or a labelled demo wallet.{" "}
               </>
             ) : null}
-            Nothing here is on Monad mainnet; that still waits for the launch gate below.
+            Nothing here is on Monad mainnet yet.
           </p>
         </div>
         <div className={`${b.card} ${s.contracts}`}>
@@ -672,7 +679,7 @@ export function ProductionBeta({ status, testnet }: { status: ProductionStatus; 
               </>
             ) : testnet.live ? (
               <>
-                Live on testnet. <em>Real money waits for a launch gate.</em>
+                Live on testnet. <em>Mainnet beta next.</em>
               </>
             ) : (
               <>
@@ -688,7 +695,7 @@ export function ProductionBeta({ status, testnet }: { status: ProductionStatus; 
             {status.live
               ? "They are deployed on Monad mainnet as a small, capped beta."
               : testnet.live
-                ? "They run on Monad testnet now with Agora's testnet AUSD (no real value), and go to Monad mainnet only if every check in the launch gate passes."
+                ? "They run on Monad testnet now with Agora's testnet AUSD (no real value). Their mainnet launch gate has passed; the capped mainnet beta launches once Pyth price data for Monad mainnet is in place."
                 : "They go to Monad mainnet only if every check in the launch gate passes."}
           </p>
         </div>

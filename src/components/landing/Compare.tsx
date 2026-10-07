@@ -97,9 +97,9 @@ export function Compare({ live }: { live: boolean }) {
             </>
           ) : (
             <>
-              the mainnet beta is{" "}
+              the contracts are live on Monad testnet and the mainnet beta is{" "}
               <a className={b.link} href="#beta">
-                behind a launch gate
+                pending
               </a>
               .
             </>

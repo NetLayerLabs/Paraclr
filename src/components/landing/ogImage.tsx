@@ -44,12 +44,21 @@ const EDGE = 780; // right edge of the light block
 const R = 250; // its top-right corner radius
 const D = 15; // lane pitch
 
-/** `live`: the mainnet beta is deployed (deployments/143.json with "production": true). */
-export async function renderOgImage(size: { width: number; height: number }, live = false): Promise<ImageResponse> {
+/**
+ * `live`: the mainnet beta is deployed (deployments/143.json with "production": true).
+ * `testnetLive`: the production contracts are on Monad testnet (deployments/10143.json, "production": true).
+ */
+export async function renderOgImage(
+  size: { width: number; height: number },
+  live = false,
+  testnetLive = false,
+): Promise<ImageResponse> {
   const [extraBold, semiBold] = await loadFonts();
   const status = live
     ? { text: "Live on Monad mainnet · capped", dot: BRAND.posDark, fg: "#0B4D35", bg: "#E8F7F0", line: "#BCE9D4" }
-    : { text: "Mainnet beta: pending launch gate", dot: "#F59E0B", fg: "#7A4605", bg: "#FEF6E7", line: "#F6DCAA" };
+    : testnetLive
+      ? { text: "Live on Monad testnet · test funds", dot: BRAND.posDark, fg: "#0B4D35", bg: "#E8F7F0", line: "#BCE9D4" }
+      : { text: "Mainnet beta: launch pending", dot: "#F59E0B", fg: "#7A4605", bg: "#FEF6E7", line: "#F6DCAA" };
   const audit = live ? "Unaudited beta" : "Not audited";
 
   const stats = [

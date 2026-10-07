@@ -81,7 +81,7 @@ export function LegalShell({
               ) : (
                 <span className={`${b.chip} ${b.chipWarn}`}>
                   <span className={`${b.dot} ${b.dotWarn}`} aria-hidden="true" />
-                  Mainnet beta pending its launch gate · demo only, no real value
+                  Live on Monad testnet only · test funds, no real value · mainnet beta pending
                 </span>
               )}
             </p>

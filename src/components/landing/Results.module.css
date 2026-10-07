@@ -458,29 +458,9 @@
   color: var(--pc-ink-2);
 }
 
-.ghostTiles {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
 
-.ghostTiles div {
-  padding: 14px 16px;
-  border-radius: var(--pc-r-md);
-  background: var(--pc-bg-subtle);
-}
 
-.ghostTiles dt {
-  font-size: 12.5px;
-  color: var(--pc-ink-3);
-}
 
-.ghostTiles dd {
-  margin-top: 6px;
-  font-family: var(--pc-font-mono);
-  font-size: 13px;
-  color: var(--pc-ink-3);
-}
 
 @media (max-width: 1023px) {
   .split,
@@ -534,7 +514,4 @@
     grid-column: span 2;
   }
 
-  .ghostTiles {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

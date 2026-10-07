@@ -169,7 +169,7 @@ const KNOWN: Record<string, { name: string; role: string; external?: boolean; or
   timelockcontroller: { name: "Timelock", role: "Owner of the protocol. Every parameter, oracle or role change waits out its delay", order: 2 },
   multisig: { name: "Owner multisig", role: "Proposes and executes changes through the timelock", order: 3 },
   ownermultisig: { name: "Owner multisig", role: "Proposes and executes changes through the timelock", order: 3 },
-  owner: { name: "Owner", role: "Proposes and executes changes through the timelock", order: 3 },
+  owner: { name: "Owner multisig", role: "A Safe. Proposes and executes changes through the timelock", order: 3 },
   proposer: { name: "Timelock proposer", role: "Can schedule a change; it still waits out the delay", order: 3 },
   executor: { name: "Timelock executor", role: "Can execute a scheduled change after the delay", order: 3 },
   guardian: { name: "Guardian", role: "Can pause deposits and new increase orders. Cannot unpause or change parameters", order: 4 },
@@ -225,8 +225,8 @@ function collectContracts(dep: Json): ProdContract[] {
       if (isAddress(v)) add(k, v);
       else if (isObj(v) && isAddress(v.address)) add(k, v.address); // e.g. pyth: { address, feeds }
       else if (Array.isArray(v) && v.length > 0 && v.every(isAddress)) {
-        // backstopOperators[i] is lane i's keeper; lanes are numbered from 1 in the UI.
-        v.forEach((a, i) => add(k, a, norm(k) === "backstopoperators" ? ` · lane ${i + 1}` : ` ${i}`));
+        // backstopOperators[i] is lane i's keeper; lanes are L0–L7 everywhere on the page.
+        v.forEach((a, i) => add(k, a, norm(k) === "backstopoperators" ? ` · L${i}` : ` ${i}`));
       }
     }
   };

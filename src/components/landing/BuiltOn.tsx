@@ -51,9 +51,9 @@ function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: bo
     },
     {
       name: "Safe",
-      body: "The owner multisig behind the timelock, if Safe is available on Monad mainnet; otherwise a hardware-wallet key.",
-      chip: "Owner multisig · planned",
-      tone: "warn",
+      body: "The owner multisig behind the timelock: a Safe on Monad testnet proposes and executes every change, after the delay.",
+      chip: "Owner multisig · live on testnet",
+      tone: "pos",
     },
     {
       name: "OpenZeppelin",

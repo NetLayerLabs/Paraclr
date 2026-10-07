@@ -67,7 +67,7 @@ export default async function Home() {
         <Compare live={live} />
         <Bend into="dark" corner="left" />
         <Faq monadDeployed={testnet} production={production} testnetProd={testnetProd} />
-        <FinalCta live={live} />
+        <FinalCta live={live} testnetLive={testnetLive} />
       </main>
       <Footer live={live} />
     </div>

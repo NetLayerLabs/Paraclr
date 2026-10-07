@@ -207,7 +207,7 @@ export function XRay({ xray }: { xray: XrayEvidence | null }) {
 
         {xray && !monad ? (
           <p className={s.next}>
-            Monad testnet X-ray: pending. It replaces this local one automatically once{" "}
+            Measured on local anvil. A Monad testnet X-ray replaces it automatically once{" "}
             <code className={b.code}>bench/xray/10143-*.json</code> is committed.
           </p>
         ) : null}

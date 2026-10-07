@@ -45,7 +45,7 @@ function badges(live: boolean, testnetLive: boolean, repo: RepoFacts): Badge[] {
     return [
       { href: "#testnet", label: "Live on testnet", sub: "Monad · no real value", dot: "pos" },
       tests,
-      { href: "#beta", label: "Mainnet beta", sub: "pending launch gate", dot: "warn" },
+      { href: "#beta", label: "Mainnet beta", sub: "gate passed · launch pending", dot: "warn" },
       {
         href: `${RISK_PATH}#${RISK_ANCHORS.smartContract}`,
         label: "Not audited",

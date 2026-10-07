@@ -31,7 +31,7 @@ function Track() {
 }
 
 /** `live`: deployments/143.json exists with "production": true. */
-export function FinalCta({ live }: { live: boolean }) {
+export function FinalCta({ live, testnetLive = false }: { live: boolean; testnetLive?: boolean }) {
   return (
     <section className={`${b.dark} ${b.surface} ${s.cta}`} aria-labelledby="cta-title">
       <Track />
@@ -45,6 +45,17 @@ export function FinalCta({ live }: { live: boolean }) {
             <p className={s.sub}>
               The app trades on Monad mainnet with real AUSD in a capped, unaudited beta: use only what you can afford
               to lose. The crash button and the X-ray stay on the testnet and local-anvil demo, labelled as such.
+            </p>
+          </>
+        ) : testnetLive ? (
+          <>
+            <h2 id="cta-title" className={`${b.h2} ${b.breakEm} ${s.title}`}>
+              Trade it on testnet. <em>Watch the books.</em>
+            </h2>
+            <p className={s.sub}>
+              Open the app with a passkey or the demo wallet and trade SOL and BTC perps on Monad testnet: real Pyth
+              prices, Agora&rsquo;s testnet AUSD, per-lane auctions and a solvency check every block. Test funds, no
+              real value.
             </p>
           </>
         ) : (
@@ -162,7 +173,7 @@ export function Footer({ live }: { live: boolean }) {
                 <strong>{BETA_LABEL}.</strong> {AUDIT_STATUS}.
               </>
             ) : (
-              <>Testnet demo, not audited. Mainnet beta pending its launch gate.</>
+              <>Testnet only, test funds, not audited. Mainnet beta: launch pending.</>
             )}{" "}
             Nothing here is financial, legal or tax advice. The{" "}
             <Link href={TERMS_PATH} className={b.link}>
