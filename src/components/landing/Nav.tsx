@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { useEffect, useState } from "react";
-import { Mark } from "./brand/Logo";
 import { ArrowRight, CodeIcon, Cross, Menu } from "./icons";
 import { GITHUB_URL } from "./content";
 import b from "./brand/Brand.module.css";
@@ -48,8 +48,7 @@ export function Nav({ links, brandHref = "#top" }: { links: readonly NavLink[]; 
     <header className={s.nav} data-scrolled={scrolled || open || undefined}>
       <div className={`${b.container} ${s.inner}`}>
         <a href={brandHref} className={s.brand} aria-label={brandLabel} onClick={() => setOpen(false)}>
-          <Mark className={s.mark} />
-          <span className={s.word}>Paraclr</span>
+          <ParaclrLogo tone="ink" height={30} />
         </a>
 
         <nav className={s.links} aria-label="Primary">
@@ -61,13 +60,6 @@ export function Nav({ links, brandHref = "#top" }: { links: readonly NavLink[]; 
         </nav>
 
         <div className={s.actions}>
-          <a href={GITHUB_URL} className={s.gh} target="_blank" rel="noreferrer" aria-label="Source code on GitHub">
-            <CodeIcon className={s.ghIcon} />
-          </a>
-          <Link href="/app" className={`${b.btn} ${b.btnPrimary} ${b.btnSm} ${s.launch}`}>
-            Launch app
-            <ArrowRight className={`${b.btnIcon} ${b.btnIconMove}`} />
-          </Link>
           <button
             type="button"
             className={s.menuBtn}
