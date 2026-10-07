@@ -15,11 +15,19 @@ import {
 } from "viem";
 import { mockAUSDAbi, mockOracleAbi, paraclrClearinghouseAbi } from "./abi";
 import { NETWORK } from "./config";
-import { ausdToNumber } from "./units";
+import { prodAbi, pythAbi } from "./prod/abi";
+import { ausdToNumber, priceToNumber } from "./units";
 
-const ERROR_ABI = [...paraclrClearinghouseAbi, ...mockAUSDAbi, ...mockOracleAbi].filter(
-  (x) => x.type === "error",
+// Dedupe by signature: the same error can appear in several ABIs.
+const ERROR_ABI = Object.values(
+  Object.fromEntries(
+    [...paraclrClearinghouseAbi, ...mockAUSDAbi, ...mockOracleAbi, ...prodAbi, ...pythAbi]
+      .filter((x) => x.type === "error")
+      .map((x) => [`${(x as { name: string }).name}(${JSON.stringify((x as { inputs?: unknown }).inputs ?? [])})`, x]),
+  ),
 ) as unknown as Abi;
+
+const fmtPx = (v: unknown) => (typeof v === "bigint" ? priceToNumber(v).toLocaleString("en-US", { maximumSignificantDigits: 6 }) : "?");
 
 /** Thrown by chain actions with a message that's safe to show as-is. */
 export class ChainActionError extends Error {
@@ -53,9 +61,11 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
     case "TooManyOpenMarkets":
       return "Too many open markets on this account.";
     case "StalePrice":
-      return "The oracle price is stale — is the keeper's price pusher running?";
+      return a.length >= 2
+        ? "Prices are refreshing — retry in a few seconds. (The Pyth price stored on chain is older than the contract accepts.)"
+        : "The oracle price is stale — is the keeper's price pusher running?";
     case "InvalidPrice":
-      return "The oracle has no price for this market yet.";
+      return a.length >= 1 ? "Pyth has no valid price for this market right now." : "The oracle has no price for this market yet.";
     case "ZeroAmount":
       return "Amount is too small.";
     case "TransferFailed":
@@ -83,7 +93,7 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
     case "NotLiquidatable":
       return "That account is healthy again, so it can't be taken — its auction can only be cancelled.";
     case "NotRegistered":
-      return "Deposit collateral first: only registered accounts can take an auction.";
+      return "Deposit collateral first: this account isn't registered with the clearinghouse yet (it registers on its first deposit).";
     case "SelfTake":
       return "You can't take your own auction.";
     case "BackstopInsolvent":
@@ -98,6 +108,70 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
       return "Invalid basis-point value.";
     case "ZeroAddress":
       return "Zero address.";
+    // ---- production contracts (ParaclrClearinghouseProd) ----
+    case "IsPaused":
+      return "Paused by the guardian: new deposits and new or increased positions are disabled. Withdrawals, reduce and close orders still work.";
+    case "NotPaused":
+      return "The contract isn't paused.";
+    case "OrderAlreadyPending":
+      return "You already have a pending order in this market (one per market). Wait for it to fill, or cancel it after its window.";
+    case "OrderNotPending":
+      return "That order is no longer pending (already executed, failed or cancelled).";
+    case "OrderNotReady":
+      return "Too early: the order can only be executed with a Pyth price published after its minimum delay.";
+    case "OrderExpired":
+      return "This order's execution window has passed — cancel it to release the escrow and get the execution fee back.";
+    case "OrderNotExpired":
+      return "An order can only be cancelled after its execution window has passed (no free option).";
+    case "OrderWouldFlip":
+      return "One order can't flip a position (or reduce by more than its size): close it first.";
+    case "MarginOnReduce":
+      return "A reduce or close order can't add margin.";
+    case "InvalidAcceptablePrice":
+      return "Invalid acceptable price.";
+    case "SlippageExceeded":
+      return `The Pyth fill price ${fmtPx(a[0])} was worse than your limit ${fmtPx(a[1])} (slippage).`;
+    case "ExecutionFeeTooLow":
+      return "The order didn't carry enough MON for the execution fee.";
+    case "DepositCapExceeded":
+      return `Over this beta's per-account deposit cap (${fmtAusd(a[1])}).`;
+    case "LaneTvlCapExceeded":
+      return `Your lane is at its TVL cap for this beta (${fmtAusd(a[1])}).`;
+    case "OiCapExceeded":
+      return `Your lane's open-interest cap for this market is reached (${fmtAusd(a[1])} per side).`;
+    case "BelowMinPositionSize":
+      return `Position below the minimum size (${fmtAusd(a[1])} notional).`;
+    case "LeverageTooHigh":
+      return "Leverage above this beta's maximum.";
+    case "InsufficientCollateral":
+      return `Not enough deposited collateral to escrow this order's margin (${fmtAusd(a[0])} committed).`;
+    case "InsufficientPythFee":
+      return "Not enough MON sent for the Pyth price update fee.";
+    case "PriceConfidenceTooWide":
+      return "Pyth's confidence interval is too wide right now — the contract refuses to price with it. Try again shortly.";
+    case "InvalidPythResponse":
+      return "The Pyth contract returned an unexpected price response.";
+    case "InvalidPriceExpo":
+      return "Pyth price exponent out of range.";
+    case "FundingUpdateTooSoon":
+      return "Funding was updated recently; it can be updated again after its interval.";
+    case "TransferAmountMismatch":
+      return "The token transferred a different amount than requested.";
+    case "RefundFailed":
+      return "Refund of excess MON failed.";
+    case "Paused":
+      return "Paused by the guardian.";
+    case "InsufficientFee":
+      return "Not enough MON sent for the Pyth price update fee.";
+    case "PriceFeedNotFound":
+    case "PriceFeedNotFoundWithinRange":
+      return "No Pyth price in the required time range for this market.";
+    case "InvalidUpdateData":
+    case "InvalidUpdateDataSource":
+    case "InvalidWormholeVaa":
+      return "The Pyth price update was rejected by the Pyth contract (invalid or from the wrong source).";
+    case "NoFreshUpdate":
+      return "No fresh Pyth update was supplied.";
     default:
       return `Reverted: ${name}`;
   }
@@ -135,6 +209,13 @@ export function decodeRevert(data: Hex): string | null {
   }
 }
 
+function noGas(): string {
+  const sym = NETWORK?.nativeSymbol ?? "native token";
+  return NETWORK?.isMainnet
+    ? `Not enough ${sym} in your wallet for gas (and the order execution / Pyth fees). Send some ${sym} to your wallet address.`
+    : `Not enough ${sym} for gas — request test funds on the Wallet tab.`;
+}
+
 export function readableError(err: unknown): string {
   if (err instanceof ChainActionError) return err.message;
   if (err instanceof BaseError) {
@@ -146,7 +227,7 @@ export function readableError(err: unknown): string {
     const rejected = err.walk((e) => e instanceof UserRejectedRequestError || (e as { code?: unknown }).code === 4001);
     if (rejected) return "Request rejected in the wallet.";
     if (err.walk((e) => e instanceof InsufficientFundsError)) {
-      return `Not enough ${NETWORK?.nativeSymbol ?? "native token"} for gas — request test funds on the Wallet tab.`;
+      return noGas();
     }
     if (err.walk((e) => e instanceof ChainMismatchError)) {
       return `Wallet is on the wrong network — expected ${NETWORK?.label ?? "the configured chain"}.`;
@@ -160,7 +241,7 @@ export function readableError(err: unknown): string {
     const short = err.shortMessage || err.message;
     if (/execution reverted/i.test(short)) return "Transaction would revert (no reason given).";
     if (/insufficient funds/i.test(err.message)) {
-      return `Not enough ${NETWORK?.nativeSymbol ?? "native token"} for gas — request test funds on the Wallet tab.`;
+      return noGas();
     }
     return short.split("\n")[0];
   }

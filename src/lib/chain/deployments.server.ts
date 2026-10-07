@@ -1,4 +1,5 @@
-// Server-only: reads `deployments/<chainId>.json` from the project root.
+// Server-only: reads `deployments/<chainId>.json` from the project root
+// (or from PARACLR_DEPLOYMENTS_DIR).
 // Import this ONLY from Server Components (src/app/app/page.tsx). It uses node:fs,
 // so pulling it into a client bundle fails loudly at build time.
 //
@@ -19,7 +20,11 @@ export interface DeploymentLoad {
 }
 
 export async function readDeploymentJson(chainId: number): Promise<DeploymentLoad> {
-  const file = join(process.cwd(), "deployments", `${chainId}.json`);
+  // PARACLR_DEPLOYMENTS_DIR (server-only, read at request time) points the app
+  // at a rehearsal's output dir (e.g. a mainnet-fork rehearsal) without
+  // touching deployments/143.json.
+  const dir = process.env.PARACLR_DEPLOYMENTS_DIR || join(process.cwd(), "deployments");
+  const file = join(dir, `${chainId}.json`);
   let text: string;
   try {
     text = await readFile(file, "utf8");

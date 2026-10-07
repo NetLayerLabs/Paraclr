@@ -155,6 +155,11 @@ export interface KeeperHealth {
   addresses?: Record<string, unknown>;
   prices?: unknown;
   crashed?: boolean;
+  /** Production keeper (docs/PRODUCTION_PLAN.md): executes delayed orders with Pyth updates. */
+  production?: boolean;
+  paused?: boolean;
+  caps?: unknown;
+  priceSource?: string;
 }
 
 export interface FaucetResult {
@@ -240,7 +245,12 @@ export function normalizeReport(raw: unknown): RunReport {
     status: r.status === "done" || r.status === "failed" ? r.status : "running",
     error: typeof r.error === "string" ? r.error : undefined,
     chainId: typeof r.chainId === "number" ? r.chainId : (NETWORK?.chainId ?? 0),
-    network: r.network === "monad-testnet" ? "monad-testnet" : r.network === "anvil" ? "anvil" : (NETWORK?.reportNetwork ?? "anvil"),
+    network:
+      r.network === "monad-testnet" || r.network === "anvil"
+        ? r.network
+        : NETWORK?.reportNetwork === "monad-testnet"
+          ? "monad-testnet"
+          : "anvil",
     shock: { ...normalizeTiming(shock), bps: typeof shock.bps === "number" ? shock.bps : 8000 },
     batches: (Array.isArray(r.batches) ? r.batches : []).map((b) => ({
       ...normalizeTiming(b),

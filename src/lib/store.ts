@@ -9,6 +9,7 @@ import { CHAIN_MODE, type ChainMode } from "./chain/config";
 import type { ChainAccountSnapshot } from "./chain/account";
 import type { LiveContracts } from "./chain/runtime";
 import type { KeeperHealth } from "./chain/keeper";
+import type { ProdState } from "./chain/prod/state";
 
 // ---- chain-mode state (NEXT_PUBLIC_CHAIN_MODE = anvil | monad) ---------------
 
@@ -58,6 +59,11 @@ export interface ChainState {
   accountError: string | null;
   faucet: FaucetState;
   keeper: KeeperState;
+  /**
+   * Production deployments only (`"production": true`): pause flag, fees,
+   * order timing, caps + utilisation, funding. Null otherwise.
+   */
+  prod: ProdState | null;
 }
 
 const initialWallet: ChainWalletState = { kind: null, address: null, ready: false, error: null, persisted: false };
@@ -75,6 +81,7 @@ const initialChain: ChainState = {
   accountError: null,
   faucet: initialFaucet,
   keeper: { status: "unknown", error: null, health: null, checkedAt: 0 },
+  prod: null,
 };
 
 export interface ParaclrState {
@@ -246,6 +253,25 @@ export function applyChainAccount(snapshot: ChainAccountSnapshot) {
 
 export function setChainAccountError(message: string | null) {
   setState({ chain: { ...state.chain, accountError: message } });
+}
+
+export function setProd(patch: Partial<ProdState> | null) {
+  if (patch === null) {
+    if (state.chain.prod !== null) setState({ chain: { ...state.chain, prod: null } });
+    return;
+  }
+  const base = state.chain.prod;
+  if (!base) return;
+  setState({ chain: { ...state.chain, prod: { ...base, ...patch } } });
+}
+
+export function initProd(initial: ProdState) {
+  setState({ chain: { ...state.chain, prod: initial } });
+}
+
+/** True when the connected deployment is the production contract set. */
+export function isProduction(s: ParaclrState = state): boolean {
+  return s.chain.status === "ready" && !!s.chain.contracts?.production;
 }
 
 // ---- pure helpers ----------------------------------------------------------

@@ -22,6 +22,17 @@ export interface DeploymentFile {
   oracle: Address | null;
   deployBlock: number | null;
   markets: Partial<Record<string, Hex>>;
+  /**
+   * The production contract set (docs/PRODUCTION_PLAN.md): real collateral,
+   * Pyth, delayed orders. Only `"production": true` counts.
+   */
+  production: boolean;
+  /** Pyth contract (production). */
+  pyth: Address | null;
+  /** Pyth price feed id per app market (production; optional — also readable on chain). */
+  pythFeeds: Partial<Record<string, Hex>>;
+  timelock: Address | null;
+  guardian: Address | null;
 }
 
 export interface ResolvedContracts {
@@ -32,6 +43,11 @@ export interface ResolvedContracts {
   /** bytes32 market id per app market (`keccak256("MON/AUSD")` unless the deployment says otherwise). */
   markets: Record<MarketSymbol, Hex>;
   source: "deployments" | "env" | "keeper";
+  production: boolean;
+  pyth: Address | null;
+  pythFeeds: Partial<Record<MarketSymbol, Hex>>;
+  timelock: Address | null;
+  guardian: Address | null;
 }
 
 export function marketIdOf(symbol: string): Hex {
@@ -40,6 +56,27 @@ export function marketIdOf(symbol: string): Hex {
 
 function addr(v: unknown): Address | null {
   return typeof v === "string" && isAddress(v) ? v : null;
+}
+
+function bytes32Map(v: unknown): Partial<Record<string, Hex>> {
+  const out: Partial<Record<string, Hex>> = {};
+  if (v && typeof v === "object") {
+    for (const [k, x] of Object.entries(v as Record<string, unknown>)) {
+      if (typeof x === "string" && isHex(x) && x.length === 66) out[k] = x;
+    }
+  }
+  return out;
+}
+
+/** Feed ids keyed by app market; accepts "MON/AUSD" or "MON/USD"-style keys. */
+function feedMap(v: Partial<Record<string, Hex>>): Partial<Record<MarketSymbol, Hex>> {
+  const out: Partial<Record<MarketSymbol, Hex>> = {};
+  for (const s of MARKETS) {
+    const base = s.split("/")[0];
+    const hit = v[s] ?? v[`${base}/USD`] ?? v[base] ?? v[`Crypto.${base}/USD`];
+    if (hit) out[s] = hit;
+  }
+  return out;
 }
 
 function num(v: unknown): number | null {
@@ -65,12 +102,13 @@ export function parseDeployment(
   }
   const clearinghouse = addr(r.clearinghouse);
   if (!clearinghouse) return { deployment: null, error: "deployment JSON has no valid clearinghouse address" };
-  const markets: Partial<Record<string, Hex>> = {};
-  if (r.markets && typeof r.markets === "object") {
-    for (const [k, v] of Object.entries(r.markets as Record<string, unknown>)) {
-      if (typeof v === "string" && isHex(v) && v.length === 66) markets[k] = v;
-    }
-  }
+  const markets = bytes32Map(r.markets);
+  // `pyth` may be an address or { address, feeds | feedIds }.
+  const pythObj = r.pyth && typeof r.pyth === "object" ? (r.pyth as Record<string, unknown>) : null;
+  const pythFeeds = {
+    ...bytes32Map(pythObj?.feeds ?? pythObj?.feedIds),
+    ...bytes32Map(r.pythFeeds ?? r.pythFeedIds ?? r.priceFeeds ?? r.feedIds ?? r.feeds),
+  };
   return {
     deployment: {
       chainId: chainId ?? expectedChainId,
@@ -79,6 +117,11 @@ export function parseDeployment(
       oracle: addr(r.oracle),
       deployBlock: num(r.deployBlock),
       markets,
+      production: r.production === true,
+      pyth: addr(pythObj ? pythObj.address : r.pyth),
+      pythFeeds,
+      timelock: addr(r.timelock),
+      guardian: addr(r.guardian),
     },
     error: null,
   };
@@ -100,6 +143,11 @@ export function resolveContracts(deployment: DeploymentFile | null): ResolvedCon
       deployBlock: deployment.deployBlock,
       markets: marketMap(deployment.markets),
       source: "deployments",
+      production: deployment.production,
+      pyth: deployment.pyth,
+      pythFeeds: feedMap(deployment.pythFeeds),
+      timelock: deployment.timelock,
+      guardian: deployment.guardian,
     };
   }
   if (CONTRACTS.clearinghouse) {
@@ -110,6 +158,11 @@ export function resolveContracts(deployment: DeploymentFile | null): ResolvedCon
       deployBlock: null,
       markets: marketMap(),
       source: "env",
+      production: false,
+      pyth: null,
+      pythFeeds: {},
+      timelock: null,
+      guardian: null,
     };
   }
   return null;
@@ -134,5 +187,11 @@ export function contractsFromKeeper(addresses: unknown): ResolvedContracts | nul
       ),
     ),
     source: "keeper",
+    // Never production: production addresses come only from the deployment file.
+    production: false,
+    pyth: null,
+    pythFeeds: {},
+    timelock: null,
+    guardian: null,
   };
 }

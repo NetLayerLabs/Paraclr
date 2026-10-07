@@ -10,6 +10,7 @@ import { fairAbi } from "./fairAbi";
 import { getLatestBlock, publicClient, readMany } from "./clients";
 import { readableError } from "./errors";
 import type { LiveContracts } from "./runtime";
+import { readProdAccountSnapshot } from "./prod/account";
 import { ausdToNumber, nativeToNumber, priceToNumber, sizeToNumber } from "./units";
 
 /** Must match ParaclrClearinghouse.MAINTENANCE_MARGIN_BPS (250). */
@@ -46,6 +47,12 @@ export interface ChainAccountSnapshot {
   auction: AuctionState | null;
   healthError: string | null;
   readAt: number;
+  /** Production only: exact collateral, margin escrowed by pending orders, Σ position margins (6 dp). */
+  collateralUnits?: bigint;
+  reservedMarginUnits?: bigint;
+  marginSumUnits?: bigint;
+  /** Production only: equity / free collateral estimated at the Pyth (Hermes) price, not read on chain. */
+  estimated?: boolean;
 }
 
 interface Leg {
@@ -79,6 +86,8 @@ export function crossLiquidationPrice(collateral: number, legs: Leg[], index: nu
 }
 
 export async function readAccountSnapshot(address: Address, c: LiveContracts): Promise<ChainAccountSnapshot> {
+  // The production contract has its own account / position layout and Pyth marks.
+  if (c.production) return readProdAccountSnapshot(address, c);
   const ch = c.clearinghouse;
   const ids = MARKETS.map((s) => c.markets[s]);
   const pc = publicClient();
@@ -141,6 +150,7 @@ export async function readAccountSnapshot(address: Address, c: LiveContracts): P
     openedAt: 0,
     liquidationPrice: crossLiquidationPrice(collateral, legs, i),
     marketId: r.marketId,
+    sizeUnits: r.pos.size,
   }));
 
   let equity: number | null = null;

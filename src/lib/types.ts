@@ -7,15 +7,16 @@ export const MARKETS: MarketSymbol[] = ["MON/AUSD", "SOL/AUSD", "BTC/AUSD"];
 
 /**
  * One price observation: a Chainlink Data Streams report, a simulated
- * equivalent, or (chain modes) a read of the on-chain oracle contract the
- * clearinghouse settles against.
+ * equivalent, (chain modes) a read of the on-chain oracle contract the
+ * clearinghouse settles against, or (production) a Pyth price from Hermes —
+ * the price stream delayed orders are executed against.
  */
 export interface PriceTick {
   symbol: MarketSymbol;
   price: number; // quoted in AUSD
-  /** Observation time, ms epoch. Oracle ticks use the on-chain `updatedAt` (1s resolution). */
+  /** Observation time, ms epoch. Oracle ticks use the on-chain `updatedAt` (1s resolution); Pyth ticks the publish time. */
   timestamp: number;
-  source: "chainlink" | "simulated" | "oracle";
+  source: "chainlink" | "simulated" | "oracle" | "pyth";
   /** Block the tick was read at (oracle source only). */
   block?: number;
 }
@@ -48,6 +49,8 @@ export interface Position {
   liquidationPrice?: number;
   /** Chain modes only: bytes32 market id on the clearinghouse. */
   marketId?: string;
+  /** Chain modes only: exact on-chain size (1e18), so a close order closes all of it. */
+  sizeUnits?: bigint;
 }
 
 export type AccountHealth = "healthy" | "warning" | "liquidatable" | "liquidated";

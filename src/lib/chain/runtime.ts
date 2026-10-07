@@ -1,20 +1,45 @@
 // Decides at runtime whether the requested chain mode is usable, and records
 // why not. On any failure the app keeps running the simulation (status
-// "unavailable" + reason shown inline) instead of breaking.
+// "unavailable" + reason shown inline) instead of breaking — except in
+// monad-mainnet mode, where the shell shows a blocking "can't connect" screen
+// instead of a simulation (real money must never look simulated, or vice versa).
+//
+// Production safety (monad-mainnet):
+//   - contract addresses come ONLY from deployments/143.json (never the keeper);
+//   - the file must say `"production": true`;
+//   - the collateral token must report 6 decimals, and the clearinghouse's own
+//     `ausd()` (when readable) must match the file.
 
-import type { Address } from "viem";
+import { erc20Abi, type Address, type Hex } from "viem";
+import { MARKETS, type MarketSymbol } from "../types";
 import { setChain, setKeeper } from "../store";
 import { paraclrClearinghouseAbi } from "./abi";
 import { publicClient, readMany } from "./clients";
-import { NETWORK } from "./config";
+import { AGORA_AUSD_MAINNET, NETWORK } from "./config";
 import { contractsFromKeeper, parseDeployment, resolveContracts, type ResolvedContracts } from "./deployments";
 import { readableError } from "./errors";
 import { keeperApi } from "./keeper";
+import { prodAbi } from "./prod/abi";
+import { PYTH_MAINNET_FEEDS } from "./prod/state";
+
+/** The collateral token as reported by the chain. */
+export interface CollateralToken {
+  address: Address;
+  /** `symbol()` from chain ("AUSD" for both Agora AUSD and the demo MockAUSD). */
+  symbol: string;
+  name: string;
+  decimals: number;
+  /** The real Agora AUSD on Monad mainnet (address match on chain 143). */
+  agora: boolean;
+  /** Anything that isn't Agora AUSD in production: label it as a test token. */
+  test: boolean;
+}
 
 /** Contracts once connected: AUSD and oracle are always known. */
 export interface LiveContracts extends ResolvedContracts {
   ausd: Address;
   oracle: Address;
+  token: CollateralToken;
 }
 
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
@@ -40,6 +65,8 @@ export function connectChain(input: { raw: unknown; loadError: string | null }):
   return connecting;
 }
 
+const ZERO32 = `0x${"0".repeat(64)}`;
+
 async function doConnect({ raw, loadError }: { raw: unknown; loadError: string | null }): Promise<void> {
   if (!NETWORK) return;
   const net = NETWORK;
@@ -50,7 +77,23 @@ async function doConnect({ raw, loadError }: { raw: unknown; loadError: string |
   const fileProblem = loadError ?? parsed.error;
   let resolved = resolveContracts(parsed.deployment);
 
-  if (!resolved) {
+  if (net.isMainnet) {
+    // Real money: addresses only from the deployment file, and only the production set.
+    if (!resolved || resolved.source !== "deployments") {
+      fail(
+        `No production deployment for ${net.label}: ${fileProblem ?? `deployments/${net.chainId}.json not found`}. ` +
+          "Mainnet mode reads contract addresses only from that file (never from the keeper or env).",
+      );
+      return;
+    }
+    if (!resolved.production) {
+      fail(
+        `deployments/${net.chainId}.json is not marked "production": true — refusing to use it in mainnet mode ` +
+          "(the demo contracts must never hold real funds).",
+      );
+      return;
+    }
+  } else if (!resolved) {
     try {
       const health = await keeperApi.health();
       setKeeper({ status: "online", error: null, health, checkedAt: Date.now() });
@@ -74,7 +117,12 @@ async function doConnect({ raw, loadError }: { raw: unknown; loadError: string |
     chainId = await withTimeout(pc.getChainId(), 6_000);
   } catch {
     fail(
-      `RPC unreachable at ${net.rpcUrl}.` + (net.mode === "anvil" ? " Is anvil running?" : " Check NEXT_PUBLIC_MONAD_RPC_URL."),
+      `RPC unreachable at ${net.rpcUrl}.` +
+        (net.mode === "anvil"
+          ? " Is anvil running?"
+          : net.mode === "monad-mainnet"
+            ? " Check NEXT_PUBLIC_MONAD_MAINNET_RPC_URL."
+            : " Check NEXT_PUBLIC_MONAD_RPC_URL."),
     );
     return;
   }
@@ -100,22 +148,86 @@ async function doConnect({ raw, loadError }: { raw: unknown; loadError: string |
 
   let ausd = resolved.ausd;
   let oracle = resolved.oracle;
-  if (!ausd || !oracle) {
-    const [a, o] = await readMany({
-      contracts: [
-        { address: resolved.clearinghouse, abi: paraclrClearinghouseAbi, functionName: "ausd" },
-        { address: resolved.clearinghouse, abi: paraclrClearinghouseAbi, functionName: "oracle" },
-      ],
-    });
-    if (!ausd && a.status === "success") ausd = a.result;
-    if (!oracle && o.status === "success") oracle = o.result;
+  let pyth = resolved.pyth;
+  // The clearinghouse's own view of its collateral / oracle / Pyth.
+  const [a, o, py] = await readMany({
+    contracts: [
+      { address: resolved.clearinghouse, abi: paraclrClearinghouseAbi, functionName: "ausd" },
+      { address: resolved.clearinghouse, abi: paraclrClearinghouseAbi, functionName: "oracle" },
+      { address: resolved.clearinghouse, abi: prodAbi, functionName: "pyth" },
+    ],
+  });
+  const onchainAusd = a.status === "success" ? a.result : null;
+  if (resolved.production && onchainAusd && ausd && onchainAusd.toLowerCase() !== ausd.toLowerCase()) {
+    fail(
+      `The clearinghouse's collateral token (${onchainAusd}) doesn't match deployments/${net.chainId}.json (${ausd}). Refusing to continue.`,
+    );
+    return;
   }
+  if (!ausd && onchainAusd) ausd = onchainAusd;
+  if (!oracle && o.status === "success") oracle = o.result;
+  if (!pyth && py.status === "success") pyth = py.result;
+  if (!oracle && resolved.production && pyth) oracle = pyth;
   if (!ausd || !oracle) {
     fail(`Couldn't resolve the AUSD / oracle addresses from the clearinghouse at ${resolved.clearinghouse}.`);
     return;
   }
 
-  setChain({ status: "ready", reason: null, contracts: { ...resolved, ausd, oracle } });
+  // Collateral token as the chain reports it.
+  const [sym, name, dec] = await readMany({
+    contracts: [
+      { address: ausd, abi: erc20Abi, functionName: "symbol" },
+      { address: ausd, abi: erc20Abi, functionName: "name" },
+      { address: ausd, abi: erc20Abi, functionName: "decimals" },
+    ],
+  });
+  const decimals = dec.status === "success" ? Number(dec.result) : null;
+  if (decimals !== null && decimals !== 6) {
+    fail(`The collateral token at ${ausd} reports ${decimals} decimals; the app and contracts assume 6. Refusing to continue.`);
+    return;
+  }
+  if (resolved.production && decimals === null) {
+    fail(`Couldn't read decimals() of the collateral token at ${ausd}.`);
+    return;
+  }
+  const agora = net.chainId === 143 && ausd.toLowerCase() === AGORA_AUSD_MAINNET.toLowerCase();
+  const token: CollateralToken = {
+    address: ausd,
+    symbol: sym.status === "success" && sym.result ? sym.result : "AUSD",
+    name: name.status === "success" ? name.result : "",
+    decimals: decimals ?? 6,
+    agora,
+    test: !(resolved.production && agora),
+  };
+
+  // Pyth feed ids per market: deployment file → the clearinghouse's getMarkets() → Pyth's official ids.
+  let pythFeeds: Partial<Record<MarketSymbol, Hex>> = resolved.pythFeeds;
+  if (resolved.production && MARKETS.some((m) => !pythFeeds[m])) {
+    const [gm] = await readMany({
+      contracts: [{ address: resolved.clearinghouse, abi: prodAbi, functionName: "getMarkets" }],
+    });
+    pythFeeds = { ...pythFeeds };
+    const onchain = new Map<string, Hex>();
+    if (gm.status === "success") {
+      const [ids, , feeds] = gm.result;
+      ids.forEach((id, i) => {
+        const f = feeds[i];
+        if (f && f !== ZERO32) onchain.set(id.toLowerCase(), f);
+      });
+    }
+    for (const m of MARKETS) {
+      if (pythFeeds[m]) continue;
+      const hit = onchain.get(resolved.markets[m].toLowerCase());
+      if (hit) pythFeeds[m] = hit;
+      else if (net.chainId === 143) pythFeeds[m] = PYTH_MAINNET_FEEDS[m];
+    }
+  }
+
+  setChain({
+    status: "ready",
+    reason: null,
+    contracts: { ...resolved, ausd, oracle, pyth, pythFeeds, token },
+  });
 }
 
 /** Poll keeper /health once and record reachability + chain match in the store. */

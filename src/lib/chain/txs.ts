@@ -98,6 +98,8 @@ export interface TxRequest {
   label: string;
   to: Address;
   data: Hex;
+  /** Native value (wei): order execution fee, Pyth update fee. */
+  value?: bigint;
 }
 
 /** Monad bills the gas *limit*, so keep the margin over the estimate small. */
@@ -113,8 +115,8 @@ export async function sendTx(signer: ChainSigner, req: TxRequest): Promise<Trans
   const tx = add(req.label);
   try {
     // eth_call first: reverts come back with data we can decode into words.
-    await pc.call({ account: signer.address, to: req.to, data: req.data });
-    const estimate = await pc.estimateGas({ account: signer.address, to: req.to, data: req.data });
+    await pc.call({ account: signer.address, to: req.to, data: req.data, value: req.value });
+    const estimate = await pc.estimateGas({ account: signer.address, to: req.to, data: req.data, value: req.value });
     const gas = (estimate * GAS_MARGIN_PCT) / BigInt(100);
 
     update(tx.id, { status: "signing" });
@@ -124,6 +126,7 @@ export async function sendTx(signer: ChainSigner, req: TxRequest): Promise<Trans
       chain: wc.chain,
       to: req.to,
       data: req.data,
+      value: req.value,
       gas,
     });
     update(tx.id, { status: "pending", hash, sentAt: Date.now() });
