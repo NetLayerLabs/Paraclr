@@ -3,12 +3,16 @@
 // The only process that holds operator keys. Pushes the oracle price feed, serves the faucet,
 // and runs the measured 8-lane flash-crash. Reads keeper/.env; on a local anvil every setting
 // has a zero-config default (anvil dev keys), see keeper/README.md.
+//
+// `npm run keeper -- --network mainnet` runs the PRODUCTION keeper instead (keeper/src/prod/main.ts:
+// keeper/.env.mainnet, chain 143, Pyth/Hermes, order executor, funding, auctions, monitoring; no
+// faucet / price pusher / crash / demo takers). Nothing below runs in that mode.
 
 import type { Server } from "node:http";
 import { encodeFunctionData, formatEther } from "viem";
 import { abis, createContext, ensureAnvilBalances, readOraclePrices, roleBalances, type KeeperContext } from "./context";
 import { CrashController } from "./crash";
-import { loadKeeperEnv, rpcHost } from "./env";
+import { loadKeeperEnv, parseArgs, rpcHost } from "./env";
 import { Faucet } from "./faucet";
 import { applyPrivateStackDefaults, defaultRpcUrl, deploymentLabel } from "./network";
 import { fromWad, PriceLoop, PriceSim } from "./prices";
@@ -16,6 +20,7 @@ import { estimateLimit, waitForReceipt } from "./sender";
 import { startServer } from "./server";
 import { Sweeper } from "./sweeper";
 import { createTakers, takerConfig } from "./takers";
+import { runProdKeeper } from "./prod/main";
 
 /** The price pusher must be on the oracle's updater allowlist; fix it if we own the oracle. */
 async function ensurePusherIsUpdater(ctx: KeeperContext): Promise<void> {
@@ -128,7 +133,12 @@ async function main(): Promise<void> {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
 }
 
-main().catch((err: unknown) => {
+const cli = parseArgs(process.argv.slice(2));
+if (cli.network !== undefined && cli.network !== "mainnet") {
+  console.error(`[keeper] --network must be mainnet (production) or omitted (anvil / testnet from keeper/.env), got "${String(cli.network)}"`);
+  process.exit(1);
+}
+(cli.network === "mainnet" ? runProdKeeper(cli) : main()).catch((err: unknown) => {
   console.error(`[keeper] fatal: ${(err as Error)?.message ?? err}`);
   process.exit(1);
 });
