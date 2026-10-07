@@ -65,7 +65,11 @@ export function MarketRisk({ symbol }: { symbol: MarketSymbol }) {
       >
         <small>On-chain Pyth</small>
         <b className="mono">{age === null ? "—" : age < 120 ? `${Math.round(age)}s old` : `${fmtDuration(age)} old`}</b>
-        <em>{prod.params.maxPriceAge !== null ? `views need ≤ ${fmtDuration(prod.params.maxPriceAge)}` : "used by views"}</em>
+        <em>
+          {prod.params.maxStoredPriceAge !== null
+            ? `contract uses ≤ ${fmtDuration(prod.params.maxStoredPriceAge)}`
+            : "used by views"}
+        </em>
       </div>
     </div>
   );

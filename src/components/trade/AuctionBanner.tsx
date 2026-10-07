@@ -19,6 +19,10 @@ import { readableError } from "@/lib/chain/errors";
 import { useAuctionParams } from "@/lib/chain/auctionParams";
 import { blocksUntil, discountBpsAt, fmtBps } from "@/lib/chain/fair";
 import { cureAuctionOnChain } from "@/lib/chain/fairActions";
+import { submitReduceOrder } from "@/lib/chain/prod/actions";
+import { orderLabelId } from "@/lib/chain/prod/orders";
+import { useSlippage } from "@/components/prod/util";
+import type { MarketSymbol } from "@/lib/types";
 import { Notice, TxLink } from "@/components/chain/ChainUi";
 import { fmtAusd } from "./format";
 import styles from "./AuctionBanner.module.css";
@@ -118,7 +122,11 @@ export function AuctionBanner() {
 
 function InAuction({ startBlock, block }: { startBlock: number; block: number }) {
   const acct = useParaclr((s) => s.chain.account);
+  const production = useParaclr((s) => !!s.chain.contracts?.production);
+  const prices = useParaclr((s) => s.prices);
   const p = useAuctionParams();
+  const [slip] = useSlippage();
+  const [exiting, setExiting] = useState<string | null>(null);
   const [amountStr, setAmountStr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "warn" | "error"; text: string } | null>(null);
@@ -134,8 +142,12 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
   const toBackstop = blocksUntil(minBps, startBlock, block, p);
   const toMax = blocksUntil(p.maxDiscountBps, startBlock, block, p);
   const shortfall = Math.max(0, mm - equity);
-  // Default top-up: the shortfall + 10% (+1 AUSD) so a small adverse tick doesn't undo it.
-  const suggested = shortfall > 0 ? Math.ceil((shortfall * 1.1 + 1) * 100) / 100 : 0;
+  // Default top-up: the shortfall plus a small margin so an adverse tick doesn't undo it
+  // (the production contract cures at maintenance; the demo used +10%).
+  const suggested =
+    shortfall > 0
+      ? Math.ceil((production ? shortfall * 1.02 + 0.25 : shortfall * 1.1 + 1) * 100) / 100
+      : 0;
   const amount = amountStr === null ? suggested : Number.parseFloat(amountStr) || 0;
   const wallet = acct.walletAusd;
 
@@ -158,6 +170,27 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
   };
 
   const reason = busy ? null : amount > wallet + 1e-9 ? "Not enough AUSD in your wallet" : null;
+
+  // Production: an account in auction may commit reduce-only orders; one that leaves the
+  // account at or above maintenance fills and ends the auction.
+  const exit = async (symbol: MarketSymbol, fraction: number) => {
+    const pos = acct.positions.find((x) => x.symbol === symbol);
+    const mark = prices[symbol]?.price ?? pos?.entryPrice;
+    if (!pos || !mark) return;
+    setExiting(`${symbol}:${fraction}`);
+    setMsg(null);
+    try {
+      const o = await submitReduceOrder({ position: pos, fraction, mark, slippagePct: slip });
+      setMsg({
+        tone: "ok",
+        text: `${fraction >= 1 ? "Close" : "Reduce"} order submitted${o.orderId !== null ? ` (${orderLabelId(o)})` : ""}: it fills at the next Pyth price if it leaves the account at or above maintenance, which ends the auction.`,
+      });
+    } catch (e) {
+      setMsg({ tone: "error", text: readableError(e) });
+    } finally {
+      setExiting(null);
+    }
+  };
 
   return (
     <section className={styles.banner} data-tone="auction" aria-live="polite">
@@ -210,7 +243,7 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
         <small>
           {shortfall > 0 ? (
             <>
-              Needs ≥ <span className="mono">{fmtAusd(shortfall)}</span> AUSD to clear maintenance · wallet{" "}
+              Needs ≥ <span className="mono">{fmtAusd(shortfall)}</span> AUSD to reach maintenance · wallet{" "}
               <span className="mono">{fmtAusd(wallet)}</span>
             </>
           ) : (
@@ -218,9 +251,35 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
           )}
         </small>
       </div>
+      {production && acct.positions.length > 0 && (
+        <div className={styles.cure}>
+          {acct.positions.map((pos) => (
+            <span key={pos.symbol} style={{ display: "contents" }}>
+              <button
+                type="button"
+                className={styles.cureBtn}
+                disabled={exiting !== null}
+                onClick={() => void exit(pos.symbol, 0.5)}
+              >
+                {exiting === `${pos.symbol}:0.5` ? "Submitting…" : `Reduce ${pos.symbol.split("/")[0]} 50%`}
+              </button>
+              <button
+                type="button"
+                className={styles.cureBtn}
+                disabled={exiting !== null}
+                onClick={() => void exit(pos.symbol, 1)}
+              >
+                {exiting === `${pos.symbol}:1` ? "Submitting…" : `Close ${pos.symbol.split("/")[0]} ${pos.side}`}
+              </button>
+            </span>
+          ))}
+          <small>Reduce-only orders: filled only if they leave you at or above maintenance, which ends the auction.</small>
+        </div>
+      )}
       <p className={styles.fine}>
-        Frozen while in auction: no new positions or withdrawals (deposits are allowed). The discount is set by the block
-        clock, not by gas bidding.
+        {production
+          ? "Frozen while in auction: no new positions or withdrawals. You can add collateral, or reduce / close with a reduce-only order. A cure needs equity at or above maintenance, and not in the auction's first block."
+          : "Frozen while in auction: no new positions or withdrawals (deposits are allowed). The discount is set by the block clock, not by gas bidding."}
       </p>
       {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
     </section>

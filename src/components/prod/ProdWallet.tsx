@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { formatEther } from "viem";
+import { formatEther, type Address } from "viem";
 import { signOut, useParaclr } from "@/lib/store";
 import { addressUrl, NETWORK } from "@/lib/chain/config";
 import { readableError } from "@/lib/chain/errors";
@@ -14,7 +14,9 @@ import {
   claimExecutionFees,
   depositBlockedByPause,
   depositProd,
+  depositRefusal,
   depositRoom,
+  previewWithdrawAmount,
   quoteWithdrawUpdate,
   storedPriceStatus,
   withdrawProd,
@@ -110,6 +112,25 @@ export function ProdWallet() {
     };
   }, [tab, wallet.ready, holds]);
 
+  // Withdraw preview: while the lane has bad debt, payouts are haircut pro rata.
+  const haircutBps = prod?.lane?.solvency?.haircutBps ?? 0;
+  const amountNum = Number.parseFloat(amountStr) || 0;
+  const [preview, setPreview] = useState<{ amount: number; paid: number } | null>(null);
+  useEffect(() => {
+    if (tab !== "withdraw" || haircutBps <= 0 || amountNum <= 0 || !session) return;
+    let cancelled = false;
+    const t = setTimeout(() => {
+      previewWithdrawAmount(session.address as Address, amountNum).then(
+        (paid) => !cancelled && paid !== null && setPreview({ amount: amountNum, paid }),
+        () => undefined,
+      );
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [tab, haircutBps, amountNum, session]);
+
   if (!session || !NETWORK) return null;
 
   const explorer = addressUrl(session.address);
@@ -121,7 +142,9 @@ export function ProdWallet() {
   const depositPaused = depositBlockedByPause(acct);
   const walletAusd = acct?.walletAusd ?? 0;
   const free = acct?.freeCollateral ?? 0;
-  const maxDeposit = room.room === null ? walletAusd : Math.min(walletAusd, room.room);
+  // Holders may also add margin beyond the caps, up to the top-up allowance.
+  const maxDeposit = Math.min(walletAusd, (room.room === null ? walletAusd : room.room) + room.topUp);
+  const laneDebt = prod?.lane?.solvency?.badDebt ?? 0;
   const amount = Number.parseFloat(amountStr) || 0;
   const isPasskey = session.method === "passkey";
 
@@ -135,8 +158,8 @@ export function ProdWallet() {
           ? "Enter an amount"
           : amount > walletAusd + 1e-9
             ? `Not enough ${token.symbol} in your wallet`
-            : room.room !== null && amount > room.room + 1e-9
-              ? "Over the beta deposit cap"
+            : depositRefusal(acct, amount)
+              ? depositRefusal(acct, amount)
               : acct.native <= 0
                 ? `Need ${NETWORK.nativeSymbol} for gas`
                 : null;
@@ -305,6 +328,12 @@ export function ProdWallet() {
         </div>
         {tab === "deposit" ? (
           <dl className={styles.fees}>
+            {room.holder && (
+              <div title="Allowed beyond the caps while your equity is below your initial margin, up to the amount that restores it. Recomputed at fresh Pyth prices when you submit.">
+                <dt>Add margin beyond the cap</dt>
+                <dd className="mono">up to {fmtAusd(room.topUp)}</dd>
+              </div>
+            )}
             <div>
               <dt>Room under your account cap</dt>
               <dd className="mono">{room.accountRoom === null ? "—" : fmtAusd(room.accountRoom)}</dd>
@@ -331,8 +360,8 @@ export function ProdWallet() {
               </dd>
             </div>
             <div>
-              <dt>Price age limit</dt>
-              <dd className="mono">{priced.maxPriceAge !== null ? fmtDuration(priced.maxPriceAge) : "—"}</dd>
+              <dt>Stored-price age limit</dt>
+              <dd className="mono">{priced.maxStoredAge !== null ? fmtDuration(priced.maxStoredAge) : "—"}</dd>
             </div>
             <div className={styles.feesTotal}>
               <dt>Pyth update fee</dt>
@@ -354,6 +383,31 @@ export function ProdWallet() {
           <Notice tone="warn">
             Prices are refreshing: the Pyth price stored on chain is too old for the contract and a fresh update
             couldn&apos;t be fetched right now. Retry in a few seconds.
+          </Notice>
+        )}
+        {tab === "deposit" && !room.holder && laneDebt > 0 && (
+          <Notice tone="warn">
+            Lane {acct ? acct.lane + 1 : ""} has {fmtAusd(laneDebt)} AUSD of bad debt, so new deposits into it are refused
+            until it is repaid. Accounts with open positions can still add margin.
+          </Notice>
+        )}
+        {tab === "deposit" && acct && !acct.registered && (
+          <p className={styles.fine}>
+            Your first deposit must be at least {fmtAusd(params?.minFirstDeposit ?? 1)} {token.symbol}.
+          </p>
+        )}
+        {tab === "withdraw" && haircutBps > 0 && (
+          <Notice tone="warn">
+            Lane {acct ? acct.lane + 1 : ""} has bad debt: withdrawals are cut by {(haircutBps / 100).toFixed(2)}% until
+            it is repaid
+            {preview && preview.amount === amountNum && amountNum > 0 ? (
+              <>
+                {" "}
+                — withdrawing <span className="mono">{fmtAusd(amountNum)}</span> pays{" "}
+                <span className="mono">{fmtAusd(preview.paid)}</span> {token.symbol}
+              </>
+            ) : null}
+            .
           </Notice>
         )}
         {tab === "deposit" && !acked && !depositPaused && (

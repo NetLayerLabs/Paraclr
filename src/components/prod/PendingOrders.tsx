@@ -171,7 +171,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
     case "failed":
       msg = (
         <>
-          Executed with the Pyth price but not filled: {o.error ?? "the contract rejected the fill"}. Nothing was
+          Executed with the Pyth price but not filled: {(o.error ?? "the contract rejected the fill").replace(/\.$/, "")}. Nothing was
           traded; the margin escrow is released (the execution fee paid the executor).
         </>
       );

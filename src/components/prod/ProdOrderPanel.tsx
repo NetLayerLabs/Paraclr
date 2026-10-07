@@ -14,7 +14,13 @@ import { useMarketFeed } from "@/lib/prices/feedStore";
 import { crossLiquidationPrice } from "@/lib/chain/account";
 import { readableError } from "@/lib/chain/errors";
 import { NETWORK } from "@/lib/chain/config";
-import { depositRoom, orderDepositNeeded, submitIncreaseOrder, tradingFeeUnits } from "@/lib/chain/prod/actions";
+import {
+  depositRefusal,
+  depositRoom,
+  orderDepositNeeded,
+  orderSize,
+  submitIncreaseOrder,
+} from "@/lib/chain/prod/actions";
 import { useOrders, isOpen, type TrackedOrder } from "@/lib/chain/prod/orders";
 import { ausdToNumber, ausdToUnits } from "@/lib/chain/units";
 import { useRiskAcked } from "@/lib/chain/prod/riskAck";
@@ -73,8 +79,9 @@ export function ProdOrderPanel({
   const maxLev = Math.max(1, Math.floor(params?.maxLeverage ?? 10));
   const leverage = Math.min(levRaw, maxLev);
   const margin = Number.parseFloat(marginStr) || 0;
-  const notional = margin * leverage;
-  const size = price ? notional / price : 0;
+  // Near max leverage the size leaves room for the slippage bound (see orderSize).
+  const size = price ? orderSize(margin, leverage, price, slip) : 0;
+  const notional = price ? size * price : margin * leverage;
   const base = baseOf(symbol);
 
   const existing = positions.find((p) => p.symbol === symbol) ?? null;
@@ -87,9 +94,10 @@ export function ProdOrderPanel({
   const room = depositRoom(acct);
   const walletUsable = acct ? (room.room === null ? acct.walletAusd : Math.min(acct.walletAusd, room.room)) : 0;
   // Margin you can post: free escrow + depositable wallet, less the trading fee buffer the deposit includes.
-  const feeFactor = 1 + (2 * (prod?.params.tradingFeeBps ?? 0) * leverage) / 10_000;
-  const available = acct ? Math.max(0, (escrowFree + walletUsable) / feeFactor) : 0;
-  const deposit = acct ? ausdToNumber(orderDepositNeeded(acct, ausdToUnits(margin), tradingFeeUnits(notional))) : 0;
+  // The trading fee is paid out of the order's margin at the fill (v4), so no extra buffer.
+  const available = acct ? Math.max(0, escrowFree + walletUsable) : 0;
+  const deposit = acct ? ausdToNumber(orderDepositNeeded(acct, ausdToUnits(margin))) : 0;
+  const depositBlock = deposit > 0 ? depositRefusal(acct, deposit) : null;
 
   const feeBps = params?.tradingFeeBps ?? null;
   const tradingFee = feeBps !== null ? (notional * feeBps) / 10_000 : null;
@@ -123,6 +131,9 @@ export function ProdOrderPanel({
   }
   const liqDist = liq != null && price ? ((liq - price) / price) * 100 : null;
 
+  // v5: no new margin while collateral is above the account cap (exempt top-ups can't fund risk).
+  const aboveCap =
+    acct && params?.maxDepositPerAccount != null ? acct.collateral > params.maxDepositPerAccount + 1e-9 : false;
   const pendingHere = orders.some((o) => o.symbol === symbol && isOpen(o)) || !!prod?.mine?.pending[symbol];
   const native = acct?.nativeUnits ?? BigInt(0);
   // Resulting position (an increase merges into an existing same-side leg).
@@ -139,11 +150,13 @@ export function ProdOrderPanel({
         : prod.paused
           ? "Paused — new positions disabled"
           : acct.auction?.active
-            ? "In liquidation auction — cure it first"
+            ? "In auction — reduce or close below, or cure it"
             : existing && existing.side !== side
               ? `You hold a ${base} ${existing.side}: reduce or close it below`
               : pendingHere
                 ? `A ${base} order is pending — one per market`
+              : aboveCap
+                ? "Collateral above the beta cap: withdraw down to it before adding margin"
               : !price
                 ? "Waiting for the Pyth price…"
                 : margin <= 0
@@ -154,8 +167,12 @@ export function ProdOrderPanel({
                       : deposit > walletUsable && room.room !== null && acct.walletAusd > room.room
                         ? "Over the beta deposit cap"
                         : `Insufficient ${token.symbol}`
+                    : depositBlock
+                      ? depositBlock
                     : leverage > maxLev || (resultMargin > 0 && resultNotional > resultMargin * maxLev * 1.0001)
                       ? `Max leverage ${maxLev}x`
+                    : resultMargin > resultNotional + 1e-9
+                      ? "Margin can't exceed notional (min 1x)"
                       : params?.minPositionNotional != null && resultNotional < params.minPositionNotional
                         ? `Min position ${fmtAusd(params.minPositionNotional)} notional`
                         : oiRoom !== null && notional > oiRoom
@@ -336,7 +353,7 @@ export function ProdOrderPanel({
 
       <dl className={styles.fees} aria-label="Fees">
         <div>
-          <dt>Trading fee{feeBps !== null ? ` (${(feeBps / 100).toFixed(2)}%)` : ""}</dt>
+          <dt>Trading fee{feeBps !== null ? ` (${(feeBps / 100).toFixed(2)}%, from margin)` : ""}</dt>
           <dd className="mono">
             {tradingFee === null ? "—" : fmtAusd(tradingFee, 4)} <small>{token.symbol}</small>
           </dd>
@@ -348,7 +365,7 @@ export function ProdOrderPanel({
           </dd>
         </div>
         {deposit > 0 && margin <= available + 1e-9 && (
-          <div title="Margin + trading fee (with a small buffer), minus collateral you already have free">
+          <div title="The order's margin (the trading fee is paid out of it), minus collateral you already have free">
             <dt>Deposited from wallet first</dt>
             <dd className="mono">
               {fmtAusd(deposit)} <small>{token.symbol}</small>
@@ -375,6 +392,13 @@ export function ProdOrderPanel({
           {acct && acct.allowanceUnits > BigInt(0) ? " (if needed)" : ""} and a deposit of{" "}
           <span className="mono">{fmtAusd(deposit)}</span> {token.symbol}, then the order — each an on-chain
           transaction.
+        </Notice>
+      )}
+      {aboveCap && (
+        <Notice tone="warn">
+          Your collateral is above the beta cap of{" "}
+          <span className="mono">{fmtAusd(params?.maxDepositPerAccount ?? 0)}</span> {token.symbol}. Withdraw down to the
+          cap before adding margin; reducing or closing still works.
         </Notice>
       )}
       {pendingHere && (

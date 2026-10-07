@@ -102,7 +102,8 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     reduceOpen,
     setReduceOpen,
     exitOrder,
-    closeDisabled: closing || (chainLive && !walletReady) || inAuction || exitPending,
+    // Production: reduce / close are reduce-only orders, allowed while in auction.
+    closeDisabled: closing || (chainLive && !walletReady) || (inAuction && !production) || exitPending,
   };
 }
 
@@ -128,7 +129,7 @@ function ReduceChips({ m }: { m: PositionModel }) {
 
 function closeLabel(m: PositionModel): string {
   if (m.closing) return m.production ? "Submitting…" : "Closing…";
-  if (m.inAuction) return "Frozen";
+  if (m.inAuction && !m.production) return "Frozen";
   if (m.exitPending) return "Order pending";
   return "Close";
 }
@@ -217,10 +218,12 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
           disabled={m.closeDisabled}
           onClick={m.close}
           title={
-            m.inAuction
+            m.inAuction && !m.production
               ? "Frozen during the liquidation auction — cure it from the banner above"
               : m.production
-                ? "Close with a delayed order at the next Pyth price"
+                ? m.inAuction
+                  ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"
+                  : "Close with a delayed order at the next Pyth price"
                 : undefined
           }
         >
@@ -297,10 +300,12 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
             disabled={m.closeDisabled}
             onClick={m.close}
             title={
-              m.inAuction
+              m.inAuction && !m.production
                 ? "Frozen during the liquidation auction — cure it from the banner above"
                 : m.production
-                  ? "Close with a delayed order at the next Pyth price"
+                  ? m.inAuction
+                    ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"
+                    : "Close with a delayed order at the next Pyth price"
                   : undefined
             }
           >

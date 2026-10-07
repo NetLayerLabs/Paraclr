@@ -10,6 +10,8 @@ import { useParaclr } from "@/lib/store";
 import { NETWORK } from "@/lib/chain/config";
 import { useSolvency } from "@/lib/chain/solvency";
 import type { SolvencySnapshot } from "@/lib/chain/fair";
+import { useLaneSolvencies } from "@/lib/chain/prod/backstop";
+import type { LaneSolvency } from "@/lib/chain/prod/state";
 import styles from "./Solvency.module.css";
 
 const full = (n: number) =>
@@ -148,7 +150,9 @@ function SolvencyDialog({
 }
 
 function SolvencyBody({ s, error }: { s: SolvencySnapshot; error: string | null }) {
-  const lanes = s.lanes;
+  const production = useParaclr((st) => !!st.chain.contracts?.production);
+  const laneSolv = useLaneSolvencies(production);
+  const lanes = production ? null : s.lanes;
   const sum = lanes
     ? lanes.reduce(
         (a, l) => ({
@@ -185,7 +189,11 @@ function SolvencyBody({ s, error }: { s: SolvencySnapshot; error: string | null 
         <div>
           <dt>
             − Liabilities
-            <small>Σ lanes: collateral + insurance + backstop cash + keeper rewards owed − bad debt</small>
+            <small>
+              {production
+                ? "Σ lanes: AUSD each lane accounts for (held)"
+                : "Σ lanes: collateral + insurance + backstop cash + keeper rewards owed − bad debt"}
+            </small>
           </dt>
           <dd className="mono">{full(s.liabilities)}</dd>
         </div>
@@ -258,11 +266,91 @@ function SolvencyBody({ s, error }: { s: SolvencySnapshot; error: string | null 
         </>
       )}
 
+      {production && <LaneSolvencyTable lanes={laneSolv} liabilities={s.liabilities} />}
+
       {error && <p className={styles.note}>Last refresh failed: {error} (showing the previous read).</p>}
       <p className={styles.note}>
         Each lane keeps its own ledger in lane-local storage, so keeping this proof current never makes two lanes
         write the same slot. The identity is checked by Foundry invariant tests; this badge re-reads it from the
         contract every block.
+      </p>
+    </>
+  );
+}
+
+/**
+ * Production: each lane's own solvency (`laneSolvency(lane)`). A lane's losses
+ * flow insurance → its pool's cash → bad debt; while it has bad debt every
+ * payout from that lane is cut pro rata (the haircut) and fresh deposits into
+ * it are refused.
+ */
+function LaneSolvencyTable({ lanes, liabilities }: { lanes: LaneSolvency[] | null; liabilities: number }) {
+  if (!lanes) return <p className={styles.note}>Reading laneSolvency(0…7)…</p>;
+  const held = lanes.reduce((a, l) => a + l.held, 0);
+  const matches = Math.abs(held - liabilities) < 0.01;
+  return (
+    <>
+      <h3 className={styles.h3}>Per-lane solvency</h3>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Lane</th>
+              <th title="AUSD the lane holds">Held</th>
+              <th title="Collateral + pool cash + keeper rewards the lane owes">Claims</th>
+              <th>Surplus</th>
+              <th data-long="">Insurance</th>
+              <th data-short="" title="Insurance">
+                Ins.
+              </th>
+              <th data-long="">Bad debt</th>
+              <th data-short="" title="Bad debt">
+                Debt
+              </th>
+              <th title="Pro-rata cut on payouts while the lane has bad debt">Haircut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lanes.map((l) => (
+              <tr key={l.lane}>
+                <td>{l.lane + 1}</td>
+                <td className="mono">{compact(l.held)}</td>
+                <td className="mono">{compact(l.claims)}</td>
+                <td className="mono" data-tone={l.surplus < 0 ? "warn" : undefined}>
+                  {compact(l.surplus)}
+                </td>
+                <td className="mono">{compact(l.insurance)}</td>
+                <td className="mono" data-tone={l.badDebt > 0 ? "warn" : undefined}>
+                  {l.badDebt > 0 ? `−${compact(l.badDebt)}` : "0.00"}
+                </td>
+                <td className="mono" data-tone={l.haircutBps > 0 ? "warn" : undefined}>
+                  {l.haircutBps > 0 ? `${(l.haircutBps / 100).toFixed(2)}%` : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Σ</td>
+              <td className="mono">{compact(held)}</td>
+              <td className="mono">{compact(lanes.reduce((a, l) => a + l.claims, 0))}</td>
+              <td className="mono">{compact(lanes.reduce((a, l) => a + l.surplus, 0))}</td>
+              <td className="mono">{compact(lanes.reduce((a, l) => a + l.insurance, 0))}</td>
+              <td className="mono">
+                {lanes.some((l) => l.badDebt > 0) ? `−${compact(lanes.reduce((a, l) => a + l.badDebt, 0))}` : "0.00"}
+              </td>
+              <td />
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p className={styles.check} data-tone={matches && lanes.every((l) => l.surplus >= 0) ? "ok" : "warn"}>
+        {matches
+          ? `Σ lanes held = ${full(held)} AUSD = the liabilities solvency() reports.`
+          : `Σ lanes held = ${full(held)} AUSD, solvency() reports ${full(liabilities)} AUSD.`}
+        {lanes.some((l) => l.badDebt > 0)
+          ? " A lane with bad debt pays out with a haircut until the debt is repaid; it never draws on other lanes."
+          : ""}
       </p>
     </>
   );
