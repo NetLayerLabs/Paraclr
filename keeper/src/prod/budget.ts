@@ -34,24 +34,23 @@ export interface GasTable {
 }
 
 /**
- * Measured by `npm run rehearse:mainnet` on 2026-10-07 against contract v3 (fork leg:
- * contracts/cache/rehearsal/v3-fork/report.json; MockPyth + scale legs: v3-mock / v3-smoke2), as gas
- * LIMITs the keeper sends (estimateGas + 10 %): real Pyth contract verifying real Wormhole-signed
- * Hermes subsets on an anvil fork of Monad mainnet. Auction txs = the fork's real-Pyth probe + the
- * per-account work measured with the test MockPyth (real prices did not move enough to liquidate).
- * Anvil runs the same EVM gas schedule as Monad for these calls; Monad bills the LIMIT.
+ * Measured by the final `npm run rehearse:mainnet` on 2026-10-07 against contract v5 (sha256
+ * 1643014507eaf16a…) with the real DeployProd on every leg — bench/rehearsal/143-fork-v5-*.json →
+ * gas.limits — as gas LIMITs the keeper sends (estimateGas + 10 %): real Pyth contract verifying
+ * real Wormhole-signed Hermes subsets on an anvil fork of Monad mainnet. Auction txs = the fork's
+ * real-Pyth probe + the per-account work measured with the test MockPyth. Monad bills the LIMIT.
  */
 export const MEASURED_GAS: GasTable = {
-  source: "rehearse:mainnet 2026-10-07, contract v3 (anvil fork of Monad mainnet + MockPyth legs)",
-  executeOrder: 443_785, // average limit (single-leg max 496,832; a v3 multi-leg order with its appended update 673,693)
-  updateFunding: 87_689,
-  startAuction: 444_602,
-  backstopTake: 606_379,
-  expire: 458_781,
-  cancelAuction: 183_288,
-  pause: 33_427,
-  pythPush: 183_245, // 3 feeds (166,586 estimate + 10 %); 1 feed 125,658
-  deploy: 17_570_000, // DeployProd.s.sol v3: 21 txs, 14.44M used
+  source: "rehearse:mainnet 2026-10-07, contract v5 (bench/rehearsal/143-fork-v5-2026-10-07T05-41-11Z.json)",
+  executeOrder: 446_080, // average limit (single-leg max 499,514; multi-leg with its appended update 676,627)
+  updateFunding: 87_713,
+  startAuction: 444_362,
+  backstopTake: 606_336,
+  expire: 458_835,
+  cancelAuction: 183_153,
+  pause: 33_374,
+  pythPush: 183_349, // 3 feeds; 1 feed 125,691
+  deploy: 18_090_000, // DeployProd.s.sol v5: 21 txs, 14.84M used
   transfer: 21_000,
 };
 

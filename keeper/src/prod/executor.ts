@@ -69,6 +69,8 @@ export interface TrackedOrder {
 
 /** executeOrder reverts that mean "not yet": retry next head. */
 const RETRY_LATER = new Set(["OrderNotReady", "PriceFeedNotFoundWithinRange", "NoFreshUpdate", "IsPaused"]);
+/** Expected refusals (v5): the order cannot fill as committed — record it, never page. */
+const EXPECTED = new Set(["CollateralAboveCap", "BackstopPositionsOpen", "MarginAboveNotional"]);
 /** The order is no longer pending (executed / failed / cancelled by someone else). */
 const ALREADY_DONE = new Set(["OrderNotPending"]);
 /** Oracle-side: the pinned or fresh price can't be used right now (stale, wide conf, bad data). */
@@ -279,6 +281,12 @@ export class OrderExecutor {
             .readContract({ address: this.ctx.dep.clearinghouse, abi: clearinghouseAbi, functionName: "auctionOf", args: [o.account] })
             .then((r) => (r as readonly [boolean, bigint, number])[0], () => false)
         : false;
+    // v4: the in-auction "current" price must be STRICTLY newer than execAfter (and ≤ 15 s old):
+    // execute at least 1 s after execAfter; StalePrice reverts are retried with a fresh latest.
+    if (inAuction && head.timestamp < execAfter + 1) {
+      o.state = "waiting-price";
+      return;
+    }
     const freshFor = inAuction ? acct[3] : others;
     if (freshFor.length) {
       const legs = this.ctx.markets.filter((m) => freshFor.some((x) => x.toLowerCase() === m.id.toLowerCase()));
@@ -289,6 +297,14 @@ export class OrderExecutor {
         try {
           const acctFeeds = this.ctx.markets.filter((m) => acct[3].some((x) => x.toLowerCase() === m.id.toLowerCase()));
           const fresh = await this.ctx.hermes.latest(acctFeeds.map((m) => m.feed));
+          if (inAuction) {
+            const cur = fresh.messages.get(this.symbolOf(o.market)?.feed.toLowerCase() ?? "");
+            if (!cur || cur.publishTime <= execAfter) {
+              o.lastError = `in-auction reduce: latest price (${cur?.publishTime ?? "none"}) not newer than execAfter ${execAfter}; retrying`;
+              o.state = "waiting-price";
+              return;
+            }
+          }
           data = [...fresh.data, ...o.update.data];
           parses = 2;
         } catch (err) {
@@ -327,6 +343,7 @@ export class OrderExecutor {
         return;
       }
       if (name === "OrderExpired") return this.expire(o, head);
+      if (EXPECTED.has(name)) return this.unfillable(o, `${est.revert.message} (expected refusal)`);
       o.attempts++;
       if (ORACLE.has(name)) o.update = null; // refetch next head
       if (o.attempts >= 3) {

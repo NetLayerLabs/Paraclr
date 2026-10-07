@@ -24,7 +24,8 @@ export type TxKind =
   | "cancelAuction"
   | "pause"
   | "claim"
-  | "pythPush";
+  | "pythPush"
+  | "backstopReduce";
 
 export interface ProdTx {
   kind: TxKind;

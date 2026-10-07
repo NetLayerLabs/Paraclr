@@ -19,6 +19,7 @@ import { FundingUpdater } from "./funding";
 import { HeadWatcher } from "./head";
 import { HermesError } from "./hermes";
 import { Monitor } from "./monitor";
+import { PoolExitHelper } from "./poolexit";
 import { PricePusher } from "./pricepush";
 import { startProdServer } from "./server";
 import { ProdSweeper } from "./sweeper";
@@ -89,7 +90,12 @@ export async function runProdKeeper(args: Args): Promise<void> {
   const monitor = new Monitor(ctx, heads, ledger);
   const pusher = new PricePusher(ctx, ledger);
   executor.pusher = pusher;
-  executor.onLogs = (logs) => monitor.onLogs(logs);
+  const poolExit = new PoolExitHelper(ctx, ledger);
+  executor.onLogs = (logs) => {
+    monitor.onLogs(logs);
+    poolExit.onLogs(logs);
+  };
+  heads.subscribe("poolexit", (h) => poolExit.tick(h), 10_000);
   heads.subscribe("executor", (h) => executor.tick(h));
   if (pusher.mode === "interval") {
     // "busy" = any open interest or pending order: there is something whose price must stay fresh.
@@ -100,7 +106,7 @@ export async function runProdKeeper(args: Args): Promise<void> {
   heads.subscribe("monitor", (h) => monitor.tick(h), config.monitorIntervalMs);
   heads.start();
 
-  const server = startProdServer({ ctx, heads, executor, funding, sweeper, monitor, ledger, pusher });
+  const server = startProdServer({ ctx, heads, executor, funding, sweeper, monitor, ledger, pusher, poolExit });
   server.on("error", (err: NodeJS.ErrnoException) => {
     console.error(err.code === "EADDRINUSE" ? `[keeper] fatal: port ${config.port} is in use` : `[keeper] fatal: ${err.message}`);
     process.exit(1);

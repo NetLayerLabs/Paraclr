@@ -12,9 +12,12 @@
 //   events     from the executor's per-head log scan: LaneHaircut (warning), BackstopLossAbsorbed
 //              (warning), BackstopPoolReset (critical), AccountSkipped (warning), and on v3
 //              BackstopRepaid (info) and MarketFeedReplaced (critical; feeds switch live), on v4
-//              BackstopReceivableNetted (info) and BackstopSwept (warning) — one event alert each,
+//              BackstopReceivableNetted (info) and BackstopSwept (`pool:forgiven` warning when a
+//              receivable was forgiven, else `pool:swept` info) — one event alert each,
 //              de-duplicated per lane and minute (names absent from the ABI simply never match)
 //   caps       lane TVL / lane-market OI ≥ ALERT_CAP_PCT of their caps → `cap:…`
+//   pools      v4: backstopDepositStatus(lane).open == false for longer than ALERT_POOL_CLOSED_H (6 h)
+//              → `pool:closed:lane<i>` (a hedged pair can keep pool deposits closed: a DoS on LPs)
 //   governance owner() must stay the timelock and the deployer must stay powerless → `gov:…`
 //   AUSD       issuer risk (Agora can pause transfers / freeze addresses / upgrade AUSD):
 //              isTransferPaused() → `ausd:paused`, isAccountFrozen(clearinghouse) → `ausd:frozen`,
@@ -47,6 +50,8 @@ export interface MonitorSnapshot {
   laneSolvency: Array<{ lane: number; held: string; claims: string; surplus: string; insurance: string; badDebt: string; haircutBps: number } | null>;
   /** Age (s, vs chain time) of the price STORED in the Pyth contract per market (v2 limit: maxStoredPriceAge). */
   storedPriceAgeS: Record<string, number | null>;
+  /** v4: per-lane backstopDepositStatus and how long deposits have been closed. */
+  poolDeposits: Array<{ lane: number; open: boolean; receivable: string; unrealizedUncapped: string; closedForS: number } | null>;
   nativeSolvency: { held: string; liabilities: string; solvent: boolean } | null;
   prices: Record<string, { price: number; confBps: number; publishTime: number; ageS: number } | null>;
   balances: Array<{ role: string; address: Address; mon: string; low: boolean }>;
@@ -98,7 +103,7 @@ export class Monitor {
         return fallback;
       });
 
-    const [balances, prices, paused, sol, caps, owner, nat, ausd, lanes, stored] = await Promise.all([
+    const [balances, prices, paused, sol, caps, owner, nat, ausd, lanes, stored, poolDeposits] = await Promise.all([
       guard(this.balances(), "balances", []),
       guard(this.prices(head), "prices", {}),
       read<boolean>(ctx, "paused"),
@@ -109,6 +114,7 @@ export class Monitor {
       this.ausd(),
       Promise.all(Array.from({ length: LANES }, (_, lane) => read<readonly [bigint, bigint, bigint, bigint, bigint, bigint]>(ctx, "laneSolvency", [lane]))),
       this.storedAges(head),
+      this.poolDeposits(head).catch(() => []),
     ]);
 
     // per-lane solvency (v2)
@@ -165,6 +171,7 @@ export class Monitor {
         l ? { lane, held: l[0].toString(), claims: l[1].toString(), surplus: l[2].toString(), insurance: l[3].toString(), badDebt: l[4].toString(), haircutBps: Number(l[5]) } : null,
       ),
       storedPriceAgeS: stored,
+      poolDeposits,
       prices,
       balances,
       caps,
@@ -186,6 +193,28 @@ export class Monitor {
   }
 
   private readonly eventSeen = new Map<string, number>();
+  /** First chain time each lane's pool deposits were seen closed (v4 backstopDepositStatus). */
+  private readonly poolClosedSince = new Map<number, number>();
+
+  private async poolDeposits(head: Head): Promise<Array<{ lane: number; open: boolean; receivable: string; unrealizedUncapped: string; closedForS: number } | null>> {
+    const limitS = envNum("ALERT_POOL_CLOSED_H", 6) * 3600;
+    return Promise.all(
+      Array.from({ length: LANES }, async (_, lane) => {
+        const st = await read<readonly [boolean, bigint, bigint, bigint]>(this.ctx, "backstopDepositStatus", [lane]);
+        if (!st) return null; // pre-v4 contract
+        if (st[0]) this.poolClosedSince.delete(lane);
+        else if (!this.poolClosedSince.has(lane)) this.poolClosedSince.set(lane, head.timestamp);
+        const closedForS = st[0] ? 0 : head.timestamp - (this.poolClosedSince.get(lane) ?? head.timestamp);
+        this.ctx.alerter.set(
+          !st[0] && closedForS >= limitS,
+          `pool:closed:lane${lane}`,
+          "warning",
+          `lane ${lane} pool deposits have been CLOSED for ${(closedForS / 3600).toFixed(1)} h (${st[1] > BigInt(0) ? `the lane owes the pool ${Number(st[1]) / 1e6} AUSD` : `pool gain ${Number(st[2]) / 1e6} > lane insurance ${Number(st[3]) / 1e6}`}). A hedged pair can hold this open-ended: see docs/RUNBOOK.md "Pool deposits closed".`,
+        );
+        return { lane, open: st[0], receivable: st[1].toString(), unrealizedUncapped: st[2].toString(), closedForS };
+      }),
+    );
+  }
 
   /** v2 risk events from the executor's log scan (every tx in the clearinghouse, not only ours). */
   onLogs(logs: Log[]): void {
@@ -212,7 +241,12 @@ export class Monitor {
       } else if (e.eventName === "BackstopReceivableNetted") {
         this.ctx.alerter.event(`pool:netted:lane${lane}`, "info", `lane ${lane} pool receivable netted: ${Number(a.amount ?? 0) / 1e6} AUSD (tx ${tx})`);
       } else if (e.eventName === "BackstopSwept") {
-        this.ctx.alerter.event(`pool:swept:lane${lane}`, "warning", `lane ${lane} pool share supply hit 0: ${Number(a.cash ?? 0) / 1e6} AUSD of orphaned cash swept to insurance, ${Number(a.receivableForgiven ?? 0) / 1e6} AUSD of receivable forgiven (tx ${tx})`);
+        const forgiven = BigInt(String(a.receivableForgiven ?? 0));
+        if (forgiven > BigInt(0)) {
+          this.ctx.alerter.event(`pool:forgiven:lane${lane}`, "warning", `lane ${lane}: the last LP left; the pool's receivable of ${Number(forgiven) / 1e6} AUSD was FORGIVEN and ${Number(a.cash ?? 0) / 1e6} AUSD of orphaned cash went to the lane (tx ${tx})`);
+        } else {
+          this.ctx.alerter.event(`pool:swept:lane${lane}`, "info", `lane ${lane}: the last LP left; ${Number(a.cash ?? 0) / 1e6} AUSD of orphaned pool cash went to the lane (tx ${tx})`);
+        }
       } else if (e.eventName === "MarketFeedReplaced") {
         // Apply live: every loop reads the feed from ctx.markets.
         const m = this.ctx.markets.find((x) => x.id.toLowerCase() === String(a.marketId).toLowerCase());

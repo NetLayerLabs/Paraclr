@@ -26,6 +26,7 @@ import { orderJson } from "./executor";
 import type { FundingUpdater } from "./funding";
 import type { HeadWatcher } from "./head";
 import type { Monitor } from "./monitor";
+import type { PoolExitHelper } from "./poolexit";
 import type { PricePusher } from "./pricepush";
 import type { ProdSweeper } from "./sweeper";
 import { txJson, type TxLedger } from "./tx";
@@ -39,6 +40,7 @@ export interface ProdDeps {
   monitor: Monitor;
   ledger: TxLedger;
   pusher: PricePusher;
+  poolExit: PoolExitHelper;
 }
 
 const DISABLED = /^\/(faucet|crash|recover|price-loop|demo-takers|runs)(\/|$)/;
@@ -105,7 +107,9 @@ export function healthJson(d: ProdDeps) {
     laneSolvency: snap?.laneSolvency ?? null,
     nativeSolvency: snap?.nativeSolvency ?? null,
     storedPriceAgeS: snap?.storedPriceAgeS ?? null,
+    poolDeposits: snap?.poolDeposits ?? null,
     pricePush: d.pusher.status(),
+    poolExit: d.poolExit.status(),
     addresses: {
       clearinghouse: ctx.dep.clearinghouse,
       ausd: ctx.dep.ausd,

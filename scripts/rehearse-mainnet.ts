@@ -31,6 +31,7 @@ import {
   createPublicClient,
   createWalletClient,
   decodeEventLog,
+  decodeFunctionResult,
   encodeFunctionData,
   formatEther,
   http,
@@ -229,6 +230,21 @@ async function revertName(w: World, from: Address, fn: string, args: unknown[], 
     const e = err as { cause?: { data?: { errorName?: string } }; shortMessage?: string };
     return e.cause?.data?.errorName ?? e.shortMessage ?? "reverted";
   }
+}
+
+/** accountHealth at the prices in `update` (eth_simulateV1: push the update into Pyth, then read). */
+async function simulateHealth(w: World, account: Address, update: Hex[]): Promise<readonly [bigint, bigint, bigint, bigint]> {
+  const calls = [
+    { from: account, to: w.dep.pyth, data: encodeFunctionData({ abi: pythAbi, functionName: "updatePriceFeeds", args: [update] }) },
+    { from: account, to: w.dep.clearinghouse, data: encodeFunctionData({ abi: clearinghouseAbi, functionName: "accountHealth", args: [account] }) },
+  ];
+  const res = (await w.chain.client.request({
+    method: "eth_simulateV1" as never,
+    params: [{ blockStateCalls: [{ calls }], validation: false }, "latest"] as never,
+  })) as Array<{ calls: Array<{ status: string; returnData: Hex }> }>;
+  const r = res[0].calls[1];
+  if (r.status !== "0x1") throw new Error("accountHealth simulation failed");
+  return decodeFunctionResult({ abi: clearinghouseAbi, functionName: "accountHealth", data: r.returnData }) as readonly [bigint, bigint, bigint, bigint];
 }
 
 /** Sign (don't wait) a commitOrder from `who`; returns the tx hash once the node has it. */
@@ -603,7 +619,7 @@ async function forkLeg(args: Record<string, string | true>): Promise<void> {
       return { detail: `second leg executed after an on-demand Pyth push (${pp.pushes} push, ${pp.feedsPushed} feed, ${pp.gasLimit} gas limit; exec ${multi.join("/")} vs single-leg max ${Math.max(...single)}), reduce executed, slippage → Failed; lane-6 keeper credited ${formatEther(owed)} MON`, res };
     }
     assert(multi.length >= 1, "no multi-leg execution recorded");
-    return { detail: `second leg executed with the other leg's fresh update APPENDED to the fill (contract v3; no push: ${pp.pushes} pushes; exec gas limit ${multi.join("/")} vs single-leg max ${Math.max(...single)}), reduce executed, slippage → Failed; lane-6 keeper credited ${formatEther(owed)} MON`, res };
+    return { detail: `second leg executed with the other leg's fresh update APPENDED to the fill (contract v3+; no push: ${pp.pushes} pushes; exec gas limit ${multi.join("/")} vs single-leg max ${Math.max(...single)}), reduce executed, slippage → Failed; lane-6 keeper credited ${formatEther(owed)} MON`, res };
   });
 
   await step("fork", "withdraw with a Pyth update fetched through the keeper's Hermes proxy (/hermes/v2/…)", async () => {
@@ -906,7 +922,8 @@ async function mockLeg(args: Record<string, string | true>): Promise<void> {
   }, { fatal: true });
   const artifact = (file: string, name: string) => JSON.parse(readFileSync(join(shadow.root, "out", file, `${name}.json`), "utf8")) as { abi: Abi; bytecode: { object: Hex } };
 
-  const anvil = await startAnvil({ port, chainId: 143, blockTime: 1, logFile: join(OUT, "anvil-mock.log") });
+  // 2 s blocks: the rescue top-up must land within the 3 blocks before the lane-2 pool takes.
+  const anvil = await startAnvil({ port, chainId: 143, blockTime: 2, logFile: join(OUT, "anvil-mock.log") });
   children.push(anvil);
   const rpcUrl = `http://127.0.0.1:${port}`;
   const chain = await connectMainnet(rpcUrl);
@@ -1053,24 +1070,33 @@ async function mockLeg(args: Record<string, string | true>): Promise<void> {
     }
   });
 
-  // The cure must come right after the auctions start: the lane-2 pool takes at 75 bps (3 blocks).
+  // The cure must come right after the auctions start: the lane-2 pool takes at 75 bps (3 blocks = 6 s here).
   // The lane-7 reduce-close can follow — lane 7 has no pool, its auctions run 20 blocks.
-  await step("mock", "cure (equity ≥ maintenance, ≥ 1 block after start): the curer tops up 20 AUSD (holders may deposit while paused) → keeper cancels its auction", async () => {
-    // 30 → 50 AUSD stays inside the 50 AUSD cap, so it needs no price; beyond the cap only
-    // topUpAllowance (needs a stored/lane price ≤ 15 s) may be deposited.
-    const allowance = await read<bigint>("topUpAllowance", [curer.address]).catch(() => null);
-    report.mock.curerTopUpAllowance = allowance?.toString() ?? null;
-    await txAs(w, curer, "deposit", [BigInt(20e6)]);
+  await step("mock", "beyond-cap rescue top-up (v4): the curer (30 AUSD deposited, cap 50) deposits its whole topUpAllowance through depositWithPrice with a /hermes-style update → collateral above the cap → equity ≥ maintenance → the keeper cancels its auction (cure)", async () => {
+    const ids = [KNOWN.feeds["MON/AUSD"]];
+    const u = await getJson<{ binary: { data: string[] } }>(`${hermes.url}/v2/updates/price/latest?${ids.map((f) => `ids[]=${f}`).join("&")}`, { authorization: "Bearer rehearsal-key" });
+    const data = u.body.binary.data.map((d) => `0x${d}` as Hex);
+    // the exemption at FRESH prices = what depositWithPrice will compute (simulate it)
+    const allowanceView = await read<bigint>("topUpAllowance", [curer.address]).catch(() => null);
+    const before = await read<readonly [bigint, number, boolean, readonly Hex[], bigint, bigint]>("getAccount", [curer.address]);
+    const h0 = await simulateHealth(w, curer.address, data);
+    const im = h0[2];
+    const target = im; // v4: TOP_UP_TARGET_BPS = 10000 → restore equity to 100 % of initial margin
+    const amount = target - h0[0] - BigInt(10_000); // a hair below the exemption (no cap room used)
+    assert(amount > BigInt(50e6) - before[0], `the rescue amount ${amount} would fit under the cap anyway`);
+    const fee = await chain.client.readContract({ address: dep.pyth, abi: pythAbi, functionName: "getUpdateFee", args: [data] });
+    await txAs(w, curer, "depositWithPrice", [amount, data], fee);
+    const after = await read<readonly [bigint, number, boolean, readonly Hex[], bigint, bigint]>("getAccount", [curer.address]);
+    assert(after[0] > BigInt(50e6), `collateral ${after[0]} not above the 50 AUSD cap`);
     const deadline = Date.now() + 40_000;
     for (;;) {
       const a = await read<readonly [boolean, bigint, number]>("auctionOf", [curer.address]);
-      if (!a[0]) {
-        const h = await read<readonly [bigint, bigint, bigint, bigint]>("accountHealth", [curer.address]).catch(() => null);
-        return `auction cancelled (cured)${h ? `: equity ${Number(h[0]) / 1e6} vs maintenance ${Number(h[1]) / 1e6} (v3 cures at 100 %)` : ""}`;
-      }
-      if (Date.now() > deadline) throw new Error("still in auction");
+      if (!a[0]) break;
+      if (Date.now() > deadline) throw new Error("still in auction after the rescue top-up");
       await sleep(1_000);
     }
+    report.mock.rescueTopUp = { allowanceViewStale: allowanceView?.toString() ?? null, deposited: amount.toString(), collateralAfter: after[0].toString() };
+    return `deposited ${Number(amount) / 1e6} AUSD via depositWithPrice (topUpAllowance view at stale storage: ${allowanceView === null ? "n/a" : Number(allowanceView) / 1e6}); collateral ${Number(before[0]) / 1e6} → ${Number(after[0]) / 1e6} AUSD (> 50 cap); auction cancelled (cured at maintenance)`;
   });
 
   await step("mock", "v3: a reduce-only CLOSE by a lane-7 account in auction executes (keeper appends the current price) and ends its auction", async () => {

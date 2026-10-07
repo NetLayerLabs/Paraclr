@@ -186,7 +186,11 @@ async function main(): Promise<void> {
     if (!sym || !dep.markets[sym]) throw new Error(`--market must be one of ${Object.keys(dep.markets).join(", ")}`);
     if (!feed || !isHex(feed) || feed.length !== 66) throw new Error("--feed 0x<32-byte new Pyth feed id> required");
     if (!(dev > 0 && dev <= 5000)) throw new Error("--max-deviation-bps must be in 1..5000 (≤ 1000 while the old feed is live; up to 5000 once it is provably dead on chain, v4; 500 recommended)");
-    if (dev > 1000) console.log("  NOTE: > 1000 bps is accepted only if the old feed is provably dead (stored price missing or > 1 h old) when the operation EXECUTES (v4: MAX_DEAD_FEED_SWAP_DEVIATION_BPS)");
+    if (dev > 1000) {
+      console.log("  NOTE: > 1000 bps is accepted only if the OLD feed is provably dead on chain when the operation EXECUTES");
+      console.log("        (Pyth has no stored price for it, or it is older than DEAD_FEED_AGE = 1 h; v4 MAX_DEAD_FEED_SWAP_DEVIATION_BPS = 5000).");
+      console.log("        Anyone can refute a false \"dead\" during the 24 h delay by pushing the old feed: the execute then reverts FeedSwapDeviation.");
+    }
     args.call = "replaceMarketFeed(bytes32,bytes32,uint256)";
     args.args = `${dep.markets[sym]},${feed},${dev}`;
     console.log(`  dead-feed swap for ${sym}: ${dep.feeds[sym] ?? "?"} → ${feed} (each lane with OI must be within ${dev / 100}% of its last price)`);
@@ -246,17 +250,33 @@ async function seedBatch(chain: ProdChain, dep: ProdDeployment, o: { insurance: 
   if (!(o.insurance >= 0 && o.pool >= 0) || o.insurance + o.pool === 0) throw new Error("--insurance and/or --pool (whole AUSD per lane) required");
   const ins = BigInt(Math.round(o.insurance * 1e6));
   const pool = BigInt(Math.round(o.pool * 1e6));
-  const total = (ins + pool) * BigInt(o.lanes.length);
+  const total = (ins + pool) * BigInt(o.lanes.length); // approve covers every lane even if a pool deposit is skipped
   const erc20 = parseAbiItem("function approve(address spender, uint256 amount) returns (bool)") as AbiFunction;
   const fundLane = parseAbiItem("function fundLane(uint8 lane, uint256 amount)") as AbiFunction;
   const poolDep = parseAbiItem("function backstopDeposit(uint8 lane, uint256 amount, bytes[] priceUpdate) payable returns (uint256)") as AbiFunction;
   const txs: Array<{ to: Address; value: string; data: Hex; contractMethod: null; contractInputsValues: null }> = [];
   const push = (to: Address, data: Hex) => txs.push({ to, value: "0", data, contractMethod: null, contractInputsValues: null });
   push(dep.ausd, encodeFunctionData({ abi: [erc20], functionName: "approve", args: [dep.clearinghouse, total] }));
+  // v4: pool deposits are refused while the pool is owed a receivable or its gain cap binds.
+  const closed: string[] = [];
+  const poolOpen = new Map<number, boolean>();
+  if (pool > BigInt(0)) {
+    const statusAbi = parseAbiItem("function backstopDepositStatus(uint8 lane) view returns (bool open, uint256 receivable, int256 unrealizedUncapped, uint256 insurance)") as AbiFunction;
+    for (const lane of o.lanes) {
+      const st = (await chain.client
+        .readContract({ address: dep.clearinghouse, abi: [statusAbi], functionName: "backstopDepositStatus", args: [lane] })
+        .catch(() => null)) as readonly [boolean, bigint, bigint, bigint] | null;
+      const open = st === null ? true : st[0]; // pre-v4 contracts have no such view: deposits open
+      poolOpen.set(lane, open);
+      if (!open && st) {
+        closed.push(`lane ${lane}: ${st[1] > BigInt(0) ? `the lane owes the pool ${Number(st[1]) / 1e6} AUSD (BackstopReceivableOutstanding)` : `pool gain ${Number(st[2]) / 1e6} > lane insurance ${Number(st[3]) / 1e6} (BackstopGainCapBinding)`}`);
+      }
+    }
+  }
   for (const lane of o.lanes) {
     if (ins > BigInt(0)) push(dep.clearinghouse, encodeFunctionData({ abi: [fundLane], functionName: "fundLane", args: [lane, ins] }));
     // An empty pool needs no price update (the contract only ingests one when the pool holds positions).
-    if (pool > BigInt(0)) push(dep.clearinghouse, encodeFunctionData({ abi: [poolDep], functionName: "backstopDeposit", args: [lane, pool, []] }));
+    if (pool > BigInt(0) && poolOpen.get(lane) !== false) push(dep.clearinghouse, encodeFunctionData({ abi: [poolDep], functionName: "backstopDeposit", args: [lane, pool, []] }));
   }
   const outDir = resolve(REPO_ROOT, o.out ?? join("contracts", "cache", "timelock"));
   mkdirSync(outDir, { recursive: true });
@@ -275,7 +295,8 @@ async function seedBatch(chain: ProdChain, dep: ProdDeployment, o: { insurance: 
       2,
     ),
   );
-  console.log(`  ${txs.length} calls, ${Number(total) / 1e6} AUSD total (pool deposits count toward each lane's TVL cap)`);
+  if (closed.length) console.log(`  SKIPPED pool deposits (v4 refusals; retry when backstopDepositStatus(lane).open):\n    ${closed.join("\n    ")}`);
+  console.log(`  ${txs.length} calls, ${Number(total) / 1e6} AUSD approved (pool deposits count toward each lane's TVL cap)`);
   console.log(`  Safe Transaction Builder file for the TREASURY Safe: ${rel(file)}`);
 }
 
