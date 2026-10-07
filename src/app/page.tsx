@@ -1,52 +1,67 @@
-import { Architecture } from "@/components/landing/Architecture";
+import type { Viewport } from "next";
 import { Auction } from "@/components/landing/Auction";
-import { Backstop } from "@/components/landing/Backstop";
 import { loadLandingEvidence } from "@/components/landing/benchResults.server";
-import { BuiltWith } from "@/components/landing/BuiltWith";
+import { Bend } from "@/components/landing/brand/Bend";
+import { displayFont } from "@/components/landing/brand/fonts";
+import { BuiltOn } from "@/components/landing/BuiltOn";
+import { Compare } from "@/components/landing/Compare";
+import { NAV_LINKS } from "@/components/landing/content";
 import { Faq } from "@/components/landing/Faq";
 import { FinalCta, Footer } from "@/components/landing/FinalCta";
 import { Hero } from "@/components/landing/Hero";
-import { LaneMatrix } from "@/components/landing/LaneMatrix";
 import { Nav } from "@/components/landing/Nav";
 import { Problem } from "@/components/landing/Problem";
-import { Proof } from "@/components/landing/Proof";
+import { ProductionBeta, StatusBar } from "@/components/landing/ProductionBeta";
+import { loadProductionStatus } from "@/components/landing/production.server";
 import { Results } from "@/components/landing/Results";
 import { Solvency } from "@/components/landing/Solvency";
-import { Terminal } from "@/components/landing/Terminal";
 import { XRay } from "@/components/landing/XRay";
-import ui from "@/components/landing/Landing.module.css";
+import b from "@/components/landing/brand/Brand.module.css";
+
+// The landing page opens on a light hero, so the browser chrome matches it.
+export const viewport: Viewport = { themeColor: "#ffffff" };
 
 // Marketing landing page. The trading app lives at /app (src/app/app/page.tsx).
 // No request-time APIs here, so the page is prerendered at build time; the
 // evidence (bench/results/*.json, bench/xray/*.json, deployments/10143.json)
-// is read during that render.
+// and the mainnet beta status (deployments/143.json, "production": true) are
+// read during that render. A new deployment file shows up on the next build.
+//
+// Brand system (tokens, type, the lane bends): src/components/landing/brand/
+// and docs/DESIGN.md. Light and dark sections alternate, joined by <Bend />.
 export default async function Home() {
-  const evidence = await loadLandingEvidence();
-  const seeded = evidence.monadHeadline ?? evidence.anvilHeadline;
+  const [evidence, production] = await Promise.all([loadLandingEvidence(), loadProductionStatus()]);
+  const live = production.live;
+  const testnet = evidence.monadDeployment !== null;
 
   return (
-    <div className={ui.page}>
-      <a href="#main" className={ui.skip}>
+    <div className={`${b.root} ${displayFont.variable}`}>
+      <a href="#main" className={b.skip}>
         Skip to content
       </a>
-      <Nav />
+      <StatusBar status={production} testnetDeployed={testnet} />
+      <Nav links={NAV_LINKS} />
       <main id="main">
-        <Hero />
+        <Hero live={live} repo={evidence.repo} xray={evidence.xray} />
+        <Bend into="dark" corner="right" />
         <Problem />
+        <Bend into="light" corner="left" />
         <Auction />
-        <Backstop />
+        <Bend into="dark" corner="right" />
         <XRay xray={evidence.xray} />
         <Solvency repo={evidence.repo} />
-        <LaneMatrix />
-        <Proof seeded={seeded} repo={evidence.repo} />
+        <Bend into="light" corner="left" />
+        <ProductionBeta status={production} />
         <Results evidence={evidence} />
-        <Terminal replayRun={evidence.monadHeadline ?? evidence.anvilHeadline} />
-        <Architecture deployment={evidence.monadDeployment} />
-        <BuiltWith repo={evidence.repo} />
-        <Faq monadDeployed={evidence.monadDeployment !== null} />
-        <FinalCta />
+        <Bend into="dark" corner="left" />
+        <BuiltOn repo={evidence.repo} live={live} testnet={testnet} />
+        <Bend into="light" corner="right" />
+        <Compare live={live} />
+        <Bend into="dark" corner="left" />
+        <Faq monadDeployed={testnet} production={production} />
+        <FinalCta live={live} />
       </main>
-      <Footer />
+      <Footer live={live} />
     </div>
   );
 }
