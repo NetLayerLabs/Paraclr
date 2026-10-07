@@ -10,13 +10,15 @@ import {IPyth} from "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import {PythStructs} from "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 import {ParaclrClearinghouseProd} from "../src/prod/ParaclrClearinghouseProd.sol";
 
-/// @notice PRODUCTION deploy (Monad mainnet, chain 143, guarded beta). Deploys an OpenZeppelin
-///         TimelockController (proposer = executor = canceller = the owner multisig, self-
-///         administered) and `ParaclrClearinghouseProd` on the REAL AUSD and Pyth, after checking
-///         both on chain. Lists MON/SOL/BTC with the verified Pyth feed ids, applies the beta caps,
-///         wires the guardian and the lane keepers (backstop operators), optionally funds lane
-///         insurance, transfers ownership to the timelock and verifies the deployer holds no power.
-///         On a real broadcast it writes the deployment JSON (`"production": true`).
+/// @notice PRODUCTION deploy (Monad mainnet, chain 143, guarded beta; also Monad testnet, chain
+///         10143, with Agora's testnet AUSD). Deploys an OpenZeppelin TimelockController (proposer
+///         = executor = canceller = the owner multisig, self-administered) and
+///         `ParaclrClearinghouseProd` on the REAL AUSD and Pyth, after checking both on chain.
+///         Lists the markets of PROD_MARKETS (default MON/SOL/BTC) with the verified Pyth feed ids,
+///         applies the beta caps, wires the guardian and the lane keepers (backstop operators),
+///         optionally funds lane insurance, transfers ownership to the timelock and verifies the
+///         deployer holds no power. On a real broadcast it writes the deployment JSON
+///         (`"production": true`, plus `"network"` when DEPLOY_NETWORK is set).
 ///
 /// Env (names from keeper/.env.mainnet.example; the keeper deploy flow passes them):
 ///   DEPLOYER_PRIVATE_KEY              required. Deploys and wires; powerless afterwards.
@@ -30,8 +32,13 @@ import {ParaclrClearinghouseProd} from "../src/prod/ParaclrClearinghouseProd.sol
 ///   MAX_DEPOSIT_PER_ACCOUNT_AUSD      whole AUSD, default 50.
 ///   MAX_TVL_PER_LANE_AUSD             whole AUSD, default 500.
 ///   MAX_LEVERAGE                      default 10 (1..20).
-///   AUSD_ADDRESS / PYTH_ADDRESS       default the verified Monad-mainnet addresses.
-///   CHAIN_ID                          default 143; the script refuses any other chain.
+///   AUSD_ADDRESS / PYTH_ADDRESS       default the verified addresses of CHAIN_ID's network (AUSD differs on
+///                                     testnet: Agora's testnet AUSD; Pyth is the same address).
+///   CHAIN_ID                          default 143; the script refuses any other chain (10143 = Monad testnet).
+///   PROD_MARKETS                      default "MON/AUSD,SOL/AUSD,BTC/AUSD". Comma-separated; an entry is
+///                                     "SYM" (MON/SOL/BTC: verified feed id, PYTH_FEED_<BASE>_USD overrides) or
+///                                     "SYM=0x<feed id>". Testnet: "SOL/AUSD,BTC/AUSD".
+///   DEPLOY_NETWORK                    optional label written as "network" (e.g. "monad-testnet").
 ///   Optional: TRADING_FEE_BPS (5), MIN_POSITION_AUSD (10), OI_CAP_MULTIPLIER_BPS (50000),
 ///     MAX_LANE_OI_AUSD (MAX_TVL_PER_LANE × MAX_LEVERAGE), SKEW_SCALE_AUSD (10000),
 ///     MAX_FUNDING_BPS_PER_DAY (100), MAX_PRICE_AGE_SECONDS (30, supplied updates),
@@ -48,9 +55,12 @@ import {ParaclrClearinghouseProd} from "../src/prod/ParaclrClearinghouseProd.sol
 /// Usage (the keeper wrapper does this; anvil must use --code-size-limit 131072):
 ///   forge script script/DeployProd.s.sol --rpc-url $KEEPER_RPC_URL --broadcast --slow
 contract DeployProd is Script {
-    // Verified 2026-10-07 (see contracts/README.md → Production → Verified facts).
+    // Verified 2026-10-07 (see contracts/README.md → Production → Verified facts; testnet AUSD:
+    // docs.agora.finance contract deployments, re-checked on chain: 6 decimals, symbol AUSD).
     address internal constant MAINNET_AUSD = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a;
     address internal constant MAINNET_PYTH = 0x2880aB155794e7179c9eE2e38200202908C17B43;
+    uint256 internal constant TESTNET_CHAIN_ID = 10143;
+    address internal constant TESTNET_AUSD = 0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC;
     bytes32 internal constant FEED_MON_USD = 0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1;
     bytes32 internal constant FEED_SOL_USD = 0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d;
     bytes32 internal constant FEED_BTC_USD = 0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43;
@@ -86,8 +96,9 @@ contract DeployProd is Script {
         uint256 backstopMinDiscountBps; // 0 = contract default
         uint256 laneSeed; // 6dp per lane
         uint256 maxFeedAge;
-        string[3] symbols;
-        bytes32[3] feeds;
+        string network; // "" = no "network" key (the original mainnet file layout)
+        string[] symbols;
+        bytes32[] feeds;
     }
 
     function run() external returns (ParaclrClearinghouseProd ch, TimelockController timelock) {
@@ -95,7 +106,7 @@ contract DeployProd is Script {
         _verifyExternal(c);
 
         uint256 deployBlock = block.number;
-        bytes32[3] memory ids;
+        bytes32[] memory ids = new bytes32[](c.symbols.length);
         vm.startBroadcast(c.deployerKey);
         {
             address[] memory roles = new address[](1);
@@ -104,7 +115,7 @@ contract DeployProd is Script {
             timelock = new TimelockController(c.minDelay, roles, roles, address(0));
         }
         ch = new ParaclrClearinghouseProd(c.deployer, IERC20(c.ausd), IPyth(c.pyth));
-        for (uint256 i; i < 3; ++i) {
+        for (uint256 i; i < c.symbols.length; ++i) {
             ids[i] = ch.listMarket(c.symbols[i], c.feeds[i], c.skewScale, c.maxLaneOi, c.maxFundingBpsPerDay);
         }
         ch.setRiskParams(c.maxLeverage, c.tradingFeeBps, c.minPosition);
@@ -158,9 +169,9 @@ contract DeployProd is Script {
                 c.keepers[i] = vm.addr(kk[i]);
             }
         }
-        c.ausd = vm.envOr("AUSD_ADDRESS", MAINNET_AUSD);
-        c.pyth = vm.envOr("PYTH_ADDRESS", MAINNET_PYTH);
         c.chainId = vm.envOr("CHAIN_ID", uint256(143));
+        c.ausd = vm.envOr("AUSD_ADDRESS", _defaultAusd(c.chainId));
+        c.pyth = vm.envOr("PYTH_ADDRESS", MAINNET_PYTH);
         c.maxDeposit = vm.envOr("MAX_DEPOSIT_PER_ACCOUNT_AUSD", uint256(50)) * 1e6;
         c.maxTvl = vm.envOr("MAX_TVL_PER_LANE_AUSD", uint256(500)) * 1e6;
         c.maxLeverage = vm.envOr("MAX_LEVERAGE", uint256(10));
@@ -182,10 +193,43 @@ contract DeployProd is Script {
         c.backstopMinDiscountBps = vm.envOr("BACKSTOP_MIN_DISCOUNT_BPS", uint256(0));
         c.laneSeed = vm.envOr("LANE_INSURANCE_SEED_AUSD", uint256(0)) * 1e6;
         c.maxFeedAge = vm.envOr("PYTH_MAX_FEED_AGE_SECONDS", uint256(3_600));
-        c.symbols = ["MON/AUSD", "SOL/AUSD", "BTC/AUSD"];
-        c.feeds[0] = vm.envOr("PYTH_FEED_MON_USD", FEED_MON_USD);
-        c.feeds[1] = vm.envOr("PYTH_FEED_SOL_USD", FEED_SOL_USD);
-        c.feeds[2] = vm.envOr("PYTH_FEED_BTC_USD", FEED_BTC_USD);
+        c.network = vm.envOr("DEPLOY_NETWORK", string(""));
+        (c.symbols, c.feeds) = _markets();
+    }
+
+    /// @dev Agora AUSD of `chainId`'s network: the testnet token on Monad testnet, else mainnet's.
+    function _defaultAusd(uint256 chainId) internal pure returns (address) {
+        return chainId == TESTNET_CHAIN_ID ? TESTNET_AUSD : MAINNET_AUSD;
+    }
+
+    /// @dev PROD_MARKETS → (symbols, feed ids). Unset = MON/SOL/BTC, exactly the original list.
+    function _markets() internal view returns (string[] memory symbols, bytes32[] memory feeds) {
+        string[] memory dflt = new string[](3);
+        dflt[0] = "MON/AUSD";
+        dflt[1] = "SOL/AUSD";
+        dflt[2] = "BTC/AUSD";
+        string[] memory entries = vm.envOr("PROD_MARKETS", ",", dflt);
+        require(entries.length >= 1 && entries.length <= 8, "DeployProd: PROD_MARKETS needs 1..8 markets");
+        symbols = new string[](entries.length);
+        feeds = new bytes32[](entries.length);
+        for (uint256 i; i < entries.length; ++i) {
+            string[] memory kv = vm.split(vm.trim(entries[i]), "=");
+            require(kv.length == 1 || kv.length == 2, "DeployProd: PROD_MARKETS entry must be SYM or SYM=0xfeed");
+            symbols[i] = vm.trim(kv[0]);
+            require(bytes(symbols[i]).length > 0, "DeployProd: empty market symbol");
+            feeds[i] = kv.length == 2 ? vm.parseBytes32(vm.trim(kv[1])) : _knownFeed(symbols[i]);
+            for (uint256 j; j < i; ++j) {
+                require(keccak256(bytes(symbols[i])) != keccak256(bytes(symbols[j])), "DeployProd: duplicate market");
+            }
+        }
+    }
+
+    function _knownFeed(string memory symbol) internal view returns (bytes32) {
+        bytes32 h = keccak256(bytes(symbol));
+        if (h == keccak256("MON/AUSD")) return vm.envOr("PYTH_FEED_MON_USD", FEED_MON_USD);
+        if (h == keccak256("SOL/AUSD")) return vm.envOr("PYTH_FEED_SOL_USD", FEED_SOL_USD);
+        if (h == keccak256("BTC/AUSD")) return vm.envOr("PYTH_FEED_BTC_USD", FEED_BTC_USD);
+        revert("DeployProd: unknown market symbol (write SYM=0x<feed id>)");
     }
 
     // ------------------------------------------------------------------ checks
@@ -233,7 +277,7 @@ contract DeployProd is Script {
         require(c.pyth.code.length > 0, "DeployProd: Pyth has no code");
         IPyth pyth = IPyth(c.pyth);
         pyth.getUpdateFee(new bytes[](0)); // interface smoke test
-        for (uint256 i; i < 3; ++i) {
+        for (uint256 i; i < c.feeds.length; ++i) {
             for (uint256 j; j < i; ++j) {
                 require(c.feeds[i] != c.feeds[j], "DeployProd: duplicate feed id");
             }
@@ -272,7 +316,7 @@ contract DeployProd is Script {
                 require(ch.isBackstopOperator(c.keepers[i], lane) == (lane == i), "DeployProd: keeper operator lanes");
             }
         }
-        for (uint256 i; i < 3; ++i) {
+        for (uint256 i; i < c.symbols.length; ++i) {
             ch.latestPrice(keccak256(bytes(c.symbols[i]))); // feed readable through the contract
         }
     }
@@ -298,13 +342,13 @@ contract DeployProd is Script {
         ParaclrClearinghouseProd ch,
         TimelockController tl,
         uint256 deployBlock,
-        bytes32[3] memory ids
+        bytes32[] memory ids
     ) internal {
         string memory mk = "markets";
         string memory fk = "pythFeeds";
         string memory marketsJson;
         string memory feedsJson;
-        for (uint256 i; i < 3; ++i) {
+        for (uint256 i; i < c.symbols.length; ++i) {
             marketsJson = vm.serializeBytes32(mk, c.symbols[i], ids[i]);
             feedsJson = vm.serializeBytes32(fk, c.symbols[i], c.feeds[i]);
         }
@@ -312,6 +356,7 @@ contract DeployProd is Script {
         string memory o = "deployment";
         vm.serializeUint(o, "chainId", block.chainid);
         vm.serializeBool(o, "production", true);
+        if (bytes(c.network).length > 0) vm.serializeString(o, "network", c.network);
         vm.serializeString(o, "contract", "ParaclrClearinghouseProd");
         vm.serializeAddress(o, "clearinghouse", address(ch));
         vm.serializeAddress(o, "ausd", c.ausd);
