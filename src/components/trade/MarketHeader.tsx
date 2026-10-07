@@ -160,13 +160,18 @@ function StreamsBadge({ symbol }: { symbol: MarketSymbol }) {
 
   return (
     <div className={styles.badge} title="Tick age: time since the oracle observation">
-      <span className={styles.badgeBrand}>
-        <ChainlinkMark />
-      </span>
-      <span className={styles.badgeText}>
-        Chainlink Data Streams <span className={styles.badgeSep}>·</span> sub-second
-      </span>
-      {feed.source === "simulated" && <span className={styles.simTag}>SIM</span>}
+      {feed.source === "chainlink" ? (
+        <>
+          <span className={styles.badgeBrand}>
+            <ChainlinkMark />
+          </span>
+          <span className={styles.badgeText}>
+            Chainlink Data Streams <span className={styles.badgeSep}>·</span> sub-second
+          </span>
+        </>
+      ) : (
+        <span className={styles.badgeText}>Simulated price feed</span>
+      )}
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
         <span className="mono">{age == null ? "—" : age < 10_000 ? `${age}ms` : "stale"}</span>

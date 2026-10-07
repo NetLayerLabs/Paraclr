@@ -175,8 +175,7 @@ export function Faq({ monadDeployed, production }: { monadDeployed: boolean; pro
           <p>
             <strong>Demo stack only:</strong> no funding payments or trading fees, a simulated price feed, and orders
             that fill immediately. The production set adds Pyth, delayed orders, fees, funding and caps, and an order
-            can&rsquo;t flip a position from long to short in one step. A Chainlink Data Streams adapter is written and
-            unit-tested against a mock verifier, but it isn&rsquo;t deployed or used anywhere.
+            can&rsquo;t flip a position from long to short in one step.
           </p>
         </>
       ),

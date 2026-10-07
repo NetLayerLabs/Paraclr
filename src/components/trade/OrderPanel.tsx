@@ -345,7 +345,7 @@ export function OrderPanel({
           ? "Margined & settled in test AUSD (MockAUSD) · Marked by the on-chain oracle the clearinghouse settles against"
           : feedSource === "chainlink"
             ? "Margined & settled in Agora AUSD · Priced by Chainlink Data Streams"
-            : "Margined & settled in Agora AUSD · Simulated prices (Chainlink Data Streams when configured)"}
+            : "Margined & settled in Agora AUSD · Simulated prices"}
       </p>
     </section>
   );

@@ -132,8 +132,8 @@ export function BuiltOn({ repo, live, testnet }: { repo: RepoFacts; live: boolea
       </div>
 
       <p className={`${b.container} ${s.disclaimer}`}>
-        Built for the Monad Metropolis hackathon. Not affiliated with or endorsed by Monad, Agora, Pyth, Privy, Safe,
-        OpenZeppelin or Chainlink.
+        Built for the Monad Metropolis hackathon. Not affiliated with or endorsed by Monad, Agora, Pyth, Privy, Safe or
+        OpenZeppelin.
       </p>
     </section>
   );
