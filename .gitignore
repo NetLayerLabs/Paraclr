@@ -48,3 +48,4 @@ contracts/.env*
 !keeper/.env.example
 !deployments/*.json
 !bench/results/*.json
+!keeper/.env.mainnet.example
