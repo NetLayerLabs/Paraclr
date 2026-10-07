@@ -106,7 +106,10 @@
   --pc-r-pill: 999px;
 
   --pc-max: 1200px;
-  --pc-gutter: clamp(16px, 4.4vw, 40px);
+  /* Side margins are half of the original layout's: the gutter is halved (16px
+     floor on phones) and the content column grows with the viewport so the
+     outer margin is (100vw - 1200px) / 4 instead of / 2. */
+  --pc-gutter: clamp(16px, 2.2vw, 20px);
   --pc-nav-h: 68px;
   --pc-section-y: clamp(72px, 9vw, 128px);
   --pc-bend-r: clamp(72px, 15vw, 220px);
@@ -168,7 +171,10 @@ body:has(.root) {
 
 .container {
   width: 100%;
-  max-width: calc(var(--pc-max) + 2 * var(--pc-gutter));
+  max-width: max(
+    calc(var(--pc-max) + 2 * var(--pc-gutter)),
+    calc((100vw + var(--pc-max)) / 2 + 2 * var(--pc-gutter))
+  );
   margin: 0 auto;
   padding: 0 var(--pc-gutter);
 }

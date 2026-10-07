@@ -5,7 +5,7 @@
 }
 
 .layout {
-  max-width: calc(1120px + 2 * var(--pc-gutter));
+  max-width: max(calc(1120px + 2 * var(--pc-gutter)), calc((100vw + 1120px) / 2 + 2 * var(--pc-gutter)));
 }
 
 /* ---- Draft banner ---------------------------------------------------------- */

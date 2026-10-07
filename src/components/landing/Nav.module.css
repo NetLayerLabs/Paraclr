@@ -23,6 +23,14 @@
   height: var(--pc-nav-h);
 }
 
+/* The header row's side margins are half the page's: the page content sits
+   max(gutter, (100vw - max) / 4) from each edge; the header sits at half of that,
+   with a 16px floor on phones. Higher specificity than the shared .container. */
+.nav .inner {
+  max-width: none;
+  padding-inline: max(16px, calc(var(--pc-gutter) / 2), calc((100vw - var(--pc-max)) / 8));
+}
+
 .brand {
   display: inline-flex;
   align-items: center;

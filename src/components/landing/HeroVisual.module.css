@@ -5,6 +5,16 @@
   margin: 0;
 }
 
+/* The cards are sized in % of the column inside a fixed-height stage, so cap the
+   composition at its designed width; on very wide screens it stays right-aligned
+   instead of growing into the caption. */
+@media (min-width: 1100px) {
+  .wrap {
+    max-width: 600px;
+    margin-left: auto;
+  }
+}
+
 .stage {
   position: relative;
   height: 588px;
