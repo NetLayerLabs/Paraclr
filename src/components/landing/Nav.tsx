@@ -2,13 +2,29 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, GitHubIcon, Logo } from "./icons";
-import { GITHUB_URL, NAV_LINKS } from "./content";
-import ui from "./Landing.module.css";
-import styles from "./Nav.module.css";
+import { Mark } from "./brand/Logo";
+import { ArrowRight, CodeIcon, Cross, Menu } from "./icons";
+import { GITHUB_URL } from "./content";
+import b from "./brand/Brand.module.css";
+import s from "./Nav.module.css";
 
-export function Nav() {
+export interface NavLink {
+  href: string;
+  label: string;
+  current?: boolean;
+}
+
+/** Sticky light nav for the landing page and /terms, /risk. */
+export function Nav({ links, brandHref = "#top" }: { links: readonly NavLink[]; brandHref?: string }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -16,7 +32,7 @@ export function Nav() {
       if (e.key === "Escape") setOpen(false);
     };
     const onResize = () => {
-      if (window.innerWidth >= 900) setOpen(false);
+      if (window.innerWidth >= 960) setOpen(false);
     };
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
@@ -26,62 +42,67 @@ export function Nav() {
     };
   }, [open]);
 
+  const brandLabel = brandHref === "#top" ? "Paraclr, back to top" : "Paraclr home";
+
   return (
-    <header className={styles.nav} data-open={open || undefined}>
-      <div className={`${ui.container} ${styles.inner}`}>
-        <a href="#top" className={styles.brand} aria-label="Paraclr, back to top" onClick={() => setOpen(false)}>
-          <Logo className={styles.logo} />
-          <span className={styles.wordmark}>Paraclr</span>
+    <header className={s.nav} data-scrolled={scrolled || open || undefined}>
+      <div className={`${b.container} ${s.inner}`}>
+        <a href={brandHref} className={s.brand} aria-label={brandLabel} onClick={() => setOpen(false)}>
+          <Mark className={s.mark} />
+          <span className={s.word}>Paraclr</span>
         </a>
 
-        <nav className={styles.links} aria-label="Sections">
-          {NAV_LINKS.map((l) => (
-            <a key={l.href} href={l.href} className={styles.link}>
+        <nav className={s.links} aria-label="Primary">
+          {links.map((l) => (
+            <a key={l.href} href={l.href} className={s.link} aria-current={l.current ? "page" : undefined}>
               {l.label}
             </a>
           ))}
         </nav>
 
-        <div className={styles.actions}>
-          <a
-            href={GITHUB_URL}
-            className={styles.github}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Paraclr on GitHub"
-          >
-            <GitHubIcon className={styles.githubIcon} />
-            <span className={styles.githubLabel}>GitHub</span>
+        <div className={s.actions}>
+          <a href={GITHUB_URL} className={s.gh} target="_blank" rel="noreferrer" aria-label="Source code on GitHub">
+            <CodeIcon className={s.ghIcon} />
           </a>
-          <Link href="/app" className={`${ui.btn} ${ui.btnPrimary} ${ui.btnSm}`}>
+          <Link href="/app" className={`${b.btn} ${b.btnPrimary} ${b.btnSm} ${s.launch}`}>
             Launch app
-            <ArrowRight className={ui.arrow} />
+            <ArrowRight className={`${b.btnIcon} ${b.btnIconMove}`} />
           </Link>
           <button
             type="button"
-            className={styles.menuBtn}
+            className={s.menuBtn}
             aria-expanded={open}
-            aria-controls="landing-menu"
+            aria-controls="pc-menu"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
           >
-            <span className={styles.menuGlyph} aria-hidden="true" />
+            {open ? <Cross className={s.menuIcon} /> : <Menu className={s.menuIcon} />}
           </button>
         </div>
       </div>
 
-      <div id="landing-menu" className={styles.sheet} hidden={!open}>
-        <nav className={ui.container} aria-label="Sections (menu)">
-          {NAV_LINKS.map((l) => (
-            <a key={l.href} href={l.href} className={styles.sheetLink} onClick={() => setOpen(false)}>
+      <div id="pc-menu" className={s.sheet} hidden={!open}>
+        <nav className={b.container} aria-label="Primary (menu)">
+          {links.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className={s.sheetLink}
+              aria-current={l.current ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
               {l.label}
-              <ArrowRight className={styles.sheetArrow} />
+              <ArrowRight className={s.sheetIcon} />
             </a>
           ))}
-          <a href={GITHUB_URL} className={styles.sheetLink} target="_blank" rel="noreferrer">
-            GitHub
-            <GitHubIcon className={styles.sheetArrow} />
+          <a href={GITHUB_URL} className={s.sheetLink} target="_blank" rel="noreferrer">
+            Source on GitHub
+            <CodeIcon className={s.sheetIcon} />
           </a>
+          <Link href="/app" className={`${b.btn} ${b.btnPrimary} ${s.sheetCta}`} onClick={() => setOpen(false)}>
+            Launch app
+            <ArrowRight className={b.btnIcon} />
+          </Link>
         </nav>
       </div>
     </header>

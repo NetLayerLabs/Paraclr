@@ -51,3 +51,20 @@ export function fmtAusd(n: number): string {
 export function fmtBps(bps: number): string {
   return `${fmtInt(bps)} bps`;
 }
+
+/** 86400 → "24 h", 90 → "90 s", 300 → "5 min", 172800 → "48 h". */
+export function fmtDuration(seconds: number): string {
+  if (seconds < 120) return `${fmtNum(seconds)} s`;
+  if (seconds < 7200) return `${fmtNum(seconds / 60)} min`;
+  return `${fmtNum(seconds / 3600)} h`;
+}
+
+/** Up to 2 decimals, no trailing zeros: 50 → "50", 0.25 → "0.25", 1234.5 → "1,234.5". */
+export function fmtNum(n: number): string {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(n);
+}
+
+/** Up to 6 significant decimals for small native amounts: 0.0125 → "0.0125". */
+export function fmtSmall(n: number): string {
+  return new Intl.NumberFormat("en-US", { maximumSignificantDigits: 4 }).format(n);
+}

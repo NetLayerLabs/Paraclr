@@ -11,10 +11,10 @@ export const MONAD_EXPLORER = "https://testnet.monadexplorer.com";
 
 /** In page order. */
 export const NAV_LINKS = [
-  { href: "#auction", label: "Auctions" },
-  { href: "#backstop", label: "Backstop" },
+  { href: "#auction", label: "How it works" },
   { href: "#xray", label: "X-ray" },
   { href: "#solvency", label: "Solvency" },
+  { href: "#beta", label: "Mainnet beta" },
   { href: "#results", label: "Results" },
   { href: "#faq", label: "FAQ" },
 ] as const;
