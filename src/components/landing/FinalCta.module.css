@@ -183,6 +183,27 @@
   color: var(--pc-ink-3);
 }
 
+.fineRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.fineRow p {
+  flex: 1 1 420px;
+}
+
+/* Landing footer is always a dark surface: feed its tokens to the badge. */
+.builtBy {
+  --nll-border: var(--pc-line);
+  --nll-text: var(--pc-ink-3);
+  --nll-strong: var(--pc-ink);
+  --nll-hover-bg: rgba(255, 255, 255, 0.06);
+  --nll-hover-border: var(--pc-line-strong, rgba(255, 255, 255, 0.26));
+}
+
 .fine strong {
   color: var(--pc-ink-2);
   font-weight: 600;

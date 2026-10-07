@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BuiltByBadge } from "@/components/brand/BuiltByBadge";
 import { Mark } from "./brand/Logo";
 import { ArrowRight, ArrowUpRight, CodeIcon } from "./icons";
 import { GITHUB_BLOB, GITHUB_URL, X_URL } from "./content";
@@ -177,10 +178,13 @@ export function Footer({ live }: { live: boolean }) {
             </Link>{" "}
             are drafts pending legal review.
           </p>
-          <p>
-            © 2026 Paraclr · Built for the Monad Metropolis hackathon (Onchain Finance &amp; Trading). Not affiliated
-            with or endorsed by Monad, Agora, Pyth, Privy, Safe, OpenZeppelin or Chainlink.
-          </p>
+          <div className={s.fineRow}>
+            <p>
+              © 2026 Paraclr · Built for the Monad Metropolis hackathon (Onchain Finance &amp; Trading). Not affiliated
+              with or endorsed by Monad, Agora, Pyth, Privy, Safe, OpenZeppelin or Chainlink.
+            </p>
+            <BuiltByBadge tone="dark" className={s.builtBy} />
+          </div>
         </div>
       </div>
     </footer>

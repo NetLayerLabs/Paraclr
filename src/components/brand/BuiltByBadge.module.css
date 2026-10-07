@@ -1,0 +1,64 @@
+/* Compact attribution pill. Colours come from the surrounding surface's tokens:
+   the app's (--border, --text-dim, --text, --bg-hover) by default, overridden by
+   the landing footer through the --nll-* variables. */
+.badge {
+  --nll-border: var(--border, rgba(255, 255, 255, 0.14));
+  --nll-text: var(--text-dim, #a1a0b0);
+  --nll-strong: var(--text, #f5f4fa);
+  --nll-hover-bg: var(--bg-hover, rgba(255, 255, 255, 0.06));
+  --nll-hover-border: var(--border-strong, rgba(255, 255, 255, 0.24));
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 11px 0 7px;
+  border: 1px solid var(--nll-border);
+  border-radius: 999px;
+  color: var(--nll-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.badge:hover {
+  background: var(--nll-hover-bg);
+  border-color: var(--nll-hover-border);
+  color: var(--nll-strong);
+}
+
+.badge:focus-visible {
+  outline: 2px solid var(--focus, #8b7bff);
+  outline-offset: 2px;
+}
+
+.text strong {
+  color: var(--nll-strong);
+  font-weight: 600;
+}
+
+.markWhite,
+.markInk {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+/* Theme swap for tone="auto": ink mark on the app's light theme. */
+.markInk {
+  display: none;
+}
+
+:global(html[data-theme="light"]) .badge[data-tone="auto"] .markWhite {
+  display: none;
+}
+
+:global(html[data-theme="light"]) .badge[data-tone="auto"] .markInk {
+  display: block;
+}

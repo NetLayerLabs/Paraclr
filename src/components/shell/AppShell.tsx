@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BuiltByBadge } from "@/components/brand/BuiltByBadge";
 import { useParaclr } from "@/lib/store";
 import { LoginScreen } from "@/components/auth/LoginScreen";
 import { TradeScreen } from "@/components/trade/TradeScreen";
@@ -42,12 +43,14 @@ export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray 
         <>
           <BetaBanner />
           <MainnetUnavailable />
+          <AppFooter />
         </>
       ) : !session ? (
         <>
           <BetaBanner />
           <ChainStatusStrip />
           <LoginScreen />
+          <AppFooter />
         </>
       ) : (
         <>
@@ -58,15 +61,19 @@ export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray 
           {/* Screens stay mounted so a clearing run survives a tab switch. */}
           <main className={styles.screen} data-tab="trade" hidden={tab !== "trade"}>
             <TradeScreen />
+            <AppFooter />
           </main>
           <main className={styles.screen} data-tab="clear" hidden={tab !== "clear"}>
             <ClearingScreen active={tab === "clear"} recordedXray={recordedXray} />
+            <AppFooter />
           </main>
           <main className={styles.screen} data-tab="backstop" hidden={tab !== "backstop"}>
             <BackstopScreen active={tab === "backstop"} />
+            <AppFooter />
           </main>
           <main className={styles.screen} data-tab="wallet" hidden={tab !== "wallet"}>
             <WalletScreen />
+            <AppFooter />
           </main>
           <nav className={styles.tabbar} aria-label="Primary">
             {TABS.map((t) => (
@@ -85,6 +92,15 @@ export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray 
         </>
       )}
     </div>
+  );
+}
+
+/** Shared app footer: the NetLayer Labs attribution at the end of each screen. */
+function AppFooter() {
+  return (
+    <footer className={styles.appFooter}>
+      <BuiltByBadge />
+    </footer>
   );
 }
 
