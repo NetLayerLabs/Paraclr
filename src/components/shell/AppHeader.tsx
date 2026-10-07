@@ -28,24 +28,13 @@ export const TABS: { id: Tab; label: string }[] = [
 
 const fmtAusd = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export function BackHome({ className }: { className?: string }) {
-  return (
-    <Link href="/" className={className ?? styles.home} title="Back to home" aria-label="Back to home">
-      <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden>
-        <path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className={styles.homeText}>Home</span>
-    </Link>
-  );
-}
-
-/** The brand mark (8 lanes round one corner) + "Paraclr" in the display face. */
+/** The brand mark (8 lanes round one corner) + "Paraclr" in the display face; links to the landing page. */
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={className ?? styles.wordmark}>
+    <Link href="/" className={className ?? styles.wordmark} title="Paraclr home" aria-label="Paraclr home">
       <Mark className={styles.mark} />
       <span className={styles.word}>Paraclr</span>
-    </span>
+    </Link>
   );
 }
 
@@ -113,7 +102,6 @@ export function AppHeader({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void })
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
-        <BackHome />
         <Wordmark />
       </div>
 
