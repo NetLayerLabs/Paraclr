@@ -53,10 +53,22 @@ auction taken by a backstop pool, a cured auction. `pnpm codegen` regenerates ty
   _meta { progressBlock isReady } }
 ```
 
-## Hosting
+## Hosting (Envio Cloud)
 
-Envio's hosted service runs this directory as is: connect the GitHub repo in the
-[Envio dashboard](https://envio.dev/app), set the root to `indexer/`, add `ENVIO_API_TOKEN`, and deploy.
-Set the app's `NEXT_PUBLIC_ENVIO_GRAPHQL_URL` to the GraphQL endpoint it gives you.
+Deployed as `paraclr-testnet` in the `netlayerlabs` organisation on Envio Cloud (free development tier),
+root directory `indexer/`, with `ENVIO_API_TOKEN` set as an indexer env var.
+
+It deploys from the **`envio` branch**, not `main`: every push to the deploy branch creates a deployment
+and the free tier keeps 3 per indexer. To ship indexer changes:
+
+```bash
+git push origin main:envio                  # triggers a new deployment
+npx envio-cloud deployment status paraclr-testnet <commit> --watch-till-synced
+npx envio-cloud deployment endpoint paraclr-testnet <commit>   # GraphQL URL for NEXT_PUBLIC_ENVIO_GRAPHQL_URL
+npx envio-cloud deployment promote paraclr-testnet <commit> --yes
+```
+
+Free-tier limits: a deployment is deleted after 30 days, or after 7 days without queries; delete old
+deployments (`deployment delete`) to stay within 3.
 
 A new deployment (another address or start block) needs `config.yaml` updated from `deployments/10143.json`.
