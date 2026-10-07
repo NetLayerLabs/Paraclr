@@ -349,8 +349,10 @@ export function LiveClearing({
   let resolvedNow = 0;
   for (const r of records.values()) if (r.status !== "active") resolvedNow++;
 
-  // X-ray to show: this session's run, else the latest recorded bench file.
-  const showRecorded = !xray && xrayState === "idle" && recordedXray !== null;
+  // X-ray to show: this session's run, else the latest recorded bench file. Production shows
+  // live chain data only, so a recording from another chain never appears there (the measured
+  // X-ray is on the landing page, labelled with where it was recorded).
+  const showRecorded = !production && !xray && xrayState === "idle" && recordedXray !== null;
   const xraySource: XraySource | null = xray
     ? { kind: "run", runId: xray.runId }
     : showRecorded
