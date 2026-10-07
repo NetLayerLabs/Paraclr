@@ -15,6 +15,9 @@ import { getSigner, type ChainSigner } from "./signer";
 import { sendTx, serialized } from "./txs";
 import { ausdToNumber, ausdToUnits } from "./units";
 import { publicClient } from "./clients";
+import { requireRiskAck } from "./prod/riskAck";
+import { prodAbi } from "./prod/abi";
+import { priceUpdateFor } from "./prod/priceUpdate";
 
 function requireLive(): { signer: ChainSigner; c: LiveContracts } {
   const s = getState();
@@ -26,18 +29,43 @@ function requireLive(): { signer: ChainSigner; c: LiveContracts } {
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** Approve (once) so the clearinghouse can pull `units` AUSD from the wallet. */
-async function ensureAllowance(signer: ChainSigner, c: LiveContracts, units: bigint, walletUnits: bigint, allowance: bigint) {
+/**
+ * Approve so the clearinghouse can pull `units` AUSD from the wallet. Demo
+ * chains approve once (unlimited); the production contracts get an
+ * exact-amount approve every time (real money) after the risk acknowledgement,
+ * and nothing is deposited while the guardian has paused deposits.
+ */
+async function ensureAllowance(
+  signer: ChainSigner,
+  c: LiveContracts,
+  units: bigint,
+  walletUnits: bigint,
+  allowance: bigint,
+  opts: { topUp?: boolean } = {},
+) {
+  if (c.production) {
+    await requireRiskAck(signer.address);
+    if (getState().chain.prod?.paused && !opts.topUp) {
+      throw new ChainActionError("Deposits are paused by the guardian. Withdrawals and closing still work.");
+    }
+  }
   if (units > walletUnits) {
     throw new ChainActionError(
-      `Not enough AUSD in your wallet: need ${fmt(ausdToNumber(units))}, have ${fmt(ausdToNumber(walletUnits))}. Get test AUSD on the Wallet tab.`,
+      `Not enough AUSD in your wallet: need ${fmt(ausdToNumber(units))}, have ${fmt(ausdToNumber(walletUnits))}.` +
+        (c.production ? "" : " Get test AUSD on the Wallet tab."),
     );
   }
   if (allowance < units) {
     await sendTx(signer, {
-      label: "Approve AUSD for the clearinghouse",
+      label: c.production
+        ? `Approve ${fmt(ausdToNumber(units))} ${c.token.symbol} (exact amount)`
+        : "Approve AUSD for the clearinghouse",
       to: c.ausd,
-      data: encodeFunctionData({ abi: mockAUSDAbi, functionName: "approve", args: [c.clearinghouse, maxUint256] }),
+      data: encodeFunctionData({
+        abi: mockAUSDAbi,
+        functionName: "approve",
+        args: [c.clearinghouse, c.production ? units : maxUint256],
+      }),
     });
   }
 }
@@ -45,6 +73,18 @@ async function ensureAllowance(signer: ChainSigner, c: LiveContracts, units: big
 export interface FairTxResult {
   txHash: Hex;
   block: number;
+}
+
+/**
+ * Production calls take a `priceUpdate`: the stored Pyth prices when fresh,
+ * else a signed update via the keeper's /hermes proxy (prod/priceUpdate.ts).
+ * Backstop calls only price anything when the pool holds positions.
+ */
+async function poolHasPositions(c: LiveContracts, lane: number): Promise<boolean> {
+  const [ids] = await publicClient()
+    .readContract({ address: c.clearinghouse, abi: fairAbi, functionName: "backstopPositions", args: [lane] })
+    .catch(() => [[1]] as unknown as readonly [readonly Hex[]]);
+  return ids.length > 0;
 }
 
 /** Deposit wallet AUSD into a lane's backstop pool for shares. */
@@ -55,10 +95,14 @@ export function backstopDepositOnChain(lane: number, amount: number): Promise<Fa
     if (units === BigInt(0)) throw new ChainActionError("Enter an AUSD amount.");
     const snap = await readAccountSnapshot(signer.address, c);
     await ensureAllowance(signer, c, units, snap.walletAusdUnits, snap.allowanceUnits);
+    const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane)) : null;
     const receipt = await sendTx(signer, {
-      label: `Deposit ${fmt(amount)} AUSD into the lane ${lane + 1} backstop`,
+      label: `Deposit ${fmt(amount)} ${c.token.symbol} into the lane ${lane + 1} backstop`,
       to: c.clearinghouse,
-      data: encodeFunctionData({ abi: fairAbi, functionName: "backstopDeposit", args: [lane, units] }),
+      data: q
+        ? encodeFunctionData({ abi: prodAbi, functionName: "backstopDeposit", args: [lane, units, q.updateData] })
+        : encodeFunctionData({ abi: fairAbi, functionName: "backstopDeposit", args: [lane, units] }),
+      value: q && q.fee > BigInt(0) ? q.fee : undefined,
     });
     const [ev] = parseEventLogs({ abi: fairAbi, logs: receipt.logs, eventName: "BackstopDeposit" });
     void refreshAccount();
@@ -67,14 +111,22 @@ export function backstopDepositOnChain(lane: number, amount: number): Promise<Fa
 }
 
 /** Redeem backstop shares for AUSD (blocked by the contract if it would leave the pool under-margined). */
-export function backstopWithdrawOnChain(lane: number, shares: bigint, approxAusd: number): Promise<FairTxResult & { amount: number | null }> {
+export function backstopWithdrawOnChain(
+  lane: number,
+  shares: bigint,
+  approxAusd: number,
+): Promise<FairTxResult & { amount: number | null }> {
   return serialized(async () => {
     const { signer, c } = requireLive();
     if (shares <= BigInt(0)) throw new ChainActionError("No shares to withdraw.");
+    const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane)) : null;
     const receipt = await sendTx(signer, {
-      label: `Withdraw ≈${fmt(approxAusd)} AUSD from the lane ${lane + 1} backstop`,
+      label: `Withdraw ≈${fmt(approxAusd)} ${c.token.symbol} from the lane ${lane + 1} backstop`,
       to: c.clearinghouse,
-      data: encodeFunctionData({ abi: fairAbi, functionName: "backstopWithdraw", args: [lane, shares] }),
+      data: q
+        ? encodeFunctionData({ abi: prodAbi, functionName: "backstopWithdraw", args: [lane, shares, q.updateData] })
+        : encodeFunctionData({ abi: fairAbi, functionName: "backstopWithdraw", args: [lane, shares] }),
+      value: q && q.fee > BigInt(0) ? q.fee : undefined,
     });
     const [ev] = parseEventLogs({ abi: fairAbi, logs: receipt.logs, eventName: "BackstopWithdraw" });
     void refreshAccount();
@@ -98,9 +150,10 @@ export function cureAuctionOnChain(amount: number): Promise<{ cancelled: boolean
     const units = ausdToUnits(amount);
     if (units > BigInt(0)) {
       const snap = await readAccountSnapshot(signer.address, c);
-      await ensureAllowance(signer, c, units, snap.walletAusdUnits, snap.allowanceUnits);
+      // A cure top-up is allowed while paused (the account holds positions).
+      await ensureAllowance(signer, c, units, snap.walletAusdUnits, snap.allowanceUnits, { topUp: true });
       await sendTx(signer, {
-        label: `Deposit ${fmt(amount)} AUSD to cure the auction`,
+        label: `Deposit ${fmt(amount)} ${c.token.symbol} to cure the auction`,
         to: c.clearinghouse,
         data: encodeFunctionData({ abi: paraclrClearinghouseAbi, functionName: "deposit", args: [units] }),
       });
@@ -114,10 +167,14 @@ export function cureAuctionOnChain(amount: number): Promise<{ cancelled: boolean
       void refreshAccount();
       return { cancelled: false, stillUnderwater: true };
     }
+    const q = c.production ? await priceUpdateFor(c, true) : null;
     await sendTx(signer, {
       label: "Cancel your auction (account healthy again)",
       to: c.clearinghouse,
-      data: encodeFunctionData({ abi: fairAbi, functionName: "cancelAuction", args: [signer.address] }),
+      data: q
+        ? encodeFunctionData({ abi: prodAbi, functionName: "cancelAuction", args: [signer.address, q.updateData] })
+        : encodeFunctionData({ abi: fairAbi, functionName: "cancelAuction", args: [signer.address] }),
+      value: q && q.fee > BigInt(0) ? q.fee : undefined,
     });
     void refreshAccount();
     return { cancelled: true, stillUnderwater: false };
@@ -128,10 +185,14 @@ export function cureAuctionOnChain(amount: number): Promise<{ cancelled: boolean
 export function takeOnChain(account: Address): Promise<FairTxResult & { payment: number | null }> {
   return serialized(async () => {
     const { signer, c } = requireLive();
+    const q = c.production ? await priceUpdateFor(c, true) : null;
     const receipt = await sendTx(signer, {
       label: `Take auction ${account.slice(0, 6)}…${account.slice(-4)}`,
       to: c.clearinghouse,
-      data: encodeFunctionData({ abi: fairAbi, functionName: "take", args: [account] }),
+      data: q
+        ? encodeFunctionData({ abi: prodAbi, functionName: "take", args: [account, q.updateData] })
+        : encodeFunctionData({ abi: fairAbi, functionName: "take", args: [account] }),
+      value: q && q.fee > BigInt(0) ? q.fee : undefined,
     });
     const [ev] = parseEventLogs({ abi: fairAbi, logs: receipt.logs, eventName: "AuctionTaken" });
     void refreshAccount();
