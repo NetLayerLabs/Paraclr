@@ -15,7 +15,10 @@ import { coalesce, subscribeBlocks } from "@/lib/chain/clients";
 import { readableError } from "@/lib/chain/errors";
 import { useAuctionParams } from "@/lib/chain/auctionParams";
 import { fmtBps, isMissingFunction, readBackstopPools, type BackstopPool } from "@/lib/chain/fair";
-import { backstopDepositOnChain, backstopWithdrawOnChain } from "@/lib/chain/fairActions";
+import { backstopDepositOnChain, backstopRequestWithdrawOnChain, backstopWithdrawOnChain } from "@/lib/chain/fairActions";
+import { poolDepositRefusal, useBackstopProd } from "@/lib/chain/prod/backstop";
+import { chainNow } from "@/lib/chain/prod/state";
+import { fmtDuration, useNow } from "@/components/prod/util";
 import { NetworkTag, Notice, TxTray } from "@/components/chain/ChainUi";
 import { MQ_TABLE, useMedia } from "@/components/shell/useMedia";
 import { baseOf, fmtAusd, fmtCompact, fmtSigned, fmtSize } from "@/components/trade/format";
@@ -64,6 +67,8 @@ function LiveBackstop({ active }: { active: boolean }) {
   const me = useParaclr((s) => (s.session?.address as Address | undefined) ?? null);
   const myLane = useParaclr((s) => s.chain.account?.lane ?? null);
   const block = useParaclr((s) => s.chain.block);
+  // Production backstopNav is the EXIT NAV (cash + losses; gains count once realised).
+  const production = useParaclr((s) => !!s.chain.contracts?.production);
   const [pools, setPools] = useState<BackstopPool[] | null>(null);
   const [state, setState] = useState<LoadState>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -134,7 +139,7 @@ function LiveBackstop({ active }: { active: boolean }) {
 
       <div className={styles.stats}>
         <div className={styles.stat}>
-          <small>Total NAV · AUSD</small>
+          <small>{production ? "Total exit value · AUSD" : "Total NAV · AUSD"}</small>
           <b className="mono">{totals ? fmtCompact(totals.nav) : "…"}</b>
         </div>
         <div className={styles.stat}>
@@ -230,14 +235,21 @@ function PoolTable({
   myLane: number | null;
   onSelect: (l: number) => void;
 }) {
+  // Production backstopNav is the exit value: cash + losses, gains count once realised.
+  const production = useParaclr((s) => !!s.chain.contracts?.production);
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
         <thead>
           <tr>
             <th>Lane</th>
-            <th className={styles.num}>NAV</th>
-            <th className={styles.num} title="NAV per share">
+            <th
+              className={styles.num}
+              title={production ? "Exit value: pool cash plus unrealised losses; gains count once realised" : undefined}
+            >
+              {production ? "Exit value" : "NAV"}
+            </th>
+            <th className={styles.num} title={production ? "Exit value per share" : "NAV per share"}>
               Share price
             </th>
             <th className={styles.num} title="Auction discounts received since deploy — not annualised">
@@ -383,6 +395,11 @@ function PoolActions({
       ? Math.max(0, prodParams.maxTvlPerLane - myLaneTvl)
       : null;
   const params = useAuctionParams();
+  // Production (v4): pool-deposit status, the LP's withdrawal request, lane solvency.
+  const { data: bp, refresh: refreshBp } = useBackstopProd(lane, production);
+  const prod = useParaclr((s) => s.chain.prod);
+  const nowMs = useNow(1_000);
+  const chainT = prod ? chainNow(prod, nowMs) : null;
   const [mode, setMode] = useState<"deposit" | "withdraw">("deposit");
   const [amountStr, setAmountStr] = useState(() => (production ? "" : "1000"));
   const [pct, setPct] = useState(1);
@@ -407,16 +424,35 @@ function PoolActions({
           ? "Deposits paused by the guardian"
         : production && laneRoom !== null && amount > laneRoom + 1e-9
           ? `Over the lane ${lane + 1} TVL cap (${fmtAusd(laneRoom)} left)`
+        : production && poolDepositRefusal(bp)
+          ? poolDepositRefusal(bp)
         : amount <= 0
           ? "Enter an amount"
+        : production && amount < 1
+          ? "At least 1 AUSD"
           : amount > wallet + 1e-9
             ? "Not enough AUSD in your wallet"
             : null;
+  // Production LP exit: request → wait → withdraw once inside the window.
+  const req = production ? (bp?.request ?? null) : null;
+  const exitStage: "none" | "waiting" | "ready" | "expired" =
+    !req || chainT === null
+      ? "none"
+      : chainT < req.readyAt
+        ? "waiting"
+        : chainT <= req.expiresAt
+          ? "ready"
+          : "expired";
+  const requestShares = pool ? (req && pool.mySharesUnits < req.shares ? pool.mySharesUnits : (req?.shares ?? BigInt(0))) : BigInt(0);
+  const requestAusd = pool && pool.mySharesUnits > BigInt(0) ? (pool.myValue * Number(requestShares)) / Number(pool.mySharesUnits) : 0;
+  const haircutBps = production ? (bp?.solvency?.haircutBps ?? 0) : 0;
   const withdrawReason = !walletReady
     ? "Connecting wallet…"
     : !pool || pool.myShares <= 0
       ? "You have no shares in this pool"
-      : null;
+      : production && exitStage === "waiting"
+        ? `Withdrawal opens in ${fmtDuration((req?.readyAt ?? 0) - (chainT ?? 0))}`
+        : null;
 
   const run = async () => {
     setBusy(true);
@@ -425,6 +461,20 @@ function PoolActions({
       if (mode === "deposit") {
         const r = await backstopDepositOnChain(lane, amount);
         setMsg({ tone: "ok", text: `Deposited ${fmtAusd(amount)} AUSD into the lane ${lane + 1} backstop (block #${r.block}).` });
+      } else if (production && (exitStage === "none" || exitStage === "expired")) {
+        await backstopRequestWithdrawOnChain(lane, withdrawShares);
+        setMsg({
+          tone: "ok",
+          text: `Withdrawal requested. It opens in ${fmtDuration(prod?.params.backstopWithdrawDelay ?? 3600)}; then withdraw once within ${fmtDuration(prod?.params.backstopWithdrawWindow ?? 3600)}.`,
+        });
+        refreshBp();
+      } else if (production) {
+        const r = await backstopWithdrawOnChain(lane, requestShares, requestAusd);
+        setMsg({
+          tone: "ok",
+          text: `Withdrew ${fmtAusd(r.amount ?? requestAusd)} AUSD from the lane ${lane + 1} backstop (block #${r.block}).`,
+        });
+        refreshBp();
       } else {
         const r = await backstopWithdrawOnChain(lane, withdrawShares, withdrawAusd);
         setMsg({
@@ -441,6 +491,20 @@ function PoolActions({
   };
 
   const reason = mode === "deposit" ? depositReason : withdrawReason;
+
+  const cancelRequest = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      await backstopRequestWithdrawOnChain(lane, BigInt(0));
+      setMsg({ tone: "ok", text: "Withdrawal request cancelled." });
+      refreshBp();
+    } catch (e) {
+      setMsg({ tone: "error", text: readableError(e) });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <section className={styles.panel}>
@@ -465,8 +529,17 @@ function PoolActions({
         <span className={styles.label}>Lane</span>
         {pool && (
           <span className={styles.hint}>
-            NAV <span className="mono">{fmtCompact(pool.equity)}</span> · share{" "}
+            {production ? "Exit value" : "NAV"} <span className="mono">{fmtCompact(pool.equity)}</span> · share{" "}
             <span className="mono">{pool.sharePrice === null ? "—" : pool.sharePrice.toFixed(4)}</span>
+            {production && (bp?.depositStatus?.unrealizedUncapped ?? 0) > 0 && (
+              <>
+                {" "}
+                · pending gain{" "}
+                <span className="mono" title="Unrealised gain of inherited positions; it counts once realised">
+                  {fmtCompact(bp?.depositStatus?.unrealizedUncapped ?? 0)}
+                </span>
+              </>
+            )}
           </span>
         )}
       </div>
@@ -534,6 +607,15 @@ function PoolActions({
               Max
             </button>
           </div>
+          {production && poolDepositRefusal(bp) && (
+            <Notice tone="warn">
+              {(bp?.solvency?.badDebt ?? 0) > 0
+                ? `Lane ${lane + 1} has ${fmtAusd(bp?.solvency?.badDebt ?? 0)} AUSD of bad debt, so new pool deposits are refused until it is repaid.`
+                : (bp?.depositStatus?.receivable ?? 0) > 0
+                  ? `The lane owes this pool ${fmtAusd(bp?.depositStatus?.receivable ?? 0)} AUSD (pool cash it lent to cover losses). Deposits reopen once it is repaid, so every deposit is priced at the full NAV.`
+                  : `The pool's unrealised gain (${fmtAusd(bp?.depositStatus?.unrealizedUncapped ?? 0)} AUSD) is above lane insurance (${fmtAusd(bp?.depositStatus?.insurance ?? 0)} AUSD), so its NAV is capped. Deposits reopen when that clears.`}
+            </Notice>
+          )}
           <dl className={styles.summary}>
             <div>
               <dt>≈ Shares minted</dt>
@@ -554,29 +636,74 @@ function PoolActions({
             </span>
           </div>
           <div className={styles.stake}>
-            <span className="mono">{pool ? fmtAusd(pool.myValue) : "…"}</span> AUSD at the current NAV
+            <span className="mono">{pool ? fmtAusd(pool.myValue) : "…"}</span> AUSD at the current {production ? "exit value" : "NAV"}
           </div>
-          <div className={styles.chips}>
-            {WITHDRAW_QUICK.map((q) => (
-              <button
-                key={q.label}
-                type="button"
-                className={pct === q.f ? `${styles.chip} ${styles.chipOn}` : styles.chip}
-                onClick={() => setPct(q.f)}
-              >
-                {q.label}
-              </button>
-            ))}
-          </div>
-          <dl className={styles.summary}>
-            <div>
-              <dt>≈ You receive</dt>
-              <dd className="mono">{fmtAusd(withdrawAusd)} AUSD</dd>
+          {(!production || exitStage === "none" || exitStage === "expired") && (
+            <div className={styles.chips}>
+              {WITHDRAW_QUICK.map((q) => (
+                <button
+                  key={q.label}
+                  type="button"
+                  className={pct === q.f ? `${styles.chip} ${styles.chipOn}` : styles.chip}
+                  onClick={() => setPct(q.f)}
+                >
+                  {q.label}
+                </button>
+              ))}
             </div>
-          </dl>
+          )}
+          {production ? (
+            <dl className={styles.summary}>
+              <div>
+                <dt>{exitStage === "none" || exitStage === "expired" ? "≈ Value of the request" : "≈ You receive"}</dt>
+                <dd className="mono">
+                  {fmtAusd(exitStage === "none" || exitStage === "expired" ? withdrawAusd : requestAusd)} AUSD
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  {exitStage === "waiting"
+                    ? "Opens in"
+                    : exitStage === "ready"
+                      ? "Window closes in"
+                      : exitStage === "expired"
+                        ? "Last request"
+                        : "Then"}
+                </dt>
+                <dd className="mono">
+                  {exitStage === "waiting" && req && chainT !== null
+                    ? fmtDuration(req.readyAt - chainT)
+                    : exitStage === "ready" && req && chainT !== null
+                      ? fmtDuration(req.expiresAt - chainT)
+                      : exitStage === "expired"
+                        ? "expired"
+                        : `wait ${fmtDuration(prod?.params.backstopWithdrawDelay ?? 3600)}`}
+                </dd>
+              </div>
+            </dl>
+          ) : (
+            <dl className={styles.summary}>
+              <div>
+                <dt>≈ You receive</dt>
+                <dd className="mono">{fmtAusd(withdrawAusd)} AUSD</dd>
+              </div>
+            </dl>
+          )}
+          {production && haircutBps > 0 && (
+            <Notice tone="warn">
+              Lane {lane + 1} has bad debt: payouts are cut by {(haircutBps / 100).toFixed(2)}% until it is repaid.
+            </Notice>
+          )}
+          {production && exitStage === "expired" && req && (
+            <Notice tone="warn">
+              Your request expired at {new Date(req.expiresAt * 1000).toLocaleTimeString()} (its window passed). Request
+              again.
+            </Notice>
+          )}
           <p className={styles.fine}>
-            Paid from pool cash at the current NAV. The contract blocks a withdrawal that would leave the pool below
-            10% of its inherited exposure, or that exceeds its cash.
+            {production
+              ? `Two steps: request, wait ${fmtDuration(prod?.params.backstopWithdrawDelay ?? 3600)}, then withdraw once within ${fmtDuration(prod?.params.backstopWithdrawWindow ?? 3600)} at the exit value of that moment: cash plus unrealised losses, with gains and any amount the lane owes the pool counted as 0 (requests work while paused; a withdrawal uses up the request). Paid from pool cash; the contract blocks a withdrawal that would leave the pool below 10% of its exposure or exceeds its cash, and the last shares can leave only once the keeper has unwound the pool's positions.`
+              : "Paid from pool cash at the current NAV. The contract blocks a withdrawal that would leave the pool below 10% of its inherited exposure, or that exceeds its cash."}
           </p>
         </>
       )}
@@ -587,8 +714,17 @@ function PoolActions({
           : (reason ??
             (mode === "deposit"
               ? `Deposit ${fmtAusd(amount)} AUSD to lane ${lane + 1}`
-              : `Withdraw ≈${fmtAusd(withdrawAusd)} AUSD`))}
+              : production && (exitStage === "none" || exitStage === "expired")
+                ? `Request withdrawal of ≈${fmtAusd(withdrawAusd)} AUSD`
+                : production
+                  ? `Withdraw ≈${fmtAusd(requestAusd)} AUSD now`
+                  : `Withdraw ≈${fmtAusd(withdrawAusd)} AUSD`))}
       </button>
+      {production && mode === "withdraw" && (exitStage === "waiting" || exitStage === "ready") && (
+        <button type="button" className={styles.chip} disabled={busy} onClick={cancelRequest}>
+          Cancel request
+        </button>
+      )}
       {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
     </section>
   );
@@ -596,6 +732,7 @@ function PoolActions({
 
 function Explainer({ compact = false }: { compact?: boolean }) {
   const params = useAuctionParams();
+  const production = useParaclr((s) => !!s.chain.contracts?.production);
   const step = fmtBps(params.stepBps);
   const mins = params.minDiscountBps;
   const min = mins.every((m) => m === mins[0]) ? fmtBps(mins[0]) : `${fmtBps(Math.min(...mins))}–${fmtBps(Math.max(...mins))}`;
@@ -614,8 +751,11 @@ function Explainer({ compact = false }: { compact?: boolean }) {
           is paid the discount; the trader keeps the rest of their equity.
         </li>
         <li>
-          NAV = cash + unrealised PnL of inherited positions at the mark. That exposure is real market risk until it
-          is reduced, so NAV can fall as well as rise. Withdrawals are blocked if they would leave the pool below 10%
+          {production
+            ? "Exit value = cash + unrealised losses of inherited positions at the mark; gains count once realised. "
+            : "NAV = cash + unrealised PnL of inherited positions at the mark. "}
+          That exposure is real market risk until it is reduced, so {production ? "the exit value" : "NAV"} can fall as
+          well as rise. Withdrawals are blocked if they would leave the pool below 10%
           of its exposure, or exceed its cash.
         </li>
       </ol>

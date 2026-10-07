@@ -95,7 +95,7 @@ export function backstopDepositOnChain(lane: number, amount: number): Promise<Fa
     if (units === BigInt(0)) throw new ChainActionError("Enter an AUSD amount.");
     const snap = await readAccountSnapshot(signer.address, c);
     await ensureAllowance(signer, c, units, snap.walletAusdUnits, snap.allowanceUnits);
-    const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane)) : null;
+    const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane), lane) : null;
     const receipt = await sendTx(signer, {
       label: `Deposit ${fmt(amount)} ${c.token.symbol} into the lane ${lane + 1} backstop`,
       to: c.clearinghouse,
@@ -110,7 +110,31 @@ export function backstopDepositOnChain(lane: number, amount: number): Promise<Fa
   });
 }
 
-/** Redeem backstop shares for AUSD (blocked by the contract if it would leave the pool under-margined). */
+/**
+ * Production LP exit, step 1: request `shares` (0 cancels). The withdrawal can
+ * then be made once, after `backstopWithdrawDelay`, within the 1 h window.
+ * Works while paused.
+ */
+export function backstopRequestWithdrawOnChain(lane: number, shares: bigint): Promise<FairTxResult> {
+  return serialized(async () => {
+    const { signer, c } = requireLive();
+    const receipt = await sendTx(signer, {
+      label:
+        shares > BigInt(0)
+          ? `Request a lane ${lane + 1} backstop withdrawal`
+          : `Cancel your lane ${lane + 1} backstop withdrawal request`,
+      to: c.clearinghouse,
+      data: encodeFunctionData({ abi: prodAbi, functionName: "backstopRequestWithdraw", args: [lane, shares] }),
+    });
+    return { txHash: receipt.transactionHash, block: Number(receipt.blockNumber) };
+  });
+}
+
+/**
+ * Redeem backstop shares for AUSD (blocked by the contract if it would leave
+ * the pool under-margined). Production: step 2, inside the request's window;
+ * the lane haircut applies and the event carries the amount actually paid.
+ */
 export function backstopWithdrawOnChain(
   lane: number,
   shares: bigint,
@@ -119,7 +143,7 @@ export function backstopWithdrawOnChain(
   return serialized(async () => {
     const { signer, c } = requireLive();
     if (shares <= BigInt(0)) throw new ChainActionError("No shares to withdraw.");
-    const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane)) : null;
+    const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane), lane) : null;
     const receipt = await sendTx(signer, {
       label: `Withdraw ≈${fmt(approxAusd)} ${c.token.symbol} from the lane ${lane + 1} backstop`,
       to: c.clearinghouse,
@@ -152,10 +176,16 @@ export function cureAuctionOnChain(amount: number): Promise<{ cancelled: boolean
       const snap = await readAccountSnapshot(signer.address, c);
       // A cure top-up is allowed while paused (the account holds positions).
       await ensureAllowance(signer, c, units, snap.walletAusdUnits, snap.allowanceUnits, { topUp: true });
+      // Production: `depositWithPrice`, so the margin top-up exemption (beyond the caps)
+      // is computed at fresh prices even when Pyth storage is stale.
+      const u = c.production ? await priceUpdateFor(c, true, snap.lane).catch(() => null) : null;
       await sendTx(signer, {
         label: `Deposit ${fmt(amount)} ${c.token.symbol} to cure the auction`,
         to: c.clearinghouse,
-        data: encodeFunctionData({ abi: paraclrClearinghouseAbi, functionName: "deposit", args: [units] }),
+        data: c.production
+          ? encodeFunctionData({ abi: prodAbi, functionName: "depositWithPrice", args: [units, u?.updateData ?? []] })
+          : encodeFunctionData({ abi: paraclrClearinghouseAbi, functionName: "deposit", args: [units] }),
+        value: u && u.fee > BigInt(0) ? u.fee : undefined,
       });
     }
     const after = await readAccountSnapshot(signer.address, c);
@@ -167,7 +197,7 @@ export function cureAuctionOnChain(amount: number): Promise<{ cancelled: boolean
       void refreshAccount();
       return { cancelled: false, stillUnderwater: true };
     }
-    const q = c.production ? await priceUpdateFor(c, true) : null;
+    const q = c.production ? await priceUpdateFor(c, true, after.lane) : null;
     await sendTx(signer, {
       label: "Cancel your auction (account healthy again)",
       to: c.clearinghouse,
@@ -185,7 +215,7 @@ export function cureAuctionOnChain(amount: number): Promise<{ cancelled: boolean
 export function takeOnChain(account: Address): Promise<FairTxResult & { payment: number | null }> {
   return serialized(async () => {
     const { signer, c } = requireLive();
-    const q = c.production ? await priceUpdateFor(c, true) : null;
+    const q = c.production ? await priceUpdateFor(c, true, Number(BigInt(account) % BigInt(8))) : null;
     const receipt = await sendTx(signer, {
       label: `Take auction ${account.slice(0, 6)}…${account.slice(-4)}`,
       to: c.clearinghouse,
