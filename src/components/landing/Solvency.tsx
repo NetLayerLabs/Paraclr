@@ -1,8 +1,8 @@
 import type { RepoFacts } from "./benchResults.server";
 import { Check } from "./icons";
 import { fmtInt } from "./format";
-import ui from "./Landing.module.css";
-import styles from "./Solvency.module.css";
+import b from "./brand/Brand.module.css";
+import s from "./Solvency.module.css";
 
 const TERMS = [
   { sign: "", name: "collateral", hint: "traders' AUSD, incl. returned equity" },
@@ -14,33 +14,71 @@ const TERMS = [
 
 export function Solvency({ repo }: { repo: RepoFacts }) {
   return (
-    <section id="solvency" className={ui.section} aria-labelledby="solvency-title">
-      <div className={ui.container}>
-        <div className={ui.sectionHead}>
-          <p className={ui.eyebrow}>Solvency proof</p>
-          <h2 id="solvency-title" className={ui.h2}>
-            The books are checked <em>every block.</em>
-          </h2>
-          <p className={ui.lede}>
-            Each lane keeps its own ledger in lane-local storage, so recording a liquidation never touches another
-            lane. <code className={ui.code}>solvency()</code> sums the 8 ledgers and compares the total with the AUSD the
-            clearinghouse actually holds. The app reads it every block and shows the result in its header.
-          </p>
-        </div>
+    <section
+      id="solvency"
+      className={`${b.dark} ${b.surface} ${b.section} ${s.section}`}
+      aria-labelledby="solvency-title"
+    >
+      <div className={b.container}>
+        <div className={s.grid}>
+          <div className={s.copy}>
+            <p className={b.eyebrow}>Solvency proof</p>
+            <h2 id="solvency-title" className={b.h2}>
+              The books are checked <em>every block.</em>
+            </h2>
+            <p className={b.lede}>
+              Each lane keeps its own ledger in lane-local storage, so recording a liquidation never touches another
+              lane. <code className={b.code}>solvency()</code> sums the 8 ledgers and compares the total with the AUSD
+              the clearinghouse actually holds. The app reads it every block and shows the result in its header.
+            </p>
+            <ul className={s.checks}>
+              <li>
+                <Check className={s.tick} />
+                <span>
+                  Read live from the contract, not computed by the app: <code className={b.code}>solvency()</code> and{" "}
+                  <code className={b.code}>laneLedger(lane)</code>.
+                </span>
+              </li>
+              <li>
+                <Check className={s.tick} />
+                <span>
+                  {repo.invariantTests ? (
+                    <>
+                      Covered by {fmtInt(repo.invariantTests)} Foundry invariant test
+                      {repo.invariantTests === 1 ? "" : "s"}, which re-check the books after every randomized call.
+                    </>
+                  ) : (
+                    <>Asserted in Foundry tests after every crash scenario.</>
+                  )}
+                </span>
+              </li>
+              <li>
+                <Check className={s.tick} />
+                <span>Bad debt is explicit: it appears in the identity instead of hiding inside a balance.</span>
+              </li>
+            </ul>
+            <p className={s.preview}>
+              <span>In the app header, every block</span>
+              <span className={`${b.chip} ${b.chipPos}`}>
+                <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
+                Solvent · surplus ≥ 0
+              </span>
+              <span>If the identity ever breaks, the badge says so.</span>
+            </p>
+          </div>
 
-        <div className={styles.grid}>
-          <figure className={`${ui.panel} ${styles.identity}`}>
-            <div className={ui.panelBar}>
-              <span className={ui.trafficLights} aria-hidden="true">
+          <figure className={`${b.card} ${s.identity}`}>
+            <div className={s.bar}>
+              <span className={b.chrome} aria-hidden="true">
                 <i />
                 <i />
                 <i />
               </span>
-              <span>the identity</span>
+              <span className={s.barTitle}>the identity</span>
             </div>
 
-            <div className={styles.body}>
-              <div className={styles.lhs}>
+            <div className={s.body}>
+              <div className={s.lhs}>
                 <code>
                   AUSD.balanceOf(
                   <wbr />
@@ -48,17 +86,17 @@ export function Solvency({ repo }: { repo: RepoFacts }) {
                 </code>
                 <span>what the contract holds</span>
               </div>
-              <div className={styles.equals} aria-label="equals">
+              <div className={s.equals} aria-label="equals">
                 ==
               </div>
-              <div className={styles.rhs}>
-                <span className={styles.sigma}>
-                  Σ<sub>lanes</sub>
+              <div className={s.rhs}>
+                <span className={s.sigma}>
+                  Σ<sub>8 lanes</sub>
                 </span>
-                <ul className={styles.terms}>
+                <ul className={s.terms}>
                   {TERMS.map((t) => (
                     <li key={t.name}>
-                      <span className={t.sign === "−" ? styles.signMinus : styles.sign}>{t.sign}</span>
+                      <span className={t.sign === "−" ? s.minus : s.sign}>{t.sign}</span>
                       <code>{t.name}</code>
                       <small>{t.hint}</small>
                     </li>
@@ -67,68 +105,22 @@ export function Solvency({ repo }: { repo: RepoFacts }) {
               </div>
             </div>
 
-            <div className={styles.lanes} aria-label="8 lane ledgers summed by solvency()">
+            <div className={s.lanes} aria-label="8 lane ledgers summed by solvency()">
               {Array.from({ length: 8 }, (_, k) => (
-                <span key={k}>
-                  <b>L{k}</b> ledger
-                </span>
+                <span key={k}>L{k}</span>
               ))}
-              <span className={styles.sum}>→ solvency()</span>
+              <span className={s.sum}>→ solvency()</span>
             </div>
 
-            <pre className={styles.sig}>
+            <pre className={s.sig}>
               <code>
-                <span className={styles.kw}>function</span> solvency() <span className={styles.kw}>view returns</span>
-                {"\n"}  (uint256 ausdHeld, uint256 liabilities, int256 surplus, bool solvent)
+                <span className={s.kw}>function</span> solvency() <span className={s.kw}>view returns</span>
+                {"\n"} (uint256 ausdHeld, uint256 liabilities, int256 surplus, bool solvent)
                 {"\n"}
-                <span className={styles.cm}>
-                  {"// surplus = ausdHeld − liabilities (0 unless AUSD is sent in directly); solvent = surplus ≥ 0"}
-                </span>
+                <span className={s.cm}>{"// surplus = ausdHeld − liabilities; solvent = surplus ≥ 0"}</span>
               </code>
             </pre>
           </figure>
-
-          <div className={styles.side}>
-            <div className={`${ui.card} ${styles.badgeCard}`}>
-              <span className={styles.badgeLabel}>In the app header, every block</span>
-              <span className={styles.badge}>
-                <span className={styles.badgeDot} aria-hidden="true" />
-                Solvent
-                <span className={styles.badgeSub}>surplus ≥ 0</span>
-              </span>
-              <p className={ui.body}>
-                Click it for the detail: AUSD held, liabilities, surplus, and each lane&rsquo;s ledger. If the identity
-                ever breaks, the badge says so.
-              </p>
-            </div>
-
-            <ul className={styles.checks}>
-              <li>
-                <Check className={styles.tick} />
-                <span>
-                  Read live from the contract, not computed by the app: <code className={ui.code}>solvency()</code> and{" "}
-                  <code className={ui.code}>laneLedger(lane)</code>.
-                </span>
-              </li>
-              <li>
-                <Check className={styles.tick} />
-                <span>
-                  {repo.invariantTests ? (
-                    <>
-                      Covered by {fmtInt(repo.invariantTests)} Foundry invariant test{repo.invariantTests === 1 ? "" : "s"},
-                      which re-check the identity after every randomized call.
-                    </>
-                  ) : (
-                    <>Asserted in Foundry tests after every crash scenario.</>
-                  )}
-                </span>
-              </li>
-              <li>
-                <Check className={styles.tick} />
-                <span>Bad debt is explicit: it appears in the identity instead of hiding inside a balance.</span>
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
     </section>

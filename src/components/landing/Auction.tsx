@@ -1,26 +1,27 @@
 import type { CSSProperties, ReactNode } from "react";
+import { Layers, Percent, Shield } from "./icons";
 import { AUCTION } from "./content";
-import ui from "./Landing.module.css";
-import styles from "./Auction.module.css";
+import b from "./brand/Brand.module.css";
+import s from "./Auction.module.css";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
 const LAST = AUCTION.maxBps / AUCTION.stepBps; // block +20 reaches the cap
 const TAKE = AUCTION.backstopMinBps / AUCTION.stepBps; // block +3 reaches the pool threshold
-const BLOCKS = Array.from({ length: LAST + 1 }, (_, b) => b);
+const BLOCKS = Array.from({ length: LAST + 1 }, (_, i) => i);
 const Y_TICKS = [0, 100, 200, 300, 400, 500];
 
 const MARKERS: Record<number, { n: string; cls: string }> = {
   2: { n: "1", cls: "markExternal" },
   [TAKE]: { n: "2", cls: "markTake" },
-  [LAST]: { n: "3", cls: "markExpire" },
+  [LAST]: { n: "3", cls: "markCap" },
 };
 
-function barClass(b: number): string {
-  if (b === TAKE) return styles.barTake;
-  if (b < TAKE) return styles.barLive;
-  if (b === LAST) return styles.barCap;
-  return styles.barUntaken;
+function barClass(i: number): string {
+  if (i === TAKE) return s.barTake;
+  if (i < TAKE) return s.barLive;
+  if (i === LAST) return s.barCap;
+  return s.barIdle;
 }
 
 interface Step {
@@ -63,10 +64,9 @@ const STEPS: Step[] = [
     code: <>backstopTakeBatch(lane, …) · take(account)</>,
     body: (
       <>
-        The taker inherits the positions at the mark and is paid <b>P = d × notional</b>. The lane&rsquo;s backstop
-        pool takes at its threshold; an account in the same lane can take any block before, if it stays above initial
-        margin, but is paid only out of the trader&rsquo;s own equity: <b>min(P, E)</b>. The lane never subsidizes
-        an outside taker, so nobody can profit by liquidating their own account.
+        The taker inherits the positions at the mark and is paid <b>P = d × notional</b>. An account in the same lane
+        can take any block before the pool, if it stays above initial margin, but is paid only out of the trader&rsquo;s
+        own equity, <b>min(P, E)</b>, so nobody profits by liquidating their own account.
       </>
     ),
   },
@@ -84,60 +84,85 @@ const STEPS: Step[] = [
   },
 ];
 
+const POOL = [
+  {
+    icon: Layers,
+    title: "Deposit per lane",
+    body: "Each of the 8 lanes has its own pool. LPs deposit AUSD into a lane's pool for shares in it, and pool storage is lane-local: 8 pools can take in the same block without touching each other's slots.",
+  },
+  {
+    icon: Percent,
+    title: "Earn the discount",
+    body: `The pool takes that lane's auctions once the discount reaches its threshold (${AUCTION.backstopMinBps} bps by default, below the old 1% fixed fee) and is paid P = d × notional for each.`,
+  },
+  {
+    icon: Shield,
+    title: "Absorb the exposure",
+    body: "The pool also inherits the positions, at the mark. If the market keeps moving against them, NAV falls. The discount is the payment for carrying that risk.",
+  },
+] as const;
+
 export function Auction() {
   return (
-    <section id="auction" className={`${ui.section} ${ui.sectionAlt}`} aria-labelledby="auction-title">
-      <div className={ui.container}>
-        <div className={ui.sectionHead}>
-          <p className={ui.eyebrow}>How the auction works</p>
-          <h2 id="auction-title" className={ui.h2}>
+    <section
+      id="auction"
+      className={`${b.light} ${b.surface} ${b.section} ${s.section}`}
+      aria-labelledby="auction-title"
+    >
+      <div className={b.container}>
+        <div className={b.sectionHead}>
+          <p className={b.eyebrow}>How the auction works</p>
+          <h2 id="auction-title" className={b.h2}>
             A Dutch auction per account, <em>priced by the block clock.</em>
           </h2>
-          <p className={ui.lede}>
+          <p className={b.lede}>
             Every block, the sweeper starts auctions for newly underwater accounts in all 8 lanes. The discount a taker
-            earns climbs block by block until someone takes the account, and whatever equity the taker isn&rsquo;t
-            paid goes <strong>back to the trader</strong> as free collateral.
+            earns climbs block by block until someone takes the account, and whatever equity the taker isn&rsquo;t paid
+            goes <strong>back to the trader</strong> as free collateral.
           </p>
         </div>
 
-        <div className={styles.grid}>
-          <figure className={`${ui.card} ${styles.chartCard}`}>
-            <figcaption className={styles.chartHead}>
-              <span className={styles.chartTitle}>Discount by block after the auction starts</span>
-              <span className={styles.chartSub}>
+        <div className={s.grid}>
+          <figure className={`${b.card} ${s.chart}`}>
+            <figcaption className={s.cardHead}>
+              <span className={s.cardTitle}>Discount by block after the auction starts</span>
+              <span className={s.cardSub}>
                 +{AUCTION.stepBps} bps / block · cap {AUCTION.maxBps} bps · contract defaults
               </span>
             </figcaption>
 
-            <div className={styles.plot}>
-              <div className={styles.yAxis} aria-hidden="true">
+            <div className={s.plot}>
+              <div className={s.yAxis} aria-hidden="true">
                 {Y_TICKS.map((t) => (
                   <span key={t} style={{ "--y": t / AUCTION.maxBps } as Vars}>
                     {t}
                   </span>
                 ))}
-                <span className={styles.yTake} style={{ "--y": AUCTION.backstopMinBps / AUCTION.maxBps } as Vars}>
+                <span className={s.yTake} style={{ "--y": AUCTION.backstopMinBps / AUCTION.maxBps } as Vars}>
                   {AUCTION.backstopMinBps}
                 </span>
               </div>
-              <div className={styles.area}>
+              <div className={s.area}>
                 {Y_TICKS.map((t) => (
-                  <i key={t} className={styles.gridLine} style={{ "--y": t / AUCTION.maxBps } as Vars} aria-hidden="true" />
+                  <i key={t} className={s.gridLine} style={{ "--y": t / AUCTION.maxBps } as Vars} aria-hidden="true" />
                 ))}
                 <i
-                  className={styles.threshold}
+                  className={s.threshold}
                   style={{ "--y": AUCTION.backstopMinBps / AUCTION.maxBps } as Vars}
                   aria-hidden="true"
                 />
-                <ol className={styles.bars} aria-label={`Discount rises ${AUCTION.stepBps} basis points per block from 0 to ${AUCTION.maxBps}`}>
-                  {BLOCKS.map((b) => {
-                    const bps = Math.min(AUCTION.maxBps, b * AUCTION.stepBps);
-                    const m = MARKERS[b];
+                <ol
+                  className={s.bars}
+                  aria-label={`Discount rises ${AUCTION.stepBps} basis points per block from 0 to ${AUCTION.maxBps}`}
+                >
+                  {BLOCKS.map((i) => {
+                    const bps = Math.min(AUCTION.maxBps, i * AUCTION.stepBps);
+                    const m = MARKERS[i];
                     return (
-                      <li key={b} className={styles.col} aria-label={`block +${b}: ${bps} bps`}>
-                        <span className={barClass(b)} style={{ "--h": bps / AUCTION.maxBps } as Vars}>
+                      <li key={i} className={s.col} aria-label={`block +${i}: ${bps} bps`}>
+                        <span className={barClass(i)} style={{ "--h": bps / AUCTION.maxBps } as Vars}>
                           {m ? (
-                            <span className={`${styles.mark} ${styles[m.cls]}`} aria-hidden="true">
+                            <span className={`${s.mark} ${s[m.cls]}`} aria-hidden="true">
                               {m.n}
                             </span>
                           ) : null}
@@ -147,63 +172,63 @@ export function Auction() {
                   })}
                 </ol>
               </div>
-              <div className={styles.xAxis} aria-hidden="true">
-                {BLOCKS.filter((b) => b % 5 === 0 || b === TAKE).map((b) => (
+              <div className={s.xAxis} aria-hidden="true">
+                {BLOCKS.filter((i) => i % 5 === 0 || i === TAKE).map((i) => (
                   <span
-                    key={b}
-                    style={{ "--x": (b + 0.5) / (LAST + 1) } as Vars}
-                    className={b === TAKE ? styles.xTake : b === TAKE - 1 ? styles.xNearTake : undefined}
+                    key={i}
+                    style={{ "--x": (i + 0.5) / (LAST + 1) } as Vars}
+                    className={i === TAKE ? s.xTake : undefined}
                   >
-                    +{b}
+                    +{i}
                   </span>
                 ))}
               </div>
-              <p className={styles.xLabel}>blocks since start · discount in bps</p>
+              <p className={s.xLabel}>blocks since start · discount in bps</p>
             </div>
 
-            <ol className={styles.keys}>
+            <ol className={s.keys}>
               <li>
-                <span className={`${styles.mark} ${styles.markExternal}`}>1</span>
+                <span className={`${s.mark} ${s.markExternal}`}>1</span>
                 <span>
-                  <b>External taker</b>, any block: an account in the same lane takes at the current discount if it stays
+                  <b>Outside taker</b>, any block: an account in the same lane takes at the current discount if it stays
                   above initial margin.
                 </span>
               </li>
               <li>
-                <span className={`${styles.mark} ${styles.markTake}`}>2</span>
+                <span className={`${s.mark} ${s.markTake}`}>2</span>
                 <span>
-                  <b>Backstop pool</b> takes at its minimum discount (dashed line): {AUCTION.backstopMinBps} bps by default,
-                  block +{TAKE}, ≈ {((TAKE * 400) / 1000).toFixed(1)} s at 400 ms blocks.
+                  <b>Backstop pool</b> takes at its minimum discount (dashed line): {AUCTION.backstopMinBps} bps by
+                  default, block +{TAKE}, about {((TAKE * 400) / 1000).toFixed(1)} s at 400 ms blocks.
                 </span>
               </li>
               <li>
-                <span className={`${styles.mark} ${styles.markExpire}`}>3</span>
+                <span className={`${s.mark} ${s.markCap}`}>3</span>
                 <span>
-                  <b>Cap</b> at {AUCTION.maxBps} bps, block +{LAST}. Untaken (say, an empty pool), it expires and closes at
-                  mark through the old fixed-fee path.
+                  <b>Cap</b> at {AUCTION.maxBps} bps, block +{LAST}. Untaken (say, an empty pool), it expires and closes
+                  at mark through the old fixed-fee path.
                 </span>
               </li>
             </ol>
           </figure>
 
-          <div className={styles.side}>
-            <figure className={`${ui.card} ${styles.split}`}>
-              <figcaption className={styles.chartHead}>
-                <span className={styles.chartTitle}>At the take: where the equity goes</span>
-                <span className={styles.schematic}>Schematic</span>
+          <div className={s.side}>
+            <figure className={`${b.card} ${s.split}`}>
+              <figcaption className={s.cardHead}>
+                <span className={s.cardTitle}>At the take: where the equity goes</span>
+                <span className={b.tagIllustration}>Schematic</span>
               </figcaption>
-              <p className={styles.eq}>
-                <span>E</span> = collateral + PnL at mark
+              <p className={s.eq}>
+                <b>E</b> = collateral + PnL at mark
               </p>
-              <div className={styles.splitBar} aria-hidden="true">
-                <span className={styles.splitTaker}>
-                  <b>P</b> to taker
+              <div className={s.splitBar} aria-hidden="true">
+                <span className={s.splitTaker}>
+                  <b>P</b> taker
                 </span>
-                <span className={styles.splitTrader}>
-                  <b>E − P</b> back to trader
+                <span className={s.splitTrader}>
+                  <b>E − P</b> back to the trader
                 </span>
               </div>
-              <dl className={styles.splitRows}>
+              <dl className={s.splitRows}>
                 <div>
                   <dt>Taker</dt>
                   <dd>
@@ -224,29 +249,67 @@ export function Auction() {
               </dl>
             </figure>
 
-            <aside className={styles.mev}>
-              <span className={styles.mevTag}>MEV-resistant, not MEV-free</span>
+            <aside className={s.mev}>
+              <span className={b.chip}>MEV-resistant, not MEV-free</span>
               <p>
                 The price comes from the block clock, so out-bidding on gas can&rsquo;t buy a bigger discount: it only
-                lands a take earlier, at a smaller one. Ordering still matters when two takers want the same block, so we
-                don&rsquo;t claim there&rsquo;s no MEV.
+                lands a take earlier, at a smaller one. Ordering still matters when two takers want the same block, so
+                we don&rsquo;t claim there&rsquo;s no MEV.
               </p>
             </aside>
           </div>
         </div>
 
-        <ol className={styles.steps}>
-          {STEPS.map((s) => (
-            <li key={s.n} className={`${ui.card} ${styles.step}`}>
-              <div className={styles.stepHead}>
-                <span className={styles.n}>{s.n}</span>
-                <h3 className={ui.h3}>{s.title}</h3>
+        <ol className={s.steps} aria-label="Auction lifecycle">
+          {STEPS.map((step) => (
+            <li key={step.n} className={s.step}>
+              <span className={s.stepNode} aria-hidden="true">
+                {step.n}
+              </span>
+              <div className={`${b.card} ${s.stepCard}`}>
+                <h3 className={b.h3}>
+                  <span className={b.srOnly}>Step {step.n}: </span>
+                  {step.title}
+                </h3>
+                <code className={s.stepCode}>{step.code}</code>
+                <p className={s.stepBody}>{step.body}</p>
               </div>
-              <code className={styles.stepCode}>{s.code}</code>
-              <p className={styles.stepBody}>{s.body}</p>
             </li>
           ))}
         </ol>
+
+        <div id="backstop" className={s.pool}>
+          <div className={s.poolHead}>
+            <p className={b.eyebrow}>Backstop LPs</p>
+            <h3 className={s.poolTitle}>
+              A taker in every lane, <em>paid to hold the risk.</em>
+            </h3>
+            <p className={b.body}>
+              Auctions need someone on the other side when the market is falling hardest. Each lane has a backstop pool
+              that takes its auctions at a known threshold, so an underwater account is resolved within a bounded number
+              of blocks even if no outside taker shows up.
+            </p>
+          </div>
+          <ul className={s.poolCards}>
+            {POOL.map(({ icon: Icon, title, body }) => (
+              <li key={title} className={`${b.card} ${b.cardPad} ${s.poolCard}`}>
+                <span className={b.iconTile}>
+                  <Icon />
+                </span>
+                <h4 className={b.h3}>{title}</h4>
+                <p className={b.body}>{body}</p>
+              </li>
+            ))}
+          </ul>
+          <p className={s.noApy}>
+            <span className={`${b.chip} ${b.chipAccent}`}>No APY</span>
+            <span>
+              Pool returns are shown as <strong>earned since deploy</strong>: discount collected, notional absorbed,
+              realized and unrealized PnL. A crash-driven income stream doesn&rsquo;t annualize honestly, so we
+              don&rsquo;t. On testnet the operator seeds every pool with test AUSD.
+            </span>
+          </p>
+        </div>
       </div>
     </section>
   );
