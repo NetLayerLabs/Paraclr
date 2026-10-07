@@ -32,11 +32,22 @@
 }
 
 .name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--pc-font-display);
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.04em;
   color: var(--pc-ink);
+}
+
+/* Width comes from the img attribute: square, or wider for a wide mark. */
+.logo {
+  display: block;
+  flex: none;
+  height: 22px;
+  object-fit: contain;
 }
 
 .body {

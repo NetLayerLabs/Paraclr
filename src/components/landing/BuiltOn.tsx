@@ -7,16 +7,23 @@ type Tone = "accent" | "pos" | "warn" | "neutral";
 
 interface Item {
   name: string;
+  logo: string;
+  /** Box width for marks wider than tall (default: a square box). */
+  logoW?: number;
   body: string;
   chip: string;
   tone: Tone;
 }
 
-/** Text wordmarks only (no third-party logos). Chips say what each one is used for, and where. */
+/**
+ * Each card leads with the project's official mark (public/partners/, from its own site, brand kit or repo), in
+ * its light or colour variant since the section is dark. Chips say what each one is used for, and where.
+ */
 function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: boolean): Item[] {
   return [
     {
       name: "Monad",
+      logo: "/partners/monad.svg",
       body: "The chain Paraclr is built for. 8 lanes of disjoint storage give its optimistic parallel executor no reason to re-execute one lane's work because of another's.",
       chip: live
         ? "Mainnet beta · chain 143"
@@ -29,6 +36,7 @@ function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: bo
     },
     {
       name: "Pyth",
+      logo: "/partners/pyth-white.png",
       body: testnetLive
         ? "Pull-oracle prices for the production contracts, verified on chain: staleness, confidence and a positive price. Used on Monad testnet now, during a Pyth data trial. The measured demo runs use a simulated feed."
         : "Pull-oracle prices for the production contracts, verified on chain: staleness, confidence and a positive price. The demo uses a simulated feed.",
@@ -37,6 +45,7 @@ function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: bo
     },
     {
       name: "Agora AUSD",
+      logo: "/partners/agora.svg",
       body: testnetLive
         ? "The single quote and margin asset. Agora's testnet AUSD on Monad testnet (test funds, no value), real AUSD on the mainnet beta; the measured demo runs use MockAUSD, a 6-decimal stand-in."
         : "The single quote and margin asset. Real AUSD on the mainnet beta; the demo uses MockAUSD, a 6-decimal stand-in with no value.",
@@ -45,12 +54,14 @@ function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: bo
     },
     {
       name: "Privy",
+      logo: "/partners/privy-white.png",
       body: "Sign-in with a passkey, email, a social account or your own wallet, and an embedded wallet for everyone else, through the public SDK.",
       chip: "Login + wallet",
       tone: "neutral",
     },
     {
       name: "Envio",
+      logo: "/partners/envio.svg",
       body: testnetLive
         ? "HyperIndex reads the clearinghouse through HyperSync: every order, fill, auction and backstop flow. The app's order history and activity since deploy come from its GraphQL API, hosted on Envio Cloud."
         : "HyperIndex indexes the clearinghouse's orders, fills, auctions and backstop flows for the app's order history and activity since deploy.",
@@ -59,18 +70,21 @@ function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: bo
     },
     {
       name: "Safe",
+      logo: "/partners/safe.svg",
       body: "The owner multisig behind the timelock: a Safe on Monad testnet proposes and executes every change, after the delay.",
       chip: "Owner multisig · live on testnet",
       tone: "pos",
     },
     {
       name: "OpenZeppelin",
+      logo: "/partners/openzeppelin.svg",
       body: "TimelockController owns the production contracts, so every parameter change waits out its delay. ERC-20 and math utilities.",
       chip: "Timelock + token utils",
       tone: "neutral",
     },
     {
       name: "Foundry",
+      logo: "/partners/foundry.png",
       body: [
         repo.foundryTests ? `${fmtInt(repo.foundryTests)} tests including fuzzing` : "Tests including fuzzing",
         repo.invariantTests ? `${fmtInt(repo.invariantTests)} invariant tests` : null,
@@ -83,18 +97,22 @@ function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: bo
     },
     {
       name: "viem",
+      logo: "/partners/viem.svg",
       body: "Chain reads and user transactions in the app; the keeper's signing, receipts and the storage traces behind the X-ray.",
       chip: "App + keeper client",
       tone: "neutral",
     },
     {
       name: "Slither",
+      logo: "/partners/slither.png",
+      logoW: 32,
       body: "Static analysis on the production contracts, part of the launch gate.",
       chip: "Static analysis · not an audit",
       tone: "warn",
     },
     {
       name: "Next.js",
+      logo: "/partners/nextjs.svg",
       body: "This site and the trading app: App Router with CSS Modules. No charting or UI kit.",
       chip: "Site + app",
       tone: "neutral",
@@ -109,10 +127,16 @@ const TONE: Record<Tone, string> = {
   neutral: "",
 };
 
+const LOGO = 22;
+
 function Card({ item }: { item: Item }) {
   return (
     <li className={s.card}>
-      <span className={s.name}>{item.name}</span>
+      <span className={s.name}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className={s.logo} src={item.logo} width={item.logoW ?? LOGO} height={LOGO} alt="" />
+        {item.name}
+      </span>
       <p className={s.body}>{item.body}</p>
       <span className={`${b.chip} ${TONE[item.tone]} ${s.chip}`}>{item.chip}</span>
     </li>
