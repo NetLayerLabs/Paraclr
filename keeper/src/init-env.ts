@@ -1,4 +1,6 @@
 // `npm run keeper:init` — create keeper/.env with FRESH random keys for Monad testnet.
+// `npm run keeper:init -- --network mainnet` — production hot keys into keeper/.env.mainnet
+// (keeper/src/prod/init.ts; never touches keeper/.env).
 //
 // Keys are generated locally and written straight to keeper/.env (gitignored, mode 0600).
 // Only ADDRESSES are printed, so nobody ever has to copy/paste a private key anywhere.
@@ -8,9 +10,14 @@ import { existsSync, writeFileSync } from "node:fs";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { KEEPER_ENV_FILE, parseArgs } from "./env";
 import { MONAD_RPC_URL } from "./network";
+import { initMainnet } from "./prod/init";
 
 function main(): void {
   const args = parseArgs(process.argv.slice(2));
+  if (args.network === "mainnet") return initMainnet(args);
+  if (args.network !== undefined && args.network !== "testnet" && args.network !== "monad") {
+    throw new Error(`--network must be mainnet or testnet (default), got "${String(args.network)}"`);
+  }
   const file = process.env.KEEPER_ENV_FILE || KEEPER_ENV_FILE;
   if (existsSync(file) && !args.force) {
     console.error(`${file} already exists; not touching it (use --force to replace it and LOSE those keys).`);
@@ -55,4 +62,9 @@ FAUCET_COOLDOWN_MS=3600000
   console.log("Next: fund the operator, then `npm run keeper:fund` shows/tops up the others (keeper/README.md).");
 }
 
-main();
+try {
+  main();
+} catch (err) {
+  console.error(`keeper:init failed: ${(err as Error)?.message ?? err}`);
+  process.exit(1);
+}
