@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { connection } from "next/server";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ChainProvider } from "@/components/chain/ChainProvider";
@@ -13,6 +13,16 @@ import { ThemeScript } from "@/components/shell/theme";
 
 export const metadata: Metadata = {
   title: "Trading terminal",
+};
+
+// Browser chrome and the installed app's status bar match the header, which
+// follows the OS theme until the viewer picks one (shell/theme.tsx): --header-bg
+// is #08070d dark, white light. The landing keeps its own (src/app/page.tsx).
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#08070d" },
+  ],
 };
 
 export default async function AppPage() {

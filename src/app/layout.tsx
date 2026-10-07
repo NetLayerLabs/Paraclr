@@ -47,6 +47,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: SITE_TITLE, template: "%s · Paraclr" },
     description,
     applicationName: "Paraclr",
+    // Home-screen install on iOS (the manifest is src/app/manifest.ts; the icon
+    // is src/app/apple-icon.png). "default" rather than "black-translucent":
+    // /app has a light theme with a white header, under which a translucent
+    // bar's white clock would vanish. Next emits only the standard
+    // mobile-web-app-capable, so older iOS also gets the apple- prefixed one.
+    appleWebApp: { capable: true, title: "Paraclr", statusBarStyle: "default" },
+    other: { "apple-mobile-web-app-capable": "yes" },
     openGraph: {
       type: "website",
       siteName: "Paraclr",
