@@ -37,6 +37,122 @@ scripts/dev-chain.ts       `npm run dev:chain`
 scripts/deploy.ts          `npm run deploy:anvil` / `npm run deploy:monad`
 ```
 
+## Production (Monad mainnet)
+
+`--network mainnet` switches every command to the **production** flow. It runs against `ParaclrClearinghouseProd`, real Agora AUSD and the Pyth pull oracle, configured from `keeper/.env.mainnet`. Everything above and below this section is the demo stack (anvil / Monad testnet, the hackathon evidence), and it is unchanged.
+
+Procedures (deploy, launch gate, pause, timelock, key rotation, top-ups, incidents, MON budget) are in [`docs/RUNBOOK.md`](../docs/RUNBOOK.md). Hosting is in [`keeper/HOSTING.md`](HOSTING.md).
+
+| Command | What it does |
+| --- | --- |
+| `npm run keeper:init -- --network mainnet [--rotate role,… \| --force] [--env PATH]` | Generates DEPLOYER, GUARDIAN, OPS and 8 KEEPER keys into `keeper/.env.mainnet` (mode 600) and prints addresses only. Fills only empty keys; a replaced key goes to `.env.mainnet.retired-<time>` |
+| `npm run keeper:fund -- --network mainnet [--send --yes-mainnet --funder-env NAME \| --funder deployer] [--roles …] [--gas-report report.json] [--sweep-retired FILE --to 0x…]` | Previews each role's balance against its target from measured gas (`keeper/src/prod/budget.ts`), then tops them up from a funder you choose |
+| `npm run deploy:mainnet [-- --yes-mainnet]` | Preflight (AUSD, Pyth, feeds, owner Safe or EOA), cost estimate, Pyth refresh, `DeployProd.s.sol`, then on-chain verification of roles, caps, ownership-in-timelock and a powerless deployer |
+| `npm run keeper -- --network mainnet --yes-mainnet` | The production keeper (below) |
+| `npm run guardian:pause -- --network mainnet [--status \| --yes-mainnet]` | Emergency `pause()` from the guardian key |
+| `npm run timelock -- --network mainnet prepare\|status\|seed\|feed-swap …` | Safe Transaction Builder files for timelock operations (schedule, then execute after the delay); the seeding / deficit-repair batch for the treasury Safe (`seed --lanes …`); the dead-feed swap (`feed-swap --market … --feed 0x… --max-deviation-bps 500`, v3) |
+| `npm run pyth:push -- --network mainnet --feeds 0x… [--every 10] [--count N]` | Push the latest Hermes update for given feeds from the OPS key (dead-feed swaps need the new feed's stored price ≤ 15 s old) |
+| `npm run rehearse:mainnet [-- --legs fork,mock,scale --hermes replay\|live --lookback N --scale-accounts N --keep]` | The full rehearsal on an anvil fork of mainnet (:8945), a MockPyth liquidation + deficit leg (:8947) and an oversized-lane chunking leg (:8948). Output: `contracts/cache/rehearsal/<UTC>/report.json` |
+| `npm run pyth:cadence [-- --blocks N --out FILE]` | Read-only: third-party Pyth push cadence and stored-price freshness on Monad mainnet; simulates the interval push policy |
+
+**The confirmation gate.** On chain 143, anything that sends a tx prints the balances and a cost estimate first, then refuses without `--yes-mainnet`. An anvil (fork) needs no confirmation, but it **must** use `DEPLOYMENTS_OUT`: the keeper and the deploy wrapper refuse `deployments/143.json` on anvil.
+
+### What the production keeper runs
+
+All loops share one head poller (`eth_getBlockByNumber` every 200 ms) and decide on **chain time**:
+
+- **Order executor** (`prod/executor.ts`).
+  - **Discovery.** `OrderCommitted`, `OrderExecuted`, `OrderFailed` and `OrderCancelled` logs, in 100-block windows, with a backfill of 2 × `maxExecDelay` on start.
+  - **Waiting.** It waits until chain time reaches `execAfter`, then asks Hermes for the **first** update at or after `execAfter` (`/v2/updates/price/{t}`).
+  - **Local checks** before sending:
+    - the update is the first one (`prevPublishTime < execAfter`, the `parsePriceFeedUpdatesUnique` rule);
+    - `publishTime ≤ deadline`;
+    - confidence ≤ `maxConfBps`.
+  - **Other legs** (`EXEC_OTHER_LEGS`, default `auto`). `append` (contract v3+, detected by `TOP_UP_TARGET_BPS()`): send `[latest for the account's feeds, unique fill update]`; other legs (and, for a reduce-only order in auction, the order market's current price) are priced from it through the monotonic lane path; no push. `push` (v2): only the fill update; the `PricePusher` pushes the stale feeds to Pyth storage first.
+  - **Sending.** It simulates and sends from the **lane's** keeper key, with `msg.value` = `getUpdateFee` (× 2 when appending; 0 on Monad; the excess is refunded).
+  - **Outcomes:**
+    - `OrderNotReady` → retry;
+    - user-side failures resolve on chain as `OrderFailed`, and the executor is still paid;
+    - oracle errors → refetch, alert after 3 failures;
+    - deadline passed → `exec:expired` alert (anyone can `cancelOrder` it);
+    - `LaneInsolvent` → critical `lane:insolvent:<i>`.
+  - **Claims.** Every 10 min each keeper claims its MON execution fees (≥ `CLAIM_MIN_MON`) and AUSD expiry rewards (≥ `CLAIM_MIN_AUSD`).
+- **Funding** (`prod/funding.ts`), from the OPS key.
+  - It sends `updateFunding(market)` only when the rate the contract would set changes by more than `FUNDING_MIN_CHANGE_BPS` (5 %) or crosses zero, or once it is older than `FUNDING_MAX_AGE_S` (1 h), and never before `nextUpdate`.
+  - The keeper's off-chain copy of the formula matched the stored rates in the rehearsal.
+  - Cost: ≈ 1.9 MON/day, against ≈ 38.6 MON/day for an update every 60 s.
+- **Auction sweeper** (`prod/sweeper.ts`).
+  - **Views.** Every ≥ 1 s: one Hermes `latest` for all feeds. Then, per lane, `eth_simulateV1` runs `pyth.updatePriceFeeds(update)` followed by the lane views in one simulated block, so liquidatable and health numbers use **fresh** prices. The contract's views otherwise read the stored Pyth price and revert when it is older than 60 s.
+  - **Chunking (R2-09).** Every batch is split so its gas limit stays ≤ 30M × `KEEPER_BATCH_HEADROOM` (0.8): chunk size from the per-account gas (74k start, 95k take, re-learnt from receipts), each chunk estimated and re-sized from its own estimate if still too big. View calls go in `SWEEPER_SIM_CALLS` (100) per `eth_simulateV1`. Measured on a 600-account lane: 3 start txs (max 22.8M) and 4 take txs (max 23.9M).
+  - **Actions:**
+    - `cancelAuction` for cured accounts (cure line: the contract's `CURE_BUFFER_BPS`, 110 % of maintenance in v2, else 100 %; override `SWEEPER_CURE_BPS`; never in the start block);
+    - `startAuctions` for newly liquidatable accounts;
+    - `backstopTakeBatch` once the discount reaches the pool minimum, and only when a simulation says the pool takes at least one account;
+    - `expireBatch` at the maximum discount.
+
+    Every tx carries the fresh update and is simulated first.
+  - **No block overrides.** Monad's RPC rejects `eth_call` blockOverrides, so decisions use block N's discount.
+  - **Production only:** no demo takers and no naive design.
+- **Pyth push** (`prod/pricepush.ts`, `PYTH_PUSH_MODE`). Contract v2 expires stored and lane prices after 15 s. `on-demand` (default): push only the stale feeds right before an execution that needs them (≈ 0.5–0.7 MON/day); `interval`: keep every feed ≤ 12 s old while anything is open (≈ 83–102 MON/day measured); `off`. Cost analysis in the runbook (8b); `npm run pyth:cadence` measures the third-party push cadence (read-only).
+- **Monitor** (`prod/monitor.ts`) checks:
+  - hot-key balances;
+  - Hermes price age and confidence, and the age of the price **stored** in Pyth;
+  - `paused()` changes;
+  - **per-lane** `laneSolvency(lane).surplus < 0` (`solvency:lane<i>`), token-level `solvency()` and `nativeSolvency()`;
+  - risk events from the per-head log scan: `LaneHaircut`, `BackstopLossAbsorbed`, `BackstopPoolReset`, `AccountSkipped`, and on v3 `BackstopRepaid` and `MarketFeedReplaced` (the keeper switches the market's feed live);
+  - lane TVL and OI cap utilisation;
+  - `owner()` still the timelock;
+  - head liveness.
+
+  Optional `AUTO_PAUSE_ON_INSOLVENCY=1`, which needs the guardian key on the host.
+- **Hermes client** (`prod/hermes.ts`).
+  - Sends `Authorization: Bearer $PYTH_API_KEY`: Hermes answers **401 without a key since 2026-08-26**.
+  - A 401 or 403 means a critical `hermes:auth` alert and is not retried. At startup the keeper **refuses to run** without a key, or when the key is rejected.
+  - Transient errors (network, 5xx, 429): exponential backoff with jitter, then the `PYTH_HERMES_FALLBACK_URLS` endpoints, then a global circuit breaker (0.5 → 15 s).
+  - `hermes:down` fires after 30 s without an answer and resolves on recovery.
+  - Every blob is parsed locally (`prod/pyth-wire.ts`, the PNAU format) before use.
+- **Alerts** (`prod/alerts.ts`) go to `ALERT_WEBHOOK_URL` as a Discord- and Slack-compatible JSON body (`content`, `text`, `alert`).
+  - An alert fires once when it becomes active, repeats at most every `ALERT_REPEAT_MS`, and sends one "resolved".
+  - The catalogue is in the runbook.
+
+### Production HTTP API
+
+| Method + path | Response |
+| --- | --- |
+| `GET /health` | `{ chainId, mode: "monad-mainnet", network: "monad-mainnet" \| "anvil", fork, production: true, block, chainTime, paused, priceSource: "pyth", prices, pricesUpdatedAt, storedPriceAgeS, pricePush, laneSolvency, oracle: { pyth, feeds, maxConfBps, maxPriceAge, prices: { [m]: { price, confBps, publishTime, ageS } }, hermes }, caps: { maxLeverage, maxDepositPerAccount, maxTvlPerLane, laneTvl[8], tvlUtilisationPct[8], laneOiCap, oiUtilisationPct }, solvency, nativeSolvency, addresses, owner, markets, hotKeys: [{ role, address, mon, low }], params, executor, funding, sweeper, alerts, txs, … }`. Demo fields (`crashed`, `faucet`, `priceLoop`, `demoTakers`) are present but null or false |
+| `GET /livez` | 200 while blocks advance (≤ 60 s), else 503: for platform restarts |
+| `GET /orders[?account=0x…]`, `GET /orders/:id` | tracked orders: `{ id, account, lane, market, sizeDelta, execAfter, deadline, state, fillPrice, failReason, txHash, latencyS, … }` |
+| `GET /solvency`, `GET /backstop[?lp=0x…]` | same shapes as the demo, plus `native`, and per lane `nativeEscrow` / `nativeOwed` and the v2 lane solvency (`held`, `claims`, `surplus`, `haircutBps`, `solvent`) |
+| `GET /alerts`, `GET /txs` | active alerts and recent events; the last 100 keeper txs with gas per kind (limit and used) |
+| `GET /hermes/v2/updates/price/latest?ids[]=…`, `/hermes/v2/updates/price/{t}?ids[]=…` | Hermes-compatible proxy for the app (only this deployment's feeds; cached 1 s; 5 req/s per IP). Point `NEXT_PUBLIC_PYTH_HERMES_URL` here, so the key never reaches browsers and withdrawals can carry a fresh update |
+| `POST /faucet`, `/crash`, `/recover`, `/price-loop`, `/demo-takers`, `GET /runs…` | **403**: these do not exist in production |
+
+### Production files
+
+```
+keeper/src/prod/main.ts        production keeper entry (`npm run keeper -- --network mainnet`); cli.ts = container entry
+keeper/src/prod/config.ts      env file, chain-143 gate, --yes-mainnet gate, hot-key roles
+keeper/src/prod/deployment.ts  deployments/143.json (or DEPLOYMENTS_OUT) reader, verified on chain
+keeper/src/prod/context.ts     config, on-chain params, Pyth fee
+keeper/src/prod/head.ts        shared head poller (chain time)
+keeper/src/prod/executor.ts    delayed-order executor + fee claims
+keeper/src/prod/funding.ts     change-triggered funding updates
+keeper/src/prod/sweeper.ts     auctions with fresh Pyth updates (eth_simulateV1 views), gas-chunked batches
+keeper/src/prod/pricepush.ts   Pyth storage pushes (on-demand / interval)
+keeper/src/prod/monitor.ts     monitoring → alerts
+keeper/src/prod/alerts.ts      webhook alerting
+keeper/src/prod/hermes.ts      Hermes client (key, backoff, fallbacks, circuit breaker)
+keeper/src/prod/pyth-wire.ts   PNAU parser / subsetting
+keeper/src/prod/tx.ts          simulate → send → track, revert decoding, gas ledger
+keeper/src/prod/server.ts      production HTTP API + Hermes proxy
+keeper/src/prod/budget.ts      measured gas → MON targets
+keeper/src/prod/init.ts / fund.ts / guardian.ts / timelock.ts / push-cli.ts   the CLIs above
+bench/pyth-cadence.ts          `npm run pyth:cadence` (read-only third-party push cadence)
+scripts/deploy-mainnet.ts, scripts/lib/prod-deploy.ts            deploy:mainnet
+scripts/rehearse-mainnet.ts, scripts/lib/rehearsal.ts, scripts/lib/pyth-replay.ts   rehearse:mainnet
+keeper/Dockerfile (+ .dockerignore files), keeper/HOSTING.md
+```
+
 ## Local (anvil): zero config
 
 ```bash
