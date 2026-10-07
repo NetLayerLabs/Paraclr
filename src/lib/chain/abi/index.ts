@@ -5,3 +5,4 @@ export { naiveClearinghouseDemoAbi } from "./NaiveClearinghouseDemo";
 export { mockAUSDAbi } from "./MockAUSD";
 export { mockOracleAbi } from "./MockOracle";
 export { chainlinkStreamsOracleAbi } from "./ChainlinkStreamsOracle";
+export { paraclrClearinghouseProdAbi } from "./ParaclrClearinghouseProd";

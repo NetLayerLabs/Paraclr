@@ -12,6 +12,7 @@ const CONTRACTS = [
   "MockAUSD",
   "MockOracle",
   "ChainlinkStreamsOracle",
+  "ParaclrClearinghouseProd", // production (Monad mainnet guarded beta): contracts/src/prod/
 ];
 const outDir = "src/lib/chain/abi";
 mkdirSync(outDir, { recursive: true });
