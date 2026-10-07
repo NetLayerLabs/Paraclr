@@ -13,11 +13,17 @@
     "dev:chain": "tsx scripts/dev-chain.ts",
     "deploy:anvil": "tsx scripts/deploy.ts --network anvil",
     "deploy:monad": "tsx scripts/deploy.ts --network monad",
+    "deploy:mainnet": "tsx scripts/deploy-mainnet.ts --network mainnet",
     "keeper": "tsx keeper/src/index.ts",
     "keeper:init": "tsx keeper/src/init-env.ts",
     "keeper:fund": "tsx keeper/src/fund-roles.ts",
+    "guardian:pause": "tsx keeper/src/prod/guardian.ts",
+    "timelock": "tsx keeper/src/prod/timelock.ts",
+    "pyth:push": "tsx keeper/src/prod/push-cli.ts",
     "bench": "tsx bench/run.ts",
-    "xray": "tsx bench/xray.ts"
+    "xray": "tsx bench/xray.ts",
+    "pyth:cadence": "tsx bench/pyth-cadence.ts",
+    "rehearse:mainnet": "tsx scripts/rehearse-mainnet.ts"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.45.0",
