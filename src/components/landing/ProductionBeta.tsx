@@ -9,6 +9,7 @@ import { AUDIT_STATUS, BETA_LABEL, RISK_ANCHORS, RISK_PATH, TERMS_PATH } from ".
 import { fmtDuration, fmtInt, fmtNum, fmtSmall, shortHash } from "./format";
 import b from "./brand/Brand.module.css";
 import s from "./Beta.module.css";
+import { NoticeClose } from "@/components/prod/NoticeClose";
 
 const SET_AT_LAUNCH = "set at launch";
 
@@ -28,7 +29,12 @@ export function StatusBar({
   testnetDeployed: boolean;
 }) {
   return (
-    <div className={`${b.dark} ${s.bar}`} role="note" aria-label="Deployment status">
+    <div
+      className={`${b.dark} ${s.bar}`}
+      role="note"
+      aria-label="Deployment status"
+      data-notice={!status.live && testnet.live ? "testnet" : undefined}
+    >
       <div className={`${b.container} ${s.barInner}`}>
         {!status.live && testnet.live ? (
           <>
@@ -46,6 +52,7 @@ export function StatusBar({
                 Contracts <ArrowRight className={s.barIcon} />
               </a>
               <Link href={RISK_PATH}>Risks</Link>
+              <NoticeClose className={s.barClose} />
             </span>
           </>
         ) : status.live ? (
@@ -341,7 +348,7 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
                 <Link className={b.link} href="/app">
                   Open the app
                 </Link>{" "}
-                to trade it with a passkey or a labelled demo wallet.{" "}
+                to trade it: sign in with a passkey, email, a social account or your own wallet.{" "}
               </>
             ) : null}
             Nothing here is on Monad mainnet yet.

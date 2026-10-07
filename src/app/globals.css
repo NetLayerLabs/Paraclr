@@ -187,3 +187,8 @@ button {
   scrollbar-width: thin;
   scrollbar-color: var(--scroll-thumb) transparent;
 }
+
+/* A testnet notice the viewer closed (components/prod/notice.tsx). */
+html[data-notice-closed="testnet"] [data-notice="testnet"] {
+  display: none !important;
+}

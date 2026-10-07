@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { NoticeScript } from "@/components/prod/notice";
 import { Geist, Geist_Mono } from "next/font/google";
 import { loadProductionStatus, loadTestnetProductionStatus } from "@/components/landing/production.server";
 import "./globals.css";
@@ -81,7 +82,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   // suppressHydrationWarning: /app sets data-theme on <html> before hydration (shell/theme.tsx).
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        {/* Hides a closed testnet notice before the first paint (components/prod/notice.tsx). */}
+        <NoticeScript />
+        {children}
+      </body>
     </html>
   );
 }

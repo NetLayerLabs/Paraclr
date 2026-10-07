@@ -21,6 +21,7 @@ import {
   RISK_PATH,
   TERMS_PATH,
 } from "@/components/landing/disclosures";
+import { NoticeClose } from "./NoticeClose";
 import styles from "./Prod.module.css";
 
 /** True when the app runs against the production contracts (or a production mode, even before connecting). */
@@ -39,7 +40,7 @@ export function BetaBanner() {
   if (!on) return null;
   if (NETWORK?.isTestnetProd) {
     return (
-      <div className={styles.beta} data-tone="testnet" role="note" aria-label="Testnet notice">
+      <div className={styles.beta} data-tone="testnet" data-notice="testnet" role="note" aria-label="Testnet notice">
         <i className={styles.bannerDot} aria-hidden />
         <span className={styles.bannerText}>
           <b>{NETWORK.sandbox ? `${NETWORK.label} · test funds, no real value` : TESTNET_FUNDS_LABEL}</b> · production
@@ -53,6 +54,7 @@ export function BetaBanner() {
             Risks
           </Link>
         </span>
+        <NoticeClose className={styles.bannerClose} />
       </div>
     );
   }

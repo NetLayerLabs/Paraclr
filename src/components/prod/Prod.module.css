@@ -75,6 +75,30 @@
   text-decoration-color: currentColor;
 }
 
+.bannerClose {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: -6px;
+  border-radius: var(--radius-pill);
+  color: var(--text-2);
+  transition:
+    color var(--dur-1),
+    background var(--dur-1);
+}
+
+.bannerClose:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.bannerClose:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
 /* ---- risk acknowledgement modal ------------------------------------------- */
 
 .overlay {
