@@ -8,7 +8,23 @@ optimizer = true
 optimizer_runs = 200
 via_ir = false
 # Deploy.s.sol writes ../deployments/<chainId>.json (read by the keeper and the frontend).
-fs_permissions = [{ access = "read-write", path = "../deployments" }]
+# DeployProd.s.sol writes ../deployments/143.json, or DEPLOYMENTS_OUT (rehearsals) under ./cache.
+fs_permissions = [
+  { access = "read-write", path = "../deployments" },
+  { access = "read-write", path = "./cache" },
+  { access = "read", path = "./test/prod/fixtures" },
+]
+# Vendored plain-file libraries (production set, src/prod/): see lib/*/VENDORED.md.
+remappings = [
+  "forge-std/=lib/forge-std/src/",
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "@pythnetwork/pyth-sdk-solidity/=lib/pyth-sdk-solidity/",
+]
+# Monad mainnet allows 128 KB of runtime code (docs.monad.xyz/developer-essentials/differences).
+# ParaclrClearinghouseProd is larger than EIP-170's 24,576 B, so tests use Monad's limit. Local
+# anvil must match: `anvil --code-size-limit 131072` (incl. mainnet-fork rehearsals). The demo
+# contracts stay under 24,576 B and deploy on stock anvil.
+code_size_limit = 131072
 
 [fuzz]
 runs = 1024
