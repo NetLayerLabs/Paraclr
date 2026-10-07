@@ -161,6 +161,37 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
       return "Refund of excess MON failed.";
     case "Paused":
       return "Paused by the guardian.";
+    // ---- v2–v4 review fixes ----
+    case "PositionChanged":
+      return "Not filled: your position changed after you placed the order (it was taken, closed or replaced). Nothing was traded.";
+    case "LaneInDeficit": {
+      const lane = typeof a[0] === "number" || typeof a[0] === "bigint" ? `Lane ${Number(a[0]) + 1}` : "This lane";
+      return `${lane} has bad debt, so new deposits into it are refused until it is repaid. Top-ups to open positions still work.`;
+    }
+    case "LaneInsolvent":
+      return "This lane can't pay that out right now (it holds less than requested). Try a smaller amount.";
+    case "WithdrawNotReady":
+      return `Your pool withdrawal isn't ready yet — it opens at ${typeof a[0] === "bigint" ? new Date(Number(a[0]) * 1000).toLocaleTimeString() : "the end of the waiting period"}.`;
+    case "WithdrawRequestExpired":
+      return "Your pool withdrawal request expired (its window has passed). Request again.";
+    case "NoWithdrawRequest":
+      return "Request the withdrawal first: pool exits are two steps (request, wait, then withdraw within the window).";
+    case "DepositTooSmall":
+      return `Your first deposit must be at least ${fmtAusd(a[1])}.`;
+    case "BackstopReceivableOutstanding":
+      return `Pool deposits are paused: the lane owes this pool ${fmtAusd(a[1])} (it lent cash to cover losses), so a deposit can't be priced fairly yet.`;
+    case "BackstopGainCapBinding":
+      return "Pool deposits are paused: the pool's unrealised gain is above the lane's insurance, so its NAV is capped and a deposit can't be priced fairly yet.";
+    case "CollateralAboveCap":
+      return "Your collateral is above the beta cap. Withdraw down to the cap before adding margin.";
+    case "BackstopPositionsOpen":
+      return "The pool still holds positions; the keeper unwinds them shortly, so retry your exit.";
+    case "MarginAboveNotional":
+      return "Margin can't exceed the position's notional (leverage must be at least 1x).";
+    case "MarginRequired":
+      return "A new position needs margin.";
+    case "MarketHasOpenInterest":
+      return "This market has open interest, so its feed can't be changed.";
     case "InsufficientFee":
       return "Not enough MON sent for the Pyth price update fee.";
     case "PriceFeedNotFound":
