@@ -12,8 +12,11 @@ import { useAuthContext } from "@/components/auth/AuthContext";
 import { PrivyWalletBridge } from "@/components/auth/PrivyAuth";
 import { ChainSync } from "@/components/chain/ChainSync";
 import { ChainStatusStrip } from "@/components/chain/ChainUi";
+import { BetaBanner, MainnetUnavailable, PausedBanner, RiskAckModal } from "@/components/prod/ProdChrome";
+import { MAINNET_MODE } from "@/lib/chain/config";
 import type { RecordedXray } from "@/lib/chain/xray.server";
 import { AppHeader, TABS, type Tab } from "./AppHeader";
+import { ThemeSync } from "./theme";
 import styles from "./AppShell.module.css";
 
 /**
@@ -22,22 +25,35 @@ import styles from "./AppShell.module.css";
  */
 export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray | null }) {
   const session = useParaclr((s) => s.session);
+  const chainStatus = useParaclr((s) => s.chain.status);
   const [tab, setTab] = useState<Tab>("trade");
   const { privyEnabled } = useAuthContext();
+  // Mainnet never falls back to the simulation: a blocking screen says why.
+  const mainnetDown = MAINNET_MODE && chainStatus !== "ready";
 
   return (
     <div className={styles.app}>
+      <ThemeSync />
       <PriceFeedProvider />
       <ChainSync />
       {privyEnabled && <PrivyWalletBridge />}
-      {!session ? (
+      <RiskAckModal />
+      {mainnetDown ? (
         <>
+          <BetaBanner />
+          <MainnetUnavailable />
+        </>
+      ) : !session ? (
+        <>
+          <BetaBanner />
           <ChainStatusStrip />
           <LoginScreen />
         </>
       ) : (
         <>
           <AppHeader tab={tab} onTab={setTab} />
+          <BetaBanner />
+          <PausedBanner />
           <ChainStatusStrip />
           {/* Screens stay mounted so a clearing run survives a tab switch. */}
           <main className={styles.screen} data-tab="trade" hidden={tab !== "trade"}>

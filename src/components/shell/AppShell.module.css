@@ -1,15 +1,31 @@
 /* App shell: a full-viewport responsive web app — no device frame at any size.
    Phone (<640): slim top bar + scrolling screen + bottom tab bar.
    Tablet (640–1023) and desktop (>=1024): header with primary nav; screens
-   lay themselves out (the trade screen is a CSS-grid terminal on desktop). */
+   lay themselves out (the trade screen is a CSS-grid terminal on desktop).
+   Brand: docs/DESIGN.md §10 (dark-first terminal, light option). */
 
 .app {
+  /* Sora is scoped to /app by src/app/app/page.tsx (displayFont.variable). */
+  --font-display: var(--font-pc-display, "Sora"), ui-sans-serif, system-ui, sans-serif;
+
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100dvh;
   min-height: 0;
   background: var(--bg);
+  color: var(--text);
+}
+
+.app ::selection {
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+/* One visible focus treatment for every control in the app (text inputs show
+   focus on their wrapper instead: accent border + soft ring). */
+.app :where(a, button, summary, [tabindex], input[type="checkbox"]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* ---- header ------------------------------------------------------------- */
@@ -20,47 +36,51 @@
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   height: calc(var(--header-h-phone) + env(safe-area-inset-top));
-  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
+  padding: env(safe-area-inset-top) max(10px, env(safe-area-inset-right)) 0 max(6px, env(safe-area-inset-left));
   border-bottom: 1px solid var(--border);
-  background: var(--bg-elev);
+  background: var(--header-bg);
 }
 
 .brand {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .home {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 30px;
-  padding: 0 6px;
-  border-radius: 8px;
-  font-size: 12.5px;
-  font-weight: 500;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 550;
   color: var(--text-dim);
   transition:
-    color 0.15s,
-    background 0.15s;
+    color var(--dur-1),
+    background var(--dur-1),
+    border-color var(--dur-1);
 }
 
 .home:hover {
   color: var(--text);
-  background: var(--bg-elev-2);
+  background: var(--bg-hover);
 }
 
-.home:focus-visible,
-.navBtn:focus-visible,
-.navActive:focus-visible,
-.chip:focus-visible,
-.signOut:focus-visible {
-  outline: 2px solid var(--accent);
+.app .home:focus-visible,
+.app .navBtn:focus-visible,
+.app .navActive:focus-visible,
+.app .chip:focus-visible,
+.app .signOut:focus-visible,
+.app .themeBtn:focus-visible {
   outline-offset: 2px;
+  border-radius: var(--radius-pill);
 }
 
 /* Phone: arrow only. */
@@ -68,18 +88,27 @@
   display: none;
 }
 
+/* Mark + "Paraclr" in the display face (docs/DESIGN.md, Logo). */
 .wordmark {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
 }
 
-.wordmark span {
-  background: linear-gradient(120deg, var(--accent), #c1b6ff 60%, var(--ausd));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.mark {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+.word {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  color: var(--text);
 }
 
 .nav {
@@ -92,20 +121,48 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+}
+
+/* The status trust strip: solvency · network · keeper in one bordered pill,
+   divided by hairlines, like the landing hero's trust row. Each badge states
+   a fact and follows the chain; none is decoration. */
+.trust {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 32px;
+  padding: 0 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-1);
+}
+
+.slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.slot:empty {
+  display: none;
+}
+
+.slot:not(:empty) ~ .slot:not(:empty)::before {
+  content: "";
+  flex: none;
+  width: 1px;
+  height: 14px;
+  margin: 0 1px;
+  background: var(--border-strong);
 }
 
 .account {
   display: none;
 }
 
-.netSlot,
-.keeperSlot,
-.solvencySlot {
-  display: contents;
-}
-
-/* Phone: keep the network pill readable, drop the block number and the
+/* Phone: keep the network badge readable, drop the block number and the
    keeper label (its dot stays, with a tooltip). */
 .netSlot [data-part="block"],
 .keeperSlot [data-part="label"] {
@@ -113,22 +170,20 @@
 }
 
 .keeperSlot [data-part="keeper"] {
-  width: 30px;
+  width: 28px;
   padding: 0;
   justify-content: center;
 }
 
-/* Phone: the network pill uses its short label ("Anvil · not Monad") and the
+/* Phone: the network badge uses its short label ("Anvil · not Monad") and the
    solvency badge shrinks to its shield, so brand + 3 status items fit. */
 .netSlot [data-part="net-short"] {
   display: none;
 }
 
-@media (max-width: 639px) {
-  .status {
-    gap: 6px;
-  }
-
+/* Below 1280 the network badge uses its short label ("Anvil · not Monad"):
+   still the full warning, in fewer characters. */
+@media (max-width: 1279px) {
   .netSlot [data-part="net-full"] {
     display: none;
   }
@@ -136,11 +191,43 @@
   .netSlot [data-part="net-short"] {
     display: inline;
   }
+}
 
+@media (max-width: 639px) {
   .netSlot [data-net] {
-    padding: 0 10px;
+    padding: 0 9px;
     gap: 6px;
   }
+}
+
+/* Very narrow phones: the mark carries the brand alone. */
+@media (max-width: 379px) {
+  .word {
+    display: none;
+  }
+}
+
+/* ---- theme toggle -------------------------------------------------------- */
+
+.themeBtn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--text-2);
+  transition:
+    color var(--dur-1),
+    border-color var(--dur-1),
+    background var(--dur-1);
+}
+
+.themeBtn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
 }
 
 /* ---- wallet chip + sign out (tablet and up) ----------------------------- */
@@ -150,20 +237,20 @@
   align-items: center;
   gap: 9px;
   height: 34px;
-  padding: 0 12px 0 5px;
-  border-radius: 999px;
+  padding: 0 13px 0 4px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--border);
-  background: var(--bg-elev-2);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-1);
   font-size: 12.5px;
   white-space: nowrap;
   transition:
-    border-color 0.15s,
-    background 0.15s;
+    border-color var(--dur-1),
+    background var(--dur-1);
 }
 
 .chip:hover {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-  background: var(--bg-hover);
+  border-color: var(--accent-line);
 }
 
 .avatar {
@@ -171,7 +258,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1.5px rgba(7, 6, 12, 0.35);
+  box-shadow: inset 0 0 0 1.5px rgba(8, 7, 13, 0.3);
 }
 
 .chipAddr {
@@ -182,7 +269,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: 5px;
-  padding-left: 9px;
+  padding-left: 10px;
   border-left: 1px solid var(--border);
   color: var(--text);
   font-weight: 600;
@@ -196,30 +283,31 @@
 }
 
 .chipLabel {
+  font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   font-size: 9.5px;
 }
 
 .signOut {
   height: 34px;
   padding: 0 12px;
-  border-radius: 999px;
-  font-size: 12.5px;
-  font-weight: 500;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 550;
   color: var(--text-dim);
   border: 1px solid transparent;
   white-space: nowrap;
   transition:
-    color 0.15s,
-    border-color 0.15s,
-    background 0.15s;
+    color var(--dur-1),
+    border-color var(--dur-1),
+    background var(--dur-1);
 }
 
 .signOut:hover:not(:disabled) {
-  color: var(--short);
-  border-color: color-mix(in srgb, var(--short) 35%, transparent);
-  background: color-mix(in srgb, var(--short) 7%, transparent);
+  color: var(--short-text);
+  border-color: var(--short-line);
+  background: var(--short-soft);
 }
 
 /* ---- screens ------------------------------------------------------------ */
@@ -245,97 +333,136 @@
   height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   border-top: 1px solid var(--border);
-  background: var(--bg-elev);
+  background: var(--header-bg);
 }
 
 .tab,
 .tabActive {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 4px;
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 550;
   color: var(--text-dim);
   -webkit-tap-highlight-color: transparent;
 }
 
 .tabActive {
-  color: var(--accent);
+  color: var(--text);
+}
+
+.tabActive svg {
+  color: var(--accent-text);
+}
+
+/* Selected tab: a short accent lane along the top edge. */
+.tabActive::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 28px;
+  height: 2px;
+  margin-left: -14px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent);
 }
 
 /* ---- tablet and up: header nav ----------------------------------------- */
 
 @media (min-width: 640px) {
   .header {
-    gap: 14px;
+    gap: 12px;
     height: calc(var(--header-h) + env(safe-area-inset-top));
     padding-left: max(12px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
   }
 
   .brand {
-    gap: 8px;
+    gap: 4px;
   }
 
-  .wordmark {
-    font-size: 22px;
+  .mark {
+    width: 26px;
+    height: 26px;
   }
 
+  .word {
+    font-size: 19px;
+  }
+
+  /* Primary nav: a segmented pill group; the current tab is the inverse pill. */
   .nav {
     display: flex;
-    align-self: stretch;
+    align-items: center;
     gap: 2px;
-    margin-left: 6px;
+    margin-left: 4px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-1);
   }
 
   .navBtn,
   .navActive {
-    position: relative;
+    height: 30px;
     padding: 0 12px;
+    border-radius: var(--radius-pill);
     font-size: 13.5px;
     font-weight: 550;
+    letter-spacing: -0.005em;
     color: var(--text-dim);
-    transition: color 0.15s;
+    transition:
+      color var(--dur-1),
+      background var(--dur-1);
   }
 
   .navBtn:hover {
     color: var(--text);
+    background: var(--bg-hover);
   }
 
   .navActive {
-    color: var(--text);
-  }
-
-  .navActive::after {
-    content: "";
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: -1px;
-    height: 2px;
-    border-radius: 2px 2px 0 0;
-    background: var(--accent);
-    box-shadow: 0 0 12px var(--accent);
+    color: var(--bg-elev);
+    background: var(--text);
+    font-weight: 600;
   }
 
   .account {
     flex: none;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
   }
 
-  /* Tablet: compact chip (address only); keeper pill hidden — the banner and
-     clearing screen still report it. */
-  .chipEquity {
+  /* Tablet: avatar-only chip, sign out on the Wallet screen; keeper badge
+     hidden — the banner and clearing screen still report it. */
+  .chipEquity,
+  .chipAddr,
+  .account .signOut {
     display: none;
+  }
+
+  .chip {
+    padding: 0 4px;
   }
 
   .keeperSlot {
     display: none;
+  }
+
+  .trust {
+    height: 34px;
+  }
+
+  .themeBtn {
+    width: 34px;
+    height: 34px;
   }
 
   .tabbar {
@@ -347,26 +474,23 @@
   }
 }
 
-/* Small tablets: avatar-only chip; sign out moves to the Wallet screen. */
+/* Small tablets: tighter nav. */
 @media (min-width: 640px) and (max-width: 767px) {
   .header {
-    gap: 10px;
+    gap: 8px;
   }
 
   .navBtn,
   .navActive {
     padding: 0 9px;
+    font-size: 13px;
   }
+}
 
-  .chip {
-    padding: 0 5px;
-  }
-
-  .chipAddr {
-    display: none;
-  }
-
-  .account .signOut {
+/* Tablets and small desktops: the mark carries the brand so nav + status +
+   account fit one line. */
+@media (min-width: 640px) and (max-width: 1279px) {
+  .word {
     display: none;
   }
 }
@@ -375,28 +499,33 @@
 
 @media (min-width: 1024px) {
   .header {
-    padding-left: max(10px, env(safe-area-inset-left));
-  }
-
-  .homeText {
-    display: inline;
+    padding-left: max(12px, env(safe-area-inset-left));
   }
 
   .home {
-    padding: 0 10px 0 6px;
+    margin-right: 4px;
     border: 1px solid var(--border);
   }
 
-  .netSlot [data-part="block"] {
-    display: inline;
+  .home:hover {
+    border-color: var(--border-strong);
   }
 
   .keeperSlot {
-    display: contents;
+    display: flex;
   }
 
-  .chipEquity {
+  .chipAddr {
+    display: inline;
+  }
+
+  .account .signOut {
     display: inline-flex;
+    align-items: center;
+  }
+
+  .chip {
+    padding: 0 13px 0 4px;
   }
 
   .screen {
@@ -408,24 +537,41 @@
   }
 }
 
-/* 1024–1279: keeper as a dot (label in the tooltip) so the bar fits. */
-@media (min-width: 1024px) and (max-width: 1279px) {
-  .homeText {
-    display: none;
-  }
-
-  .home {
-    padding: 0 6px;
-  }
-}
-
+/* >=1280: block number and keeper label (below, a dot with a tooltip). */
 @media (min-width: 1280px) {
+  .netSlot [data-part="block"] {
+    display: inline;
+  }
+
   .keeperSlot [data-part="keeper"] {
     width: auto;
-    padding: 0 11px;
+    padding: 0 10px;
   }
 
   .keeperSlot [data-part="label"] {
     display: inline;
+  }
+}
+
+/* >=1440: everything — "Home" text and equity in the wallet chip. */
+@media (min-width: 1440px) {
+  .homeText {
+    display: inline;
+  }
+
+  .home {
+    padding: 0 12px 0 10px;
+  }
+
+  .chipEquity {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app *,
+  .app *::before,
+  .app *::after {
+    transition-duration: 0.01ms !important;
   }
 }

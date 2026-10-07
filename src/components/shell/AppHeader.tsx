@@ -1,16 +1,20 @@
 "use client";
 
-// Top bar of the signed-in app. Desktop/tablet: brand, primary nav, network +
-// keeper status, wallet chip, sign out. Phone: brand + network status only
-// (navigation is the bottom tab bar there).
+// Top bar of the signed-in app. Desktop/tablet: brand, primary nav (pills),
+// solvency / network / keeper status as one trust strip, theme toggle, wallet
+// chip, sign out. Phone: brand + status + theme toggle (navigation is the
+// bottom tab bar there).
 
 import Link from "next/link";
 import { signOut, unrealizedPnl, useParaclr } from "@/lib/store";
 import { shortAddress } from "@/lib/auth/demo";
+import { NETWORK } from "@/lib/chain/config";
 import { KeeperPill, NetworkPill } from "@/components/chain/ChainUi";
 import { useAuthContext } from "@/components/auth/AuthContext";
 import { PrivySignOutButton } from "@/components/auth/PrivyAuth";
 import { SolvencyBadge } from "@/components/solvency/SolvencyBadge";
+import { Mark } from "@/components/landing/brand/Logo";
+import { ThemeToggle } from "./theme";
 import styles from "./AppShell.module.css";
 
 export type Tab = "trade" | "clear" | "backstop" | "wallet";
@@ -27,18 +31,20 @@ const fmtAusd = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits
 export function BackHome({ className }: { className?: string }) {
   return (
     <Link href="/" className={className ?? styles.home} title="Back to home" aria-label="Back to home">
-      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
-        <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden>
+        <path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <span className={styles.homeText}>Home</span>
     </Link>
   );
 }
 
+/** The brand mark (8 lanes round one corner) + "Paraclr" in the display face. */
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={className ?? styles.wordmark}>
-      para<span>clr</span>
+      <Mark className={styles.mark} />
+      <span className={styles.word}>Paraclr</span>
     </span>
   );
 }
@@ -66,7 +72,14 @@ function WalletChip({ onOpen }: { onOpen: () => void }) {
   const equity = useEquity();
   if (!session) return null;
   const hue = Number.parseInt(session.address.slice(2, 8), 16) % 360 || 0;
-  const kind = session.method === "passkey" ? "Passkey wallet" : chainLive ? "Demo burner wallet" : "Demo account";
+  const kind =
+    session.method === "passkey"
+      ? "Passkey wallet"
+      : chainLive
+        ? NETWORK?.isMainnet
+          ? "Rehearsal burner wallet (local fork)"
+          : "Demo burner wallet"
+        : "Demo account";
   return (
     <button
       type="button"
@@ -119,16 +132,20 @@ export function AppHeader({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void })
       </nav>
 
       <div className={styles.status}>
-        <span className={styles.solvencySlot}>
-          <SolvencyBadge />
-        </span>
-        <span className={styles.netSlot}>
-          <NetworkPill />
-        </span>
-        <span className={styles.keeperSlot}>
-          <KeeperPill />
-        </span>
+        <div className={styles.trust} role="group" aria-label="Status">
+          <span className={`${styles.slot} ${styles.solvencySlot}`}>
+            <SolvencyBadge />
+          </span>
+          <span className={`${styles.slot} ${styles.netSlot}`}>
+            <NetworkPill />
+          </span>
+          <span className={`${styles.slot} ${styles.keeperSlot}`}>
+            <KeeperPill />
+          </span>
+        </div>
       </div>
+
+      <ThemeToggle className={styles.themeBtn} />
 
       <div className={styles.account}>
         <WalletChip onOpen={() => onTab("wallet")} />
