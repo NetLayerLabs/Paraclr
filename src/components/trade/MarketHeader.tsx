@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { MARKETS, type MarketSymbol } from "@/lib/types";
-import { selectMarket, useParaclr } from "@/lib/store";
+import { selectMarket, useListedMarkets, useParaclr } from "@/lib/store";
 import { useMarketFeed } from "@/lib/prices/feedStore";
 import { MARKET_META } from "@/lib/prices/markets";
 import { NETWORK } from "@/lib/chain/config";
@@ -30,6 +30,22 @@ function MarketPill({ symbol, active }: { symbol: MarketSymbol; active: boolean 
       {chg != null && (
         <span className={`mono ${chg >= 0 ? styles.up : styles.down}`}>{fmtPct(chg)}</span>
       )}
+    </button>
+  );
+}
+
+/** A market this deployment doesn't list: visible (so its absence is explained), never selectable or read. */
+function UnlistedPill({ symbol }: { symbol: MarketSymbol }) {
+  const meta = MARKET_META[symbol];
+  return (
+    <button
+      type="button"
+      className={`${styles.pill} ${styles.pillOff}`}
+      disabled
+      title={`${symbol} isn't listed on this deployment — no orders, prices or reads for it.`}
+    >
+      <span className={styles.pillBase}>{meta.base}</span>
+      <span className={styles.pillNote}>not listed</span>
     </button>
   );
 }
@@ -104,6 +120,8 @@ function OracleBadge({ symbol }: { symbol: MarketSymbol }) {
  */
 function PythBadge({ symbol }: { symbol: MarketSymbol }) {
   const feed = useMarketFeed(symbol);
+  // Testnet after the Pyth data trial: the clearinghouse reads a keeper-signed oracle instead.
+  const keeperSigned = useParaclr((s) => s.chain.contracts?.oracleKind === "keeper-signed");
   const mode = useSyncExternalStore(subscribePythFeedMode, getPythFeedMode, () => "connecting" as const);
   const [now, setNow] = useState(0);
 
@@ -119,16 +137,28 @@ function PythBadge({ symbol }: { symbol: MarketSymbol }) {
     <div
       className={`${styles.badge} ${styles.badgeOracle}`}
       title={
-        mode === "onchain"
+        keeperSigned
+          ? "Simulated after the Pyth data trial: prices signed by the Paraclr keeper and checked by a testnet-only oracle contract, not attested by Pyth. Test funds, no real value."
+          : (NETWORK?.isTestnetProd
+          ? `Real Pyth prices on ${NETWORK.label} (test funds, no real value). `
+          : "") +
+        (mode === "onchain"
           ? "Pyth price stored on chain (Hermes unavailable here). Orders fill at the first Pyth price published after their minimum delay, verified on chain."
-          : "Pyth price (Hermes). Orders fill at the first Pyth price published after their minimum delay, verified on chain."
+          : "Pyth price (Hermes). Orders fill at the first Pyth price published after their minimum delay, verified on chain.")
       }
     >
       <span className={styles.badgeBrand}>
         <BlockMark />
       </span>
       <span className={styles.badgeText}>
-        Pyth <span className={styles.badgeSep}>·</span> {mode === "onchain" ? "on-chain" : "Hermes"}
+        {keeperSigned ? "Simulated" : "Pyth"} <span className={styles.badgeSep}>·</span>{" "}
+        {keeperSigned
+          ? "after the Pyth trial"
+          : NETWORK?.isTestnetProd
+          ? `${NETWORK.sandbox ? "sandbox" : "testnet"}${mode === "onchain" ? " · on-chain" : ""}`
+          : mode === "onchain"
+            ? "on-chain"
+            : "Hermes"}
       </span>
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
@@ -181,6 +211,7 @@ function StreamsBadge({ symbol }: { symbol: MarketSymbol }) {
 }
 
 export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
+  const listed = useListedMarkets();
   const feed = useMarketFeed(symbol);
   const tickPrice = useParaclr((s) => s.prices[symbol]?.price ?? null);
   const price = tickPrice ?? feed.last;
@@ -205,9 +236,13 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
   return (
     <header className={styles.header}>
       <div className={styles.pills} role="group" aria-label="Markets">
-        {MARKETS.map((m) => (
-          <MarketPill key={m} symbol={m} active={m === symbol} />
-        ))}
+        {MARKETS.map((m) =>
+          listed.includes(m) ? (
+            <MarketPill key={m} symbol={m} active={m === symbol} />
+          ) : (
+            <UnlistedPill key={m} symbol={m} />
+          ),
+        )}
       </div>
 
       <div className={styles.titleRow}>

@@ -22,16 +22,24 @@ export function startDemoSession(opts: { passkeySimulated?: boolean } = {}) {
       method: "demo",
       displayName: rehearsal
         ? "Rehearsal burner wallet (local fork)"
-        : opts.passkeySimulated
-          ? "Demo burner wallet (passkey simulated)"
-          : "Demo burner wallet",
+        : NETWORK?.isTestnetProd
+          ? NETWORK.sandbox
+            ? "Demo burner wallet (local sandbox)"
+            : "Demo burner wallet (testnet)"
+          : opts.passkeySimulated
+            ? "Demo burner wallet (passkey simulated)"
+            : "Demo burner wallet",
     });
     return;
   }
   signIn(demoSession());
 }
 
-/** Burner / demo sessions are allowed everywhere except a real (non-local) mainnet RPC. */
+/**
+ * Burner / demo sessions are allowed everywhere except a real (non-local)
+ * mainnet RPC: on Monad testnet (production contracts, test funds) and in the
+ * local sandbox they are allowed and labelled.
+ */
 export function burnerAllowed(): boolean {
   return !(NETWORK?.isMainnet && !NETWORK.local);
 }

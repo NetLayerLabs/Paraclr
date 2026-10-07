@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Position } from "@/lib/types";
-import { useParaclr } from "@/lib/store";
+import { selectMarket, useListedMarkets, useParaclr } from "@/lib/store";
 import { Notice, TxTray } from "@/components/chain/ChainUi";
 import { MarketHeader } from "./MarketHeader";
 import { CandleChart } from "./CandleChart";
@@ -14,6 +14,7 @@ import { baseOf, fmtPrice, fmtSigned } from "./format";
 import { ProdOrderPanel } from "@/components/prod/ProdOrderPanel";
 import { PendingOrders } from "@/components/prod/PendingOrders";
 import { MarketRisk } from "@/components/prod/MarketRisk";
+import { usePriceName } from "@/components/prod/util";
 import type { TrackedOrder } from "@/lib/chain/prod/orders";
 import styles from "./TradeScreen.module.css";
 
@@ -32,8 +33,14 @@ export function TradeScreen() {
   const production = useParaclr((s) => chainLive && !!s.chain.contracts?.production);
   const [toast, setToast] = useState<Toast | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const listed = useListedMarkets();
+  const pn = usePriceName();
 
   useEffect(() => () => clearTimeout(timer.current), []);
+  // A production deployment may not list the selected market (e.g. MON on testnet).
+  useEffect(() => {
+    if (listed.length > 0 && !listed.includes(symbol)) selectMarket(listed[0]);
+  }, [listed, symbol]);
 
   const show = (t: Omit<Toast, "id">) => {
     clearTimeout(timer.current);
@@ -54,7 +61,7 @@ export function TradeScreen() {
     show({
       tone: o.side === "long" ? "long" : "short",
       title: `Order submitted · ${o.label}`,
-      detail: "Waiting for the next Pyth price — track it under Orders.",
+      detail: `Waiting for the next ${pn} — track it under Orders.`,
     });
 
   const onClosed = (p: Position, realized: number, meta?: ClosedMeta) =>

@@ -51,6 +51,22 @@
   font-weight: 650;
   letter-spacing: 0.01em;
 }
+/* A market the connected deployment doesn't list (e.g. MON on testnet): shown, not selectable. */
+.pillOff {
+  color: var(--text-dim);
+  background: transparent;
+  border-style: dashed;
+  cursor: not-allowed;
+}
+.pillOff:active {
+  transform: none;
+}
+.pillNote {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 
 /* ---- title + price ---- */
 .titleRow {

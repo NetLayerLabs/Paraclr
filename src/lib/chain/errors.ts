@@ -15,13 +15,13 @@ import {
 } from "viem";
 import { mockAUSDAbi, mockOracleAbi, paraclrClearinghouseAbi } from "./abi";
 import { NETWORK } from "./config";
-import { prodAbi, pythAbi } from "./prod/abi";
+import { agoraFaucetAbi, prodAbi, pythAbi } from "./prod/abi";
 import { ausdToNumber, priceToNumber } from "./units";
 
 // Dedupe by signature: the same error can appear in several ABIs.
 const ERROR_ABI = Object.values(
   Object.fromEntries(
-    [...paraclrClearinghouseAbi, ...mockAUSDAbi, ...mockOracleAbi, ...prodAbi, ...pythAbi]
+    [...paraclrClearinghouseAbi, ...mockAUSDAbi, ...mockOracleAbi, ...prodAbi, ...pythAbi, ...agoraFaucetAbi]
       .filter((x) => x.type === "error")
       .map((x) => [`${(x as { name: string }).name}(${JSON.stringify((x as { inputs?: unknown }).inputs ?? [])})`, x]),
   ),
@@ -203,6 +203,13 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
       return "The Pyth price update was rejected by the Pyth contract (invalid or from the wrong source).";
     case "NoFreshUpdate":
       return "No fresh Pyth update was supplied.";
+    // Agora's testnet AUSD faucet.
+    case "MaxFrequencyExceeded":
+      return "Agora's faucet drips once a minute for everyone, and someone just used it. Try again in a minute.";
+    case "MaxAllowedExceeded":
+      return "Agora's faucet only tops up wallets holding less than its limit (100,000 AUSD).";
+    case "InsufficientFunds":
+      return "Agora's testnet AUSD faucet is empty right now.";
     default:
       return `Reverted: ${name}`;
   }
@@ -242,6 +249,11 @@ export function decodeRevert(data: Hex): string | null {
 
 function noGas(): string {
   const sym = NETWORK?.nativeSymbol ?? "native token";
+  if (NETWORK?.isTestnetProd) {
+    return NETWORK.sandbox
+      ? `Not enough ${sym} for gas — use the sandbox faucet on the Wallet tab.`
+      : `Not enough testnet ${sym} for gas (and the order execution / Pyth fees) — get some from faucet.monad.xyz.`;
+  }
   return NETWORK?.isMainnet
     ? `Not enough ${sym} in your wallet for gas (and the order execution / Pyth fees). Send some ${sym} to your wallet address.`
     : `Not enough ${sym} for gas — request test funds on the Wallet tab.`;

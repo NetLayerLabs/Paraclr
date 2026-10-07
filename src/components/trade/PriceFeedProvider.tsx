@@ -12,7 +12,7 @@
 
 import { useEffect } from "react";
 import { getState, pushPrice, useParaclr } from "@/lib/store";
-import { CHAIN_MODE } from "@/lib/chain/config";
+import { PRODUCTION_MODE } from "@/lib/chain/config";
 import { CANDLE_MS, MAX_CANDLES, OraclePriceSource, createPriceSource, type PriceSource } from "@/lib/prices";
 import { ingestTick, resetFeeds, seedHistory } from "@/lib/prices/feedStore";
 import { PythPriceSource } from "@/lib/chain/prod/pythPrices";
@@ -34,17 +34,18 @@ export function PriceFeedProvider() {
   const production = useParaclr((s) => s.chain.contracts?.production ?? false);
   const feeds = useParaclr((s) => s.chain.contracts?.pythFeeds ?? null);
   const clearinghouse = useParaclr((s) => s.chain.contracts?.clearinghouse ?? null);
+  const listed = useParaclr((s) => s.chain.contracts?.listed ?? null);
 
   useEffect(() => {
     // Chain mode still probing: wait so we don't mix simulated and on-chain ticks.
     if (status === "connecting") return;
-    // Mainnet that failed to connect shows a blocking screen, never simulated prices.
-    if (status === "unavailable" && CHAIN_MODE === "monad-mainnet") return;
+    // A production mode that failed to connect shows a blocking screen, never simulated prices.
+    if (status === "unavailable" && PRODUCTION_MODE) return;
 
     const onChain = status === "ready" && oracle !== null && markets !== null;
     const source: PriceSource =
       onChain && production && feeds
-        ? new PythPriceSource({ feeds, clearinghouse: clearinghouse as `0x${string}`, markets })
+        ? new PythPriceSource({ feeds, clearinghouse: clearinghouse as `0x${string}`, markets, listed: listed ?? [] })
         : onChain
           ? new OraclePriceSource({ oracle, markets, deployBlock })
           : createPriceSource();
@@ -111,7 +112,7 @@ export function PriceFeedProvider() {
       stop?.();
       if (spring) clearInterval(spring);
     };
-  }, [status, oracle, markets, deployBlock, production, feeds, clearinghouse]);
+  }, [status, oracle, markets, deployBlock, production, feeds, clearinghouse, listed]);
 
   return null;
 }

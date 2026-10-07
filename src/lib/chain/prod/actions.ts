@@ -7,7 +7,6 @@
 
 import { encodeFunctionData, erc20Abi, parseUnits, type Address } from "viem";
 import type { MarketSymbol, Position, Side } from "../../types";
-import { MARKETS } from "../../types";
 import { getState, initProd, setProd } from "../../store";
 import { readAccountSnapshot, type ChainAccountSnapshot } from "../account";
 import { ChainActionError } from "../errors";
@@ -194,7 +193,8 @@ export function storedPriceStatus(acct: ChainAccountSnapshot | null): StoredPric
   const p = getState().chain.prod;
   const needed = (acct?.positions.length ?? 0) > 0;
   if (!p || p.chainTime === null) return { needed, oldestAge: null, maxStoredAge: null, needsFresh: false };
-  const times = MARKETS.map((m) => p.markets[m].onchainPublishTime).filter((t): t is number => t !== null);
+  const listed = getState().chain.contracts?.listed ?? [];
+  const times = listed.map((m) => p.markets[m].onchainPublishTime).filter((t): t is number => t !== null);
   const oldestAge = times.length ? Math.max(0, p.chainTime - Math.min(...times)) : null;
   return {
     needed,

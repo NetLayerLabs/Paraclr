@@ -9,6 +9,8 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // `npm run dev:sandbox` output (PARACLR_DIST_DIR).
+    ".next-sandbox/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

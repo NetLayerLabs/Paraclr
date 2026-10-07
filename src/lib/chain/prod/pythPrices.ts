@@ -9,7 +9,7 @@
 // priceUpdate.ts.
 
 import type { Address, Hex } from "viem";
-import { MARKETS, type MarketSymbol, type PriceTick } from "../../types";
+import type { MarketSymbol, PriceTick } from "../../types";
 import { subscribeBlocks } from "../clients";
 import { PYTH_HERMES_URL } from "../config";
 import { updateBaseUrl } from "./priceUpdate";
@@ -85,6 +85,8 @@ export interface PythSourceConfig {
   feeds: Partial<Record<MarketSymbol, Hex>>;
   clearinghouse: Address;
   markets: Record<MarketSymbol, Hex>;
+  /** The deployment's listed markets: the only ones priced (an unlisted market has no feed on chain). */
+  listed: readonly MarketSymbol[];
 }
 
 const POLL_MS = 2_000;
@@ -102,7 +104,7 @@ export class PythPriceSource implements PriceSource {
   static readonly conf = new Map<MarketSymbol, number>();
 
   constructor(private readonly cfg: PythSourceConfig) {
-    for (const s of MARKETS) {
+    for (const s of cfg.listed) {
       const id = cfg.feeds[s];
       if (id) this.byId.set(normFeedId(id), s);
     }
@@ -130,8 +132,9 @@ export class PythPriceSource implements PriceSource {
       offChain = subscribeBlocks((b) => {
         if (busy) return;
         busy = true;
+        const listed = this.cfg.listed;
         readLoose(
-          MARKETS.map((m) => ({
+          listed.map((m) => ({
             address: this.cfg.clearinghouse,
             abi: prodAbi,
             functionName: "latestPrice",
@@ -143,7 +146,7 @@ export class PythPriceSource implements PriceSource {
               if (r.status !== "success" || !Array.isArray(r.result)) return;
               const [price, conf, publishTime] = r.result as [bigint, bigint, bigint];
               if (price <= BigInt(0)) return;
-              emitOne(MARKETS[i], priceToNumber(price), priceToNumber(conf), Number(publishTime), Number(b));
+              emitOne(listed[i], priceToNumber(price), priceToNumber(conf), Number(publishTime), Number(b));
             });
           })
           .catch(() => undefined)
@@ -154,7 +157,7 @@ export class PythPriceSource implements PriceSource {
     };
 
     const base = updateBaseUrl();
-    const ids = MARKETS.map((s) => this.cfg.feeds[s]).filter((x): x is Hex => !!x);
+    const ids = this.cfg.listed.map((s) => this.cfg.feeds[s]).filter((x): x is Hex => !!x);
     if (!base || ids.length === 0) {
       startOnchain();
       return () => {

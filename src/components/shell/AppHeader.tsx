@@ -67,7 +67,11 @@ function WalletChip({ onOpen }: { onOpen: () => void }) {
       : chainLive
         ? NETWORK?.isMainnet
           ? "Rehearsal burner wallet (local fork)"
-          : "Demo burner wallet"
+          : NETWORK?.isTestnetProd
+            ? NETWORK.sandbox
+              ? "Demo burner wallet (local sandbox)"
+              : "Demo burner wallet (testnet, no real value)"
+            : "Demo burner wallet"
         : "Demo account";
   return (
     <button

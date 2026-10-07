@@ -5,7 +5,7 @@
 // send, the Pyth-stored price and the price this lane last used (both of the
 // latter only while younger than `maxStoredPriceAge`, 15 s on v4). On Monad
 // mainnet the stored price is pushed irregularly, so:
-//   1. if, for every listed market, the newer of the stored and the lane price
+//   1. if, for every listed market (the deployment's, see LiveContracts.listed), the newer of the stored and the lane price
 //      is younger than storedFreshThreshold() (70% of `maxStoredPriceAge`)
 //      → send `[]` (no fee, no network round trip);
 //   2. otherwise fetch Hermes "latest" for ALL listed feeds (partial updates are
@@ -21,7 +21,7 @@
 // price — it can only withhold one (then step 3 applies).
 
 import type { Address, Hex } from "viem";
-import { MARKETS, type MarketSymbol } from "../../types";
+import type { MarketSymbol } from "../../types";
 import { getState } from "../../store";
 import { publicClient } from "../clients";
 import { NETWORK, PYTH_HERMES_URL } from "../config";
@@ -69,7 +69,7 @@ export interface PriceUpdate {
 }
 
 function allFeeds(c: LiveContracts): Hex[] {
-  return MARKETS.map((m) => c.pythFeeds[m]).filter((x): x is Hex => !!x);
+  return c.listed.map((m) => c.pythFeeds[m]).filter((x): x is Hex => !!x);
 }
 
 /**
@@ -78,14 +78,15 @@ function allFeeds(c: LiveContracts): Hex[] {
  * price `lane` last used (`lanePrice`), when a lane is given.
  */
 export async function oldestStoredAge(c: LiveContracts, lane: number | null = null): Promise<number | null> {
-  const calls = MARKETS.map((m: MarketSymbol) => ({
+  const listed = c.listed;
+  const calls = listed.map((m: MarketSymbol) => ({
     address: c.clearinghouse,
     abi: prodAbi,
     functionName: "latestPrice",
     args: [c.markets[m]] as readonly unknown[],
   }));
   if (lane !== null) {
-    MARKETS.forEach((m) =>
+    listed.forEach((m) =>
       calls.push({ address: c.clearinghouse, abi: prodAbi, functionName: "lanePrice", args: [lane, c.markets[m]] }),
     );
   }
@@ -98,9 +99,9 @@ export async function oldestStoredAge(c: LiveContracts, lane: number | null = nu
   if (!head) return null;
   const now = Number(head.timestamp);
   let oldest = 0;
-  for (let i = 0; i < MARKETS.length; i++) {
+  for (let i = 0; i < listed.length; i++) {
     const stored = res[i];
-    const lanePx = lane !== null ? res[i + MARKETS.length] : undefined;
+    const lanePx = lane !== null ? res[i + listed.length] : undefined;
     const t = (r: typeof stored | undefined, idx: number) =>
       r && r.status === "success" && Array.isArray(r.result) ? Number((r.result as readonly bigint[])[idx]) : 0;
     const newest = Math.max(t(stored, 2), t(lanePx, 1));

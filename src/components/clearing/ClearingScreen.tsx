@@ -10,7 +10,7 @@
 
 import { useState } from "react";
 import { useParaclr } from "@/lib/store";
-import { CHAIN_MODE_ON, MAINNET_MODE, NETWORK } from "@/lib/chain/config";
+import { CHAIN_MODE_ON, NETWORK, PRODUCTION_MODE } from "@/lib/chain/config";
 import type { RecordedXray } from "@/lib/chain/xray.server";
 import { NetworkTag } from "@/components/chain/ChainUi";
 import { LiveClearing } from "./LiveClearing";
@@ -31,7 +31,7 @@ export function ClearingScreen({
   const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
   const [viewChoice, setView] = useState<View>("live");
   // Production: real auctions only — no simulated crash view next to real money.
-  const view: View = production || MAINNET_MODE ? "live" : viewChoice;
+  const view: View = production || PRODUCTION_MODE ? "live" : viewChoice;
   const chainLive = status === "ready";
   const showLive = CHAIN_MODE_ON && view === "live";
 
@@ -57,7 +57,7 @@ export function ClearingScreen({
         )}
       </header>
 
-      {CHAIN_MODE_ON && NETWORK && !production && !MAINNET_MODE && (
+      {CHAIN_MODE_ON && NETWORK && !production && !PRODUCTION_MODE && (
         <div className={styles.modeToggle} role="tablist" aria-label="Clearing mode">
           <button
             role="tab"
@@ -89,7 +89,7 @@ export function ClearingScreen({
         </div>
       )}
       <div className={styles.view} hidden={CHAIN_MODE_ON && view !== "sim"}>
-        {!production && !MAINNET_MODE && <SimulatedClearing isolated={chainLive} />}
+        {!production && !PRODUCTION_MODE && <SimulatedClearing isolated={chainLive} />}
         {!CHAIN_MODE_ON && recordedXray && (
           <XrayPanel
             xray={recordedXray.report}

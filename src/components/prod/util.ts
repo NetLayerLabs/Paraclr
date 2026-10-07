@@ -1,6 +1,21 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { useParaclr } from "@/lib/store";
+
+/**
+ * Testnet after the Pyth data trial: the clearinghouse reads the keeper-signed
+ * fallback oracle (contracts/src/testnet/KeeperSignedPyth.sol), so prices are
+ * signed by the Paraclr keeper and NOT attested by Pyth. Copy must say so.
+ */
+export function useKeeperSigned(): boolean {
+  return useParaclr((s) => s.chain.contracts?.oracleKind === "keeper-signed");
+}
+
+/** "Pyth price", or "keeper-signed price" after the testnet switch. */
+export function usePriceName(): string {
+  return useKeeperSigned() ? "keeper-signed price" : "Pyth price";
+}
 
 export const SLIPPAGE_CHOICES = [0.3, 0.5, 1];
 const SLIP_KEY = "paraclr.slippagePct";

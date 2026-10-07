@@ -5,7 +5,7 @@ import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import Link from "next/link";
 import { useParaclr } from "@/lib/store";
 import { burnerAllowed, startDemoSession } from "@/lib/auth/session";
-import { CHAIN_MODE_ON, MAINNET_MODE, NETWORK } from "@/lib/chain/config";
+import { CHAIN_MODE_ON, MAINNET_MODE, NETWORK, PRODUCTION_MODE } from "@/lib/chain/config";
 import { useAuthContext } from "./AuthContext";
 import { BiometricButton, type BiometricPhase } from "./BiometricButton";
 import { PrivyPasskeyLogin } from "./PrivyAuth";
@@ -79,6 +79,7 @@ function NetworkBadge() {
     <div
       className={styles.badge}
       data-tone={status === "unavailable" || !NETWORK.isMonad || NETWORK.isMainnet ? "warn" : undefined}
+      title={NETWORK.isTestnetProd ? "Test funds, no real value" : undefined}
     >
       <span className={styles.dot} /> {text}
     </div>
@@ -92,6 +93,11 @@ function venueLine(status: string, production: boolean, agora: boolean): string 
   }
   if (status === "connecting") return `Connecting to ${NETWORK.label}…`;
   if (production) {
+    if (NETWORK.isTestnetProd) {
+      return NETWORK.sandbox
+        ? "The production contracts on a local fork of Monad testnet (not live), margined in Agora's testnet AUSD with Pyth prices. Test funds, no real value."
+        : `The production contracts on Monad testnet, margined in ${agora ? "Agora's testnet AUSD" : "a test collateral token"} with Pyth prices. Test funds, no real value; unaudited, capped.`;
+    }
     return NETWORK.isMainnet && !NETWORK.local && agora
       ? "Perps margined in real Agora AUSD on Monad mainnet. Unaudited beta, capped: use only what you can afford to lose."
       : `Production contracts on ${NETWORK.label}${agora ? "" : ", with a test collateral token"}: unaudited, capped beta.`;
@@ -159,7 +165,7 @@ export function LoginScreen() {
               ))}
             </div>
             <footer className={styles.partners}>
-              {(production || MAINNET_MODE ? PARTNERS_PROD : PARTNERS).map((p) => (
+              {(production || PRODUCTION_MODE ? PARTNERS_PROD : PARTNERS).map((p) => (
                 <span key={p.name} className={styles.partner}>
                   <span className={styles.partnerDot} style={{ background: p.color }} />
                   {p.name}
@@ -182,12 +188,18 @@ export function LoginScreen() {
                 Sign-in isn&apos;t configured for this deployment (Privy app id missing). There is no demo or burner
                 wallet on mainnet.
               </p>
-            ) : !MAINNET_MODE ? (
+            ) : PRODUCTION_MODE ? (
+              // Testnet production: no simulated passkey next to real contracts.
+              <p className={styles.hint}>
+                Passkey sign-in isn&apos;t configured here (NEXT_PUBLIC_PRIVY_APP_ID unset). The demo burner wallet works
+                without it.
+              </p>
+            ) : (
               <SimulatedPasskeyLogin disabled={connecting} chainLive={chainLive} />
-            ) : null}
+            )}
             {burner && (
               <>
-                {(privyEnabled || !MAINNET_MODE) && (
+                {(privyEnabled || !PRODUCTION_MODE) && (
                   <div className={styles.or} aria-hidden="true">
                     <span>or</span>
                   </div>
@@ -197,9 +209,13 @@ export function LoginScreen() {
                     ? "Connecting…"
                     : rehearsal
                       ? "Rehearsal burner wallet (local fork only)"
-                      : chainLive
-                        ? "Try demo mode (burner wallet)"
-                        : "Try demo mode"}
+                      : NETWORK?.isTestnetProd
+                        ? NETWORK.sandbox
+                          ? "Demo burner wallet (local sandbox)"
+                          : "Demo burner wallet (testnet, no real value)"
+                        : chainLive
+                          ? "Try demo mode (burner wallet)"
+                          : "Try demo mode"}
                 </button>
               </>
             )}
@@ -208,9 +224,11 @@ export function LoginScreen() {
                 ? rehearsal
                   ? "Local mainnet-fork rehearsal: a burner key generated in this browser, for testing only. On real mainnet only passkey sign-in is offered."
                   : "Passkey → Privy embedded wallet. Every transaction asks for your confirmation."
-                : chainLive
-                  ? "Passkey → Privy embedded wallet. Demo → a burner key generated and stored in this browser (testnet only)."
-                  : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
+                : NETWORK?.isTestnetProd
+                  ? "Passkey → Privy embedded wallet on Monad testnet. Demo → a burner key generated and stored in this browser (testnet only, never on mainnet)."
+                  : chainLive
+                    ? "Passkey → Privy embedded wallet. Demo → a burner key generated and stored in this browser (testnet only)."
+                    : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
             </p>
           </section>
         </div>

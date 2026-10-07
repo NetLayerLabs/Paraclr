@@ -86,7 +86,8 @@ export function NetworkPill() {
   }
 
   if (status === "unavailable") {
-    if (NETWORK.isMainnet) {
+    // Production modes never run the simulation behind an unavailable chain.
+    if (NETWORK.requiresProduction) {
       return (
         <span className={styles.pill} data-error="" title={`${NETWORK.label} unavailable`}>
           <i className={styles.pillDot} />

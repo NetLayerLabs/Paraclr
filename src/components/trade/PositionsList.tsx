@@ -7,7 +7,7 @@ import { readableError } from "@/lib/chain/errors";
 import { closePositionOnChain } from "@/lib/chain/trading";
 import { submitReduceOrder } from "@/lib/chain/prod/actions";
 import { isOpen, orderLabelId, useOrders } from "@/lib/chain/prod/orders";
-import { useSlippage } from "@/components/prod/util";
+import { usePriceName, useSlippage } from "@/components/prod/util";
 import { Notice } from "@/components/chain/ChainUi";
 import { MQ_FINE_POINTER, MQ_TABLE, useMedia } from "@/components/shell/useMedia";
 import { baseOf, fmtAusd, fmtPct, fmtPrice, fmtSigned, fmtSize } from "./format";
@@ -26,6 +26,7 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
   const walletReady = useParaclr((s) => s.chain.wallet.ready);
   const inAuction = useParaclr((s) => s.chain.status === "ready" && (s.chain.account?.auction?.active ?? false));
   const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
+  const pn = usePriceName();
   const orders = useOrders();
   const [slip] = useSlippage();
   const [closing, setClosing] = useState(false);
@@ -53,7 +54,7 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     try {
       const o = await submitReduceOrder({ position: p, fraction, mark, slippagePct: slip });
       setNote(
-        `${fraction >= 1 ? "Close" : `Reduce ${Math.round(fraction * 100)}%`} order submitted${o.orderId !== null ? ` (${orderLabelId(o)})` : ""} — fills at the next Pyth price. Track it under Orders.`,
+        `${fraction >= 1 ? "Close" : `Reduce ${Math.round(fraction * 100)}%`} order submitted${o.orderId !== null ? ` (${orderLabelId(o)})` : ""} — fills at the next ${pn}. Track it under Orders.`,
       );
     } catch (e) {
       setError(readableError(e));
@@ -98,6 +99,7 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     close,
     inAuction,
     production,
+    pn,
     exitPending,
     reduceOpen,
     setReduceOpen,
@@ -207,7 +209,7 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
             className={styles.close}
             disabled={m.closeDisabled}
             onClick={() => m.setReduceOpen(!m.reduceOpen)}
-            title="Reduce with a delayed order at the next Pyth price"
+            title={`Reduce with a delayed order at the next ${m.pn}`}
           >
             Reduce
           </button>
@@ -223,7 +225,7 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
               : m.production
                 ? m.inAuction
                   ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"
-                  : "Close with a delayed order at the next Pyth price"
+                  : `Close with a delayed order at the next ${m.pn}`
                 : undefined
           }
         >
@@ -289,7 +291,7 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
               className={styles.closeSm}
               disabled={m.closeDisabled}
               onClick={() => m.setReduceOpen(!m.reduceOpen)}
-              title="Reduce with a delayed order at the next Pyth price"
+              title={`Reduce with a delayed order at the next ${m.pn}`}
             >
               Reduce
             </button>
@@ -305,7 +307,7 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
                 : m.production
                   ? m.inAuction
                     ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"
-                    : "Close with a delayed order at the next Pyth price"
+                    : `Close with a delayed order at the next ${m.pn}`
                   : undefined
             }
           >

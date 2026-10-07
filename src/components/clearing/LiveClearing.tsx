@@ -11,8 +11,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Address } from "viem";
-import { useParaclr } from "@/lib/store";
-import { LANE_COUNT, MARKETS } from "@/lib/types";
+import { useListedMarkets, useParaclr } from "@/lib/store";
+import { LANE_COUNT } from "@/lib/types";
 import { coalesce, readMany, subscribeBlocks } from "@/lib/chain/clients";
 import { NETWORK } from "@/lib/chain/config";
 import { readableError } from "@/lib/chain/errors";
@@ -542,9 +542,10 @@ export function LiveClearing({
 /** Oracle marks row; subscribes to prices itself so ticks don't re-render the lanes. */
 function LiveMarks({ down, crashed, pyth = false }: { down: boolean; crashed: boolean; pyth?: boolean }) {
   const prices = useParaclr((s) => s.prices);
+  const listed = useListedMarkets();
   return (
     <div className={styles.marks}>
-      {MARKETS.map((m) => {
+      {listed.map((m) => {
         const p = prices[m]?.price;
         return (
           <span key={m} className="mono" data-down={down ? "" : undefined}>

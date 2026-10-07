@@ -24,6 +24,25 @@ export const pythAbi = parseAbi([
   "error NoFreshUpdate()",
 ]);
 
+/**
+ * Agora's AUSD faucet (Monad testnet, behind a transparent proxy). Read from
+ * the implementation's bytecode on chain 2026-10-07 — Agora documents only the
+ * address and `requestFunds(recipient)`. One drip per `maxDripFrequency`
+ * seconds across ALL callers (`lastDripTimestamp` is global), refused once the
+ * recipient holds `maxAmountToOwn`.
+ */
+export const agoraFaucetAbi = parseAbi([
+  "function requestFunds(address recipient)",
+  "function faucetDripAmount() view returns (uint256)",
+  "function maxAmountToOwn() view returns (uint256)",
+  "function maxDripFrequency() view returns (uint256)",
+  "function lastDripTimestamp() view returns (uint256)",
+  "function token() view returns (address)",
+  "error MaxAllowedExceeded()",
+  "error MaxFrequencyExceeded()",
+  "error InsufficientFunds()",
+]);
+
 /** `getOrder(...).status` (ParaclrClearinghouseProd.OrderStatus). */
 export const ORDER_STATUS = { none: 0, pending: 1, executed: 2, failed: 3, cancelled: 4 } as const;
 

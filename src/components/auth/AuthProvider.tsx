@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PrivyProvider } from "@privy-io/react-auth";
+import { PrivyProvider, addRpcUrlOverrideToChain } from "@privy-io/react-auth";
 import { monadTestnet } from "@/lib/chain/monad";
 import { MAINNET_MODE, NETWORK } from "@/lib/chain/config";
 import { PRIVY_APP_ID, PRIVY_CLIENT_ID, PRIVY_ENABLED } from "@/lib/auth/config";
@@ -9,9 +9,19 @@ import { AuthContext } from "./AuthContext";
 
 const DEMO = { privyEnabled: false };
 const LIVE = { privyEnabled: true };
-// Embedded wallet chain follows NEXT_PUBLIC_CHAIN_MODE (anvil / Monad testnet /
-// Monad mainnet 143); sim mode keeps Monad testnet as before.
-const PRIVY_CHAIN = NETWORK?.chain ?? monadTestnet;
+// Embedded wallet chain follows NEXT_PUBLIC_CHAIN_MODE (anvil / Monad testnet
+// 10143 / Monad mainnet 143); sim mode keeps Monad testnet as before.
+//
+// RPC: Privy's embedded-wallet provider runs in this page — it fills nonce /
+// gas and broadcasts through a viem client of its own, and only the signature
+// comes from Privy's iframe. Its URL resolution is
+// `rpcUrls.privyWalletOverride` → `rpcUrls.privy` (Privy's hosted RPC, which it
+// injects for chains it knows, e.g. Monad mainnet) → `rpcUrls.default`. So the
+// app's RPC is pinned as `privyWalletOverride`: transactions go where the app
+// reads, including a localhost fork (the testnet sandbox, a mainnet-fork
+// rehearsal) — otherwise a known chain's transactions would go to the real
+// network's RPC instead of the fork.
+const PRIVY_CHAIN = NETWORK ? addRpcUrlOverrideToChain(NETWORK.chain, NETWORK.rpcUrl) : monadTestnet;
 // Real money: on mainnet every transaction shows Privy's confirmation UI.
 // Demo chains keep the popup-free flow they were built with.
 const SHOW_WALLET_UIS = MAINNET_MODE;

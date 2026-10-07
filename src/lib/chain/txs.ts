@@ -7,6 +7,7 @@
 import { useSyncExternalStore } from "react";
 import type { Address, Hex, TransactionReceipt } from "viem";
 import { publicClient } from "./clients";
+import { NETWORK } from "./config";
 import { ChainActionError, readableError } from "./errors";
 import type { ChainSigner } from "./signer";
 
@@ -105,6 +106,36 @@ export interface TxRequest {
 /** Monad bills the gas *limit*, so keep the margin over the estimate small. */
 const GAS_MARGIN_PCT = BigInt(115);
 
+// ---- Monad reserve balance ------------------------------------------------------
+// docs.monad.xyz "Reserve Balance": an account holding under 10 MON may send a
+// transaction that carries MON (`commitOrder`'s execution fee, a Pyth update fee
+// — 1 wei per message on testnet) only as its first transaction in 3 blocks.
+// So such a transaction waits until 3 blocks have passed since this account's
+// previous one (≈ 1.2–2 s). Only on a real Monad chain (anvil doesn't enforce it).
+
+const RESERVE_WEI = BigInt(10) * BigInt(10) ** BigInt(18);
+const RESERVE_BLOCKS = BigInt(3);
+const lastTxBlock = new Map<string, bigint>();
+const RESERVE_HINT =
+  "Monad's reserve-balance rule: with under 10 MON, a transaction carrying MON must be your first in 3 blocks. Wait a moment and retry.";
+
+/** A MON-carrying tx from an account holding under 10 MON, on a real Monad chain. */
+async function reserveRuleApplies(account: Address, value: bigint | undefined): Promise<boolean> {
+  if (!NETWORK?.isMonad || !value || value <= BigInt(0)) return false;
+  return (await publicClient().getBalance({ address: account }).catch(() => RESERVE_WEI)) < RESERVE_WEI;
+}
+
+async function waitForReserveRule(account: Address, value: bigint | undefined): Promise<boolean> {
+  const last = lastTxBlock.get(account.toLowerCase());
+  if (last === undefined || !(await reserveRuleApplies(account, value))) return false;
+  const pc = publicClient();
+  for (let i = 0; i < 40; i++) {
+    if ((await pc.getBlockNumber()) >= last + RESERVE_BLOCKS) break;
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  return true;
+}
+
 /**
  * Simulate, estimate, send and wait for one transaction. Throws a
  * ChainActionError with a readable reason on any failure (also recorded on the
@@ -113,7 +144,9 @@ const GAS_MARGIN_PCT = BigInt(115);
 export async function sendTx(signer: ChainSigner, req: TxRequest): Promise<TransactionReceipt> {
   const pc = publicClient();
   const tx = add(req.label);
+  let spaced = false;
   try {
+    spaced = await waitForReserveRule(signer.address, req.value).catch(() => false);
     // eth_call first: reverts come back with data we can decode into words.
     await pc.call({ account: signer.address, to: req.to, data: req.data, value: req.value });
     const estimate = await pc.estimateGas({ account: signer.address, to: req.to, data: req.data, value: req.value });
@@ -132,9 +165,11 @@ export async function sendTx(signer: ChainSigner, req: TxRequest): Promise<Trans
     update(tx.id, { status: "pending", hash, sentAt: Date.now() });
 
     const receipt = await pc.waitForTransactionReceipt({ hash, pollingInterval: 250, timeout: 90_000 });
+    lastTxBlock.set(signer.address.toLowerCase(), receipt.blockNumber);
     if (receipt.status !== "success") {
       throw new ChainActionError(
-        `Reverted on-chain in block #${receipt.blockNumber} (gas used ${receipt.gasUsed} of ${gas}).`,
+        `Reverted on-chain in block #${receipt.blockNumber} (gas used ${receipt.gasUsed} of ${gas}).` +
+          (!spaced && (await reserveRuleApplies(signer.address, req.value)) ? ` ${RESERVE_HINT}` : ""),
       );
     }
     update(tx.id, {

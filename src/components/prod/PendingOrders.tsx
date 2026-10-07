@@ -21,12 +21,12 @@ import {
 } from "@/lib/chain/prod/orders";
 import { Notice, TxLink } from "@/components/chain/ChainUi";
 import { fmtAusd, fmtPrice, fmtSigned } from "@/components/trade/format";
-import { fmtDuration, useNow } from "./util";
+import { fmtDuration, useNow, usePriceName } from "./util";
 import styles from "./Prod.module.css";
 
 const PHASE_LABEL: Record<TrackedOrder["phase"], string> = {
   signing: "Submitting",
-  waiting: "Waiting for Pyth price",
+  waiting: "Waiting for the next price",
   executing: "Executing",
   filled: "Filled",
   failed: "Not filled",
@@ -65,6 +65,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
   const prod = useParaclr((s) => s.chain.prod);
   const walletReady = useParaclr((s) => s.chain.wallet.ready);
   const keeperOnline = useParaclr((s) => s.chain.keeper.status === "online");
+  const pn = usePriceName();
   const now = useNow(500);
   const [busy, setBusy] = useState<null | "cancel">(null);
   const [error, setError] = useState<string | null>(null);
@@ -116,7 +117,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
     case "waiting":
       msg = (
         <>
-          Submitted. It fills at the first Pyth price published{" "}
+          Submitted. It fills at the first {pn} published{" "}
           {min !== null ? <b>{fmtDuration(min)}</b> : "a few seconds"} or more after your order
           {toEligible !== null ? (
             <>
@@ -131,7 +132,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
     case "executing":
       msg = (
         <>
-          Waiting for the keeper to fill it with that Pyth price
+          Waiting for the keeper to fill it with that {pn}
           {toExpiry !== null ? (
             <>
               {" "}
@@ -151,7 +152,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
       msg = (
         <>
           Filled at <b className="mono">{fmtPrice(o.symbol, o.fillPrice)}</b>
-          {o.publishTime !== null ? <> (Pyth price of {new Date(o.publishTime * 1000).toISOString().slice(11, 19)} UTC)</> : null}
+          {o.publishTime !== null ? <> ({pn} of {new Date(o.publishTime * 1000).toISOString().slice(11, 19)} UTC)</> : null}
           {o.tradingFee !== null ? (
             <>
               {" "}
@@ -171,7 +172,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
     case "failed":
       msg = (
         <>
-          Executed with the Pyth price but not filled: {(o.error ?? "the contract rejected the fill").replace(/\.$/, "")}. Nothing was
+          Executed with the {pn} but not filled: {(o.error ?? "the contract rejected the fill").replace(/\.$/, "")}. Nothing was
           traded; the margin escrow is released (the execution fee paid the executor).
         </>
       );
@@ -219,7 +220,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
           </div>
           <div className={styles.stepLabels}>
             <span data-on={p1 >= 1 ? "" : undefined}>Submitted</span>
-            <span data-on={p2 >= 1 ? "" : undefined}>Next Pyth price</span>
+            <span data-on={p2 >= 1 ? "" : undefined}>Next {pn}</span>
             <span data-on={o.phase === "filled" ? "" : undefined}>Filled</span>
           </div>
         </>

@@ -14,7 +14,7 @@ import { PrivyWalletBridge } from "@/components/auth/PrivyAuth";
 import { ChainSync } from "@/components/chain/ChainSync";
 import { ChainStatusStrip } from "@/components/chain/ChainUi";
 import { BetaBanner, MainnetUnavailable, PausedBanner, RiskAckModal } from "@/components/prod/ProdChrome";
-import { MAINNET_MODE } from "@/lib/chain/config";
+import { PRODUCTION_MODE } from "@/lib/chain/config";
 import type { RecordedXray } from "@/lib/chain/xray.server";
 import { AppHeader, TABS, type Tab } from "./AppHeader";
 import { ThemeSync } from "./theme";
@@ -29,8 +29,8 @@ export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray 
   const chainStatus = useParaclr((s) => s.chain.status);
   const [tab, setTab] = useState<Tab>("trade");
   const { privyEnabled } = useAuthContext();
-  // Mainnet never falls back to the simulation: a blocking screen says why.
-  const mainnetDown = MAINNET_MODE && chainStatus !== "ready";
+  // The production modes (mainnet, testnet) never fall back to the simulation: a blocking screen says why.
+  const productionDown = PRODUCTION_MODE && chainStatus !== "ready";
 
   return (
     <div className={styles.app}>
@@ -39,7 +39,7 @@ export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray 
       <ChainSync />
       {privyEnabled && <PrivyWalletBridge />}
       <RiskAckModal />
-      {mainnetDown ? (
+      {productionDown ? (
         <>
           <BetaBanner />
           <MainnetUnavailable />

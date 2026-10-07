@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-sandbox/
 /out/
 
 # production
@@ -49,6 +50,11 @@ contracts/.env*
 !deployments/*.json
 !bench/results/*.json
 !keeper/.env.mainnet.example
+!keeper/.env.testnet.example
+# keeper/.env.testnet (testnet hot keys) and keeper/.env.sandbox (the sandbox's PYTH_API_KEY line) stay
+# ignored by keeper/.env* above. The local sandbox's deployment and the price signer's state are local only.
+deployments/sandbox/
+keeper/.signer-state-*
 
 # teaser video (video/teaser): dependencies and renders stay local
 video/teaser/node_modules

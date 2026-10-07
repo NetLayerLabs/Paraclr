@@ -9,7 +9,7 @@
 // every order and withdrawal.
 
 import { erc20Abi, type Address } from "viem";
-import { MARKETS, type MarketSymbol, type Position } from "../../types";
+import type { MarketSymbol, Position } from "../../types";
 import { getState } from "../../store";
 import { CHAIN_MAINTENANCE_MARGIN, crossLiquidationPrice, type ChainAccountSnapshot } from "../account";
 import { getLatestBlock, publicClient } from "../clients";
@@ -34,7 +34,9 @@ const signedAusd = (v: bigint) => (v < BigInt(0) ? -ausdToNumber(-v) : ausdToNum
 
 export async function readProdAccountSnapshot(address: Address, c: LiveContracts): Promise<ChainAccountSnapshot> {
   const ch = c.clearinghouse;
-  const ids = MARKETS.map((s) => c.markets[s]);
+  // Only the deployment's listed markets: an unlisted one has no Pyth feed on chain.
+  const listed = c.listed;
+  const ids = listed.map((s) => c.markets[s]);
   const call = (functionName: string, args?: readonly unknown[]): LooseCall => ({
     address: ch,
     abi: prodAbi,
@@ -55,8 +57,8 @@ export async function readProdAccountSnapshot(address: Address, c: LiveContracts
     publicClient().getBalance({ address }),
   ]);
   const [acctR, healthR, freeR, balR, allowR, aucR, ...rest] = res;
-  const posR = rest.slice(0, MARKETS.length);
-  const upnlR = rest.slice(MARKETS.length);
+  const posR = rest.slice(0, listed.length);
+  const upnlR = rest.slice(listed.length);
 
   const acct = tuple(acctR);
   if (!acct) throw acctR.status === "failure" ? acctR.error : new Error("getAccount returned nothing");
@@ -68,7 +70,7 @@ export async function readProdAccountSnapshot(address: Address, c: LiveContracts
   // Marks: the Pyth prices streamed from Hermes (what orders fill near).
   const prices = getState().prices;
   const marks: Partial<Record<MarketSymbol, number>> = {};
-  MARKETS.forEach((m) => {
+  listed.forEach((m) => {
     const p = prices[m]?.price;
     if (p !== undefined && p > 0) marks[m] = p;
   });
@@ -80,7 +82,7 @@ export async function readProdAccountSnapshot(address: Address, c: LiveContracts
     if (r.status !== "success" || !r.result || typeof r.result !== "object") return;
     const pos = r.result as ProdPosition;
     if (pos.size === BigInt(0)) return;
-    const symbol = MARKETS[i];
+    const symbol = listed[i];
     const u = tuple(upnlR[i]);
     raw.push({ symbol, marketId: ids[i], pos, funding: u ? signedAusd(u[1] as bigint) : null });
     const entry = priceToNumber(pos.entryPrice);

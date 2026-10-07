@@ -27,8 +27,14 @@ export interface DeploymentFile {
    * Pyth, delayed orders. Only `"production": true` counts.
    */
   production: boolean;
-  /** Pyth contract (production). */
+  /** Pyth contract (production): the network's real Pyth (`realPyth`, else `pyth`). */
   pyth: Address | null;
+  /**
+   * Testnet only: the keeper-signed fallback oracle (contracts/src/testnet/
+   * KeeperSignedPyth.sol) the timelock may switch the clearinghouse to after
+   * the Pyth data trial. runtime.ts reads the live oracle from `pyth()`.
+   */
+  fallbackOracle: Address | null;
   /** Pyth price feed id per app market (production; optional — also readable on chain). */
   pythFeeds: Partial<Record<string, Hex>>;
   timelock: Address | null;
@@ -42,9 +48,17 @@ export interface ResolvedContracts {
   deployBlock: number | null;
   /** bytes32 market id per app market (`keccak256("MON/AUSD")` unless the deployment says otherwise). */
   markets: Record<MarketSymbol, Hex>;
+  /**
+   * The markets this deployment trades, in MARKETS order. Production: the
+   * deployment file's `markets` keys (runtime.ts then keeps only those listed
+   * on chain); every read, price feed and market picker uses this list, so an
+   * unlisted market (e.g. MON on testnet) is never read. Demo stacks: all.
+   */
+  listed: MarketSymbol[];
   source: "deployments" | "env" | "keeper";
   production: boolean;
   pyth: Address | null;
+  fallbackOracle: Address | null;
   pythFeeds: Partial<Record<MarketSymbol, Hex>>;
   timelock: Address | null;
   guardian: Address | null;
@@ -118,7 +132,8 @@ export function parseDeployment(
       deployBlock: num(r.deployBlock),
       markets,
       production: r.production === true,
-      pyth: addr(pythObj ? pythObj.address : r.pyth),
+      pyth: addr(r.realPyth) ?? addr(pythObj ? pythObj.address : r.pyth),
+      fallbackOracle: addr(r.fallbackOracle),
       pythFeeds,
       timelock: addr(r.timelock),
       guardian: addr(r.guardian),
@@ -133,6 +148,11 @@ function marketMap(overrides: Partial<Record<string, Hex>> = {}): Record<MarketS
   return out;
 }
 
+/** App markets named by a deployment's `markets` keys (unknown keys are ignored: the app has no metadata for them). */
+export function marketsNamed(markets: Partial<Record<string, Hex>>): MarketSymbol[] {
+  return MARKETS.filter((s) => markets[s] !== undefined);
+}
+
 /** Deployment JSON first, env second. Null when neither names a clearinghouse. */
 export function resolveContracts(deployment: DeploymentFile | null): ResolvedContracts | null {
   if (deployment) {
@@ -142,9 +162,13 @@ export function resolveContracts(deployment: DeploymentFile | null): ResolvedCon
       oracle: deployment.oracle ?? CONTRACTS.oracle,
       deployBlock: deployment.deployBlock,
       markets: marketMap(deployment.markets),
+      // Production lists only what the file names (empty → runtime reads getMarkets()).
+      // The demo stacks always list all three.
+      listed: deployment.production ? marketsNamed(deployment.markets) : [...MARKETS],
       source: "deployments",
       production: deployment.production,
       pyth: deployment.pyth,
+      fallbackOracle: deployment.fallbackOracle,
       pythFeeds: feedMap(deployment.pythFeeds),
       timelock: deployment.timelock,
       guardian: deployment.guardian,
@@ -157,9 +181,11 @@ export function resolveContracts(deployment: DeploymentFile | null): ResolvedCon
       oracle: CONTRACTS.oracle,
       deployBlock: null,
       markets: marketMap(),
+      listed: [...MARKETS],
       source: "env",
       production: false,
       pyth: null,
+      fallbackOracle: null,
       pythFeeds: {},
       timelock: null,
       guardian: null,
@@ -186,10 +212,12 @@ export function contractsFromKeeper(addresses: unknown): ResolvedContracts | nul
         Object.entries(markets).filter(([, v]) => typeof v === "string" && isHex(v) && v.length === 66),
       ),
     ),
+    listed: [...MARKETS],
     source: "keeper",
     // Never production: production addresses come only from the deployment file.
     production: false,
     pyth: null,
+    fallbackOracle: null,
     pythFeeds: {},
     timelock: null,
     guardian: null,

@@ -4,7 +4,7 @@
 // `useParaclr(selector)` and mutate it only through the exported actions.
 
 import { useSyncExternalStore } from "react";
-import type { MarketSymbol, Position, PriceTick, Session, Side } from "./types";
+import { MARKETS, type MarketSymbol, type Position, type PriceTick, type Session, type Side } from "./types";
 import { CHAIN_MODE, type ChainMode } from "./chain/config";
 import type { ChainAccountSnapshot } from "./chain/account";
 import type { LiveContracts } from "./chain/runtime";
@@ -267,6 +267,15 @@ export function setProd(patch: Partial<ProdState> | null) {
 
 export function initProd(initial: ProdState) {
   setState({ chain: { ...state.chain, prod: initial } });
+}
+
+/**
+ * Markets the UI offers: the connected deployment's listed markets (a
+ * production deployment lists only some, e.g. SOL and BTC on testnet), all of
+ * them otherwise.
+ */
+export function useListedMarkets(): readonly MarketSymbol[] {
+  return useParaclr((s) => (s.chain.status === "ready" && s.chain.contracts ? s.chain.contracts.listed : MARKETS));
 }
 
 /** True when the connected deployment is the production contract set. */

@@ -9,7 +9,7 @@
 import { useState, type CSSProperties } from "react";
 import { formatEther } from "viem";
 import type { MarketSymbol, Side } from "@/lib/types";
-import { useParaclr } from "@/lib/store";
+import { useListedMarkets, useParaclr } from "@/lib/store";
 import { useMarketFeed } from "@/lib/prices/feedStore";
 import { crossLiquidationPrice } from "@/lib/chain/account";
 import { readableError } from "@/lib/chain/errors";
@@ -32,7 +32,7 @@ import { TradeButton } from "@/components/trade/TradeButton";
 import { baseOf, fmtAusd, fmtCompact, fmtPct, fmtPrice, fmtSize } from "@/components/trade/format";
 import ops from "@/components/trade/OrderPanel.module.css";
 import { TokenSymbol, useCollateral } from "./Token";
-import { fmtDuration, useSlippage, SLIPPAGE_CHOICES } from "./util";
+import { fmtDuration, usePriceName, useSlippage, SLIPPAGE_CHOICES } from "./util";
 import styles from "./Prod.module.css";
 
 const QUICK = [
@@ -69,6 +69,8 @@ export function ProdOrderPanel({
   const token = useCollateral();
   const clickToTrade = useMedia(MQ_FINE_POINTER);
   const [slip, setSlip] = useSlippage();
+  const listed = useListedMarkets().includes(symbol);
+  const pn = usePriceName();
 
   const [side, setSide] = useState<Side>("long");
   const [marginStr, setMarginStr] = useState("10");
@@ -141,7 +143,21 @@ export function ProdOrderPanel({
   const resultNotional = notional + (sameSide && price ? sameSide.size * price : 0);
   const resultMargin = margin + (sameSide ? sameSide.margin : 0);
 
-  const reason = !walletReady
+  const testnet = !!NETWORK?.isTestnetProd;
+  const fundHint = testnet
+    ? NETWORK?.sandbox
+      ? `Get ${token.symbol} from the sandbox faucet (Wallet tab) first`
+      : `Get testnet ${token.symbol} on the Wallet tab first`
+    : `Send ${token.symbol} to your wallet first`;
+  const gasHint = testnet
+    ? NETWORK?.sandbox
+      ? "Need MON for the execution fee + gas (sandbox faucet, Wallet tab)"
+      : "Need testnet MON (faucet.monad.xyz) for the execution fee + gas"
+    : `Need ${NETWORK?.nativeSymbol ?? "MON"} for the execution fee + gas`;
+
+  const reason = !listed
+    ? `${base}/AUSD isn't listed on this deployment`
+    : !walletReady
     ? (walletError ?? "Connecting wallet…")
     : !acct
       ? "Reading account from chain…"
@@ -158,12 +174,12 @@ export function ProdOrderPanel({
               : aboveCap
                 ? "Collateral above the beta cap: withdraw down to it before adding margin"
               : !price
-                ? "Waiting for the Pyth price…"
+                ? `Waiting for the ${pn}…`
                 : margin <= 0
                   ? `Enter ${token.symbol} margin`
                   : margin > available + 1e-9
                     ? acct.walletAusd <= 0 && escrowFree <= 0
-                      ? `Send ${token.symbol} to your wallet first`
+                      ? fundHint
                       : deposit > walletUsable && room.room !== null && acct.walletAusd > room.room
                         ? "Over the beta deposit cap"
                         : `Insufficient ${token.symbol}`
@@ -180,7 +196,7 @@ export function ProdOrderPanel({
                           : execFee === null
                             ? "Execution fee unknown"
                             : native <= execFee
-                              ? `Need ${NETWORK?.nativeSymbol ?? "MON"} for the execution fee + gas`
+                              ? gasHint
                               : null;
 
   const sideWord = side === "long" ? "Long" : "Short";
@@ -310,7 +326,7 @@ export function ProdOrderPanel({
       </div>
 
       <div className={styles.row}>
-        <span className={ops.label} title="Worst price you accept. If the Pyth price at execution is worse, the order isn't filled.">
+        <span className={ops.label} title={`Worst price you accept. If the ${pn} at execution is worse, the order isn't filled.`}>
           Slippage
         </span>
         <SlippagePicker value={slip} onChange={setSlip} />
@@ -328,7 +344,7 @@ export function ProdOrderPanel({
           <dd className="mono">{fmtCompact(notional)}</dd>
         </div>
         <div>
-          <dt>Pyth price now</dt>
+          <dt>{pn === "Pyth price" ? "Pyth price now" : "Price now (keeper-signed)"}</dt>
           <dd className="mono" title={conf !== null ? `Pyth confidence ±${conf}` : undefined}>
             {fmtPrice(symbol, price)}
             {conf !== null && price ? <small style={{ color: "var(--text-dim)" }}> ±{fmtPrice(symbol, conf)}</small> : null}
@@ -430,9 +446,9 @@ export function ProdOrderPanel({
       {error && <Notice tone="error">{error}</Notice>}
       <details className={styles.how}>
         <summary>
-          <b>Two steps:</b> committed now, filled at the next Pyth price
+          <b>Two steps:</b> committed now, filled at the next {pn}
         </summary>
-        Your order is committed now; a keeper fills it with the first Pyth price published at least{" "}
+        Your order is committed now; a keeper fills it with the first {pn} published at least{" "}
         {params?.minExecDelay != null ? fmtDuration(params.minExecDelay) : "a few seconds"} later, so nobody can trade
         on a price they already know. If that price is past your slippage limit the order is not filled (nothing is
         traded). If nobody executes it within {params?.maxExecDelay != null ? fmtDuration(params.maxExecDelay) : "the window"},

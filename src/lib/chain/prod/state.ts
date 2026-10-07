@@ -2,7 +2,8 @@
 // order timing, caps and their utilisation, per-market funding, and the
 // signed-in account's pending order ids / claimable execution fees. Every
 // read is allowFailure: a view the deployment doesn't expose renders as "—",
-// never as a guessed number.
+// never as a guessed number. Only the deployment's listed markets
+// (`LiveContracts.listed`) are read; unlisted ones stay empty.
 //
 // Units: AUSD 6 dp · prices 1e18 · funding rate 1e18 = 100% of entry notional
 // per second (> 0: longs pay) · times in seconds · leverage whole x.
@@ -124,18 +125,20 @@ export const EMPTY_PARAMS: ProdParams = {
   minFirstDeposit: null,
 };
 
+const EMPTY_MARKET: ProdMarket = {
+  fundingRatePerSec: null,
+  lastFundingUpdate: null,
+  nextFundingUpdate: null,
+  onchainPrice: null,
+  onchainPublishTime: null,
+  globalOi: null,
+};
+
 export const EMPTY_PROD: ProdState = {
   status: "loading",
   paused: null,
   params: EMPTY_PARAMS,
-  markets: byMarket<ProdMarket>({
-    fundingRatePerSec: null,
-    lastFundingUpdate: null,
-    nextFundingUpdate: null,
-    onchainPrice: null,
-    onchainPublishTime: null,
-    globalOi: null,
-  }),
+  markets: byMarket<ProdMarket>(EMPTY_MARKET),
   lane: null,
   mine: null,
   chainTime: null,
@@ -251,7 +254,8 @@ export async function readProdDynamic(
   account: Address | null,
 ): Promise<Pick<ProdState, "paused" | "markets" | "lane" | "mine" | "chainTime" | "block">> {
   const ch = c.clearinghouse;
-  const ids = MARKETS.map((s) => c.markets[s]);
+  const listed = c.listed;
+  const ids = listed.map((s) => c.markets[s]);
   const call = (functionName: string, args?: readonly unknown[]): LooseCall => ({
     address: ch,
     abi: prodAbi,
@@ -284,57 +288,51 @@ export async function readProdDynamic(
 
   let i = 0;
   const pausedR = res[i++];
-  const funding = MARKETS.map(() => tuple(res[i++]));
-  const latest = MARKETS.map(() => tuple(res[i++]));
-  const global = MARKETS.map(() => tuple(res[i++]));
+  const funding = listed.map(() => tuple(res[i++]));
+  const latest = listed.map(() => tuple(res[i++]));
+  const global = listed.map(() => tuple(res[i++]));
 
   let laneState: ProdLane | null = null;
   if (lane !== null) {
     const tvl = res[i++];
-    const ois = MARKETS.map(() => tuple(res[i++]));
-    const caps = MARKETS.map(() => res[i++]);
+    const ois = listed.map(() => tuple(res[i++]));
+    const caps = listed.map(() => res[i++]);
     const solv = res[i++];
-    laneState = {
-      lane,
-      solvency: laneSolvencyOf(lane, solv),
-      tvl: ausd(tvl),
-      oi: Object.fromEntries(
-        MARKETS.map((m, k) => {
-          const t = ois[k];
-          return [m, t ? { long: ausdToNumber(t[0] as bigint), short: ausdToNumber(t[1] as bigint) } : null];
-        }),
-      ) as ProdLane["oi"],
-      oiCap: Object.fromEntries(MARKETS.map((m, k) => [m, ausd(caps[k])])) as ProdLane["oiCap"],
-    };
+    const oi = byMarket<{ long: number; short: number } | null>(null);
+    const oiCap = byMarket<number | null>(null);
+    listed.forEach((m, k) => {
+      const t = ois[k];
+      oi[m] = t ? { long: ausdToNumber(t[0] as bigint), short: ausdToNumber(t[1] as bigint) } : null;
+      oiCap[m] = ausd(caps[k]);
+    });
+    laneState = { lane, solvency: laneSolvencyOf(lane, solv), tvl: ausd(tvl), oi, oiCap };
   }
 
   let mine: ProdMine | null = null;
   if (account) {
     const owed = big(res[i++]);
     const pending: Partial<Record<MarketSymbol, bigint>> = {};
-    MARKETS.forEach((m) => {
+    listed.forEach((m) => {
       const id = big(res[i++]);
       if (id !== null && id !== BigInt(0)) pending[m] = id;
     });
     mine = { feesOwed: owed, pending, topUpAllowance: ausd(res[i++]) };
   }
 
-  const markets = Object.fromEntries(
-    MARKETS.map((m, k) => {
-      const f = funding[k];
-      const p = latest[k];
-      const g = global[k];
-      const market: ProdMarket = {
-        fundingRatePerSec: f ? signedNumber(f[1] as bigint) / 1e18 : null,
-        lastFundingUpdate: f ? Number(f[2] as bigint) : null,
-        nextFundingUpdate: f ? Number(f[4] as bigint) : null,
-        onchainPrice: p ? priceToNumber(p[0] as bigint) : null,
-        onchainPublishTime: p ? Number(p[2] as bigint) : null,
-        globalOi: g ? { long: ausdToNumber(g[0] as bigint), short: ausdToNumber(g[1] as bigint) } : null,
-      };
-      return [m, market];
-    }),
-  ) as Record<MarketSymbol, ProdMarket>;
+  const markets = byMarket<ProdMarket>(EMPTY_MARKET);
+  listed.forEach((m, k) => {
+    const f = funding[k];
+    const p = latest[k];
+    const g = global[k];
+    markets[m] = {
+      fundingRatePerSec: f ? signedNumber(f[1] as bigint) / 1e18 : null,
+      lastFundingUpdate: f ? Number(f[2] as bigint) : null,
+      nextFundingUpdate: f ? Number(f[4] as bigint) : null,
+      onchainPrice: p ? priceToNumber(p[0] as bigint) : null,
+      onchainPublishTime: p ? Number(p[2] as bigint) : null,
+      globalOi: g ? { long: ausdToNumber(g[0] as bigint), short: ausdToNumber(g[1] as bigint) } : null,
+    };
+  });
 
   return {
     paused: pausedR.status === "success" ? Boolean(pausedR.result) : null,
@@ -357,7 +355,11 @@ export function fundingPctPerHour(ratePerSec: number | null): number | null {
   return ratePerSec === null ? null : ratePerSec * 3600 * 100;
 }
 
-/** Known Pyth price feed ids (Pyth's official list), used only if neither the deployment nor the contract names one. */
+/**
+ * Known Pyth price feed ids (Pyth's official list; the same ids on Monad
+ * mainnet and testnet), used only if neither the contract nor the deployment
+ * names one.
+ */
 export const PYTH_MAINNET_FEEDS: Record<MarketSymbol, `0x${string}`> = {
   "MON/AUSD": "0x31491744e2dbf6df7fcf4ac0820d18a609b49076d45066d3568424e62f686cd1",
   "SOL/AUSD": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",

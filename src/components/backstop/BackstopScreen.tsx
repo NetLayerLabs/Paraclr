@@ -20,6 +20,7 @@ import { poolDepositRefusal, useBackstopProd } from "@/lib/chain/prod/backstop";
 import { chainNow } from "@/lib/chain/prod/state";
 import { fmtDuration, useNow } from "@/components/prod/util";
 import { NetworkTag, Notice, TxTray } from "@/components/chain/ChainUi";
+import { TokenSymbol } from "@/components/prod/Token";
 import { MQ_TABLE, useMedia } from "@/components/shell/useMedia";
 import { baseOf, fmtAusd, fmtCompact, fmtSigned, fmtSize } from "@/components/trade/format";
 import styles from "./BackstopScreen.module.css";
@@ -578,7 +579,8 @@ function PoolActions({
               onFocus={(e) => e.currentTarget.select()}
               aria-label="Deposit amount in AUSD"
             />
-            <span className={styles.token}>AUSD</span>
+            {/* Production: the chain's collateral with its TESTNET / TEST tag. */}
+            <span className={styles.token}>{production ? <TokenSymbol /> : "AUSD"}</span>
           </label>
           <div className={styles.chips}>
             {production

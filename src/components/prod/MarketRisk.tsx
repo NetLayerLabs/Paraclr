@@ -13,6 +13,8 @@ import styles from "./Prod.module.css";
 
 export function MarketRisk({ symbol }: { symbol: MarketSymbol }) {
   const prod = useParaclr((s) => s.chain.prod);
+  // Testnet after the Pyth data trial: the stored price comes from the keeper-signed fallback oracle.
+  const keeperSigned = useParaclr((s) => s.chain.contracts?.oracleKind === "keeper-signed");
   const lane = useParaclr((s) => s.chain.account?.lane ?? null);
   const now = useNow(1_000);
   if (!prod) return null;
@@ -63,7 +65,7 @@ export function MarketRisk({ symbol }: { symbol: MarketSymbol }) {
         className={styles.mcell}
         title="Age of the Pyth price stored on chain — what the contract's views (health, free collateral) use. Pyth pushes it regularly; fills and withdrawals also push a fresh one."
       >
-        <small>On-chain Pyth</small>
+        <small>{keeperSigned ? "On-chain price (simulated)" : "On-chain Pyth"}</small>
         <b className="mono">{age === null ? "—" : age < 120 ? `${Math.round(age)}s old` : `${fmtDuration(age)} old`}</b>
         <em>
           {prod.params.maxStoredPriceAge !== null

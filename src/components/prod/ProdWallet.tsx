@@ -2,7 +2,9 @@
 
 // Production wallet: real balances from chain, deposit (risk acknowledgement +
 // caps + exact-amount approve), withdraw with a fresh Pyth price update (its
-// fee shown first), and the beta limits with their utilisation. No faucet.
+// fee shown first), and the beta limits with their utilisation. No faucet on
+// mainnet; on Monad testnet, "Get testnet AUSD" (Agora's faucet contract, plus
+// the sandbox keeper's faucet in the local sandbox).
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -27,8 +29,9 @@ import { Notice, TxTray } from "@/components/chain/ChainUi";
 import { useAuthContext } from "@/components/auth/AuthContext";
 import { PrivySignOutButton } from "@/components/auth/PrivyAuth";
 import { fmtAusd } from "@/components/trade/format";
+import { TestnetFunds } from "./TestnetFunds";
 import { TokenSymbol, useCollateral } from "./Token";
-import { fmtDuration } from "./util";
+import { fmtDuration, useKeeperSigned } from "./util";
 import styles from "./Prod.module.css";
 
 const fmtMon = (wei: bigint | null | undefined, max = 6) =>
@@ -69,6 +72,8 @@ export function ProdWallet() {
   const prod = useParaclr((s) => s.chain.prod);
   const { privyEnabled } = useAuthContext();
   const token = useCollateral();
+  // Testnet after the Pyth trial: prices come from the keeper-signed fallback oracle.
+  const keeperSigned = useKeeperSigned();
   const acked = useRiskAcked(session?.address);
   const [tab, setTab] = useState<"deposit" | "withdraw">("deposit");
   const [amountStr, setAmountStr] = useState("");
@@ -147,6 +152,14 @@ export function ProdWallet() {
   const laneDebt = prod?.lane?.solvency?.badDebt ?? 0;
   const amount = Number.parseFloat(amountStr) || 0;
   const isPasskey = session.method === "passkey";
+  const testnet = NETWORK.isTestnetProd;
+  const walletKind = isPasskey
+    ? "Passkey · Privy"
+    : testnet
+      ? NETWORK.sandbox
+        ? "Demo burner · local sandbox"
+        : "Demo burner · testnet only"
+      : "Rehearsal burner (local only)";
 
   const depositReason = !wallet.ready
     ? (wallet.error ?? "Connecting wallet…")
@@ -216,7 +229,7 @@ export function ProdWallet() {
       <section className={styles.card}>
         <div className={styles.cardTitle}>
           <span>Wallet · {NETWORK.label}</span>
-          <span>{isPasskey ? "Passkey · Privy" : "Rehearsal burner (local only)"}</span>
+          <span>{walletKind}</span>
         </div>
         <div className={styles.addrRow}>
           <code title={session.address}>{session.address}</code>
@@ -225,15 +238,23 @@ export function ProdWallet() {
           </button>
           {explorer && (
             <a href={explorer} target="_blank" rel="noreferrer">
-              Monadscan ↗
+              {NETWORK.isMainnet ? "Monadscan" : "Explorer"} ↗
             </a>
           )}
         </div>
-        <p className={styles.fine}>
-          Send {token.test ? `the test ${token.symbol}` : "Agora AUSD"} and some {NETWORK.nativeSymbol} (gas, order
-          execution and Pyth fees) to this address on {NETWORK.isMainnet && !NETWORK.local ? "Monad mainnet" : NETWORK.label}.
-          There is no faucet.
-        </p>
+        {testnet ? (
+          <p className={styles.fine}>
+            Fund this address with {token.testnet ? "Agora's testnet AUSD" : `the test ${token.symbol}`} (below) and some
+            {NETWORK.sandbox ? "" : " testnet"} {NETWORK.nativeSymbol} for gas, order execution and Pyth fees on{" "}
+            {NETWORK.label}. Test funds, no real value.
+          </p>
+        ) : (
+          <p className={styles.fine}>
+            Send {token.test ? `the test ${token.symbol}` : "Agora AUSD"} and some {NETWORK.nativeSymbol} (gas, order
+            execution and Pyth fees) to this address on {NETWORK.isMainnet && !NETWORK.local ? "Monad mainnet" : NETWORK.label}.
+            There is no faucet.
+          </p>
+        )}
         <dl className={styles.kv}>
           <div>
             <dt>
@@ -277,6 +298,8 @@ export function ProdWallet() {
         {accountError && <Notice tone="warn">Couldn&apos;t read your account: {accountError}</Notice>}
         {acct?.healthError && <p className={styles.fine}>{acct.healthError}</p>}
       </section>
+
+      {testnet && <TestnetFunds />}
 
       <section className={styles.card}>
         <div className={styles.tabs} role="tablist" aria-label="Deposit or withdraw">
@@ -355,8 +378,10 @@ export function ProdWallet() {
                 {!priced.needed
                   ? "not needed (no open positions)"
                   : quote.q?.source === "fresh"
-                    ? "fresh signed Pyth update (via the keeper)"
-                    : `Pyth price stored on chain${priced.oldestAge !== null ? ` (${Math.round(priced.oldestAge)}s old)` : ""}`}
+                    ? keeperSigned
+                      ? "fresh keeper-signed update"
+                      : "fresh signed Pyth update (via the keeper)"
+                    : `${keeperSigned ? "Price" : "Pyth price"} stored on chain${priced.oldestAge !== null ? ` (${Math.round(priced.oldestAge)}s old)` : ""}`}
               </dd>
             </div>
             <div>
@@ -364,7 +389,7 @@ export function ProdWallet() {
               <dd className="mono">{priced.maxStoredAge !== null ? fmtDuration(priced.maxStoredAge) : "—"}</dd>
             </div>
             <div className={styles.feesTotal}>
-              <dt>Pyth update fee</dt>
+              <dt>{keeperSigned ? "Price update fee" : "Pyth update fee"}</dt>
               <dd className="mono">
                 {quote.q?.source === "fresh" ? (
                   <>
@@ -381,7 +406,7 @@ export function ProdWallet() {
         )}
         {tab === "withdraw" && priced.needed && quote.error && (
           <Notice tone="warn">
-            Prices are refreshing: the Pyth price stored on chain is too old for the contract and a fresh update
+            Prices are refreshing: the {keeperSigned ? "price" : "Pyth price"} stored on chain is too old for the contract and a fresh update
             couldn&apos;t be fetched right now. Retry in a few seconds.
           </Notice>
         )}
@@ -420,9 +445,10 @@ export function ProdWallet() {
         </button>
         {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
         <p className={styles.fine}>
-          Withdrawals stay open while trading is paused. The health check uses the Pyth price stored on chain when
-          it&apos;s fresh, else a Pyth-signed update relayed by the keeper (verified on chain, so the relay can&apos;t alter
-          it).
+          Withdrawals stay open while trading is paused.{" "}
+          {keeperSigned
+            ? "The health check uses the price stored on chain when it's fresh, else a fresh update signed by the Paraclr keeper: simulated after the Pyth trial, checked against the keeper's key on chain, not attested by Pyth."
+            : "The health check uses the Pyth price stored on chain when it's fresh, else a Pyth-signed update relayed by the keeper (verified on chain, so the relay can't alter it)."}
         </p>
       </section>
 

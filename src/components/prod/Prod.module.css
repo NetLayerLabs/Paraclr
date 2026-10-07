@@ -24,6 +24,13 @@
   border-bottom: 1px solid var(--warn-line);
 }
 
+.beta[data-tone="testnet"] {
+  --tone: var(--accent);
+  --tone-text: var(--accent-text);
+  background: var(--accent-soft);
+  border-bottom-color: color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
 .paused {
   --tone: var(--short);
   --tone-text: var(--short-text);
@@ -447,6 +454,12 @@ details.how summary:hover {
 
 details.how[open] summary {
   margin-bottom: 4px;
+}
+
+.tokenTest[data-kind="testnet"] {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .tokenTest {

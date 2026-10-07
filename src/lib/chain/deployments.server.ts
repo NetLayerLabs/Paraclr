@@ -21,8 +21,10 @@ export interface DeploymentLoad {
 
 export async function readDeploymentJson(chainId: number): Promise<DeploymentLoad> {
   // PARACLR_DEPLOYMENTS_DIR (server-only, read at request time) points the app
-  // at a rehearsal's output dir (e.g. a mainnet-fork rehearsal) without
-  // touching deployments/143.json.
+  // at a rehearsal's output dir (e.g. a mainnet-fork rehearsal, or the local
+  // testnet sandbox's `deployments/sandbox`) without touching
+  // deployments/<chainId>.json. A relative path is relative to the working
+  // directory (`npm run dev` / `next start` run from the project root).
   const dir = process.env.PARACLR_DEPLOYMENTS_DIR || join(process.cwd(), "deployments");
   const file = join(dir, `${chainId}.json`);
   let text: string;
