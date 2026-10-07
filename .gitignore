@@ -49,3 +49,7 @@ contracts/.env*
 !deployments/*.json
 !bench/results/*.json
 !keeper/.env.mainnet.example
+
+# teaser video (video/teaser): dependencies and renders stay local
+video/teaser/node_modules
+video/teaser/out

@@ -1,0 +1,251 @@
+{
+ "voice": "CwhRBWXzGAHq8TQ4Fs17",
+ "model": "eleven_multilingual_v2",
+ "lines": {
+  "l1": {
+   "text": "Most perps liquidate you first-bot-wins.",
+   "say": "Most perps liquidate you... first bot wins.",
+   "dur": 3.019,
+   "words": [
+    {
+     "w": "Most",
+     "s": 0,
+     "e": 0.279
+    },
+    {
+     "w": "perps",
+     "s": 0.337,
+     "e": 0.604
+    },
+    {
+     "w": "liquidate",
+     "s": 0.673,
+     "e": 1.138
+    },
+    {
+     "w": "you...",
+     "s": 1.173,
+     "e": 1.486
+    },
+    {
+     "w": "first",
+     "s": 1.741,
+     "e": 1.985
+    },
+    {
+     "w": "bot",
+     "s": 2.032,
+     "e": 2.206
+    },
+    {
+     "w": "wins.",
+     "s": 2.276,
+     "e": 3.019
+    }
+   ]
+  },
+  "l2": {
+   "text": "A fixed fee, decided by whoever pays the most gas.",
+   "say": "A fixed fee, decided by whoever pays the most gas.",
+   "dur": 2.972,
+   "words": [
+    {
+     "w": "A",
+     "s": 0,
+     "e": 0.07
+    },
+    {
+     "w": "fixed",
+     "s": 0.139,
+     "e": 0.325
+    },
+    {
+     "w": "fee,",
+     "s": 0.372,
+     "e": 0.743
+    },
+    {
+     "w": "decided",
+     "s": 0.952,
+     "e": 1.289
+    },
+    {
+     "w": "by",
+     "s": 1.324,
+     "e": 1.393
+    },
+    {
+     "w": "whoever",
+     "s": 1.428,
+     "e": 1.707
+    },
+    {
+     "w": "pays",
+     "s": 1.753,
+     "e": 1.927
+    },
+    {
+     "w": "the",
+     "s": 1.962,
+     "e": 2.032
+    },
+    {
+     "w": "most",
+     "s": 2.067,
+     "e": 2.218
+    },
+    {
+     "w": "gas.",
+     "s": 2.264,
+     "e": 2.972
+    }
+   ]
+  },
+  "l3": {
+   "text": "Paraclr auctions it, block by block, and you keep the equity the taker isn't paid.",
+   "say": "Paraclear auctions it, block by block, and you keep the equity that the taker isn't paid.",
+   "dur": 4.598,
+   "words": [
+    {
+     "w": "Paraclear",
+     "s": 0,
+     "e": 0.488
+    },
+    {
+     "w": "auctions",
+     "s": 0.546,
+     "e": 0.894
+    },
+    {
+     "w": "it,",
+     "s": 0.964,
+     "e": 1.184
+    },
+    {
+     "w": "block",
+     "s": 1.289,
+     "e": 1.521
+    },
+    {
+     "w": "by",
+     "s": 1.567,
+     "e": 1.66
+    },
+    {
+     "w": "block,",
+     "s": 1.73,
+     "e": 2.113
+    },
+    {
+     "w": "and",
+     "s": 2.136,
+     "e": 2.218
+    },
+    {
+     "w": "you",
+     "s": 2.252,
+     "e": 2.322
+    },
+    {
+     "w": "keep",
+     "s": 2.368,
+     "e": 2.519
+    },
+    {
+     "w": "the",
+     "s": 2.554,
+     "e": 2.624
+    },
+    {
+     "w": "equity",
+     "s": 2.694,
+     "e": 2.961
+    },
+    {
+     "w": "that",
+     "s": 3.007,
+     "e": 3.135
+    },
+    {
+     "w": "the",
+     "s": 3.17,
+     "e": 3.239
+    },
+    {
+     "w": "taker",
+     "s": 3.274,
+     "e": 3.529
+    },
+    {
+     "w": "isn't",
+     "s": 3.576,
+     "e": 3.762
+    },
+    {
+     "w": "paid.",
+     "s": 3.796,
+     "e": 4.598
+    }
+   ]
+  },
+  "l4": {
+   "text": "Fair liquidations, cleared every block.",
+   "say": "Fair liquidations. Cleared every block.",
+   "dur": 2.508,
+   "words": [
+    {
+     "w": "Fair",
+     "s": 0,
+     "e": 0.232
+    },
+    {
+     "w": "liquidations.",
+     "s": 0.29,
+     "e": 1.103
+    },
+    {
+     "w": "Cleared",
+     "s": 1.242,
+     "e": 1.556
+    },
+    {
+     "w": "every",
+     "s": 1.591,
+     "e": 1.776
+    },
+    {
+     "w": "block.",
+     "s": 1.834,
+     "e": 2.508
+    }
+   ]
+  },
+  "l5": {
+   "text": "Coming soon, on Monad.",
+   "say": "Coming soon, on Monad.",
+   "dur": 1.579,
+   "words": [
+    {
+     "w": "Coming",
+     "s": 0,
+     "e": 0.302
+    },
+    {
+     "w": "soon,",
+     "s": 0.36,
+     "e": 0.615
+    },
+    {
+     "w": "on",
+     "s": 0.65,
+     "e": 0.743
+    },
+    {
+     "w": "Monad.",
+     "s": 0.813,
+     "e": 1.579
+    }
+   ]
+  }
+ }
+}

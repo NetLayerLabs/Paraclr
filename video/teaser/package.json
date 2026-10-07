@@ -1,0 +1,29 @@
+{
+  "name": "paraclr-teaser",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "vo": "node scripts/vo-gen.cjs",
+    "sfx": "node scripts/sfx.mjs",
+    "logos": "node scripts/logos.cjs",
+    "studio": "remotion studio src/index.ts",
+    "render:wide": "remotion render src/index.ts Teaser out/paraclr-teaser-15s.mp4 --browser-executable \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --codec h264 --crf 17 --x264-preset slow --image-format png --pixel-format yuv420p --color-space bt709 --audio-codec aac --audio-bitrate 320k --overwrite --port 3456 --concurrency 6 && node scripts/finish.mjs out/paraclr-teaser-15s.mp4",
+    "render:square": "remotion render src/index.ts TeaserSquare out/paraclr-teaser-15s-square.mp4 --browser-executable \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --codec h264 --crf 17 --x264-preset slow --image-format png --pixel-format yuv420p --color-space bt709 --audio-codec aac --audio-bitrate 320k --overwrite --port 3456 --concurrency 6 && node scripts/finish.mjs out/paraclr-teaser-15s-square.mp4",
+    "thumb": "remotion still src/index.ts Thumb out/paraclr-teaser-thumb.png --image-format png --overwrite --port 3456 --browser-executable \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" && ffmpeg -v error -y -i out/paraclr-teaser-thumb.png -q:v 2 out/paraclr-teaser-thumb.jpg",
+    "sheet": "node scripts/sheet.mjs",
+    "render": "npm run render:wide && npm run render:square && npm run thumb && npm run sheet",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.376",
+    "@remotion/google-fonts": "4.0.376",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.376"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "sharp": "^0.34.4",
+    "typescript": "^5.9.3"
+  }
+}
