@@ -53,9 +53,9 @@ export function FinalCta({ live, testnetLive = false }: { live: boolean; testnet
               Trade it on testnet. <em>Watch the books.</em>
             </h2>
             <p className={s.sub}>
-              Open the app with a passkey or the demo wallet and trade SOL and BTC perps on Monad testnet: real Pyth
-              prices, Agora&rsquo;s testnet AUSD, per-lane auctions and a solvency check every block. Test funds, no
-              real value.
+              Sign in with a passkey, email, a social account or your own wallet and trade SOL and BTC perps on Monad
+              testnet: real Pyth prices, Agora&rsquo;s testnet AUSD, per-lane auctions and a solvency check every
+              block. Test funds, no real value.
             </p>
           </>
         ) : (

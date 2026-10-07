@@ -4,6 +4,7 @@ import { getState, signIn } from "@/lib/store";
 import { demoSession } from "./demo";
 import { loadOrCreateBurner } from "@/lib/chain/signer";
 import { NETWORK } from "@/lib/chain/config";
+import { PRIVY_ENABLED } from "./config";
 
 /**
  * "Try demo mode". With the chain live, the demo account is a real burner
@@ -36,10 +37,13 @@ export function startDemoSession(opts: { passkeySimulated?: boolean } = {}) {
 }
 
 /**
- * Burner / demo sessions are allowed everywhere except a real (non-local)
- * mainnet RPC: on Monad testnet (production contracts, test funds) and in the
- * local sandbox they are allowed and labelled.
+ * Burner / demo sessions: never on a real (non-local) mainnet RPC. On the live
+ * Monad testnet, Privy sign-in (passkey, email, social, wallet) replaces them;
+ * a testnet deployment without Privy keeps the burner as its only way in. The
+ * local sandbox, anvil and mainnet-fork rehearsals keep it (labelled).
  */
 export function burnerAllowed(): boolean {
-  return !(NETWORK?.isMainnet && !NETWORK.local);
+  if (NETWORK?.isMainnet && !NETWORK.local) return false;
+  if (NETWORK?.isTestnetProd && !NETWORK.local && PRIVY_ENABLED) return false;
+  return true;
 }
