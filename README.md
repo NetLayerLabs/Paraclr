@@ -15,8 +15,15 @@ fair, fast liquidation you can check.
 Built for **Monad Metropolis** (Onchain Finance & Trading track). You trade on it in the browser with a passkey and
 AUSD-denominated margin: a desktop trading terminal that collapses to a touch layout with swipe-to-trade on phones.
 
-> Status: hackathon build, testnet only, unaudited. Every number in this repo and in the app is labelled
-> **Monad testnet**, **local anvil (not Monad)** or **simulation**.
+> **Status.** The hackathon demo runs on Monad testnet and local anvil with a test token and no real value. A
+> **capped, unaudited beta with real Agora AUSD on Monad mainnet** is built as a separate contract set and launches
+> only if its [launch gate](#production-beta-monad-mainnet-gated) passes; until `deployments/143.json` with
+> `"production": true` is committed, nothing of ours is on mainnet. Every number in this repo and in the app is
+> labelled **Monad mainnet**, **Monad testnet**, **local anvil (not Monad)** or **simulation**.
+>
+> Mainnet beta label, used everywhere: **Unaudited beta · capped · use only what you can afford to lose.** Not
+> audited: internal review and Slither only. Read the [risk disclosure](src/app/risk/page.tsx) (`/risk`) and the
+> [draft terms](src/app/terms/page.tsx) (`/terms`); both are drafts that need legal review before launch.
 
 ---
 
@@ -148,7 +155,7 @@ transactions **don't depend on each other's writes**.
   +---------------------------------------------------------------------------------------------+
 ```
 
-## What's on-chain and what's simulated
+## What's on-chain and what's simulated (demo stack)
 
 | Piece | `sim` mode (default) | `anvil` / `monad` modes |
 |---|---|---|
@@ -163,6 +170,100 @@ transactions **don't depend on each other's writes**.
 | Login / wallet | Privy passkey if `NEXT_PUBLIC_PRIVY_APP_ID` is set, otherwise a simulated passkey | Privy passkey with an embedded wallet, or a demo burner key held in localStorage (labelled) |
 | Chainlink Data Streams | Not used | `ChainlinkStreamsOracle` adapter is written and unit-tested against a **mock** verifier. Not deployed, not used in the demo |
 | Scoped session keys | Not implemented | Not implemented |
+
+---
+
+## Production beta: Monad mainnet (gated)
+
+The demo stack above (`ParaclrClearinghouseDemo`, `NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`, the faucet, the
+price pusher, the crash runner, the X-ray and the bench) **stays as it is**: it is the hackathon evidence. Production is
+a **separate contract set** in `contracts/src/prod/`, specified in [`docs/PRODUCTION_PLAN.md`](docs/PRODUCTION_PLAN.md).
+
+**Status:** pending its launch gate. The landing page reads `deployments/143.json` at build time and shows "Live on
+Monad mainnet · unaudited beta · capped", with the contract table and beta limits, only when that file exists with
+`"production": true`. Otherwise it shows "Mainnet beta: pending launch gate".
+
+### What changes for real money
+
+| | Demo stack (testnet / anvil) | Production set (mainnet beta) |
+|---|---|---|
+| Collateral | `MockAUSD`, 6-decimal test token with a faucet | Agora **AUSD** on Monad mainnet, immutable token address, no mint, no faucet |
+| Prices | Simulated GBM feed pushed to `MockOracle` by the keeper | **Pyth** pull oracle, verified on chain: expo-normalised, staleness bound, confidence check (`conf / price ≤ maxConfBps`), non-positive prices rejected, excess update fee refunded |
+| Orders | `openPosition` fills immediately at the oracle price | **Delayed orders**: `commitOrder` escrows margin and an execution fee; `executeOrder` (anyone) must use the first Pyth update published at least `MIN_EXEC_DELAY` after the commit, within `MAX_EXEC_DELAY`, against the trader's acceptable price; `cancelOrder` only after `MAX_EXEC_DELAY` |
+| Fees and funding | None | Trading fee (bps of notional) to lane insurance; execution fee (MON) to the executor; per-market funding from the **global** skew (sum of the 8 lanes' OI), written by a rate-limited `updateFunding` and settled when a position is touched |
+| Caps | None | Max leverage, deposit cap per account, TVL cap per lane, OI cap per lane and market (sized against that lane's insurance + backstop), min position size |
+| Liquidations | Per-block auctions, backstop pools, solvency ledgers | The same, priced with verified Pyth prices |
+| Admin | Owner EOA, `seedAccounts`, `setOracle` | Owner = timelock driven by a multisig; guardian can only `pause()`; no `seedAccounts`, no shared-state flag, no `MockOracle` |
+| Keeper | Price pusher, faucet, sweeper, crash runner, demo takers | Order executor, funding updater, auction sweeper, monitoring and alerts. No faucet, price pusher, demo takers or crash |
+
+Why delayed orders: with a pull oracle, a trader who sees a newer price off chain could otherwise trade against the
+older on-chain price, or pick which signed update to submit. Here the fill price is the first update published after
+the delay, so neither the trader nor the executor chooses it, and a cancel is only possible after the window, so there
+is no free option. That closes the classic oracle front-run. It doesn't remove every form of MEV.
+
+### Who can do what
+
+| Role | Can | Cannot |
+|---|---|---|
+| Owner: multisig → `TimelockController` | Change parameters, caps, fees, the oracle configuration and roles; unpause. Every change waits out the timelock delay (`TIMELOCK_MIN_DELAY_SECONDS`, 24 h in the env template) | Act instantly or skip the delay |
+| Guardian (hot key) | `pause()`: blocks deposits and new increase orders | Unpause, change parameters, or stop withdrawals, reduce/close orders and liquidations (they keep working while paused) |
+| 8 lane keepers + ops (hot keys) | Execute orders and run auctions with Pyth updates (earning execution fees); update funding | Choose the fill price, change parameters, pause |
+| Anyone | Execute pending orders, start auctions, take an auction from an account in the same lane | Change an order's terms or fill it beyond its acceptable price |
+| Deployer | Nothing after deploy: ownership moves to the timelock and deployer powers are renounced | |
+
+This is the design in `docs/PRODUCTION_PLAN.md`; the deployed code is the final word.
+
+### Launch gate (no exceptions)
+
+Mainnet launch with real AUSD happens only if **all** of these pass:
+
+1. The full Foundry suite for the production set, including fuzz and invariant tests (oracle edge cases, order timing,
+   funding, caps, pause semantics, timelock-only admin, reentrancy, lane storage isolation).
+2. Slither, with every high and medium finding fixed or justified in writing.
+3. An adversarial internal review, with every critical finding fixed.
+4. A full rehearsal on an anvil fork of Monad mainnet against the real AUSD and Pyth contracts.
+5. Caps set to the beta values.
+
+Otherwise the hackathon submission stays on testnet with no real value, and production ships only after an external
+audit. **Not audited: internal review and Slither only.**
+
+### Deploy and launch, in outline
+
+The operator runbook (pause, key rotation, top-ups, incident response, timelock procedures) is
+[`docs/RUNBOOK.md`](docs/RUNBOOK.md); keeper hosting (secrets, HTTPS, CORS, health checks, restarts) is
+[`keeper/HOSTING.md`](keeper/HOSTING.md). The steps, in order:
+
+1. `cp keeper/.env.mainnet.example keeper/.env.mainnet` (mode 600, gitignored). Fill in the owner multisig **address**,
+   the timelock delay and the beta caps. Use a dedicated RPC.
+2. `npm run keeper:init -- --network mainnet` generates fresh hot keys (deployer, guardian, ops, 8 lane keepers) into
+   that file and prints addresses only.
+3. `npm run keeper:fund -- --network mainnet` previews MON top-ups from measured gas, then sends after confirmation.
+4. `npm run rehearse:mainnet`: deploy and run the whole production set on a local fork of Monad mainnet (real AUSD and
+   Pyth, test balances via storage cheats, real Hermes updates), writing only to rehearsal output dirs.
+5. Pass the launch gate above.
+6. `npm run deploy:mainnet` runs `contracts/script/DeployProd.s.sol`: re-verifies AUSD, Pyth, decimals and feed ids on
+   chain, deploys, sets the beta caps, wires roles, hands ownership to the timelock, renounces deployer powers and
+   writes `deployments/143.json` with `"production": true`.
+7. Host the keeper (`keeper/HOSTING.md`) and the app with `NEXT_PUBLIC_CHAIN_MODE=monad-mainnet`.
+8. Commit `deployments/143.json` and rebuild: the landing page switches to "Live on Monad mainnet" and lists the
+   contracts with Monadscan links.
+
+Exact flags and confirmation prompts are in `docs/RUNBOOK.md`; mainnet commands require an explicit confirmation flag
+and print balances and costs first.
+
+### Deployed contracts (Monad mainnet, chain id 143)
+
+<!-- Copy from deployments/143.json after the production deploy. Leave [TBD] until then. -->
+
+| Contract / role | Address | Explorer |
+|---|---|---|
+| Clearinghouse (production) | `[TBD]` | `https://monadscan.com/address/[TBD]` |
+| Timelock (owner) | `[TBD]` | `https://monadscan.com/address/[TBD]` |
+| Owner multisig | `[TBD]` | `https://monadscan.com/address/[TBD]` |
+| Guardian | `[TBD]` | `https://monadscan.com/address/[TBD]` |
+| AUSD (Agora, external) | `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` (re-verified by the deploy script) | `https://monadscan.com/address/0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` |
+| Pyth (external) | `0x2880aB155794e7179c9eE2e38200202908C17B43` (re-verified by the deploy script) | `https://monadscan.com/address/0x2880aB155794e7179c9eE2e38200202908C17B43` |
+| Deploy block | `[TBD]` | |
 
 ---
 
@@ -223,17 +324,34 @@ same files at build time.
 
 ### Auction runs (RunReport v2)
 
-| Network | Accounts | Went to auction | Backstop / external / cured / expired | Avg discount | Time underwater p50 / max | Equity returned to traders | Old fixed-fee path, counterfactual | Evidence |
-|---|---|---|---|---|---|---|---|---|
-| **Monad testnet** (10143) | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD] bps` | `[TBD] / [TBD] blocks` | `[TBD] AUSD` | `[TBD] AUSD` | `bench/results/10143-[TBD].json` |
-| local anvil (31337), **not Monad** | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD] bps` | `[TBD] / [TBD] blocks` | `[TBD] AUSD` | `[TBD] AUSD` | `bench/results/31337-[TBD].json` |
+| Network | Shock | Accounts | Went to auction | Backstop / external (demo bots) / cured / expired | Avg discount | Time underwater p50 / max | Equity returned to traders | Taken from traders: auction vs old fixed-fee path | Lane-funded shortfall | Evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Monad testnet** (10143) | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD] bps` | `[TBD] / [TBD] blocks` | `[TBD] AUSD` | `[TBD]` vs `[TBD] AUSD` | `[TBD] AUSD` | `bench/results/10143-[TBD].json` |
+| local anvil (31337), **not Monad** | −20% | 524 | 96 | 80 / 13 / 0 / 3 | 76.61 bps | 4 / 21 blocks (20,988 ms) | 5,101.41 AUSD | 4,642.19 vs 7,082.64 AUSD | 292,780.30 AUSD | `bench/results/31337-2026-10-06T22-53-30Z.json` |
+| local anvil (31337), **not Monad** | −20% | 524 | 96 | 80 / 13 / 0 / 3 | 76.61 bps | 4 / 21 blocks (8,407 ms) | 5,101.41 AUSD | 4,642.19 vs 7,082.64 AUSD | 292,780.30 AUSD | `bench/results/31337-2026-10-06T22-54-24Z.json` |
+| local anvil (31337), **not Monad** | −5% | 524 | 7 | 1 / 6 / 0 / 0 | 64.29 bps | 4 / 4 blocks (4,024 ms) | 5,640.10 AUSD | 2,937.70 vs 4,526.41 AUSD | 0 AUSD | `bench/results/31337-2026-10-06T22-54-58Z.json` |
+
+The anvil runs are 500 seeded synthetic accounts plus 24 keeper-run demo takers (`auctions.externalTakers.demo:
+true`); every external take was made by those bots. "Taken from traders by the auction" is `traderEquityAtStart −
+traderResidualReturned`, directly comparable with the keeper's counterfactual for the old 1% fixed-fee path. The
+lane-funded shortfall is `auctions.badDebt`: what lane insurance (then lane bad debt) paid where a backstop take's
+payment exceeded the account's equity, which happens with deeply underwater accounts after a −20% shock.
 
 ### Conflict X-ray
 
 | Network · method | Design | Txs | Dependency edges | Across lanes | Longest chain | Evidence |
 |---|---|---|---|---|---|---|
-| `[TBD]` | Paraclr lanes | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | `bench/xray/[TBD].json` |
-| `[TBD]` | Naive shared state | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | same file |
+| Monad testnet · `[TBD: method]` | Paraclr lanes | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | `bench/xray/10143-[TBD].json` |
+| Monad testnet · `[TBD: method]` | Naive shared state | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | same file |
+| local anvil, **not Monad** · live `debug_traceTransaction` | Paraclr lanes | 52 | 34 | 0 | 4 | `bench/xray/31337-run-mux9zc6t-g5jvm.json` (−20% run) |
+| local anvil, **not Monad** · live `debug_traceTransaction` | Naive shared state | 49 | 311 | 277 | 18 | same file |
+| local anvil, **not Monad** · live `debug_traceTransaction` | Paraclr lanes | 18 | 11 | 0 | 5 | `bench/xray/31337-run-muxa18h8-ef0ay.json` (−5% run) |
+| local anvil, **not Monad** · live `debug_traceTransaction` | Naive shared state | 18 | 27 | 16 | 6 | same file |
+
+Edges are drawn only between transactions in the same block (`edgeScope: "same-block"`). Within-lane edges exist by
+design (the takers and the sweeper of one lane share that lane's aggregates); the lane claim is **zero cross-lane
+edges**. anvil executes sequentially, so these graphs show dependencies, not anything about Monad's parallel
+execution or its re-execution counts.
 
 ### Pre-auction runs (fixed-fee `liquidateBatch`, Oct 4)
 
@@ -284,31 +402,41 @@ has a fair baseline; nothing in the app trades on it.
 ```
 contracts/          Foundry: ParaclrClearinghouse(+Demo), NaiveClearinghouseDemo, MockOracle, ChainlinkStreamsOracle,
                     MockAUSD; unit, auction and invariant tests; deploy script
-keeper/             Node keeper: price loop, faucet, per-lane sweeper, crash runner, Conflict X-ray, bench CLI
+contracts/src/prod/ the production set for the mainnet beta (Pyth, real AUSD, delayed orders, fees, funding, caps,
+                    timelock + guardian); DeployProd.s.sol writes deployments/143.json
+keeper/             Node keeper: price loop, faucet, per-lane sweeper, crash runner, Conflict X-ray, bench CLI;
+                    keeper/src/prod/: mainnet executor, funding, Hermes client, alerts. Hosting: keeper/HOSTING.md
 bench/results/      RunReport JSON from bench runs, committed as evidence
 bench/xray/         XrayReport JSON (lanes vs naive), committed as evidence
 deployments/        <chainId>.json: deployed addresses + market ids, read by the app
 scripts/            dev-chain, deploy, export-abi (npm run abi -> src/lib/chain/abi/*.ts, generated)
-src/app/            Next.js 16 App Router: landing page (/) and the app (/app)
+src/app/            Next.js 16 App Router: landing page (/), the app (/app), /risk and /terms (drafts)
 src/components/     landing/, auth/, trade/, clearing/ (auctions, X-ray), backstop/, solvency/, shell/
 src/lib/            chain clients and ABIs, in-browser simulation, price sources
-docs/               FAIR_LIQUIDATION_PLAN.md, ONCHAIN_PLAN.md (build contracts), SUBMISSION.md, x/ (social drafts)
+docs/               PRODUCTION_PLAN.md, FAIR_LIQUIDATION_PLAN.md, ONCHAIN_PLAN.md (build contracts), RUNBOOK.md
+                    (mainnet operations), SUBMISSION.md, x/ (social drafts)
 ```
 
 ## Known limitations
 
-- Testnet only and unaudited. AUSD is a stand-in token, prices are simulated and pushed on-chain, and crash-run
-  accounts are synthetic.
+- **Not audited**: internal review and Slither only, for the demo and the production set alike. The mainnet beta is
+  capped for that reason.
+- Demo stack: AUSD is a stand-in token, prices are simulated and pushed on-chain, crash-run accounts are synthetic, and
+  external takes in the bench runs are keeper-run demo bots.
+- Production set: keepers, the guardian and the ops key are run by one operator; anyone can execute orders and
+  auctions, but nobody is obliged to. The owner is a multisig behind a timelock. `/terms` and `/risk` are drafts
+  pending legal review.
 - MEV-resistant pricing, not MEV-free: takers can still compete on ordering within a block.
 - Backstop exposure is reduced by an operator/keeper role (`backstopReduce`), not by a market. LPs carry the price
   risk of inherited positions until then.
-- Each lane's insurance fund is the counterparty for that lane's positions. One position per market per account. No
-  funding payments, no trading fees.
+- Each lane's insurance fund is the counterparty for that lane's positions. One position per market per account. The
+  demo stack has no funding payments or trading fees (the production set has both).
 - Imbalanced lanes (one busy lane) cap the parallelism of a run. 8 lanes is a design choice, not a Monad limit.
 - The Conflict X-ray shows dependencies, not Monad's re-execution counts.
 - See [`contracts/README.md`](contracts/README.md) for contract-level limitations.
 
 ## Affiliation
 
-We are entering the Monad Metropolis hackathon. Sponsor tools are used through their public SDKs (Privy). We have no
-partnership with or endorsement from Monad, Agora, Privy, Chainlink or any other sponsor.
+We are entering the Monad Metropolis hackathon. Sponsor tools are used through their public SDKs (Privy) and public
+contracts (Agora's AUSD, Pyth). We have no partnership with or endorsement from Monad, Agora, Pyth, Privy, Chainlink or
+any other sponsor.

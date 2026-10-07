@@ -1,7 +1,15 @@
 # Paraclr: Monad Metropolis submission pack
 
 Status: **DRAFT.** Human review before anything is submitted. Bracketed `[TBD]` / `[N]` placeholders are filled
-**only** from committed `bench/results/*.json`, `bench/xray/*.json` and `deployments/10143.json`. Never estimate them.
+**only** from committed `bench/results/*.json`, `bench/xray/*.json`, `deployments/10143.json` and
+`deployments/143.json`. Never estimate them.
+
+**Two possible submissions.** A capped, unaudited real-money beta on Monad mainnet ships only if its launch gate passes
+(`docs/PRODUCTION_PLAN.md`). Decide which variant to submit on the day, from the repo, not from hopes:
+
+- **Variant L (launched):** `deployments/143.json` is committed with `"production": true`. Use every "[L]" line below.
+- **Variant T (testnet / no value):** no such file. Use every "[T]" line and cut the "[L]" ones. The submission is the
+  testnet/anvil demo and nothing in it claims real money.
 
 Key dates (from https://monad.xyz/developers/hackathons/metropolis, checked 2026-10-04):
 
@@ -16,9 +24,12 @@ Track: **Onchain Finance & Trading** (Grand Champion is judged across all tracks
 Sponsor prizes, awarded on top of track prizes: Agora "Best Mobile Trading App on Monad", Privy, and Perpl "Best
 Analytics / Risk Tool". Check each one's eligibility first. Not entering: Chainlink "Best workflow with CRE".
 
-Honesty rules for everything below (from `docs/FAIR_LIQUIDATION_PLAN.md`): "auction-priced" and "MEV-resistant
-pricing", never "no MEV" or "no gas wars"; the X-ray shows dependencies, not Monad's re-execution counts, and always
-names its method; anvil is never Monad; backstop returns are "earned since deploy", never APY; no competitor names.
+Honesty rules for everything below (from `docs/FAIR_LIQUIDATION_PLAN.md` and `docs/PRODUCTION_PLAN.md`):
+"auction-priced" and "MEV-resistant pricing", never "no MEV" or "no gas wars"; the X-ray shows dependencies, not
+Monad's re-execution counts, and always names its method; anvil is never Monad; backstop returns are "earned since
+deploy", never APY; no competitor names. Never "audited", "safe" or "guaranteed": the audit status is "not audited:
+internal review and Slither only". Real-money wording only in Variant L, always with the label **"Unaudited beta ·
+capped · use only what you can afford to lose."**
 
 ---
 
@@ -61,6 +72,23 @@ liquidation writes the same global state can't use a parallel chain: the liquida
   rewards owed − bad debt)`. The app reads it every block; Foundry invariant tests cover it.
 - **A real terminal on top.** Passkey login through Privy, click-to-trade on desktop or swipe-to-trade on a phone,
   margin in a single stable asset (AUSD).
+- **A production set behind a launch gate.** The same auctions, backstops and solvency ledgers in a separate contract
+  set built for real money: Agora AUSD as collateral, Pyth prices verified on chain (staleness, confidence, positive
+  price), delayed orders that fill at the first Pyth price published after a minimum delay (so neither the trader nor
+  the executor picks the price, which closes the classic oracle front-run), trading and execution fees, funding from
+  the global skew, hard caps, a timelock owner driven by a multisig, and a pause-only guardian.
+
+**Production beta status.**
+
+- **[L]** Live on Monad mainnet (chain 143) as a capped, unaudited beta: `[TBD: clearinghouse address from
+  deployments/143.json]` ([LINK: Monadscan]). Caps: `[TBD: max leverage, deposit cap per account, TVL cap per lane,
+  OI cap per lane and market, from deployments/143.json]`. Timelock delay `[TBD]`. It launched after the launch gate:
+  the full Foundry suite with invariants, Slither with every high/medium fixed or justified (`[LINK: notes]`), an
+  adversarial internal review with criticals fixed (`[LINK: notes]`), and a rehearsal on a fork of Monad mainnet.
+  **Not audited: internal review and Slither only. Unaudited beta · capped · use only what you can afford to lose.**
+- **[T]** The production set is built and tested but **not deployed**: it didn't clear its launch gate in time
+  (`[TBD: which check, in one honest sentence]`), so this submission is the testnet / no-value demo. Production ships
+  after an external audit. Nothing of ours is on Monad mainnet.
 
 **What's live on Monad testnet.** *(Before submitting, cut any line below that isn't true on Monad testnet.)*
 
@@ -70,7 +98,10 @@ liquidation writes the same global state can't use a parallel chain: the liquida
 - A keeper that pushes prices on-chain, sweeps every lane's auctions every block, and runs the flash crash.
 - The clearing screen with per-lane auctions, the Conflict X-ray, the backstop tab and the solvency badge.
 
-**Measured results** (Monad testnet, from `bench/results/10143-[TBD].json` and `bench/xray/10143-[TBD].json`):
+**Measured results.** Every number below is from a committed file; the mainnet beta, if live, isn't benchmarked
+here (no synthetic accounts or crashes on mainnet).
+
+Monad testnet (from `bench/results/10143-[TBD].json` and `bench/xray/10143-[TBD].json`):
 
 | Accounts | Went to auction | Taken by backstop / external / cured / expired | Avg discount | Time underwater p50 / max | Equity returned to traders | Old fixed-fee counterfactual |
 |---|---|---|---|---|---|---|
@@ -80,6 +111,23 @@ liquidation writes the same global state can't use a parallel chain: the liquida
 |---|---|---|---|---|
 | Paraclr lanes | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` |
 | Naive shared state | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` |
+
+Local anvil, **not Monad** (committed today; anvil executes sequentially, so this checks the mechanism end to end and
+says nothing about Monad's parallel execution). 500 seeded synthetic accounts plus 24 keeper-run demo takers; every
+external take was made by those bots:
+
+| Run | Shock | Went to auction | Backstop / external (demo bots) / cured / expired | Avg discount | Time underwater p50 / max | Taken from traders: auction vs old fixed-fee path |
+|---|---|---|---|---|---|---|
+| `bench/results/31337-2026-10-06T22-54-24Z.json` | −20% | 96 | 80 / 13 / 0 / 3 | 76.61 bps | 4 / 21 blocks | 4,642.19 vs 7,082.64 AUSD |
+| `bench/results/31337-2026-10-06T22-54-58Z.json` | −5% | 7 | 1 / 6 / 0 / 0 | 64.29 bps | 4 / 4 blocks | 2,937.70 vs 4,526.41 AUSD |
+
+| Conflict X-ray, local anvil · live `debug_traceTransaction` (−20% run, `bench/xray/31337-run-muxa08r6-x9rft.json`) | Txs | Dependency edges | Across lanes | Longest chain |
+|---|---|---|---|---|
+| Paraclr lanes | 52 | 34 | 0 | 4 |
+| Naive shared state | 49 | 311 | 277 | 18 |
+
+In the −20% run the lane-funded shortfall (`auctions.badDebt`: lane insurance, then lane bad debt, covering backstop
+takes where the payment exceeded the account's equity) was 292,780.30 AUSD; in the −5% run it was 0. Say so if asked.
 
 Time underwater runs from the shock block to the block each account was resolved; the ms figure is on the keeper's
 clock and includes RPC round trips. The counterfactual is what the previous close-at-mark, 1%-fee path would have
@@ -93,32 +141,37 @@ smaller.
   operator with test AUSD.
 - MEV-resistant pricing, not MEV-free. Backstop exposure is reduced by an operator/keeper role, not a market.
 - The X-ray shows dependencies, not Monad's re-execution counts.
-- Unaudited. Scoped session keys aren't implemented. The Chainlink Data Streams adapter is unit-tested against a mock
-  verifier only. The app's "Simulated" mode is labelled as such.
+- Not audited: internal review and Slither only. Scoped session keys aren't implemented. The Chainlink Data Streams
+  adapter is unit-tested against a mock verifier only. The app's "Simulated" mode is labelled as such.
+- **[L]** The mainnet beta is capped and run by one operator's keepers (anyone can execute orders and auctions, nobody
+  must). `/terms` and `/risk` are drafts pending legal review. The landing's results and X-ray come from the demo stack,
+  not mainnet.
 
 **Partner tech used.**
 
 - **Monad testnet**: the contracts, every measured run and the X-ray.
 - **Privy**: passkey (WebAuthn) login and an embedded wallet on Monad testnet.
-- **AUSD**: the single quote and margin asset in the design. A testnet stand-in is used for now.
-- Not used in the live demo: Chainlink (adapter only).
+- **AUSD**: the single quote and margin asset. The demo uses a testnet stand-in. **[L]** Real Agora AUSD is the
+  collateral on the mainnet beta.
+- **Pyth**: verified on-chain prices for the production set. **[T]** Used in the mainnet-fork rehearsal only.
+- Not used anywhere live: Chainlink (adapter only).
 
 **What's next.**
 
-1. Real AUSD and a live price source in the liquidation path.
+1. An external audit before any cap goes up. **[T]** Before any mainnet deploy at all.
 2. A market for backstop exposure instead of an operator `backstopReduce`.
 3. Per-lane auction parameters tuned from measured time-underwater data.
-4. Funding rates and trading fees.
-5. Lane rebalancing for skewed account distributions.
-6. Scoped session keys so placing an order never needs a signature prompt.
-7. Mainnet readiness: audits and keeper decentralisation.
+4. Lane rebalancing for skewed account distributions.
+5. Scoped session keys so placing an order never needs a signature prompt.
+6. Keeper decentralisation: more independent executors and sweepers.
 
 **Links:**
 
 - Repo: `[LINK: repo]`
 - Demo video: `[LINK: video]`
 - Live app: `[LINK: app]`, or "video only" if the keeper isn't publicly hosted
-- Contracts: `[LINK: explorer]`
+- Contracts: `[LINK: explorer]` (testnet). **[L]** Mainnet: `[LINK: Monadscan clearinghouse]`
+- Risk disclosure and terms (drafts): `[LINK: app]/risk`, `[LINK: app]/terms`
 
 ---
 
@@ -144,6 +197,9 @@ smaller.
 ### Honesty and copy
 
 - [ ] No "no MEV", "MEV-free", "no gas wars" anywhere (site, app, README, video, posts). `grep -ri "mev-free\|no mev\|gas war"`.
+- [ ] No "audited" (except "not audited" / "unaudited"), "safe", or "guaranteed" claims.
+      `grep -rniE "\baudited\b|\bsafe\b|guarantee" src docs README.md` and read every hit.
+- [ ] No real-money claim anywhere unless `deployments/143.json` exists with `"production": true`.
 - [ ] No APY for backstop pools; "earned since deploy" only.
 - [ ] UI says "8 conflict-free lanes" / "Lane N" everywhere, never "Monad threads".
 - [ ] Every on-chain number in the UI says "Monad testnet" or "local anvil (not Monad)". Simulation numbers say
@@ -166,6 +222,24 @@ smaller.
       landing/docs, bench + X-ray evidence) well before Oct 13. Don't rewrite or squash history.
 - [ ] Bench and X-ray JSONs carry their run ids and timestamps, and their tx hashes resolve on the explorer.
 
+### Production beta (only for Variant L)
+
+- [ ] Launch gate evidence is committed or linked: `forge test` output for the production set (incl. invariants), the
+      Slither report with every high/medium fixed or justified in writing, the adversarial review notes with criticals
+      fixed, and the mainnet-fork rehearsal log. Nothing launches without all of it.
+- [ ] `deployments/143.json` is committed with `"production": true`; the landing page, rebuilt, shows "Live on Monad
+      mainnet · unaudited beta · capped" and the contract table, and every Monadscan link resolves.
+- [ ] The caps, fees, delays and timelock delay on the landing page match the on-chain values (the app reads them on
+      chain; the landing page reads the deployment file).
+- [ ] Ownership is the timelock; the multisig is its proposer/executor; the deployer has no roles left. Checked on chain.
+- [ ] Guardian pause and timelock unpause verified in the mainnet-fork rehearsal: deposits and increase orders
+      blocked while paused, withdrawals, closes and liquidations still working.
+- [ ] Keeper hosted per `keeper/HOSTING.md`, alerts reach `ALERT_WEBHOOK_URL`, hot keys funded; runbook rehearsed.
+- [ ] `/terms` and `/risk` reviewed by a lawyer, placeholders (`[OPERATOR]`, jurisdictions, contact) filled, and the
+      DRAFT banner removed only after that review. If there's no legal review in time, don't launch.
+- [ ] "Unaudited beta · capped · use only what you can afford to lose" appears on the landing page, in the app banner,
+      before the first deposit, in the write-up and in every mainnet post.
+
 ### Security hygiene
 
 - [ ] No private keys in git. `.env*` is ignored. Check `keeper/.env` and any deploy `PRIVATE_KEY`.
@@ -176,43 +250,55 @@ smaller.
 ## 3. Demo video script (target 2:45, hard max 3:00)
 
 The cut: **trade → crash → auctions resolve per lane in seconds → trader keeps equity → X-ray side by side → solvency
-green.**
+green → [L] the same mechanism live on mainnet, capped / [T] the launch gate it's waiting on.**
 
 Recording rules:
 
-- Record the crash on **Monad testnet**. Every number in the voice-over comes from that run's on-screen card or its
-  committed JSON. If you re-record, re-read the numbers.
+- Record the crash on **Monad testnet** if `deployments/10143.json` and a `bench/results/10143-*.json` exist. If not,
+  record on local anvil and say "local anvil, not Monad" for every number; keep the badge in frame.
+- Every number in the voice-over comes from that run's on-screen card or its committed JSON. If you re-record, re-read
+  the numbers.
 - Keep the network badge on screen during every on-chain shot. Keep the X-ray method label in frame.
-- Burn in captions. Don't say "no MEV", "instant" or "zero conflicts"; say what was measured.
+- **Never crash, seed or demo-trade on mainnet.** The mainnet segment shows the landing status strip, the contract table,
+  the app's beta banner and risk acknowledgement, and at most one small real trade by the team, with its Monadscan link.
+- Burn in captions. Don't say "no MEV", "instant", "zero conflicts", "safe", "audited" or "guaranteed"; say what was
+  measured, and "not audited: internal review and Slither only".
 
-Placeholders (all from one `bench/results/10143-*.json` and its `bench/xray/10143-*.json`): `[STARTED]` =
+Placeholders (all from one `bench/results/<chain>-*.json` and its `bench/xray/<chain>-*.json`): `[STARTED]` =
 `auctions.started`, `[BACKSTOP]` = `auctions.takenByBackstop`, `[P50]` / `[MAXB]` = `underwater.p50Blocks` /
-`underwater.maxBlocks`, `[MAXMS]` = `underwater.maxMs`, `[RETURNED]` = `auctions.traderResidualReturned` (AUSD),
-`[LEGACY]` = `auctions.legacyCounterfactual.traderLoss` (AUSD), `[E_LANES]` / `[E_NAIVE]` = each design's
-`summary.crossLaneEdges` (always call them cross-lane edges; within-lane edges exist by design), `[METHOD]` = `method`.
+`underwater.maxBlocks`, `[MAXMS]` = `underwater.maxMs`, `[TAKEN]` = (`auctions.traderEquityAtStart` −
+`auctions.traderResidualReturned`) in AUSD, `[LEGACY]` = `auctions.legacyCounterfactual.traderLoss` (AUSD),
+`[E_LANES]` / `[E_NAIVE]` = each design's `summary.crossLaneEdges` (always call them cross-lane edges; within-lane edges
+exist by design), `[METHOD]` = `method`, `[NET]` = "Monad testnet" or "local anvil, not Monad". Mainnet values
+(`[CAP]`, `[LEV]`, `[DELAY]`) come from `deployments/143.json` and must match what the app shows on chain.
 
 | Time | Shot | Voice-over (draft) | On-screen text |
 |---|---|---|---|
-| 0:00–0:12 | Landing hero: the auction board animating | "When a market crashes, liquidation is a race: the first bot to land takes a fixed penalty, and the trader pays it. Paraclr replaces the race with a clock." | Paraclr: fair liquidations for Monad |
-| 0:12–0:32 | Sign in with a passkey, faucet toast; trade screen, MON/AUSD 10x, open the long; pending → confirmed with explorer link | "Sign in with a passkey, no seed phrase. Open a 10x long. That's a real deposit and openPosition on Monad testnet, read back from the contract. Prices come from our on-chain oracle, fed by a simulated feed." | Monad testnet · simulated price feed · test AUSD |
-| 0:32–0:45 | Clearing screen, Live, 8 lanes with account counts. Tap "Flash crash on Monad" | "Now the crash: one oracle transaction drops every market 20%. [STARTED] accounts are underwater across eight lanes." | Measured on Monad testnet |
-| 0:45–1:15 | Lanes: in-auction cells, discount ticking, backstop takes lane by lane; time-underwater metric | "Every block, each lane's sweeper puts its underwater accounts into a Dutch auction. The discount starts at zero and rises 25 basis points a block; gas can't buy a bigger one. At 150, each lane's backstop pool takes. [BACKSTOP] accounts went to backstops. Median time underwater: [P50] blocks; the longest, [MAXB] blocks, [MAXMS] milliseconds on the keeper's clock." | discount set by the block clock, not by gas bidding |
-| 1:15–1:35 | Result card: equity returned vs the old fixed-fee counterfactual. If the demo account was taken, its banner and leftover collateral | "Traders get back whatever the auction didn't use: [RETURNED] AUSD across this crash. For comparison, our old fixed-fee path would have taken [LEGACY] AUSD from the same accounts." *(Read both numbers as they are.)* | trader keeps E − P |
-| 1:35–2:05 | Conflict X-ray panel: lanes graph vs naive graph, method label | "Here's the part we don't ask you to take on trust. We traced every transaction that resolved the crash, then ran the identical crash on a naive build of the same contract with every per-lane total on one storage key. An edge means a later transaction in the same block read something an earlier one wrote, which is when Monad has to re-execute. Lanes: [E_LANES] edges. Naive: [E_NAIVE]. This is a dependency map, not Monad's internal re-execution count." | Conflict X-ray · [METHOD] |
-| 2:05–2:20 | Header solvency badge green; open the detail panel; then the Backstop tab | "And the books balance: the app checks solvency every block, AUSD held against every lane's ledger. The backstop LPs who took these auctions see what they earned since deploy, and the exposure they now carry." | Solvent · earned since deploy |
-| 2:20–2:35 | Terminal: `forge test` (ParallelSafety + invariant suite) passing; flash `bench/results/10143-…json` and `bench/xray/10143-…json` | "The storage isolation is a Foundry test, the solvency identity is an invariant test, and every run's raw data is committed to the repo." | `vm.record` · invariant tests · raw JSON |
-| 2:35–2:50 | Landing page Results + X-ray sections; repo URL | "Testnet only: test AUSD, simulated prices, seeded accounts, and auction pricing that's MEV-resistant, not MEV-free. Code, results and the X-ray are on GitHub." | [LINK: repo] |
+| 0:00–0:10 | Landing hero: the auction board animating, status strip in frame | "When a market crashes, liquidation is a race: the first bot to land takes a fixed penalty, and the trader pays it. Paraclr replaces the race with a clock." | Paraclr: fair liquidations for Monad |
+| 0:10–0:27 | Sign in with a passkey, faucet toast; trade screen, MON/AUSD 10x, open the long; pending → confirmed | "Sign in with a passkey, no seed phrase. Open a 10x long. That's a real deposit and openPosition on [NET], read back from the contract, with test AUSD and a simulated price feed." | [NET] · simulated price feed · test AUSD |
+| 0:27–0:38 | Clearing screen, Live, 8 lanes with account counts. Tap the flash-crash button | "Now the crash: one oracle transaction drops every market 20%. [STARTED] accounts are underwater across eight lanes." | Measured on [NET] |
+| 0:38–1:05 | Lanes: in-auction cells, discount ticking, backstop takes lane by lane; time-underwater metric | "Every block, each lane's sweeper puts its underwater accounts into a Dutch auction. The discount starts at zero and rises 25 basis points a block; gas can't buy a bigger one. At 75, three blocks in, each lane's backstop pool takes. [BACKSTOP] accounts went to backstops. Median time underwater: [P50] blocks; the longest, [MAXB] blocks, [MAXMS] milliseconds on the keeper's clock." | discount set by the block clock, not by gas bidding |
+| 1:05–1:22 | Result card: what the auction took vs the old fixed-fee counterfactual | "The auction took [TAKEN] AUSD from these traders; our old fixed-fee path would have taken [LEGACY] from the same accounts. Everything else came back to them as free collateral." *(Read both numbers as they are.)* | trader keeps E − P |
+| 1:22–1:48 | Conflict X-ray panel: lanes graph vs naive graph, method label | "We traced every transaction that resolved the crash, then ran the identical crash on a naive build of the same contract with every per-lane total on one storage key. An edge means a later transaction in the same block touched something an earlier one wrote, which is when Monad has to re-execute. Cross-lane edges: lanes [E_LANES], naive [E_NAIVE]. A dependency map, not Monad's internal re-execution count." | Conflict X-ray · [METHOD] |
+| 1:48–2:00 | Header solvency badge green; detail panel; Backstop tab | "The books balance every block: AUSD held against every lane's ledger. Backstop LPs see what they earned since deploy, and the exposure they carry." | Solvent · earned since deploy |
+| 2:00–2:12 | Terminal: `forge test` (ParallelSafety + invariants + the production suite) passing; the committed JSON | "Storage isolation is a Foundry test, solvency is an invariant test, and every run's raw data is in the repo." | `vm.record` · invariant tests · raw JSON |
+| 2:12–2:40 **[L]** | Landing status strip "Live on Monad mainnet · unaudited beta · capped" → contract table → app: beta banner, risk acknowledgement, a delayed order going submitted → filled with its Monadscan link | "The same mechanism is live on Monad mainnet as a small beta: real Agora AUSD, Pyth prices verified on chain, and delayed orders, so nobody picks the price they fill at. Deposits are capped at [CAP], leverage at [LEV], every change waits [DELAY] in a timelock, and a guardian can only pause. It is not audited: internal review and Slither only. Use only what you can afford to lose." | Unaudited beta · capped · use only what you can afford to lose |
+| 2:12–2:30 **[T]** | Landing "Mainnet beta" section: the five-step launch gate, "pending" badge | "A real-money version is built: real AUSD, Pyth, delayed orders, caps, a timelock. It goes to mainnet only if all five checks pass, and it isn't there yet. Until then, this is a testnet build with nothing at stake." | Mainnet beta: pending launch gate |
+| 2:40–2:50 ([T]: 2:30–2:40) | Landing Results + X-ray sections; repo URL | "MEV-resistant pricing, not MEV-free. Code, results and the X-ray are on GitHub." | [LINK: repo] |
 
 ### Shot list to capture
 
-1. Landing hero with the auction board animating (desktop, 1440 wide).
-2. Passkey login in a desktop browser or on a phone, trimmed tight, then the faucet toast.
+1. Landing hero with the auction board animating and the status strip (desktop, 1440 wide).
+2. Passkey login in a desktop browser or on a phone, trimmed tight, then the faucet toast (testnet/anvil only).
 3. Opening a trade through pending and confirmed, with the explorer link visible.
-4. The full crash on Monad testnet: button tap, per-lane auctions ticking and resolving, result card. Record 2–3 runs
-   and keep the cleanest; the X-ray must be from the same run.
-5. The result card's equity-returned and counterfactual numbers, readable.
+4. The full crash on Monad testnet (or local anvil, labelled): button tap, per-lane auctions ticking and resolving,
+   result card. Record 2–3 runs and keep the cleanest; the X-ray must be from the same run.
+5. The result card's auction-vs-counterfactual numbers, readable.
 6. The Conflict X-ray panel, both graphs, method label in frame.
 7. The solvency badge and its detail panel; the Backstop tab.
-8. `forge test --match-test ParallelSafety -vvv` and the invariant suite output.
+8. `forge test --match-test ParallelSafety -vvv`, the invariant suite, and the production suite output.
 9. The bench and X-ray JSON open in an editor (`auctions`, `underwater`, `designs[].summary` visible).
-10. The landing page Results and X-ray sections after the Monad files are committed and the site rebuilt.
+10. The landing page Results and X-ray sections after the files are committed and the site rebuilt.
+11. **[L]** The status strip and "Mainnet beta" section (contracts, limits, who can do what), the app's beta banner and
+    risk acknowledgement, one small delayed order filled on mainnet with its Monadscan link. **[T]** The "Mainnet beta"
+    section with the launch gate and the "pending" badge.

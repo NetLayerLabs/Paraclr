@@ -21,7 +21,14 @@ The pitch for judges: trade → crash → auctions resolve per lane within secon
 → the X-ray of that crash, lanes vs naive, side by side → the solvency badge stays green. All on Monad testnet, with
 every number read from a committed JSON file.
 
-Every number must say where it came from: **Monad testnet**, **local anvil (not Monad)**, or **simulation**.
+Every number must say where it came from: **Monad mainnet**, **Monad testnet**, **local anvil (not Monad)**, or
+**simulation**.
+
+**Two stacks.** The hackathon demo (testnet and anvil: test token, simulated feed, seeded accounts, crash button,
+X-ray) is the evidence. A separate production contract set targets a **capped, unaudited real-money beta on Monad
+mainnet** (real Agora AUSD, Pyth, delayed orders, fees, funding, caps, timelock + multisig + guardian). It launches only
+if its launch gate passes; otherwise the submission falls back to testnet with no real value. See "Production beta"
+below and `docs/PRODUCTION_PLAN.md`.
 
 ---
 
@@ -37,6 +44,9 @@ From `docs/FAIR_LIQUIDATION_PLAN.md`:
 - anvil numbers are labelled "local anvil — not Monad". No invented numbers.
 - Backstop yield is shown as "earned since deploy", never annualized APY.
 - Don't name or disparage other projects.
+- Never "audited", "safe" or "guaranteed". Audit status is always "not audited: internal review and Slither only".
+- Real-money claims only when `deployments/143.json` exists with `"production": true`. The mainnet beta label,
+  everywhere it appears: **"Unaudited beta · capped · use only what you can afford to lose."**
 
 ---
 
@@ -50,7 +60,7 @@ Nov 3. Judges check that the work was done in the build window, which started Se
 |---|---|---|
 | **Onchain Finance & Trading** track (primary) | $30,000 split evenly between 3 teams | Core target: fair, auction-priced liquidations on-chain, with measured runs, an X-ray and a solvency proof |
 | **Grand Champion** (across all tracks) | $25,000 | Core target: same story, plus a working product |
-| Agora: Best Mobile Trading App on Monad (sponsor, on top) | $10,000 | Secondary: mobile-friendly terminal (swipe-to-trade), AUSD-denominated margin. **Risk:** we use a 6-dp testnet stand-in (`MockAUSD`), not Agora's AUSD. Check the criteria |
+| Agora: Best Mobile Trading App on Monad (sponsor, on top) | $10,000 | Secondary: mobile-friendly terminal (swipe-to-trade), AUSD-denominated margin. **Risk:** the demo uses a 6-dp testnet stand-in (`MockAUSD`); real Agora AUSD only if the gated mainnet beta launches. Check the criteria |
 | Privy (sponsor, on top) | $5,000 | Passkey login plus Privy embedded wallet on Monad testnet. Check the criteria |
 | Perpl: Best Analytics / Risk Tool (sponsor, on top) | $3,000 | Possible fit for the X-ray, auction lifecycle and solvency views. Eligibility not checked |
 | Chainlink: Best workflow with CRE (sponsor, on top) | $3,000 | **Not targeted.** CRE is out of scope; our Data Streams adapter doesn't qualify |
@@ -174,14 +184,53 @@ contract API is in `contracts/README.md`.
 
 ---
 
+## Production beta (Monad mainnet, chain 143)
+
+Interface contract: `docs/PRODUCTION_PLAN.md`. Status: **pending launch gate** until `deployments/143.json` with
+`"production": true` is committed.
+
+- **Contracts** (`contracts/src/prod/`): real AUSD as immutable collateral (no mint, no faucet); Pyth pull oracle
+  verified on chain (expo-normalised to 18 dp, staleness bound, `conf / price ≤ maxConfBps`, non-positive price
+  reverts, excess fee refunded); delayed orders (`commitOrder` → `executeOrder` by anyone with the first Pyth update
+  published ≥ `MIN_EXEC_DELAY` after the commit, within `MAX_EXEC_DELAY`, slippage-checked → `cancelOrder` only after
+  `MAX_EXEC_DELAY`); trading fee to lane insurance and an execution fee in MON to the executor; per-market funding from
+  global skew via a rate-limited `updateFunding` index; caps (max leverage, per-account deposit, per-lane TVL, per-lane
+  per-market OI, min position); the fair-liquidation auctions and backstop pools unchanged; `solvency()` with real
+  AUSD. Every per-trade accumulator or cap stays lane-local.
+- **Admin:** owner = `TimelockController` with a multisig as proposer/executor; guardian = `pause()` only (deposits and
+  new increase orders stop; withdrawals, reduce/close orders and liquidations keep working); unpause and every
+  parameter, oracle or role change go through the timelock. No `seedAccounts`, no shared-state flag, no `MockOracle`.
+- **Keeper** (`keeper/src/prod/`): 8 lane keepers execute orders and run auctions with Hermes updates; ops key updates
+  funding; monitoring and alerts (balances, late executions, oracle staleness or wide confidence, pause, solvency, cap
+  utilisation). No faucet, price pusher, demo takers or crash on mainnet. Hosting: `keeper/HOSTING.md`; operations:
+  `docs/RUNBOOK.md`.
+- **App:** `NEXT_PUBLIC_CHAIN_MODE=monad-mainnet` (Monadscan); two-step orders (submitted → executing → filled or
+  expired), fees and caps shown up front, funding per market, paused state, a risk acknowledgement before the first
+  deposit, a persistent beta banner, and links to `/terms` and `/risk`.
+- **Landing:** a status strip and a "Mainnet beta" section read `deployments/143.json` at build time: "Live on Monad
+  mainnet · unaudited beta · capped" with the contract table, beta limits and admin powers when it exists with
+  `"production": true`; otherwise "Mainnet beta: pending launch gate" and "set at launch" for every limit.
+- **Launch gate (all or nothing):** full Foundry suite incl. invariants; Slither with every high/medium fixed or
+  justified in writing; an adversarial internal review with all criticals fixed; a full rehearsal on an anvil fork of
+  Monad mainnet with the real AUSD and Pyth contracts; caps at the beta values. If any fails, the submission stays on
+  testnet with no real value and production waits for an external audit.
+- **Legal:** `/terms` and `/risk` are plain-language drafts, marked "DRAFT — not legal advice; requires legal review
+  before launch". The risk page covers smart-contract, oracle, order execution, liquidation, funding, caps and pause,
+  keeper liveness, backstop LP, stablecoin, admin keys, chain and wallet, demo-results, regulatory and jurisdiction
+  risk, and the absence of any guarantee of recovery.
+
+---
+
 ## Stack
 
 - **App:** Next.js 16 (App Router, TypeScript, CSS Modules), viem, `@privy-io/react-auth`. Custom charts; no charting
   library.
-- **Contracts:** Foundry, Solidity 0.8.24, `evm_version = cancun`.
+- **Contracts:** Foundry, Solidity 0.8.24, `evm_version = cancun`. Production set: Pyth SDK, OpenZeppelin
+  `TimelockController`, Slither for static analysis.
 - **Keeper:** Node service in `keeper/` (see `keeper/README.md`).
 
 ## Out of scope this sprint
 
-Chainlink CRE workflow, real Agora AUSD, funding rates, trading fees, a market for backstop exposure (reduction is an
-operator/keeper role), scoped session keys, mainnet, audits.
+Chainlink CRE workflow, a market for backstop exposure (reduction is an operator/keeper role), scoped session keys, an
+external audit, raising the beta caps, and keeper decentralisation. Real AUSD, Pyth, funding, trading fees and mainnet
+are in scope **only** for the gated production set; the demo stack keeps its test token and simulated feed.
