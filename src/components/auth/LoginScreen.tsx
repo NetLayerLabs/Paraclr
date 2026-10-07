@@ -12,18 +12,15 @@ import { PrivyPasskeyLogin } from "./PrivyAuth";
 import { ThemeToggle } from "@/components/shell/theme";
 import styles from "./LoginScreen.module.css";
 
-const PARTNERS = [
-  { name: "Monad", color: "var(--accent)" },
-  { name: "Agora AUSD", color: "var(--ausd)" },
-  { name: "Privy", color: "var(--text)" },
-];
+// Official marks (public/partners/): Monad and Agora from their published SVGs, Pyth and Privy
+// recoloured white from their official icons. The brand panel is dark in both themes.
+const MONAD = { name: "Monad", logo: "/partners/monad.svg" };
+const AGORA = { name: "Agora AUSD", logo: "/partners/agora.svg" };
+const PYTH = { name: "Pyth", logo: "/partners/pyth-white.png" };
+const PRIVY = { name: "Privy", logo: "/partners/privy-white.png" };
+const PARTNERS = [MONAD, AGORA, PRIVY];
 // Production prices come from Pyth (delayed orders execute against Pyth updates).
-const PARTNERS_PROD = [
-  { name: "Monad", color: "var(--accent)" },
-  { name: "Agora AUSD", color: "var(--ausd)" },
-  { name: "Pyth", color: "var(--link)" },
-  { name: "Privy", color: "var(--text)" },
-];
+const PARTNERS_PROD = [MONAD, AGORA, PYTH, PRIVY];
 
 /**
  * Without a Privy app id, the FaceID button plays the biometric flow and enters
@@ -161,7 +158,8 @@ export function LoginScreen() {
             <footer className={styles.partners}>
               {(production || PRODUCTION_MODE ? PARTNERS_PROD : PARTNERS).map((p) => (
                 <span key={p.name} className={styles.partner}>
-                  <span className={styles.partnerDot} style={{ background: p.color }} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className={styles.partnerLogo} src={p.logo} width={14} height={14} alt="" />
                   {p.name}
                 </span>
               ))}
