@@ -62,6 +62,19 @@ export const paraclrClearinghouseProdAbi = [
   },
   {
     "type": "function",
+    "name": "DEAD_FEED_AGE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "HARD_MAX_LEVERAGE",
     "inputs": [],
     "outputs": [
@@ -141,6 +154,19 @@ export const paraclrClearinghouseProdAbi = [
   {
     "type": "function",
     "name": "MAX_CONF_BPS_LIMIT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_DEAD_FEED_SWAP_DEVIATION_BPS",
     "inputs": [],
     "outputs": [
       {
@@ -489,6 +515,40 @@ export const paraclrClearinghouseProdAbi = [
       }
     ],
     "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "backstopDepositStatus",
+    "inputs": [
+      {
+        "name": "lane",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "open",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "receivable",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "unrealizedUncapped",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "insurance",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -929,6 +989,24 @@ export const paraclrClearinghouseProdAbi = [
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "depositWithPrice",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "priceUpdate",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
   },
   {
     "type": "function",
@@ -3062,6 +3140,25 @@ export const paraclrClearinghouseProdAbi = [
   },
   {
     "type": "event",
+    "name": "BackstopReceivableNetted",
+    "inputs": [
+      {
+        "name": "lane",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "BackstopReduced",
     "inputs": [
       {
@@ -3109,6 +3206,31 @@ export const paraclrClearinghouseProdAbi = [
       },
       {
         "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "BackstopSwept",
+    "inputs": [
+      {
+        "name": "lane",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "cash",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "receivableForgiven",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -4032,6 +4154,27 @@ export const paraclrClearinghouseProdAbi = [
   },
   {
     "type": "error",
+    "name": "BackstopGainCapBinding",
+    "inputs": [
+      {
+        "name": "lane",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "unrealized",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "insurance",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "BackstopInsolvent",
     "inputs": [
       {
@@ -4059,6 +4202,33 @@ export const paraclrClearinghouseProdAbi = [
   },
   {
     "type": "error",
+    "name": "BackstopPositionsOpen",
+    "inputs": [
+      {
+        "name": "lane",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "BackstopReceivableOutstanding",
+    "inputs": [
+      {
+        "name": "lane",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "receivable",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "BelowMinPositionSize",
     "inputs": [
       {
@@ -4068,6 +4238,22 @@ export const paraclrClearinghouseProdAbi = [
       },
       {
         "name": "minimum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "CollateralAboveCap",
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "cap",
         "type": "uint256",
         "internalType": "uint256"
       }
