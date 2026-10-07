@@ -45,6 +45,10 @@ export interface AuctionStats {
   badDebt: number | null;
   /** What the old fixed-penalty liquidation path would have taken from traders (keeper-computed). */
   legacyTraderLoss: number | null;
+  /** traderEquityAtStart − traderResidualReturned: what the auction took, comparable with legacyTraderLoss. */
+  auctionTraderLoss: number | null;
+  /** External takes were made by keeper-run demo bots (`auctions.externalTakers.demo`). */
+  externalTakersDemo: boolean;
 }
 
 /** RunReport v2 `underwater` block. */
@@ -177,6 +181,8 @@ function parseAuctions(raw: unknown): AuctionStats | null {
   const started = num(raw.started);
   if (started === null) return null;
   const legacy = isObj(raw.legacyCounterfactual) ? raw.legacyCounterfactual : null;
+  const equityAtStart = ausd(raw.traderEquityAtStart);
+  const returned = ausd(raw.traderResidualReturned);
   return {
     started,
     takenByBackstop: num(raw.takenByBackstop) ?? 0,
@@ -184,10 +190,12 @@ function parseAuctions(raw: unknown): AuctionStats | null {
     cured: num(raw.cured) ?? 0,
     expired: num(raw.expired) ?? 0,
     avgDiscountBps: num(raw.avgDiscountBps),
-    traderResidualReturned: ausd(raw.traderResidualReturned),
+    traderResidualReturned: returned,
     backstopPaid: ausd(raw.backstopPaid),
     badDebt: ausd(raw.badDebt),
     legacyTraderLoss: legacy ? ausd(legacy.traderLoss) : null,
+    auctionTraderLoss: equityAtStart !== null && returned !== null ? equityAtStart - returned : null,
+    externalTakersDemo: isObj(raw.externalTakers) && raw.externalTakers.demo === true,
   };
 }
 
@@ -380,11 +388,18 @@ async function jsonFiles(dir: string): Promise<string[]> {
 }
 
 function pickHeadline(runs: BenchRun[]): BenchRun | null {
-  // Prefer runs that carry auction data; among those, the largest (latest wins ties).
+  // Prefer runs that carry auction data; among those, the largest book, then the
+  // most auctions started (the deepest shock), latest wins ties.
   const v2 = runs.filter((r) => r.auctions);
   const pool = v2.length ? v2 : runs;
+  const score = (r: BenchRun) => [r.accountsScanned, r.auctions?.started ?? 0] as const;
   // runs are sorted oldest → newest (file names carry an ISO timestamp)
-  return pool.reduce<BenchRun | null>((best, r) => (!best || r.accountsScanned >= best.accountsScanned ? r : best), null);
+  return pool.reduce<BenchRun | null>((best, r) => {
+    if (!best) return r;
+    const [a1, a2] = score(r);
+    const [b1, b2] = score(best);
+    return a1 > b1 || (a1 === b1 && a2 >= b2) ? r : best;
+  }, null);
 }
 
 async function loadRepoFacts(root: string): Promise<RepoFacts> {
@@ -426,9 +441,12 @@ export async function loadLandingEvidence(): Promise<LandingEvidence> {
   ).filter((x): x is XrayEvidence => x !== null);
   // Run ids aren't time-ordered, so pair X-rays with bench runs: the newest run
   // whose xrayId / runId names an X-ray wins; otherwise the last file by name.
+  // The headline run's X-ray comes first, so the hero and Results show the same crash.
   const pick = (chainId: number, chainRuns: BenchRun[]): XrayEvidence | null => {
     const mine = xrays.filter((x) => x.chainId === chainId);
-    for (const r of [...chainRuns].reverse()) {
+    const headline = pickHeadline(chainRuns);
+    const ordered = [...chainRuns].reverse();
+    for (const r of headline ? [headline, ...ordered] : ordered) {
       const hit = mine.find((x) => (r.xrayId && x.runId === r.xrayId) || (r.runId && x.runId === r.runId));
       if (hit) return hit;
     }
