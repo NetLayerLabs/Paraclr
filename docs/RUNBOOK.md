@@ -2,6 +2,8 @@
 
 This runbook is for the person who holds the keys. The interface contract is [`PRODUCTION_PLAN.md`](PRODUCTION_PLAN.md). Hosting is covered in [`keeper/HOSTING.md`](../keeper/HOSTING.md), and keeper internals in [`keeper/README.md`](../keeper/README.md#production-monad-mainnet).
 
+**Monad testnet (chain 10143):** the same production contract on Agora's testnet AUSD, real Pyth and a Safe behind a 600 s timelock is in [section 14](#14-monad-testnet-chain-10143-the-production-contract-on-test-funds) (plan: [`TESTNET_PLAN.md`](TESTNET_PLAN.md)). Every command below takes `--network testnet` and `--yes-testnet` in place of `--network mainnet` and `--yes-mainnet`.
+
 > Unaudited beta · capped · use only what you can afford to lose.
 
 Every command below that sends a transaction on Monad mainnet first prints balances and a cost estimate. It then refuses to continue unless you add `--yes-mainnet`. The same commands also run against an anvil fork; that is how `npm run rehearse:mainnet` exercises all of them.
@@ -170,6 +172,8 @@ The demo endpoints answer **403**.
 | `pool:forgiven:lane<i>` / `pool:swept:lane<i>` | warning / info (event, v4) | the last LP left: the pool's receivable was forgiven (`BackstopSwept` with `receivableForgiven > 0`) / orphaned cash went to the lane through the inflow waterfall | re-seed the pool if the lane needs one |
 | `pool:closed:lane<i>` | warning | the lane's pool deposits have been closed (`backstopDepositStatus.open == false`) longer than `ALERT_POOL_CLOSED_H` (6 h) | section 13d |
 | `gov:feed` | critical (event, v3) | a market's Pyth feed was replaced through the timelock (`MarketFeedReplaced`); the keeper switches live | expected after a dead-feed swap (13c); otherwise investigate immediately |
+| `gov:oracle` | critical (event; testnet) | the clearinghouse's `pyth()` changed through the timelock (`PythUpdated`); the keeper switched its price source live (Pyth ↔ keeper-signed fallback, §14.6) | expected after the trial-end switch; otherwise investigate immediately |
+| `gov:oracle:unknown` / `gov:oracle:nosigner` | critical | `pyth()` is neither the recorded Pyth nor the recorded fallback / it is the fallback but this keeper has no `PRICE_SIGNER_PRIVATE_KEY` | governance anomaly → pause; or add the signer key and restart (§14.6) |
 | `solvency:native` | critical | MON held < escrow + owed | pause, investigate |
 | `balance:<role>` | warning; critical below ¼ of the threshold | hot key low (thresholds `ALERT_MIN_*_MON`) | `keeper:fund` (section 9) |
 | `funding:overdue:<market>` | critical | the funding rate was not recomputed for the policy maximum + 2 intervals | check the OPS key's balance and `/health.funding` |
@@ -468,4 +472,135 @@ The rehearsal's MockPyth leg runs this end to end: the MON feed freezes → `ora
 2. Receivable: it is repaid from lane inflows before insurance (`BackstopRepaid`); topping up the lane's insurance (`fundLane`) also raises the gain cap. Gain cap: raise insurance with `fundLane` (treasury batch, `timelock seed --lanes <i> --insurance <n>`), or let the pool reduce its exposure (`backstopReduce` by the lane's keeper, or the owner).
 4. **Last LP exit (v5):** the last LP cannot exit while the pool holds positions (`BackstopPositionsOpen`). When that LP's exit request is ripe, the keeper of that lane unwinds the pool's positions with `backstopReduce` (fresh Hermes update) so the exit goes through inside its 1 h window (alert `pool:unwind:lane<i>`, info; `/health.poolExit`).
 3. If one actor holds both sides of the pool's exposure to keep the lane closed, raise it in the incident channel; it costs them fees and funding, and nothing is lost by LPs already in the pool.
+
+## 14. Monad testnet (chain 10143): the production contract on test funds
+
+Interface contract: [`TESTNET_PLAN.md`](TESTNET_PLAN.md). Same contract (v5, sha256 `1643014507ea…`), same deploy script, same keeper; only the network profile differs. **Test funds, no real value.** Nothing in this section has been sent to Monad testnet yet: everything below was exercised on anvil forks (section 14.8).
+
+| | Mainnet | Testnet |
+| --- | --- | --- |
+| Env file | `keeper/.env.mainnet` | `keeper/.env.testnet` (template `keeper/.env.testnet.example`, gitignored) |
+| Confirmation flag | `--yes-mainnet` | `--yes-testnet` (they are not interchangeable) |
+| AUSD | `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` | `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` (Agora testnet AUSD) |
+| Pyth | `0x2880aB155794e7179c9eE2e38200202908C17B43`, fee 0 | same address, **fee 1 wei per update message** |
+| Markets | MON, SOL, BTC | **SOL/AUSD, BTC/AUSD** (`PROD_MARKETS`; MON later through the timelock) |
+| Timelock delay | 24 h | **600 s** (`TIMELOCK_MIN_DELAY_SECONDS`; the preflight floor is 600 s) |
+| Deployment file | `deployments/143.json` | `deployments/10143.json` with `"production": true, "network": "monad-testnet"`, plus `realPyth`, `priceSource`, `ausdFaucet`, `testnet: true` |
+| Caps | 50 AUSD / account, 500 AUSD / lane TVL, 10x | the same |
+| AUSD/USD depeg alert | on | off (`AUSD_DEPEG_CHECK=0`): test AUSD has no value, and the trial key may not cover the feed |
+| Idle funding updates | every `FUNDING_MAX_AGE_S` (1 h) | none while a market has no skew (`FUNDING_SKIP_IDLE=1`), max age 6 h |
+
+### 14.1 Verified on chain (read-only, 2026-10-07)
+
+- **AUSD** `0xa9012a…22dC`: an upgradeable proxy (implementation `0xc1e3c7d4…12da`), 6 decimals, symbol and name `AUSD`, total supply 1.302 B, `isTransferPaused()` false, `isAccountFrozen` present (the keeper's issuer checks work unchanged).
+- **Agora faucet** `0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C`: an upgradeable proxy (implementation `0xba804df5…2a49`, selectors read from the bytecode). See 14.2.
+- **Pyth** `0x2880…C17B43`: `version()` 1.4.6, `parsePriceFeedUpdatesUnique` present, `singleUpdateFeeInWei` = **1** (mainnet: 0), `getValidTimePeriod` 60 s. Its Wormhole receiver has the **same guardian set** as mainnet's and the same Pythnet data source, so mainnet-signed updates verify on testnet (checked: a Hermes blob harvested from a Monad mainnet tx passes `parsePriceFeedUpdatesUnique` on testnet).
+- **Feeds** (same ids as mainnet): SOL/USD stored price 8 days old, BTC/USD ~45 min, MON/USD 8 days, AUSD/USD 8 days. **Nobody reliably pushes Pyth on testnet** (a third party, `0x1111d877…`, pushed SOL/BTC a few times around 15:45 UTC; don't count on it): every price the contract uses comes from updates the keeper or the app submits. `deploy:testnet` pushes the latest Hermes update for SOL+BTC itself (DeployProd needs each listed feed pushed within 1 h).
+- **Safe** 1.4.1 `SafeProxyFactory` `0x4e1DCf7A…ec67` and `SafeL2` `0x29fcB43b…C762` are deployed on testnet (the rehearsal creates its owner Safe through them).
+- **Gas price** 102 gwei, as on mainnet. Testnet blocks are ~0.3 s.
+- anvil's well-known dev accounts are **EIP-7702-delegated** on testnet (to `0x6bd9b715…`, a sweeper-style contract): never use them as a real owner; the sandbox clears that code on its fork.
+
+### 14.2 Testnet AUSD (Agora's faucet)
+
+There is no faucet web page (Agora's docs list only the contract; its guide uses viem). The contract:
+
+- `requestFunds(address to)` sends **10,000 AUSD** to `to`. **Anyone may call it for any address** (the caller pays ~84k gas used, ~113k limit ≈ 0.012 testnet MON).
+- `maxDripFrequency()` = 60 s, and it is **global**: after any drip, a request for *another* address within 60 s reverts `MaxFrequencyExceeded()` (`0x20e5bc67`); the same address can claim again after 60 s.
+- `maxAmountToOwn()` = 100,000 AUSD: a recipient already holding that much reverts `MaxAllowedExceeded()` (`0x0949dab9`). `InsufficientFunds()` (`0x356680b7`) if the faucet runs dry (it held ~997 M AUSD).
+
+```bash
+cast send 0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C "requestFunds(address)" <your address> \
+  --rpc-url https://testnet-rpc.monad.xyz --private-key <a wallet with testnet MON>
+```
+
+The app shows "Get testnet AUSD" (frontend); on a `MaxFrequencyExceeded` it should say "someone else just used the faucet — retry in a minute". The keeper never mints or sends AUSD on testnet (the production keeper has no faucet).
+
+### 14.3 Steps for the key holder
+
+1. **Keys.** `npm run keeper:init -- --network testnet` → `keeper/.env.testnet` (mode 600; addresses printed). Fresh keys only; this also generates `PRICE_SIGNER_PRIVATE_KEY` (the trial-end fallback's signer: it never holds MON).
+2. **Fill in** `OWNER_MULTISIG_ADDRESS` (a Safe on Monad testnet, threshold ≥ 2; `SAFE_MIN_THRESHOLD=1` accepts 1-of-1 on testnet), `KEEPER_CORS_ORIGIN` (the app origin), `PYTH_API_KEY` (the trial key), `ALERT_WEBHOOK_URL`.
+3. **Budget:** `npm run keeper:fund -- --network testnet` (preview; section 14.4).
+4. **Fund the deployer** (testnet MON from a faucet): `npm run keeper:fund -- --network testnet --roles deployer --send --yes-testnet --funder-env FUNDER_PRIVATE_KEY`.
+5. **Rehearse** with this commit: `npm run rehearse:testnet` (section 14.8).
+6. **Deploy:** `npm run deploy:testnet` (dry run: preflight + cost, then refuses) → `npm run deploy:testnet -- --yes-testnet`. It writes `deployments/10143.json` (commit it; the app reads it) and `contracts/cache/deploy-testnet/10143-<time>-verify.json`. Any ✗ = do not announce.
+7. **Seed lanes** from the Safe: get AUSD from the faucet for the Safe (14.2; 2,400 AUSD for the default), then `npm run timelock -- --network testnet seed --insurance 200 --pool 100` → import the JSON in the Safe Transaction Builder (chain 10143).
+8. **Fund the hot keys:** `npm run keeper:fund -- --network testnet --send --yes-testnet --funder-env FUNDER_PRIVATE_KEY`. Sweep the deployer's leftover MON.
+9. **Keeper:** `npm run keeper -- --network testnet --yes-testnet` (or the container with `CMD ["node","keeper/src/keeper.cjs","--network","testnet","--yes-testnet"]`, `keeper/HOSTING.md`). `/health` shows `mode: "monad-testnet"`, `testnet: true`, `priceSource: "pyth"`.
+10. **Operations** are the mainnet procedures with `--network testnet`: `guardian:pause` (section 6), `timelock prepare|status|seed|feed-swap` (sections 7, 13c; the delay is 600 s), `keeper:fund`, key rotation (section 12).
+
+### 14.4 Testnet MON budget (~3 weeks of light demo use)
+
+`keeper:fund -- --network testnet` defaults (`keeper/.env.testnet.example`): 21 days, 30 orders/day, 1 liquidation/day, 2 markets, funding max age 6 h + 12 rate changes/day, safety ×1.5, per-key floor 0.2 MON. Gas from the testnet rehearsal (section 14.8), 102 gwei, billed on the gas limit:
+
+| Role | Target (testnet MON) | Driver |
+| --- | --- | --- |
+| Deployer | 3.64 | DeployProd: 20 txs, 18.05M gas limit (14.61M used) × 1.3 forge margin, + the SOL/BTC Pyth push; sweep after deploy |
+| Guardian | 0.2 | `pause()` 33k gas; floor |
+| OPS | 9.02 | 2 markets × 16 `updateFunding`/day × 88k for 21 days (an upper bound: idle markets are skipped) |
+| Each lane keeper (× 8) | 1.90 | busiest lane: 8 executions/day × 454k (+ appended updates) floated 2 days (users' 0.1 MON fees pay them back) + 0.3 liquidations/day × 912k for 21 days |
+| **Total to put on the keys** | **≈ 28.0** | + the Safe's own gas (seeding batch ≈ 17 calls) and the faucet calls |
+
+Expected gross burn ≈ 1.9 testnet MON/day at those assumptions, more than paid back by execution fees. For a smaller float: `FUND_DAYS=7 BUDGET_ORDERS_PER_DAY=10 npm run keeper:fund -- --network testnet`. The trial-end fallback adds ≈ 0.15 MON once (KeeperSignedPyth deploy 1.50M gas limit + seed push), and makes executions cheaper (≈ 235k gas: no Wormhole verification).
+
+**Monad reserve balance (testnet only in practice).** Testnet Pyth charges 1 wei per message, so every execution, auction and push carries a few wei of value. Monad lets an account below 10 MON send a value-carrying tx only as its first tx in 3 blocks (docs.monad.xyz "Reserve Balance"). The keeper's guard (`MONAD_RESERVE_GUARD=auto`, on for a real chain) spaces such txs per key ≥ 3 blocks after its previous one (≈ 1.2–2 s); `/health.reserveGuard` counts the waits. Keys holding ≥ 10 MON skip the spacing. The same rule applies to users: a wallet below 10 MON can send `commitOrder` (0.1 MON fee) or a priced call only as its first tx in 3 blocks.
+
+### 14.5 What the keeper does on testnet
+
+- Pushes nothing by itself (`PYTH_PUSH_MODE=on-demand`; contract v5): each execution carries its own unique update (and appends `latest` for other legs), each auction tx a fresh update, the app gets updates through `/hermes` (the API key stays server-side). Every update it fetches or proxies is for the **listed feeds only**: `/hermes` refuses MON and AUSD/USD with 400, and with `AUSD_DEPEG_CHECK=0` nothing asks Hermes for anything but SOL and BTC (asserted by the rehearsal).
+- Pays the Pyth fee (1 wei per message) as `msg.value` and spaces value txs for the reserve rule (14.4).
+- Watches the clearinghouse's `pyth()`: after a timelocked `setPyth` it switches its price source live (alert `gov:oracle`; 14.6).
+
+### 14.6 Trial-end fallback (after the Pyth API trial, ~2026-10-20)
+
+After the trial the Free plan has no Hermes access, so nobody can fetch signed Pyth updates. The fallback is a keeper-fed oracle, `contracts/src/testnet/KeeperSignedPyth.sol` (**testnet only**): the slice of `IPyth` the clearinghouse uses (`getUpdateFee` = 0, `getPriceUnsafe`, `parsePriceFeedUpdates`, `parsePriceFeedUpdatesUnique`, `updatePriceFeeds`, Pyth's semantics incl. the unique-first rule), fed by prices the keeper signs with `PRICE_SIGNER_PRIVATE_KEY` (EIP-191 over `keccak256(DOMAIN_TAG, chainid, oracle, msgs)`). Owner = the timelock (only the Safe, after 600 s, adds or removes signers; renounce disabled). The keeper's signer relays the price Pyth stores on **Monad mainnet** (read-only, refreshed every 2 s; `SIGNED_PRICE_SOURCE=sim` for a random walk) and stops signing if that source is older than 300 s. The app and landing label prices "simulated after the Pyth trial" (`deployments/10143.json` `"priceSource": "keeper-signed"`, `/health.priceSource`). Not deployed yet. Do it **≥ 1 h before the trial ends**:
+
+1. `npm run oracle:fallback -- --network testnet deploy` (dry run) → `… deploy --yes-testnet`: deploys KeeperSignedPyth from the OPS key (owner = the deployment's timelock, signer = your `PRICE_SIGNER_PRIVATE_KEY`), pushes one signed SOL/BTC update into it, records `"fallbackOracle"` in `deployments/10143.json`. ≈ 1.5M gas.
+2. Restart the keeper with `PRICE_SIGNER_PRIVATE_KEY` in its env (and the updated deployment file, or `KEEPER_SIGNED_PYTH_ADDRESS`). `/health.oracle` shows `fallbackOracle`, `signer.healthy` and `prepush.active`. Run **one** signer process per key: never `pyth:push --signed` next to it.
+3. `npm run timelock -- --network testnet set-pyth --to <fallback>` → sign the **schedule** file with the Safe; announce it. Don't pass `--salt`: the keeper watches that exact operation and, from 120 s before it is ready, pushes keeper-signed prices into the fallback every ~10 s (`setPyth` reverts `FeedNotOnPyth` unless the oracle stores every listed feed; fresh storage serves `[]` calls right after the switch).
+4. After 600 s sign the **execute** file. The keeper sees `PythUpdated`, switches every loop and `/hermes` to signed prices (alert `gov:oracle`, `/health.priceSource: "keeper-signed"`). Pending orders keep filling: the signer has been producing messages all along.
+5. `npm run oracle:fallback -- --network testnet record --live` → the deployment file gets `"pyth"`/`"oracle"` = the fallback, `"priceSource": "keeper-signed"`, `"realPyth"` kept. Commit it (the app reads it). `oracle:fallback status` shows owner, signers and stored ages.
+6. **Back to Pyth** (a key again): `timelock set-pyth --to 0x2880aB155794e7179c9eE2e38200202908C17B43`, then `oracle:fallback record --back`.
+7. **Signer compromised:** pause (section 6), then through the timelock `setSigner(new, true)` and `setSigner(old, false)` on the fallback (`timelock prepare --target <fallback> --call "setSigner(address,bool)" --args …`).
+
+If the trial ends before step 4 executes, orders stall (Hermes 401/403 → `hermes:auth`), users cancel and recover escrow + fee; finish the steps.
+
+### 14.7 Local sandbox (`npm run sandbox`)
+
+A one-command local production sandbox for clicking through the app before a real deploy (anvil fork of Monad testnet; nothing is sent to a real chain):
+
+```bash
+npm run sandbox -- --detach --smoke   # chain :8645, deploy, seed, keeper :8887, then faucet → deposit → order fills
+npm run dev:sandbox                   # the app on http://localhost:3002 against it (frontend script)
+npm run sandbox -- --stop             # stops only the PIDs it recorded (contracts/cache/sandbox/pids.json)
+```
+
+- Chain: anvil fork of `testnet-rpc.monad.xyz` on **:8645** (chain id 10143, 1 s blocks, `--code-size-limit 131072`). Restartable: a new run stops the previous one's recorded PIDs and nothing else.
+- Contracts: `deploy:testnet` on the fork (real testnet AUSD + Pyth, SOL/BTC, 600 s timelock), owner = anvil dev account 0 `0xf39F…2266` (`OWNER_IS_EOA=true`; its key is anvil's public dev key, so you can poke admin functions through the timelock; its EIP-7702 delegation is cleared on the fork). Lanes seeded 200 insurance + 100 pool with AUSD from Agora's faucet. Deployment file **`deployments/sandbox/10143.json`** (gitignored), never `deployments/10143.json`.
+- Keeper: testnet mode on **:8887**, `KEEPER_CORS_ORIGIN=http://localhost:3002`, plus a **sandbox-only** `POST /faucet {"address"}` → 20 fork MON (a real tx hash) + 10,000 testnet AUSD (Agora's faucet on the fork, else a storage cheat; `/health.faucet`). The production keeper refuses `SANDBOX_FAUCET=1` on anything but an anvil fork.
+- Prices: with `PYTH_API_KEY=…` in **`keeper/.env.sandbox`** (gitignored; only that line is read) it runs on **live Hermes** (`--prices hermes`). Without a key it runs the **trial-end fallback** (`--prices signed`): KeeperSignedPyth switched in through the timelock (the 600 s delay is warped, so the fork clock runs ~10 min ahead), prices relayed live from Pyth on Monad mainnet and signed by the keeper.
+- The app command it prints: `NEXT_PUBLIC_CHAIN_MODE=monad-testnet NEXT_PUBLIC_MONAD_TESTNET_RPC_URL=http://127.0.0.1:8645 NEXT_PUBLIC_KEEPER_URL=http://127.0.0.1:8887 PARACLR_DEPLOYMENTS_DIR=deployments/sandbox next dev -p 3002` (= `npm run dev:sandbox`).
+- Verified 2026-10-07 (signed mode; no API key was available): came up in ~1 min, `/health` `mode monad-testnet · sandbox true · priceSource keeper-signed`, smoke: faucet → deposit 50 AUSD → a SOL long filled by the keeper 2 s after `execAfter` at 116.40 (real SOL price). Hermes mode with a bad key stops with `Hermes rejected PYTH_API_KEY (HTTP 403)`; with a real key it is the rehearsed production path but has not run here.
+
+### 14.8 Rehearsal (`npm run rehearse:testnet`)
+
+Local anvils only. Output under `contracts/cache/rehearsal-testnet/<UTC>/`; tracked evidence `bench/rehearsal/10143-fork-<UTC>.json` (with the contract's sha256).
+
+- **Fork leg** (anvil fork of Monad testnet on :8955, real testnet AUSD + Agora faucet + Pyth). No API key was available, so it harvests **real Wormhole-signed SOL+BTC updates from Monad mainnet txs** (the testnet Pyth verifies them, 14.1), forks testnet at the matching block and replays them through a local Hermes-compatible server. Real 2-of-2 Safe as owner; `keeper:init` / `keeper:fund` / `deploy:testnet` CLIs; Agora faucet behaviour; treasury Safe seeding batch; deposit cap; 8 lanes' SOL/BTC orders executed by 8 keepers with real updates and the 1-wei fee; multi-leg, reduce, slippage → `OrderFailed`; withdraw through `/hermes` (MON and AUSD/USD refused); real-Pyth gas probes; guardian pause semantics; Hermes outage; expired order + cancel; funding formula; LP two-step exit; **unpause through the 600 s timelock as the Safe**; Hermes was asked for SOL and BTC only; solvency. The reserve-balance guard runs forced on (anvil does not enforce the rule).
+- **Fallback leg** (same fork): `oracle:fallback deploy` → keeper restarted with the signer → `timelock set-pyth` scheduled as the Safe → the keeper's pre-switch pushes → execute → live switch (`gov:oracle`, `priceSource keeper-signed`) → SOL + BTC orders fill on signed prices → withdraw with a proxied signed update (fee 0) → `record --live`.
+- **Mock leg** (plain anvil, chain 10143, TEST MockPyth + MockAUSD): SOL/BTC at 9.5x, guardian pause, −10 % → 8 auctions start while paused and the lane pools take them; solvent; timelock unpause; per-account auction gas for 14.4.
+
+### 14.9 Results (2026-10-07, contract v5 sha256 `1643014507ea…`)
+
+`npm run rehearse:testnet`: **36 / 36 passed** — fork 24/24, fallback 6/6, mock 6/6. Tracked report: `bench/rehearsal/10143-fork-2026-10-07T15-51-49Z.json`.
+
+- Deploy (DeployProd v5, 2 markets): 20 txs, 14.61M gas used, 18.05M limit (mainnet's 3-market deploy: 21 txs, 14.84M / 18.09M).
+- Orders: 8/8 lanes executed 1 s after `execAfter` with real signed updates; `executeOrder` average limit 454k (single-leg max ≈ 507k, multi-leg 691k), `msg.value` 1 wei (single feed) / 4 wei (appended update); withdraw with a proxied update 257k gas used, fee 2 wei.
+- Real-Pyth probes (2 feeds): `startAuctions` 214k, `backstopTakeBatch` 195k, `expireBatch` 190k, `cancelAuction` 60k; `pyth.updatePriceFeeds` 114k (1 feed) / 140k (2 feeds). Budget limits (probe + per-account work from the mock leg, +10 %): start 335k, take 584k, push 154k.
+- Agora faucet on the fork: `requestFunds` paid by a third party gave +10,000 AUSD (84k gas); a second recipient within 60 s reverted `MaxFrequencyExceeded` (global limit); the same recipient could claim again after 60 s.
+- Hermes was asked for SOL and BTC only (86 requests); `/hermes` refused MON and AUSD/USD.
+- Reserve guard (forced on): 5 value-carrying txs spaced, 144 ms waited in total (the keys' previous txs were long ago).
+- Fallback: KeeperSignedPyth deploy 1.50M gas limit, seed push 132k used, pre-switch pushes ≈ 64k limit; after the switch `executeOrder` averaged 235k (no Wormhole verification); withdraw with a signed update 169k used, fee 0.
+- Mock leg: 8 positions at 9.5x, 8 auctions started while paused, 8 taken by the lane pools, solvent, unpaused after 605 s.
+
+The same day, `npm run rehearse:mainnet -- --legs fork,mock` on this code passed 38/38 (fork 23, mock 15) with DeployProd's mainnet output and gas unchanged (21 txs, 14.84M used / 18.09M limit): the testnet changes leave mainnet behaviour identical.
 
