@@ -389,7 +389,7 @@ function ChainWallet() {
             {session.method === "wallet"
               ? "Your own wallet signs every transaction, and asks you to confirm each one."
               : isPasskey
-                ? `Your ${session.method === "email" ? "email sign-in" : "passkey"} unlocks a Privy embedded wallet. Its confirmation popups are turned off, so trades are sent as soon as you place them. There are no session keys or scoped permissions.`
+                ? `Your ${session.method === "passkey" ? "passkey" : `${METHOD_LABEL[session.method]} sign-in`} unlocks a Privy embedded wallet. Its confirmation popups are turned off, so trades are sent as soon as you place them. There are no session keys or scoped permissions.`
               : wallet.persisted
                 ? "A throwaway key generated in this browser and stored unencrypted in localStorage. Testnet only — never send real funds to it."
                 : "A throwaway key generated in this browser and kept in memory only (storage is blocked), so it's lost on reload. Testnet only."}

@@ -218,11 +218,11 @@ export function LoginScreen() {
               {MAINNET_MODE
                 ? rehearsal
                   ? "Local mainnet-fork rehearsal: a burner key generated in this browser, for testing only. On real mainnet only passkey sign-in is offered."
-                  : "Passkey or email → a Privy embedded wallet; a wallet sign-in uses your own wallet. Every transaction asks for your confirmation."
+                  : "Passkey, email or a social account → a Privy embedded wallet; a wallet sign-in uses your own wallet. Every transaction asks for your confirmation."
                 : NETWORK?.isTestnetProd
-                  ? "Passkey or email → a Privy embedded wallet on Monad testnet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only, never on mainnet)."
+                  ? "Passkey, email or a social account → a Privy embedded wallet on Monad testnet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only, never on mainnet)."
                   : chainLive
-                    ? "Passkey or email → a Privy embedded wallet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only)."
+                    ? "Passkey, email or a social account → a Privy embedded wallet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only)."
                     : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
             </p>
           </section>

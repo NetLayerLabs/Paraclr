@@ -16,6 +16,7 @@ import {
   type User,
 } from "@privy-io/react-auth";
 import { setChainWallet, signIn, signOut, useParaclr } from "@/lib/store";
+import { PRIVY_APP_ID } from "@/lib/auth/config";
 import { isPrivyMethod, METHOD_LABEL, type SignInMethod } from "@/lib/types";
 import { shortAddress } from "@/lib/auth/demo";
 import { privySigner, setSigner } from "@/lib/chain/signer";
@@ -44,7 +45,19 @@ function useCompleteLogin() {
       if (!address) return "Signed in, but no wallet is connected.";
       done.current = true;
       const signedIn = address;
-      const name = method === "email" && user.email ? user.email.address : `${METHOD_LABEL[method]} ${shortAddress(signedIn, 4, 4)}`;
+      const account =
+        method === "email"
+          ? user.email?.address
+          : method === "google"
+            ? user.google?.email
+            : method === "twitter"
+              ? user.twitter?.username && `@${user.twitter.username}`
+              : method === "discord"
+                ? user.discord?.username
+                : method === "github"
+                  ? user.github?.username
+                  : null;
+      const name = account || `${METHOD_LABEL[method]} ${shortAddress(signedIn, 4, 4)}`;
       // Let the success tick play before the shell swaps screens.
       window.setTimeout(() => signIn({ address: signedIn, method, displayName: name }), 450);
       return null;
@@ -135,14 +148,49 @@ export function PrivyPasskeyLogin() {
   );
 }
 
-/** Email (one-time code) or the user's own wallet, through Privy's modal. */
+const PRIVY_LOGIN_METHOD: Record<string, Exclude<SignInMethod, "demo">> = {
+  email: "email",
+  google: "google",
+  twitter: "twitter",
+  discord: "discord",
+  github: "github",
+  siwe: "wallet",
+  passkey: "passkey",
+};
+
+type Social = "google" | "twitter" | "discord" | "github";
+const SOCIALS: Social[] = ["google", "twitter", "discord", "github"];
+let socialsLoad: Promise<Social[]> | null = null;
+
+/**
+ * The social logins switched on in the Privy dashboard. Privy's modal lists every configured
+ * method even when the dashboard has it off, and those then fail with "not allowed", so only
+ * enabled ones are offered. Reads the same app config the Privy SDK loads; none on failure.
+ */
+function enabledSocials(): Promise<Social[]> {
+  socialsLoad ??= fetch(`https://auth.privy.io/api/v1/apps/${PRIVY_APP_ID}`, { headers: { "privy-app-id": PRIVY_APP_ID } })
+    .then((r) => (r.ok ? (r.json() as Promise<Record<string, unknown>>) : {}))
+    .then((cfg) => SOCIALS.filter((s) => (cfg as Record<string, unknown>)[`${s}_oauth`] === true))
+    .catch(() => []);
+  return socialsLoad;
+}
+
+/** Email (one-time code), a social account or the user's own wallet, through Privy's modal. */
 export function PrivyOtherLogin({ disabled = false }: { disabled?: boolean }) {
   const { ready } = usePrivy();
   const complete = useCompleteLogin();
   const [error, setError] = useState<string | null>(null);
+  const [socials, setSocials] = useState<Social[]>([]);
+  useEffect(() => {
+    let live = true;
+    void enabledSocials().then((s) => live && setSocials(s));
+    return () => {
+      live = false;
+    };
+  }, []);
   const { login } = useLogin({
     onComplete: async ({ user, loginMethod }) => {
-      setError(await complete(user, loginMethod === "siwe" ? "wallet" : loginMethod === "email" ? "email" : "passkey"));
+      setError(await complete(user, PRIVY_LOGIN_METHOD[String(loginMethod)] ?? "email"));
     },
     onError: (code) => {
       if (code !== "exited_auth_flow") setError("Sign-in didn't complete. Try again.");
@@ -156,10 +204,10 @@ export function PrivyOtherLogin({ disabled = false }: { disabled?: boolean }) {
         disabled={!ready || disabled}
         onClick={() => {
           setError(null);
-          login({ loginMethods: ["email", "wallet"] });
+          login({ loginMethods: ["email", ...socials, "wallet"] });
         }}
       >
-        Continue with email or wallet
+        {socials.length > 0 ? "Continue with email, social or wallet" : "Continue with email or wallet"}
       </button>
       {error && <p className={styles.error}>{error}</p>}
     </>
