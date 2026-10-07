@@ -187,13 +187,13 @@ export function ThreadVisualizer({
       <div className={styles.liveStats}>
         <span>
           Liquidated{" "}
-          <b className="mono" data-liq style={{ color: "var(--short)" }}>
+          <b className="mono" data-liq style={{ color: "var(--short-text)" }}>
             0
           </b>
         </span>
         <span>
           Bad debt settled{" "}
-          <b className="mono" data-debt style={{ color: "var(--long)" }}>
+          <b className="mono" data-debt style={{ color: "var(--long-text)" }}>
             0
           </b>
         </span>

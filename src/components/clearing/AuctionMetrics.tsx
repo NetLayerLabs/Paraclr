@@ -91,7 +91,7 @@ export function AuctionMetrics({ report, laneBadDebt }: { report: RunReport; lan
         {a && (
           <div className={styles.metric}>
             <small title="Equity returned to traders">Returned to traders</small>
-            <b className="mono" style={{ color: "var(--long)" }}>
+            <b className="mono" style={{ color: "var(--long-text)" }}>
               {fmtAusdCompact(returned)} <span>AUSD</span>
             </b>
             <span>left as free collateral after the take / expiry</span>
@@ -139,7 +139,7 @@ export function AuctionMetrics({ report, laneBadDebt }: { report: RunReport; lan
             <small title="What the lanes paid when a trader's equity didn't cover the discount (or was negative): insurance first, then lane bad debt">
               Lane-funded shortfall
             </small>
-            <b className="mono" style={{ color: shortfall > 0 ? "var(--warn)" : undefined }}>
+            <b className="mono" style={{ color: shortfall > 0 ? "var(--warn-text)" : undefined }}>
               {fmtAusdCompact(shortfall)} <span>AUSD</span>
             </b>
             <span title="Real lane bad debt: Σ lane badDebt read from chain">

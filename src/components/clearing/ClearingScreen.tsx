@@ -10,7 +10,7 @@
 
 import { useState } from "react";
 import { useParaclr } from "@/lib/store";
-import { CHAIN_MODE_ON, NETWORK } from "@/lib/chain/config";
+import { CHAIN_MODE_ON, MAINNET_MODE, NETWORK } from "@/lib/chain/config";
 import type { RecordedXray } from "@/lib/chain/xray.server";
 import { NetworkTag } from "@/components/chain/ChainUi";
 import { LiveClearing } from "./LiveClearing";
@@ -28,7 +28,10 @@ export function ClearingScreen({
   recordedXray?: RecordedXray | null;
 }) {
   const status = useParaclr((s) => s.chain.status);
-  const [view, setView] = useState<View>("live");
+  const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
+  const [viewChoice, setView] = useState<View>("live");
+  // Production: real auctions only — no simulated crash view next to real money.
+  const view: View = production || MAINNET_MODE ? "live" : viewChoice;
   const chainLive = status === "ready";
   const showLive = CHAIN_MODE_ON && view === "live";
 
@@ -38,7 +41,9 @@ export function ClearingScreen({
         <div>
           <h1 className={styles.title}>Clearinghouse</h1>
           <p className={styles.subtitle}>
-            {CHAIN_MODE_ON
+            {production
+              ? "Real auctions as they occur · per-lane backstops · live solvency proof"
+              : CHAIN_MODE_ON
               ? "Auction-priced liquidations · per-lane backstops · live solvency proof"
               : "In-browser simulation of the lane-sharded clearing engine · auctions run on chain"}
           </p>
@@ -52,7 +57,7 @@ export function ClearingScreen({
         )}
       </header>
 
-      {CHAIN_MODE_ON && NETWORK && (
+      {CHAIN_MODE_ON && NETWORK && !production && !MAINNET_MODE && (
         <div className={styles.modeToggle} role="tablist" aria-label="Clearing mode">
           <button
             role="tab"
@@ -61,7 +66,7 @@ export function ClearingScreen({
             data-live=""
             onClick={() => setView("live")}
           >
-            Live · {NETWORK.isMonad ? "Monad testnet" : "local anvil"}
+            Live · {NETWORK.mode === "anvil" ? "local anvil" : NETWORK.shortLabel}
           </button>
           <button
             role="tab"
@@ -84,7 +89,7 @@ export function ClearingScreen({
         </div>
       )}
       <div className={styles.view} hidden={CHAIN_MODE_ON && view !== "sim"}>
-        <SimulatedClearing isolated={chainLive} />
+        {!production && !MAINNET_MODE && <SimulatedClearing isolated={chainLive} />}
         {!CHAIN_MODE_ON && recordedXray && (
           <XrayPanel
             xray={recordedXray.report}

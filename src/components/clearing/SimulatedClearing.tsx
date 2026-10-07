@@ -179,7 +179,7 @@ export function SimulatedClearing({ isolated }: { isolated: boolean }) {
         </div>
         <div className={styles.stat}>
           <small>At risk</small>
-          <b className="mono" style={{ color: atRiskShown > 50 ? "var(--short)" : "var(--warn)" }}>
+          <b className="mono" style={{ color: atRiskShown > 50 ? "var(--short-text)" : "var(--warn-text)" }}>
             {atRiskShown}
           </b>
         </div>

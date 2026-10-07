@@ -45,12 +45,15 @@ export function XrayPanel({
   source,
   pending,
   error,
+  recordedElsewhere = false,
 }: {
   xray: XrayReport | null;
   source: XraySource | null;
   /** Computing (keeper still tracing the naive replay). */
   pending?: boolean;
   error?: string | null;
+  /** Production: the report is recorded evidence from another network, not this deployment. */
+  recordedElsewhere?: boolean;
 }) {
   const ordered = useMemo(() => {
     if (!xray) return [];
@@ -79,6 +82,13 @@ export function XrayPanel({
         )}
       </header>
 
+      {recordedElsewhere && xray && (
+        <p className={styles.explain} data-recorded="">
+          <b>Recorded evidence, not this deployment.</b> This X-ray was measured on{" "}
+          {xray.network === "monad-testnet" ? "Monad testnet" : "a local anvil chain (not Monad)"} during a benchmark
+          crash run of the demo contracts. Nothing is crashed on mainnet to produce it.
+        </p>
+      )}
       <p className={styles.explain}>
         An edge <b>i → j</b> means tx <i>j</i> read or wrote a storage slot that an earlier tx <i>i</i> wrote — the
         condition under which Monad&apos;s optimistic executor re-executes <i>j</i>. Edges are storage dependencies,

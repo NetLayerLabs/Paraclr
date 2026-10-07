@@ -189,7 +189,7 @@ export function LiveResultCard({
 
 function YourOutcome({ r }: { r: AuctionRecord }) {
   const tone =
-    r.status === "cured" ? "var(--long)" : r.status === "expired" ? "var(--short)" : r.status === "backstop" ? "var(--accent)" : "var(--link)";
+    r.status === "cured" ? "var(--long-text)" : r.status === "expired" ? "var(--short-text)" : r.status === "backstop" ? "var(--accent-text)" : "var(--link-text)";
   return (
     <div className={styles.userResult} style={{ borderColor: tone }}>
       <small>Your account · Lane {r.lane + 1}</small>

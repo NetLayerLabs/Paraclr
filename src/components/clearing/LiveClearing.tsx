@@ -68,6 +68,8 @@ export function LiveClearing({
   const keeperError = useParaclr((s) => s.chain.keeper.error);
   const keeperCrashed = useParaclr((s) => s.chain.keeper.health?.crashed ?? false);
   const me = useParaclr((s) => s.session?.address?.toLowerCase() ?? null);
+  // Production: no flash crash, no recover, no demo takers — real auctions only.
+  const production = useParaclr((s) => !!s.chain.contracts?.production);
 
   const [lanes, setLanes] = useState<LaneStat[] | null>(null);
   const [laneAccounts, setLaneAccounts] = useState<string[][]>(() => Array.from({ length: LANE_COUNT }, () => []));
@@ -196,7 +198,7 @@ export function LiveClearing({
   const insurance = lanes?.reduce((s, l) => s + l.insuranceFund, 0) ?? null;
   const badDebt = lanes?.reduce((s, l) => s + l.badDebt, 0) ?? 0;
   const keeperOk = keeperStatus === "online";
-  const netName = NETWORK.isMonad ? "Monad testnet" : "local anvil";
+  const netName = NETWORK.mode === "anvil" ? "local anvil" : NETWORK.shortLabel;
   const unsupported = feed.status === "unsupported";
   let inAuction = 0;
   for (const r of feed.records.values()) if (r.status === "active") inAuction++;
@@ -364,21 +366,21 @@ export function LiveClearing({
         </div>
         <div className={styles.stat}>
           <small>In auction</small>
-          <b className="mono" style={{ color: inAuction > 0 ? "var(--warn)" : undefined }}>
+          <b className="mono" style={{ color: inAuction > 0 ? "var(--warn-text)" : undefined }}>
             {feed.status === "live" ? inAuction : feed.status === "loading" || feed.status === "idle" ? "…" : "—"}
           </b>
         </div>
         {phase === "idle" ? (
           <div className={styles.stat} title="Below maintenance at the current marks and not yet in an auction (refreshed every few seconds)">
             <small>Underwater</small>
-            <b className="mono" style={{ color: risk.size > 0 ? "var(--short)" : undefined }}>
+            <b className="mono" style={{ color: risk.size > 0 ? "var(--short-text)" : undefined }}>
               {lanes ? risk.size : "…"}
             </b>
           </div>
         ) : (
           <div className={styles.stat} title="Auctions of this run resolved so far (taken, cured or expired)">
             <small>Resolved</small>
-            <b className="mono" style={{ color: resolvedNow > 0 ? "var(--accent)" : undefined }}>
+            <b className="mono" style={{ color: resolvedNow > 0 ? "var(--accent-text)" : undefined }}>
               {resolvedNow}
             </b>
           </div>
@@ -389,7 +391,7 @@ export function LiveClearing({
         </div>
       </div>
 
-      <LiveMarks down={phase !== "idle" || keeperCrashed} crashed={keeperCrashed} />
+      <LiveMarks down={!production && (phase !== "idle" || keeperCrashed)} crashed={!production && keeperCrashed} pyth={production} />
 
       {readError && <Notice tone="warn">Couldn&apos;t read lanes: {readError}</Notice>}
       {unsupported && (
@@ -412,6 +414,7 @@ export function LiveClearing({
         </Notice>
       )}
 
+      {!production && (
       <div className={styles.controls}>
         {phase === "idle" || phase === "failed" ? (
           keeperCrashed ? (
@@ -451,6 +454,7 @@ export function LiveClearing({
           </button>
         )}
       </div>
+      )}
 
       {busy && (
         <div className={styles.progress} aria-live="polite">
@@ -504,7 +508,7 @@ export function LiveClearing({
         phase={vizPhase}
       />
 
-      <TakeList records={feed.records} block={feed.block} params={params} />
+      {!production && <TakeList records={feed.records} block={feed.block} params={params} />}
 
       {report && phase === "done" && <AuctionMetrics report={report} laneBadDebt={lanes ? badDebt : null} />}
       {report && phase === "done" && <LiveResultCard report={report} records={records} me={me} />}
@@ -515,6 +519,7 @@ export function LiveClearing({
           source={xraySource}
           pending={xrayState === "pending"}
           error={xrayState === "none" || xrayState === "error" ? xrayError : null}
+          recordedElsewhere={production && showRecorded}
         />
       )}
 
@@ -535,7 +540,7 @@ export function LiveClearing({
 }
 
 /** Oracle marks row; subscribes to prices itself so ticks don't re-render the lanes. */
-function LiveMarks({ down, crashed }: { down: boolean; crashed: boolean }) {
+function LiveMarks({ down, crashed, pyth = false }: { down: boolean; crashed: boolean; pyth?: boolean }) {
   const prices = useParaclr((s) => s.prices);
   return (
     <div className={styles.marks}>
@@ -547,7 +552,7 @@ function LiveMarks({ down, crashed }: { down: boolean; crashed: boolean }) {
           </span>
         );
       })}
-      <span className={styles.marksSource}>on-chain marks</span>
+      <span className={styles.marksSource}>{pyth ? "Pyth prices" : "on-chain marks"}</span>
       {crashed && <span className={styles.marksShock}>crashed</span>}
     </div>
   );

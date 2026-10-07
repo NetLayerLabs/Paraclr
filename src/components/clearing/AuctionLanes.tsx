@@ -165,13 +165,13 @@ export function AuctionLanes({
       <div className={styles.liveStats}>
         <span>
           In auction{" "}
-          <b className="mono" style={{ color: t.auction > 0 ? "var(--warn)" : undefined }}>
+          <b className="mono" style={{ color: t.auction > 0 ? "var(--warn-text)" : undefined }}>
             {t.auction}
           </b>
         </span>
         <span>
           Backstop{" "}
-          <b className="mono" style={{ color: t.backstop > 0 ? "var(--accent)" : undefined }}>
+          <b className="mono" style={{ color: t.backstop > 0 ? "var(--accent-text)" : undefined }}>
             {t.backstop}
           </b>
         </span>
@@ -180,19 +180,19 @@ export function AuctionLanes({
         </span>
         <span>
           Cured{" "}
-          <b className="mono" style={{ color: t.cured > 0 ? "var(--long)" : undefined }}>
+          <b className="mono" style={{ color: t.cured > 0 ? "var(--long-text)" : undefined }}>
             {t.cured}
           </b>
         </span>
         <span>
           Expired{" "}
-          <b className="mono" style={{ color: t.expired > 0 ? "var(--short)" : undefined }}>
+          <b className="mono" style={{ color: t.expired > 0 ? "var(--short-text)" : undefined }}>
             {t.expired}
           </b>
         </span>
         <span title="What the lanes paid when a trader's equity didn't cover the discount, or was negative (insurance first, then lane bad debt)">
           Lane-funded shortfall{" "}
-          <b className="mono" style={{ color: t.debt > 0 ? "var(--warn)" : undefined }}>
+          <b className="mono" style={{ color: t.debt > 0 ? "var(--warn-text)" : undefined }}>
             {fmtCompact(t.debt)}
           </b>
         </span>

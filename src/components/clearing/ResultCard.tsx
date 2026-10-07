@@ -10,10 +10,10 @@ interface Props {
 }
 
 const USER_COPY: Record<AccountResult["outcome"], { label: string; tone: string }> = {
-  healthy: { label: "Survived — healthy", tone: "var(--long)" },
-  warning: { label: "Survived — near maintenance", tone: "var(--warn)" },
-  liquidated: { label: "Liquidated", tone: "var(--short)" },
-  settled: { label: "Liquidated — bad debt covered by insurance", tone: "var(--short)" },
+  healthy: { label: "Survived — healthy", tone: "var(--long-text)" },
+  warning: { label: "Survived — near maintenance", tone: "var(--warn-text)" },
+  liquidated: { label: "Liquidated", tone: "var(--short-text)" },
+  settled: { label: "Liquidated — bad debt covered by insurance", tone: "var(--short-text)" },
 };
 
 export function ResultCard({ run, user }: Props) {
@@ -58,13 +58,13 @@ export function ResultCard({ run, user }: Props) {
       <div className={styles.resultGrid}>
         <div>
           <small>Liquidated</small>
-          <b className="mono" style={{ color: "var(--short)" }}>
+          <b className="mono" style={{ color: "var(--short-text)" }}>
             {summary.liquidated}
           </b>
         </div>
         <div>
           <small>Bad debt settled</small>
-          <b className="mono" style={{ color: "var(--long)" }}>
+          <b className="mono" style={{ color: "var(--long-text)" }}>
             {fmtCompact(summary.totalDebtSettled)}
           </b>
         </div>
@@ -74,7 +74,7 @@ export function ResultCard({ run, user }: Props) {
         </div>
       </div>
       {run.uncoveredDebt > 0 && (
-        <p className={styles.note} style={{ color: "var(--warn)" }}>
+        <p className={styles.note} style={{ color: "var(--warn-text)" }}>
           {fmtCompact(run.uncoveredDebt)} AUSD exceeded lane insurance and would be socialised.
         </p>
       )}

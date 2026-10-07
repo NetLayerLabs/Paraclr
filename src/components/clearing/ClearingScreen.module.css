@@ -1,4 +1,6 @@
-/* Clearing screen — lane visualizer (simulated + live). Colors come from globals.css tokens. */
+/* Clearing screen — lane visualizer (simulated + live). Colours come from the
+   globals.css theme tokens; the landing's auction board is the reference look
+   (docs/DESIGN.md §10.5). */
 
 .screen,
 .body {
@@ -15,36 +17,62 @@
 /* ---- header ------------------------------------------------------------ */
 
 .head {
+  position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 8px 12px;
+}
+
+.head > div:first-child {
+  min-width: 0;
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+
+/* The brand's 8 lanes as a quiet rule under the title (structure, not decoration:
+   the clearinghouse is 8 lanes). */
+.head > div:first-child::after {
+  content: "";
+  display: block;
+  width: min(280px, 55vw);
+  height: 22px;
+  margin-top: 10px;
+  background: repeating-linear-gradient(to bottom, #8f7cff 0 1px, transparent 1px 3px);
+  -webkit-mask-image: linear-gradient(to right, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 100%);
+  opacity: 0.55;
 }
 
 .subtitle {
-  font-size: 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--text-dim);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
+/* "Simulated": the landing's illustration tag (dashed, mono). */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 9px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  gap: 7px;
+  min-height: 24px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--border-strong);
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   white-space: nowrap;
 }
 
@@ -53,7 +81,6 @@
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
   animation: pulse 1.6s ease-in-out infinite;
 }
 
@@ -66,19 +93,22 @@
 .stat {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 8px;
-  border-radius: var(--radius-sm);
+  gap: 4px;
+  padding: 9px 10px;
+  border-radius: var(--radius-panel);
   background: var(--bg-elev);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   min-width: 0;
 }
 
 .stat small {
+  font-family: var(--font-mono);
   font-size: 9.5px;
+  font-weight: 500;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   white-space: nowrap;
 }
 
@@ -97,14 +127,15 @@
 }
 
 .marks [data-down] {
-  color: var(--short);
+  color: var(--short-text);
 }
 
 .marksSource {
   margin-left: auto;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
 .marksSource + .marksShock {
@@ -120,11 +151,13 @@
 
 .marksShock {
   margin-left: auto;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--short) 18%, transparent);
-  color: var(--short);
-  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--short-soft);
+  border: 1px solid var(--short-line);
+  color: var(--short-text);
+  font-family: var(--font-mono);
+  font-weight: 500;
   font-size: 11px;
 }
 
@@ -136,32 +169,41 @@
   gap: 8px;
 }
 
+/* The crash: one red action (its meaning is "break the market"). */
 .crashBtn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   width: 100%;
-  padding: 14px 12px;
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--short) 92%, #fff), var(--short));
-  color: #fff;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: var(--short);
+  color: var(--on-fill);
   box-shadow:
-    0 8px 28px color-mix(in srgb, var(--short) 40%, transparent),
+    0 14px 30px -16px color-mix(in srgb, var(--short) 90%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  animation: crashGlow 2.2s ease-in-out infinite;
-  transition: transform 0.12s ease;
+  transition:
+    transform var(--dur-2) var(--ease),
+    filter var(--dur-1);
+}
+
+.crashBtn:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 
 .crashBtn span {
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
 }
 
 .crashBtn small {
-  font-size: 11px;
-  opacity: 0.85;
+  font-size: 11.5px;
+  line-height: 1.45;
+  opacity: 0.82;
 }
 
 .crashBtn:active {
@@ -176,21 +218,27 @@
 .recoverBtn,
 .ghostBtn {
   flex: 1;
-  padding: 13px 12px;
-  border-radius: var(--radius);
-  font-weight: 700;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: var(--radius-pill);
+  font-weight: 650;
   font-size: 14px;
 }
 
 .recoverBtn {
   background: var(--long);
-  color: var(--bg);
+  color: var(--on-fill);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .ghostBtn {
-  flex: 0 0 96px;
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
+  flex: 0 0 104px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+}
+
+.ghostBtn:hover:not(:disabled) {
+  background: var(--bg-hover);
 }
 
 .crashBtn:disabled,
@@ -206,23 +254,24 @@
   align-self: center;
   padding: 3px;
   gap: 3px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev);
   border: 1px solid var(--border);
 }
 
 .speed,
 .speedOn {
-  padding: 4px 12px;
-  border-radius: 999px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-dim);
 }
 
 .speedOn {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
+  background: var(--text);
+  color: var(--bg-elev);
+  font-weight: 500;
 }
 
 .speed:disabled,
@@ -238,19 +287,20 @@
   border-radius: var(--radius);
   background: var(--bg-elev);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease;
 }
 
 [data-phase="running"] .viz {
-  border-color: color-mix(in srgb, var(--short) 60%, transparent);
-  box-shadow: 0 0 32px color-mix(in srgb, var(--short) 22%, transparent);
+  border-color: var(--short-line);
+  box-shadow: 0 0 0 3px var(--short-soft);
 }
 
 [data-phase="done"] .viz {
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  box-shadow: 0 0 28px var(--accent-soft);
+  border-color: var(--accent-line);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .vizHead {
@@ -261,29 +311,35 @@
 }
 
 .vizTitle {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
 .vizSub {
-  font-size: 10.5px;
+  font-size: 11px;
+  line-height: 1.5;
   color: var(--text-dim);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
+/* Block clock: the landing auction board's pill. */
 .clock {
   display: flex;
   align-items: baseline;
-  gap: 3px;
-  color: var(--accent);
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--accent-text);
 }
 
 .clock span {
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
-  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 .clock small {
@@ -297,13 +353,14 @@
 
 .liveStats {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 6px;
+  gap: 4px 6px;
   padding: 6px 0 10px;
   font-size: 10.5px;
   color: var(--text-dim);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .liveStats b {
@@ -329,8 +386,9 @@
   flex-direction: column;
   justify-content: center;
   gap: 1px;
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-dim);
   white-space: nowrap;
 }
@@ -346,7 +404,7 @@
 }
 
 .lane[data-done] .laneLabel small {
-  color: var(--long);
+  color: var(--long-text);
   opacity: 1;
 }
 
@@ -465,8 +523,7 @@
 }
 
 .raceFillPar {
-  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff));
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--accent);
 }
 
 .raceFillSeq {
@@ -526,32 +583,43 @@
 .result {
   padding: 14px;
   border-radius: var(--radius);
-  background:
-    radial-gradient(ellipse at top left, var(--accent-soft), transparent 70%),
-    var(--bg-elev);
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--bg-elev);
+  border: 1px solid var(--accent-line);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .resultKicker {
-  font-size: 10px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--long);
+  color: var(--long-text);
+}
+
+.resultKicker::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: currentColor;
 }
 
 .resultHead {
-  margin-top: 6px;
+  margin-top: 8px;
+  font-family: var(--font-display);
   font-size: 19px;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
 }
 
 .resultMs {
-  color: var(--accent);
-  text-shadow: 0 0 16px color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--accent-text);
 }
 
 .cmp {
@@ -594,7 +662,6 @@
 
 .cmpPar {
   background: var(--accent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 .cmpSeq {
@@ -607,7 +674,7 @@
 }
 
 .speedup b {
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 13px;
 }
 
@@ -621,17 +688,19 @@
 .resultGrid div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-elev-2);
+  gap: 3px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
 }
 
 .resultGrid small {
+  font-family: var(--font-mono);
   font-size: 9.5px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
 }
 
 .resultGrid b {
@@ -643,17 +712,18 @@
   flex-direction: column;
   gap: 3px;
   margin-top: 10px;
-  padding: 10px;
-  border-radius: var(--radius-sm);
+  padding: 11px 12px;
+  border-radius: 12px;
   border: 1px solid;
-  background: var(--bg-elev-2);
+  background: var(--bg-subtle);
 }
 
 .userResult small {
+  font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
 .userResult b {
@@ -678,35 +748,38 @@
 
 /* ---- live / simulated toggle ---------------------------------------------- */
 
+/* Live / Simulated: the segmented pill; the current view is the inverse pill. */
 .modeToggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
   padding: 3px;
   gap: 3px;
-  border-radius: 12px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-1);
 }
 
 .modeBtn,
 .modeBtnOn {
-  padding: 8px 6px;
-  border-radius: 9px;
-  font-size: 12.5px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-dim);
+  transition:
+    color var(--dur-1),
+    background var(--dur-1);
+}
+
+.modeBtn:hover {
+  color: var(--text);
 }
 
 .modeBtnOn {
-  color: var(--text);
-  background: var(--bg-elev-2);
-  box-shadow: inset 0 0 0 1px var(--border);
-}
-
-.modeBtnOn[data-live] {
-  color: var(--accent);
-  background: var(--accent-soft);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--bg-elev);
+  background: var(--text);
 }
 
 .view {
@@ -721,12 +794,12 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-elev);
-  border: 1px solid color-mix(in srgb, var(--short) 45%, transparent);
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--short-soft);
+  border: 1px solid var(--short-line);
   font-size: 11.5px;
-  color: var(--text-dim);
+  color: var(--text-2);
 }
 
 .progress b {
@@ -735,7 +808,7 @@
 }
 
 .progress a {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* live lanes: tx in flight between submit and receipt */
@@ -744,12 +817,12 @@
 }
 
 .lane[data-flight] .laneLabel small {
-  color: var(--warn);
+  color: var(--warn-text);
   opacity: 1;
 }
 
 .lane[data-failed] .laneLabel small {
-  color: var(--short);
+  color: var(--short-text);
   opacity: 1;
 }
 
@@ -783,7 +856,7 @@
 /* ---- live result card ----------------------------------------------------- */
 
 .resultKicker[data-net="anvil"] {
-  color: var(--warn);
+  color: var(--warn-text);
 }
 
 .result[data-net="anvil"] {
@@ -799,7 +872,7 @@
 
 .shockRow a,
 .laneTable a {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .laneTable {
@@ -811,18 +884,24 @@
 
 .laneTable th {
   text-align: left;
+  font-family: var(--font-mono);
   font-weight: 500;
   font-size: 9.5px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0 4px 4px 0;
+  letter-spacing: 0.1em;
+  padding: 0 4px 6px 0;
+  border-bottom: 1px solid var(--border);
 }
 
 .laneTable td {
-  padding: 4px 4px 4px 0;
-  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  padding: 5px 4px 5px 0;
+  border-top: 1px solid var(--border);
   white-space: nowrap;
+}
+
+.laneTable tbody tr:first-child td {
+  border-top: none;
 }
 
 .laneTable td:last-child,
@@ -910,7 +989,7 @@
 
 .lane[data-clock="tick"] .laneLabel small,
 .lane[data-clock="take"] .laneLabel small {
-  color: var(--warn);
+  color: var(--warn-text);
   opacity: 1;
 }
 
@@ -919,7 +998,7 @@
 }
 
 .lane[data-clock="taken"] .laneLabel small {
-  color: var(--accent);
+  color: var(--accent-text);
   opacity: 1;
 }
 
@@ -979,12 +1058,13 @@
   padding: 12px;
   border-radius: var(--radius);
   background: var(--bg-elev);
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  border: 1px solid var(--accent-line);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .metrics[data-net="anvil"] {
-  border-color: color-mix(in srgb, var(--warn) 38%, var(--border));
+  border-color: var(--warn-line);
 }
 
 .metricsHead {
@@ -996,15 +1076,16 @@
 }
 
 .metricsKicker {
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--long);
+  color: var(--long-text);
 }
 
 .metrics[data-net="anvil"] .metricsKicker {
-  color: var(--warn);
+  color: var(--warn-text);
 }
 
 .metricsOutcomes {
@@ -1019,14 +1100,15 @@
 .demoTag {
   display: inline-block;
   margin-left: 5px;
-  padding: 0 6px;
-  border-radius: 999px;
+  padding: 0 7px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 16px;
-  color: var(--link);
-  background: color-mix(in srgb, var(--link) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--link) 40%, transparent);
+  color: var(--link-text);
+  background: color-mix(in srgb, var(--link) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--link) 35%, transparent);
   vertical-align: 1px;
 }
 
@@ -1045,18 +1127,20 @@
 .metric {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px 9px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-elev-2);
+  gap: 3px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
   min-width: 0;
 }
 
 .metric small {
+  font-family: var(--font-mono);
   font-size: 9.5px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1091,10 +1175,10 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 10px 12px;
+  padding: 11px 14px;
   border-radius: var(--radius);
-  border: 1px solid color-mix(in srgb, var(--link) 45%, var(--border));
-  background: color-mix(in srgb, var(--link) 6%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--link) 40%, var(--border));
+  background: color-mix(in srgb, var(--link) 5%, var(--bg-elev));
   font-size: 12px;
 }
 
@@ -1150,7 +1234,7 @@
 }
 
 .takeRow span:nth-child(2) {
-  color: var(--warn);
+  color: var(--warn-text);
   font-weight: 600;
 }
 
@@ -1160,10 +1244,10 @@
 
 .takeRow button {
   height: 28px;
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
-  font-weight: 700;
-  color: #fff;
+  font-weight: 650;
+  color: #ffffff;
   background: var(--link);
 }
 
@@ -1187,7 +1271,7 @@
   }
 
   .title {
-    font-size: 24px;
+    font-size: 28px;
   }
 
   .subtitle {
@@ -1233,7 +1317,7 @@
   }
 
   .clock span {
-    font-size: 32px;
+    font-size: 26px;
   }
 
   .clock small {
@@ -1350,7 +1434,7 @@
   }
 
   .resultHead {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .resultGrid b {
@@ -1498,12 +1582,7 @@
 
   .crashBtn {
     justify-content: center;
-    border-radius: 12px;
-  }
-
-  .recoverBtn,
-  .ghostBtn {
-    border-radius: 12px;
+    border-radius: 18px;
   }
 
   .speeds {
@@ -1619,14 +1698,6 @@
 @keyframes pulse {
   50% {
     opacity: 0.35;
-  }
-}
-
-@keyframes crashGlow {
-  50% {
-    box-shadow:
-      0 8px 38px color-mix(in srgb, var(--short) 65%, transparent),
-      inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
 }
 
