@@ -1,25 +1,78 @@
-/* Paraclr design tokens — dark trading terminal. Use these vars everywhere;
-   don't hardcode colors in feature modules. */
+/* Paraclr app tokens — the trading terminal at /app, in the brand system of
+   docs/DESIGN.md (§10). Dark-first; the light set is scoped under
+   [data-theme="light"] on <html>, which only /app sets (see
+   src/components/shell/theme.ts). The landing and legal pages use their own
+   --pc-* tokens (landing/brand/Brand.module.css) and never read these.
+
+   Use these vars everywhere; don't hardcode colours in feature modules.
+   Text in a semantic colour uses the *-text variant (AA on both themes);
+   the bare token (--long, --short, --warn, --accent) is for fills, bars,
+   dots and strokes. Text on a green/red/amber fill is --on-fill; text on a
+   purple fill is --on-accent. */
 :root {
-  --bg: #07060c;
-  --bg-elev: #110f1a;
-  --bg-elev-2: #1a1726;
-  --border: #2a2638;
-  --text: #ecebf3;
-  --text-dim: #8d89a3;
-  --accent: #836ef9; /* Monad purple */
-  --accent-soft: rgba(131, 110, 249, 0.16);
-  --ausd: #3ddc97; /* Agora AUSD green, also "long" */
+  /* ---- surfaces (dark: the landing's black chapters) ---- */
+  --bg: #08070d; /* page, input wells */
+  --bg-subtle: #0e0d15; /* table heads, code strips */
+  --bg-elev: #111019; /* panels, cards */
+  --bg-elev-2: #17151f; /* tracks, chips, segmented controls inside panels */
+  --bg-hover: rgba(255, 255, 255, 0.045);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+
+  /* ---- ink ---- */
+  --text: #f5f4fa; /* 18.4:1 */
+  --text-2: #b6b3c6; /* body copy, 9.8:1 */
+  --text-dim: #8e8aa2; /* captions, labels, 6.0:1 */
+  --placeholder: #5d5a6e;
+
+  /* ---- accent: Monad purple, one thing per view ---- */
+  --accent: #6e54ff; /* fills only on dark */
+  --accent-strong: #7d66ff; /* hover / pressed */
+  --accent-text: #a898ff; /* accent text, 8.2:1 */
+  --accent-soft: rgba(110, 84, 255, 0.14);
+  --accent-line: rgba(168, 152, 255, 0.34);
+  --on-accent: #ffffff; /* 4.8:1 on --accent */
+  --focus: #a898ff;
+
+  /* ---- meaning: long / healthy, short / broken, pending / anvil ---- */
   --long: #3ddc97;
+  --long-text: #3ddc97; /* 11.4:1 */
+  --long-soft: rgba(61, 220, 151, 0.1);
+  --long-line: rgba(61, 220, 151, 0.3);
   --short: #ff5c7a;
+  --short-text: #ff7d94; /* 8.2:1 */
+  --short-soft: rgba(255, 92, 122, 0.1);
+  --short-line: rgba(255, 92, 122, 0.32);
   --warn: #ffb547;
-  --link: #375bd2; /* Chainlink blue */
-  --radius: 14px;
+  --warn-text: #ffc46b; /* 12.8:1 */
+  --warn-soft: rgba(255, 181, 71, 0.09);
+  --warn-line: rgba(255, 181, 71, 0.3);
+  --on-fill: #08070d; /* text on green / red / amber fills */
+  --ausd: #3ddc97; /* Agora AUSD green */
+  --ausd-text: #3ddc97;
+  --link: #375bd2; /* Chainlink blue: external takers */
+  --link-text: #8ea4ff;
+
+  /* ---- depth ---- */
+  --shadow-1: 0 0 #0000;
+  --shadow-2: 0 24px 48px -24px rgba(0, 0, 0, 0.8);
+  --shadow-pop: 0 30px 80px -10px rgba(0, 0, 0, 0.7);
+  --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --scrim: rgba(4, 3, 8, 0.7);
+  --chart-grid: rgba(255, 255, 255, 0.07);
+  --scroll-thumb: #2a2638;
+  --header-bg: #08070d;
+
+  /* ---- shape, type, motion ---- */
+  --radius: 14px; /* phone / tablet cards */
   --radius-sm: 8px;
+  --radius-panel: 10px; /* desktop terminal panels */
+  --radius-pill: 999px;
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --bg-hover: #201c2e;
-  --radius-panel: 10px; /* desktop terminal panels: tighter than mobile cards */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-1: 140ms;
+  --dur-2: 240ms;
 
   /* Layout. The app is a full-viewport responsive web app (no device frame):
        < 640px    phone   — top bar + bottom tab bar, stacked cards, swipe-to-trade
@@ -27,14 +80,67 @@
        >= 1024px  desktop — header nav, CSS-grid trading terminal
      Media queries can't read custom properties, so the breakpoints are literal
      640px / 1024px / 1280px in the modules. */
-  --header-h: 56px;
-  --header-h-phone: 48px;
+  --header-h: 60px;
+  --header-h-phone: 52px;
   --tabbar-h: 64px;
   --gutter: 16px;
   --order-w: 352px; /* desktop order panel column */
   --positions-h: clamp(176px, 27dvh, 300px); /* desktop positions table */
   --content-max: 1680px; /* clearing / wallet pages on very wide screens */
   color-scheme: dark;
+}
+
+/* Light: the landing's white pages. Panels are white on a barely-grey page so
+   the terminal's structure reads without heavy borders. */
+:root[data-theme="light"] {
+  --bg: #f6f6f9;
+  --bg-subtle: #f6f6f9;
+  --bg-elev: #ffffff;
+  --bg-elev-2: #f1f0f6;
+  --bg-hover: rgba(11, 10, 18, 0.035);
+  --border: #e9e8f0;
+  --border-strong: #d9d7e3;
+
+  --text: #0b0a12; /* 19.7:1 */
+  --text-2: #45434f; /* 9.7:1 */
+  --text-dim: #6b6979; /* 5.4:1, 5.0:1 on --bg */
+  --placeholder: #a4a2b0;
+
+  --accent: #6e54ff;
+  --accent-strong: #5a3ff2;
+  --accent-text: #5a3ff2; /* 6.1:1 */
+  --accent-soft: #f1eeff;
+  --accent-line: #d9d1ff;
+  --on-accent: #ffffff;
+  --focus: #5a3ff2;
+
+  --long: #0e9f6e;
+  --long-text: #067a52; /* 5.4:1 */
+  --long-soft: #e8f7f0;
+  --long-line: #bce9d4;
+  --short: #e5484d;
+  --short-text: #c2282e; /* 5.8:1 */
+  --short-soft: #fdeded;
+  --short-line: #f6cacc;
+  --warn: #f59e0b;
+  --warn-text: #a15c07; /* 5.2:1 */
+  --warn-soft: #fef6e7;
+  --warn-line: #f6dcaa;
+  --on-fill: #08070d;
+  --ausd: #0e9f6e;
+  --ausd-text: #067a52;
+  --link: #375bd2;
+  --link-text: #2f4fc0;
+
+  --shadow-1: 0 1px 2px rgba(18, 14, 48, 0.05), 0 1px 1px rgba(18, 14, 48, 0.03);
+  --shadow-2: 0 16px 36px -16px rgba(26, 18, 74, 0.18), 0 2px 6px -2px rgba(26, 18, 74, 0.06);
+  --shadow-pop: 0 48px 90px -30px rgba(26, 18, 74, 0.34), 0 16px 32px -16px rgba(26, 18, 74, 0.16);
+  --card-highlight: 0 0 #0000;
+  --scrim: rgba(11, 10, 18, 0.4);
+  --chart-grid: #eeedf3;
+  --scroll-thumb: #d9d7e3;
+  --header-bg: #ffffff;
+  color-scheme: light;
 }
 
 * {
@@ -76,8 +182,8 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-/* Thin, dark scrollbars for the terminal's inner scroll areas. */
+/* Thin scrollbars for the terminal's inner scroll areas. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--scroll-thumb) transparent;
 }

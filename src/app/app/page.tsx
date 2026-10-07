@@ -6,6 +6,10 @@ import { AppShell } from "@/components/shell/AppShell";
 import { CHAIN_MODE_ON, NETWORK } from "@/lib/chain/config";
 import { readDeploymentJson, type DeploymentLoad } from "@/lib/chain/deployments.server";
 import { readLatestXray } from "@/lib/chain/xray.server";
+// Brand display face (Sora), scoped to this route: it only defines
+// --font-pc-display on the wrapper below. See docs/DESIGN.md §10.
+import { displayFont } from "@/components/landing/brand/fonts";
+import { ThemeScript } from "@/components/shell/theme";
 
 export const metadata: Metadata = {
   title: "Trading terminal",
@@ -26,10 +30,16 @@ export default async function AppPage() {
   const recordedXray = await readLatestXray(NETWORK?.chainId ?? null);
 
   return (
-    <AuthProvider>
-      <ChainProvider deployment={deployment}>
-        <AppShell recordedXray={recordedXray} />
-      </ChainProvider>
-    </AuthProvider>
+    <>
+      {/* Sets <html data-theme> before the first paint (stored choice, else the OS preference). */}
+      <ThemeScript />
+      <div className={displayFont.variable} style={{ display: "contents" }}>
+        <AuthProvider>
+          <ChainProvider deployment={deployment}>
+            <AppShell recordedXray={recordedXray} />
+          </ChainProvider>
+        </AuthProvider>
+      </div>
+    </>
   );
 }
