@@ -1,0 +1,11 @@
+# Docker build context for keeper/Dockerfile (the only image in this repo; context = repo root).
+# Same allowlist as keeper/Dockerfile.dockerignore, for builders that ignore per-Dockerfile files.
+# Never send env files or keys to a builder.
+*
+!tsconfig.json
+!keeper/src/**
+!src/lib/chain/abi/ParaclrClearinghouseProd.ts
+!deployments/*.json
+**/.env*
+keeper/.env*
+**/*.retired-*

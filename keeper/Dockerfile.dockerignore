@@ -1,0 +1,10 @@
+# BuildKit reads <Dockerfile>.dockerignore next to keeper/Dockerfile (context = repo root).
+# Allowlist: only what the keeper image needs. Never send env files or keys to the builder.
+*
+!tsconfig.json
+!keeper/src/**
+!src/lib/chain/abi/ParaclrClearinghouseProd.ts
+!deployments/*.json
+**/.env*
+keeper/.env*
+**/*.retired-*
