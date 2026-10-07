@@ -1,0 +1,232 @@
+# Paraclr clearinghouse, as indexed by Envio.
+# Units are the contract's: AUSD amounts have 6 decimals, sizes and prices 18. Addresses are lowercase.
+# Ids are unique per chain (disable_default_cross_chain), so the GraphQL rows also carry chainId.
+
+enum OrderStatus {
+  Pending
+  Executed
+  Failed
+  Cancelled
+}
+
+enum AuctionStatus {
+  Active
+  Taken
+  Cured
+  Expired
+}
+
+enum FlowKind {
+  Deposit
+  Withdraw
+  WithdrawRequested
+}
+
+"Totals for the whole clearinghouse (id \"protocol\")."
+type Protocol {
+  id: ID!
+  accounts: Int!
+  ordersCommitted: Int!
+  ordersExecuted: Int!
+  ordersFailed: Int!
+  ordersCancelled: Int!
+  "Sum of |size| × fill price over executed orders, AUSD"
+  volume: BigInt!
+  tradingFees: BigInt!
+  "Execution fees paid to whoever filled the orders, in MON (wei, 18 decimals)"
+  executionFeesPaid: BigInt!
+  collateralDeposited: BigInt!
+  collateralWithdrawn: BigInt!
+  auctionsStarted: Int!
+  auctionsTaken: Int!
+  auctionsTakenByBackstop: Int!
+  auctionsCured: Int!
+  auctionsExpired: Int!
+  "Paid to takers: discount × notional"
+  auctionPayments: BigInt!
+  "Equity handed back to traders after a take"
+  equityReturned: BigInt!
+  badDebt: BigInt!
+  insuranceFunded: BigInt!
+  backstopDeposited: BigInt!
+  backstopWithdrawn: BigInt!
+  paused: Boolean!
+  lastBlock: BigInt!
+  lastTimestamp: Int!
+}
+
+"One of the 8 lanes (id \"0\"…\"7\", lane = address % 8)."
+type Lane {
+  id: ID!
+  index: Int!
+  accounts: Int!
+  ordersExecuted: Int!
+  volume: BigInt!
+  auctionsStarted: Int!
+  auctionsTaken: Int!
+  auctionsTakenByBackstop: Int!
+  auctionsCured: Int!
+  auctionsExpired: Int!
+  "What the lane's backstop pool earned from the auctions it took"
+  backstopEarned: BigInt!
+  notionalAbsorbed: BigInt!
+  equityReturned: BigInt!
+  badDebt: BigInt!
+  insuranceFunded: BigInt!
+  backstopDeposited: BigInt!
+  backstopWithdrawn: BigInt!
+  auctions: [Auction!]! @derivedFrom(field: "lane")
+}
+
+type Market {
+  id: ID!
+  symbol: String!
+  feedId: String!
+  listedBlock: BigInt!
+  ordersExecuted: Int!
+  volume: BigInt!
+  tradingFees: BigInt!
+  fundingRatePerSec: BigInt!
+  fundingIndex: BigInt!
+  skewNotional: BigInt!
+  fundingUpdatedAt: Int!
+}
+
+type Account {
+  id: ID!
+  lane: Lane!
+  deposited: BigInt!
+  withdrawn: BigInt!
+  ordersCommitted: Int!
+  ordersExecuted: Int!
+  volume: BigInt!
+  realizedPnl: BigInt!
+  tradingFees: BigInt!
+  auctions: Int!
+  "The account's open auction, if any (an Auction id)"
+  activeAuction: String
+  firstBlock: BigInt!
+  lastTimestamp: Int!
+  orders: [Order!]! @derivedFrom(field: "account")
+}
+
+"A delayed order: committed, then filled at the first Pyth price after execAfter, failed, or cancelled."
+type Order @index(fields: ["account", ["committedBlock", "DESC"]]) {
+  id: ID!
+  orderId: BigInt!
+  account: Account!
+  market: Market!
+  lane: Int!
+  status: OrderStatus! @index
+  sizeDelta: BigInt!
+  marginDelta: BigInt!
+  acceptablePrice: BigInt!
+  executionFee: BigInt!
+  execAfter: BigInt!
+  deadline: BigInt!
+  committedBlock: BigInt! @index
+  committedAt: Int!
+  committedTx: String!
+  executor: String
+  fillPrice: BigInt
+  publishTime: BigInt
+  tradingFee: BigInt
+  realizedPnl: BigInt
+  notional: BigInt
+  failReason: String
+  resolvedBlock: BigInt
+  resolvedAt: Int
+  resolvedTx: String
+  "Seconds from commit to fill / failure / cancel"
+  latency: Int
+}
+
+"One per-block Dutch auction of an underwater account."
+type Auction @index(fields: ["lane", ["startBlock", "DESC"]]) {
+  id: ID!
+  lane: Lane!
+  account: String! @index
+  status: AuctionStatus! @index
+  startBlock: BigInt!
+  startedAt: Int!
+  startTx: String!
+  equityAtStart: BigInt!
+  notional: BigInt!
+  taker: String
+  byBackstop: Boolean
+  discountBps: Int
+  blocksElapsed: Int
+  payment: BigInt
+  traderResidual: BigInt
+  badDebt: BigInt
+  resolvedBlock: BigInt
+  resolvedAt: Int
+  resolvedTx: String
+}
+
+"Every PositionUpdated event: the position after an order, a take or a reduction."
+type PositionChange @index(fields: ["account", ["block", "DESC"]]) {
+  id: ID!
+  account: String!
+  lane: Int!
+  market: Market!
+  isLong: Boolean!
+  size: BigInt!
+  entryPrice: BigInt!
+  entryNotional: BigInt!
+  margin: BigInt!
+  price: BigInt!
+  realizedPnl: BigInt!
+  block: BigInt! @index
+  timestamp: Int!
+  tx: String!
+}
+
+"Trader collateral in and out of the clearinghouse."
+type CollateralFlow @index(fields: ["account", ["block", "DESC"]]) {
+  id: ID!
+  account: String!
+  lane: Int!
+  kind: FlowKind!
+  amount: BigInt!
+  block: BigInt! @index
+  timestamp: Int!
+  tx: String!
+}
+
+"Backstop LP deposits, exit requests and withdrawals, and lane insurance top-ups (lp = funder, kind Deposit, shares 0)."
+type BackstopFlow @index(fields: ["lane", ["block", "DESC"]]) {
+  id: ID!
+  lane: Int!
+  lp: String! @index
+  kind: FlowKind!
+  insurance: Boolean!
+  amount: BigInt!
+  shares: BigInt!
+  readyAt: BigInt
+  block: BigInt! @index
+  timestamp: Int!
+  tx: String!
+}
+
+"Activity per UTC day (id = YYYY-MM-DD)."
+type DailyStat {
+  id: ID!
+  dayStart: Int! @index
+  ordersExecuted: Int!
+  volume: BigInt!
+  tradingFees: BigInt!
+  newAccounts: Int!
+  auctionsStarted: Int!
+  auctionsTaken: Int!
+  equityReturned: BigInt!
+}
+
+type GuardianAction {
+  id: ID!
+  paused: Boolean!
+  by: String!
+  block: BigInt!
+  timestamp: Int!
+  tx: String!
+}

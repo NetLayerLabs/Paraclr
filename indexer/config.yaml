@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+# Paraclr indexer (Envio HyperIndex): the production clearinghouse on Monad testnet.
+# Addresses and the start block come from deployments/10143.json. Data source: Envio's
+# HyperSync (needs ENVIO_API_TOKEN in .env), with the RPC as a fallback.
+name: paraclr-indexer
+description: Orders, positions, per-lane auctions, backstop pools and collateral flows of the Paraclr clearinghouse
+disable_default_cross_chain: true
+# Every handler stores the transaction hash with its rows (block number and time are always there).
+field_selection:
+  transaction_fields: [hash]
+chains:
+  - id: 10143
+    start_block: 69041758
+    rpc:
+      - url: ${ENVIO_RPC_URL:-https://testnet-rpc.monad.xyz}
+        for: fallback
+    contracts:
+      - name: ParaclrClearinghouse
+        address:
+          - "0xbC1fD0165FBfF4EF32337E42D0e2Ad59bF52b203"
+        events:
+          # markets, accounts, collateral
+          - event: MarketListed(bytes32 indexed marketId, string symbol, bytes32 feedId)
+          - event: AccountRegistered(address indexed account, uint8 indexed lane)
+          - event: Deposit(address indexed account, uint8 indexed lane, uint256 amount)
+          - event: Withdraw(address indexed account, uint8 indexed lane, uint256 amount)
+          # delayed orders and positions
+          - event: OrderCommitted(uint256 indexed orderId, address indexed account, bytes32 indexed market, uint8 lane, int256 sizeDelta, uint256 marginDelta, uint256 acceptablePrice, uint256 executionFee, uint256 execAfter, uint256 deadline)
+          - event: OrderExecuted(uint256 indexed orderId, address indexed account, bytes32 indexed market, address executor, uint256 fillPrice, uint256 publishTime, int256 sizeDelta, uint256 tradingFee, int256 realizedPnl, uint256 executionFee)
+          - event: OrderFailed(uint256 indexed orderId, address indexed account, bytes32 indexed market, address executor, bytes reason)
+          - event: OrderCancelled(uint256 indexed orderId, address indexed account, bytes32 indexed market, address caller, uint256 feeRefunded)
+          - event: PositionUpdated(address indexed account, uint8 indexed lane, bytes32 indexed market, bool isLong, uint256 size, uint256 entryPrice, uint256 entryNotional, uint256 margin, uint256 price, int256 realizedPnl)
+          - event: FundingUpdated(bytes32 indexed market, int256 ratePerSec, int256 index, int256 skewNotional)
+          # per-lane auctions
+          - event: AuctionStarted(uint8 indexed lane, address indexed account, uint256 startBlock, int256 equity, uint256 notional)
+          - event: AuctionTaken(uint8 indexed lane, address indexed account, address indexed taker, bool backstop, uint16 discountBps, uint256 blocksElapsed, uint256 notional, uint256 traderResidual, uint256 payment, uint256 badDebt)
+          - event: AuctionCancelled(uint8 indexed lane, address indexed account)
+          - event: AuctionExpired(uint8 indexed lane, address indexed account, int256 equity, uint256 badDebt)
+          - event: BadDebtRealized(uint8 indexed lane, address indexed account, uint256 amount)
+          # lane insurance and backstop pools
+          - event: LaneFunded(uint8 indexed lane, address indexed funder, uint256 amount, uint256 debtRepaid)
+          - event: BackstopDeposit(uint8 indexed lane, address indexed lp, uint256 amount, uint256 shares)
+          - event: BackstopWithdrawRequested(uint8 indexed lane, address indexed lp, uint256 shares, uint256 readyAt)
+          - event: BackstopWithdraw(uint8 indexed lane, address indexed lp, uint256 shares, uint256 amount)
+          # guardian
+          - event: Paused(address indexed by)
+          - event: Unpaused(address indexed by)
