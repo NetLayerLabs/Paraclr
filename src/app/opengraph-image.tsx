@@ -1,10 +1,13 @@
 import { renderOgImage } from "@/components/landing/ogImage";
+import { loadProductionStatus } from "@/components/landing/production.server";
 
 export const alt =
-  "Paraclr: fair liquidations, cleared every block. Per-block Dutch auctions in 8 lanes, backed by backstop LPs; traders keep their leftover equity.";
+  "Paraclr: Liquidations, auctioned. Priced by the block, not the gas race. Per-block Dutch auctions in 8 lanes, backed by backstop LPs; the trader keeps E − P.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
-  return renderOgImage(size);
+// Tags follow deployments/143.json ("production": true), read at build time.
+export default async function Image() {
+  const { live } = await loadProductionStatus();
+  return renderOgImage(size, live);
 }

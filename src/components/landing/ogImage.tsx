@@ -1,182 +1,260 @@
 // Social card for opengraph-image / twitter-image (next/og ImageResponse).
 // Satori subset: flexbox only, inline styles, every multi-child div is flex.
-// Uses next/og's bundled default font (Geist Regular), so no font files ship.
+// Fonts: static Sora instances (OFL, brand/fonts/) — Satori can't read woff2
+// or variable fonts. Colours come from brand/tokens.ts.
 
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { BRAND } from "./brand/tokens";
+import { LANE_RADII, LANE_STROKE, TILE_RX, lanePath } from "./brand/Logo";
 
-const STEP = 25;
-const TAKE = 3; // 75 bps backstop threshold
-const BARS = 11; // blocks +0 … +10
-const BAR_MAX = 250; // bps at the top of the plot
-const PLOT_H = 230;
+const FONT_DIR = join(process.cwd(), "src", "components", "landing", "brand", "fonts");
 
-function barColor(b: number): string {
-  if (b === TAKE) return "#8f7bff";
-  if (b < TAKE) return "#f6b04a";
-  return "rgba(255,255,255,0.10)";
+let fonts: Promise<[Buffer, Buffer]> | null = null;
+function loadFonts(): Promise<[Buffer, Buffer]> {
+  fonts ??= Promise.all([
+    readFile(join(FONT_DIR, "Sora-ExtraBold.ttf")),
+    readFile(join(FONT_DIR, "Sora-SemiBold.ttf")),
+  ]);
+  return fonts;
 }
 
-export function renderOgImage(size: { width: number; height: number }): ImageResponse {
+function MarkSvg({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="og-tile">
+          <rect width="32" height="32" rx={TILE_RX} />
+        </clipPath>
+      </defs>
+      <rect width="32" height="32" rx={TILE_RX} fill={BRAND.accent} />
+      <g clipPath="url(#og-tile)" stroke="#FFFFFF" strokeWidth={LANE_STROKE}>
+        {LANE_RADII.map((r) => (
+          <path key={r} d={lanePath(r)} />
+        ))}
+      </g>
+    </svg>
+  );
+}
+
+const W = 1200;
+const H = 630;
+const EDGE = 780; // right edge of the light block
+const R = 250; // its top-right corner radius
+const D = 15; // lane pitch
+
+/** `live`: the mainnet beta is deployed (deployments/143.json with "production": true). */
+export async function renderOgImage(size: { width: number; height: number }, live = false): Promise<ImageResponse> {
+  const [extraBold, semiBold] = await loadFonts();
+  const status = live
+    ? { text: "Live on Monad mainnet · capped", dot: BRAND.posDark, fg: "#0B4D35", bg: "#E8F7F0", line: "#BCE9D4" }
+    : { text: "Mainnet beta: pending launch gate", dot: "#F59E0B", fg: "#7A4605", bg: "#FEF6E7", line: "#F6DCAA" };
+  const audit = live ? "Unaudited beta" : "Not audited";
+
+  const stats = [
+    { k: "8", v: "lanes, lane-local storage" },
+    { k: "+25 bps", v: "discount per block" },
+    { k: "E − P", v: "back to the trader" },
+  ];
+
   return new ImageResponse(
-    (
+    <div
+      style={{ width: "100%", height: "100%", display: "flex", position: "relative", backgroundColor: BRAND.dark.bg }}
+    >
+      {/* Lanes following the light block's curve, on the dark side. */}
+      {Array.from({ length: 8 }, (_, i) => {
+        const k = i + 1;
+        return (
+          <div
+            key={k}
+            style={{
+              display: "flex",
+              position: "absolute",
+              left: -10,
+              top: -k * D,
+              width: EDGE + k * D + 10,
+              height: H + k * D + 20,
+              borderTop: "2px solid #8F7CFF",
+              borderRight: "2px solid #8F7CFF",
+              borderTopRightRadius: R + k * D,
+              opacity: 0.8 - k * 0.075,
+            }}
+          />
+        );
+      })}
+
+      {/* Light block */}
       <div
         style={{
-          width: "100%",
-          height: "100%",
           display: "flex",
-          backgroundColor: "#07060c",
-          backgroundImage:
-            "radial-gradient(circle at 82% 30%, rgba(131,110,249,0.38) 0%, rgba(7,6,12,0) 55%), radial-gradient(circle at 0% 100%, rgba(61,220,151,0.10) 0%, rgba(7,6,12,0) 45%)",
-          color: "#ecebf3",
-          padding: "64px 72px",
+          flexDirection: "column",
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: EDGE,
+          height: H,
+          padding: "60px 0 56px 72px",
+          backgroundColor: "#FFFFFF",
+          borderTopRightRadius: R,
         }}
       >
-        {/* left: copy */}
-        <div style={{ display: "flex", flexDirection: "column", width: 650, height: "100%" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                gap: 6,
-                width: 52,
-                height: 52,
-                padding: "0 11px",
-                borderRadius: 15,
-                backgroundImage: "linear-gradient(135deg, #a898ff, #6f58f0)",
-              }}
-            >
-              <div style={{ display: "flex", width: 30, height: 5, borderRadius: 3, backgroundColor: "#ffffff" }} />
-              <div style={{ display: "flex", gap: 4 }}>
-                <div style={{ display: "flex", width: 18, height: 5, borderRadius: 3, backgroundColor: "#ffffff" }} />
-                <div style={{ display: "flex", width: 8, height: 5, borderRadius: 3, backgroundColor: "#3ddc97" }} />
-              </div>
-              <div style={{ display: "flex", width: 24, height: 5, borderRadius: 3, backgroundColor: "#ffffff" }} />
-            </div>
-            <div style={{ display: "flex", fontSize: 40, letterSpacing: -1.5 }}>Paraclr</div>
-          </div>
-
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <MarkSvg size={54} />
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              marginTop: 44,
-              fontSize: 66,
-              lineHeight: 1.05,
-              letterSpacing: -1,
+              fontFamily: "Sora",
+              fontWeight: 800,
+              fontSize: 40,
+              letterSpacing: -1.8,
+              color: BRAND.light.ink,
             }}
           >
-            <div style={{ display: "flex" }}>Fair liquidations,</div>
-            <div style={{ display: "flex", color: "#a898ff" }}>cleared every block.</div>
-          </div>
-
-          <div style={{ display: "flex", marginTop: 24, fontSize: 26, lineHeight: 1.4, color: "#b9b5cc" }}>
-            Per-block Dutch auctions in 8 lanes, backed by backstop LPs. Traders keep the equity the auction doesn&rsquo;t
-            use.
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
-            {["Testnet build", "Monad Metropolis", "Conflict X-ray", "Solvency proof"].map((t) => (
-              <div
-                key={t}
-                style={{
-                  display: "flex",
-                  flexShrink: 0,
-                  padding: "8px 14px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  backgroundColor: "rgba(255,255,255,0.04)",
-                  fontSize: 19,
-                  color: "#d4ccff",
-                }}
-              >
-                {t}
-              </div>
-            ))}
+            Paraclr
           </div>
         </div>
 
-        {/* right: discount staircase */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignSelf: "center",
-            marginLeft: "auto",
-            width: 330,
-            padding: 24,
-            borderRadius: 24,
-            border: "1px solid rgba(255,255,255,0.14)",
-            backgroundColor: "rgba(20,17,42,0.85)",
-          }}
-        >
-          <div style={{ display: "flex", fontSize: 17, color: "#8d89a3" }}>discount · +25 bps / block</div>
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 54 }}>
           <div
             style={{
               display: "flex",
-              position: "relative",
-              alignItems: "flex-end",
-              gap: 6,
-              height: PLOT_H,
-              marginTop: 18,
-              borderBottom: "1px solid rgba(255,255,255,0.2)",
+              fontFamily: "Sora",
+              fontWeight: 800,
+              fontSize: 86,
+              lineHeight: 1,
+              letterSpacing: -4.3,
+              color: BRAND.light.ink,
             }}
           >
+            Liquidations,
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginTop: 6 }}>
             <div
               style={{
                 display: "flex",
-                position: "absolute",
-                left: 0,
-                right: 0,
-                bottom: (75 / BAR_MAX) * PLOT_H,
-                height: 0,
-                borderTop: "2px dashed rgba(168,152,255,0.9)",
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                position: "absolute",
-                left: 0,
-                bottom: (75 / BAR_MAX) * PLOT_H + 8,
-                fontSize: 15,
-                color: "#d4ccff",
+                fontFamily: "Sora",
+                fontWeight: 800,
+                fontSize: 86,
+                lineHeight: 1,
+                letterSpacing: -4.3,
+                color: BRAND.accent,
               }}
             >
-              backstop min · 75 bps
+              auctioned.
             </div>
-            {Array.from({ length: BARS }, (_, b) => (
-              <div
-                key={b}
-                style={{
-                  display: "flex",
-                  flexGrow: 1,
-                  height: Math.max(3, ((b * STEP) / BAR_MAX) * PLOT_H),
-                  borderRadius: "4px 4px 0 0",
-                  backgroundColor: barColor(b),
-                }}
-              />
-            ))}
+            <div
+              style={{
+                display: "flex",
+                width: 6,
+                height: 70,
+                marginLeft: 14,
+                borderRadius: 3,
+                backgroundColor: BRAND.accent,
+              }}
+            />
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 15, color: "#8d89a3" }}>
-            <div style={{ display: "flex" }}>+0</div>
-            <div style={{ display: "flex" }}>blocks since start</div>
-            <div style={{ display: "flex" }}>+10</div>
+          <div
+            style={{
+              display: "flex",
+              marginTop: 22,
+              fontFamily: "Sora",
+              fontWeight: 800,
+              fontSize: 32,
+              letterSpacing: -1.3,
+              color: BRAND.light.display2,
+            }}
+          >
+            Priced by the block, not the gas race.
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 18, fontSize: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#d4ccff" }}>
-              <div style={{ display: "flex", width: 12, height: 12, borderRadius: 3, backgroundColor: "#8f7bff" }} />
-              lane backstop takes
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#9fe9c8" }}>
-              <div style={{ display: "flex", width: 12, height: 12, borderRadius: 3, backgroundColor: "#3ddc97" }} />
-              trader keeps E − P
-            </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "10px 18px",
+              borderRadius: 999,
+              border: `1.5px solid ${status.line}`,
+              backgroundColor: status.bg,
+              fontFamily: "Sora",
+              fontWeight: 600,
+              fontSize: 19,
+              color: status.fg,
+            }}
+          >
+            <div style={{ display: "flex", width: 10, height: 10, borderRadius: 5, backgroundColor: status.dot }} />
+            {status.text}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              padding: "10px 18px",
+              borderRadius: 999,
+              border: `1.5px solid ${BRAND.light.line}`,
+              fontFamily: "Sora",
+              fontWeight: 600,
+              fontSize: 19,
+              color: BRAND.light.ink2,
+            }}
+          >
+            {audit}
           </div>
         </div>
       </div>
-    ),
-    { ...size },
+
+      {/* Dark side: the mechanism in three numbers (contract defaults). */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          position: "absolute",
+          left: EDGE + 8 * D + 40,
+          right: 56,
+          bottom: 60,
+          gap: 26,
+        }}
+      >
+        {stats.map((st) => (
+          <div key={st.k} style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                display: "flex",
+                fontFamily: "Sora",
+                fontWeight: 800,
+                fontSize: 44,
+                letterSpacing: -1.8,
+                color: "#FFFFFF",
+              }}
+            >
+              {st.k}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                marginTop: 2,
+                fontFamily: "Sora",
+                fontWeight: 600,
+                fontSize: 16,
+                color: BRAND.dark.ink3,
+              }}
+            >
+              {st.v}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>,
+    {
+      ...size,
+      fonts: [
+        { name: "Sora", data: extraBold, weight: 800, style: "normal" },
+        { name: "Sora", data: semiBold, weight: 600, style: "normal" },
+      ],
+    },
   );
 }
+
+export const OG_SIZE = { width: W, height: H };

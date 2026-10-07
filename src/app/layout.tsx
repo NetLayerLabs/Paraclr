@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { loadProductionStatus } from "@/components/landing/production.server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,10 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_TITLE = "Paraclr: the fair-liquidation clearinghouse for Monad";
-const SITE_DESCRIPTION =
+const SITE_DESCRIPTION_BASE =
   "Every block, underwater accounts in each of 8 lanes go to a Dutch auction backed by per-lane backstop LPs, and " +
   "traders get their leftover equity back. Auction-priced by the block clock, not by gas bidding, with a measured " +
-  "Conflict X-ray of every crash and a live solvency proof. Testnet build for Monad Metropolis.";
+  "Conflict X-ray of every crash and a live solvency proof.";
+// The status sentence follows deployments/143.json ("production": true), read at build time.
+const STATUS_LIVE = "Capped, unaudited beta on Monad mainnet: use only what you can afford to lose.";
+const STATUS_PENDING = "Testnet build for Monad Metropolis; the mainnet beta is pending its launch gate.";
 
 // Absolute base for OG/Twitter image URLs. Set NEXT_PUBLIC_SITE_URL (e.g.
 // https://paraclr.example) on the host; unset, Next falls back to its default
@@ -32,25 +36,29 @@ function siteUrl(): URL | undefined {
 }
 const SITE_URL = siteUrl();
 
-export const metadata: Metadata = {
-  ...(SITE_URL ? { metadataBase: SITE_URL } : {}),
-  title: { default: SITE_TITLE, template: "%s · Paraclr" },
-  description: SITE_DESCRIPTION,
-  applicationName: "Paraclr",
-  openGraph: {
-    type: "website",
-    siteName: "Paraclr",
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-    locale: "en_US",
-    ...(SITE_URL ? { url: SITE_URL } : {}),
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { live } = await loadProductionStatus();
+  const description = `${SITE_DESCRIPTION_BASE} ${live ? STATUS_LIVE : STATUS_PENDING}`;
+  return {
+    ...(SITE_URL ? { metadataBase: SITE_URL } : {}),
+    title: { default: SITE_TITLE, template: "%s · Paraclr" },
+    description,
+    applicationName: "Paraclr",
+    openGraph: {
+      type: "website",
+      siteName: "Paraclr",
+      title: SITE_TITLE,
+      description,
+      locale: "en_US",
+      ...(SITE_URL ? { url: SITE_URL } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: SITE_TITLE,
+      description,
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#07060c",
@@ -60,8 +68,9 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  // suppressHydrationWarning: /app sets data-theme on <html> before hydration (shell/theme.tsx).
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
