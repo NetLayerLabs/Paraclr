@@ -142,9 +142,31 @@ lane-to-lane dependencies).
   burner wallet unless the RPC is local (fork rehearsal). Privy shows its confirmation UI
   on mainnet. Server env `PARACLR_DEPLOYMENTS_DIR` points the app at a rehearsal's
   deployment file.
-- **Increase orders deposit margin + 2× the trading fee** (plus any unrealized loss on other
-  legs): with exactly the margin deposited the fill fails `InsufficientMargin` because the fee
-  comes out of collateral before the IM check (seen on a private stack).
+- ~~Increase orders deposit margin + 2× the trading fee~~ (v2 workaround). **Since v4 the
+  deposit before an order is the margin only** (plus pending escrow, Σ position margins and
+  other legs' unrealized losses, minus collateral): the fee is paid out of the margin at fill.
+- **v4/v5 adaptation** (verified on a private anvil + MockPyth with the v5 contract):
+  - `[]` vs fresh update: compares the newer of `latestPrice` and the account's
+    `lanePrice(lane, m)` against 70% of `maxStoredPriceAge` (15 s → 10 s).
+  - **Order size near max leverage is computed at the slippage bound**, not at the mark: the
+    contract checks leverage at the fill price, so a 10x order sized at the mark failed
+    `LeverageTooHigh` whenever the fill was above the mark (private stack). The UI still says 10x.
+  - Holders deposit with `depositWithPrice` (fresh update when stored prices are stale); the
+    wallet shows "Add margin beyond the cap: up to `topUpAllowance`". First deposit ≥ 1 AUSD;
+    lane bad debt refuses new deposits (copy in the wallet).
+  - Margin-adding orders are disabled while collateral is above `maxDepositPerAccount` (v5),
+    with the `CollateralAboveCap` hint. Reduce / close stay available.
+  - Backstop LP exit is two steps (request → countdown → withdraw once inside the window →
+    "expired", cancel = request 0 shares). Pool deposits are gated on `backstopDepositStatus`
+    (+ lane bad debt) with the reason. In production `backstopNav` is labelled **exit value**
+    (v5: cash + losses, gains count once realised); the pending gain from
+    `backstopDepositStatus.unrealizedUncapped` is shown beside it when positive.
+  - Solvency dialog: per-lane `laneSolvency` table (held, claims, surplus, insurance, bad debt,
+    haircut). Withdraw preview calls `previewWithdraw` and warns about the haircut.
+  - In auction: the banner offers reduce-only "Reduce 50%" / "Close" orders per position; cure
+    copy targets maintenance.
+  - Test-stack only: my private stack sets `backstopWithdrawDelay` to 60 s to exercise the
+    countdown; the app reads the real value from chain.
 
 ### Content agent (landing, /terms, /risk, docs)
 - **What the landing reads from `deployments/143.json`** (`src/components/landing/production.server.ts`, build time):
