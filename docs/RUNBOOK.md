@@ -39,7 +39,7 @@ Never paste a key anywhere.
    - Measured keeper cost per execution (contract v3): ≈ 444k gas limit on average × 102 gwei ≈ **0.045 MON**; a multi-leg order with its appended update 674k ≈ 0.069 MON (section 8b).
    - 0.1 MON covers the worst case up to about 145 gwei. If Monad's base fee rises, raise it through the timelock: `setOrderParams`.
 6. **Fund the deployer.** Run `npm run keeper:fund -- --network mainnet --roles deployer` to preview, then add `--send --yes-mainnet --funder-env FUNDER_PRIVATE_KEY` to send.
-   - The deploy needs about 1.8 MON: 17.57M gas limit × 102 gwei (DeployProd v3, 21 txs).
+   - The deploy needs about 1.85 MON: 18.09M gas limit × 102 gwei (DeployProd v5, 21 txs, 14.84M used).
    - The preview target includes forge's 1.3 margin and the safety factor (≈ 3 MON).
 7. **Rehearse on a fork** with today's code: `npm run rehearse:mainnet` (section 10). All steps must pass.
 
@@ -59,7 +59,7 @@ The wrapper (`scripts/deploy-mainnet.ts` → `scripts/lib/prod-deploy.ts`) runs 
    - the owner is not a hot key, and the guardian and the 8 keepers are distinct keys (DeployProd maps keeper i → lane i and refuses duplicates);
    - the timelock delay is at least 1 h; `MAX_STORED_PRICE_AGE_SECONDS` ≤ `MAX_PRICE_AGE_SECONDS` ≤ 60.
 2. **Pyth feeds pushed recently.** DeployProd requires every feed to have been pushed on chain within `PYTH_MAX_FEED_AGE_SECONDS` (1 h). Third parties push MON/SOL/BTC ~115–225 times an hour (measured), so normally nothing is needed; if a stored price is older, the wrapper pushes the latest Hermes update (`updatePriceFeeds`, ~160k gas, fee 0) first.
-3. **Forge.** It runs `forge script contracts/script/DeployProd.s.sol --broadcast --slow --code-size-limit 131072`. The contract is 50,051 B (v3): over EIP-170's 24 KB, under Monad's 128 KB. Forge gets the deployer key and role **addresses** only (`GUARDIAN_ADDRESS`, `KEEPER_ADDRESSES`); every other secret is stripped from its environment.
+3. **Forge.** It runs `forge script contracts/script/DeployProd.s.sol --broadcast --slow --code-size-limit 131072`. The contract (v5, sha256 `1643014507eaf16a…`) is ≈ 51.4 KB: over EIP-170's 24 KB, under Monad's 128 KB. Forge gets the deployer key and role **addresses** only (`GUARDIAN_ADDRESS`, `KEEPER_ADDRESSES`); every other secret is stripped from its environment.
 4. **Post-deploy verification**, all on chain:
    - `owner()` is the timelock;
    - the timelock's delay is set, and the multisig holds proposer, executor and canceller;
@@ -110,12 +110,13 @@ This writes **one Safe Transaction Builder file**: AUSD `approve`, then `fundLan
 - Import the file in the treasury Safe's Transaction Builder and sign it.
 - Pool deposits count toward each lane's 500 AUSD TVL cap. Pool shares belong to the Safe; it withdraws them in two steps (section 4b).
 - Fresh deposits and pool deposits into a lane **with bad debt** revert `LaneInDeficit`: seed before trading starts, and repair deficits as in section 13b.
+- **Pool deposits can be refused (v4):** `BackstopReceivableOutstanding` while the lane owes the pool a receivable (pool cash lent to the loss waterfall), and `BackstopGainCapBinding` while the pool's unrealised gain exceeds lane insurance. `backstopDepositStatus(lane)` → `(open, receivable, unrealizedUncapped, insurance)` tells in advance. The `seed` command checks it per lane, leaves closed lanes' pool deposits out of the batch and prints why; re-run it for those lanes once `open` is true (insurance top-ups via `fundLane` are never refused).
 
 ## 4b. LP withdrawals are two-step
 
 1. **Request:** `backstopRequestWithdraw(lane, shares)` (works while paused; `0` cancels). The keeper's `/backstop?lp=0x…` (`withdrawRequest`) and the contract's `backstopWithdrawRequest(lane, lp)` show `readyAt` and `expiresAt`.
 2. **Withdraw** after `backstopWithdrawDelay` (1 h) and within the **1 h window** (v3): `backstopWithdraw(lane, shares, priceUpdate)` at the NAV of that moment (pass a fresh update from the `/hermes` proxy if the pool holds positions). Too early → `WithdrawNotReady`; too late → `WithdrawRequestExpired`. A request is **single-use** (v3): any withdrawal consumes it, so request the full amount you want and withdraw it in one call.
-- Payouts are haircut if the lane has bad debt (`previewWithdraw`; `BackstopWithdraw` carries the amount paid). NAV counts unrealised gains only up to lane insurance (v3). Pool cash used by the loss waterfall is a **loan** (`backstopReceivable`, shown per lane in `/backstop`), repaid from lane inflows before insurance (`BackstopRepaid`). If the pool's equity goes to zero while flat, all shares are retired (`BackstopPoolReset`, new epoch): old shares read as 0.
+- Payouts are haircut if the lane has bad debt (`previewWithdraw`; `BackstopWithdraw` carries the amount paid). NAV counts unrealised gains only up to lane insurance (v3); an LP who exits while a receivable is outstanding forfeits its share of it to the LPs who stay (v4). Pool cash used by the loss waterfall is a **loan** (`backstopReceivable`, shown per lane in `/backstop`), repaid from lane inflows before insurance (`BackstopRepaid`). If the pool's equity goes to zero while flat, all shares are retired (`BackstopPoolReset`, new epoch): old shares read as 0.
 - The rehearsal runs it for the treasury (request → `WithdrawNotReady` → 1 h → withdraw inside the window → reusing the request → `NoWithdrawRequest`).
 - The rehearsal executes exactly this batch on the fork.
 
@@ -131,7 +132,7 @@ It then runs four loops on chain time:
 
 - **Executor.** Per-lane delayed-order execution with the first Pyth update at or after `execAfter` (that update only). If the account holds other legs, their price comes from Pyth storage or the lane's last price (≤ 15 s): the keeper pushes the stale feeds first (section 8b).
 - **Funding.** The change-triggered policy in section 8.
-- **Sweeper.** Auctions, with a fresh Pyth update in every transaction. Batches are **chunked by measured gas** below 24M (30M per-tx limit × 0.8): ~74–79k gas per account to start an auction and ~95–97k to take one, so 30M fits only ~300–400 accounts (measured on a 600-account lane: 3 start txs + 4–5 take txs, max 23.9M). Cure = equity ≥ maintenance (v3; 110 % on v2, read from the contract) and not in the start block. On v3 `startAuctions` closes out negative-equity accounts at once (counted as expired), and a reduce-only order may execute for an account in auction (it then ends the auction).
+- **Sweeper.** Auctions, with a fresh Pyth update in every transaction. Batches are **chunked by measured gas** below 24M (30M per-tx limit × 0.8): ~74–79k gas per account to start an auction and ~95–97k to take one, so 30M fits only ~300–400 accounts (measured on a 600-account lane: 3 start txs + 4–5 take txs, max 23.9M). Cure = equity ≥ maintenance (v3; 110 % on v2, read from the contract) and not in the start block. On v3 `startAuctions` closes out negative-equity accounts at once (counted as expired), and a reduce-only order may execute for an account in auction (it then ends the auction). v4: such an execution needs the order market's current price strictly newer than `execAfter` and ≤ 15 s old — the executor sends it ≥ 1 s after `execAfter` with a fresh `latest` and retries on `StalePrice`.
 - **Monitor.** Balances, oracle, stored-price age, pause, per-lane solvency, token-level solvency, risk events, caps and governance.
 
 It claims each keeper's execution fees (≥ 1 MON) and expiry rewards (≥ 1 AUSD) every 10 minutes.
@@ -165,7 +166,9 @@ The demo endpoints answer **403**.
 | `auction:skipped:lane<i>` | warning (event) | a batch skipped an account it could not price (`AccountSkipped`) | usually a stale/wide feed; it is retried with the next update. Persisting → check `oracle:*` |
 | `lane:insolvent:<i>` | critical | a keeper tx reverted `LaneInsolvent` | section 13b |
 | `pool:repaid:lane<i>` | info (event, v3) | lane inflows repaid the pool's loss loan (`BackstopRepaid`) | none |
-| `pool:netted:lane<i>` / `pool:swept:lane<i>` | info / warning (events, v4) | the pool's receivable was netted (`BackstopReceivableNetted`); share supply hit 0 and orphaned cash was swept to insurance with the receivable forgiven (`BackstopSwept`) | informational; re-seed the pool if it is now empty |
+| `pool:netted:lane<i>` | info (event, v4) | a flat pool whose cash went negative netted its receivable first (`BackstopReceivableNetted`) | informational |
+| `pool:forgiven:lane<i>` / `pool:swept:lane<i>` | warning / info (event, v4) | the last LP left: the pool's receivable was forgiven (`BackstopSwept` with `receivableForgiven > 0`) / orphaned cash went to the lane through the inflow waterfall | re-seed the pool if the lane needs one |
+| `pool:closed:lane<i>` | warning | the lane's pool deposits have been closed (`backstopDepositStatus.open == false`) longer than `ALERT_POOL_CLOSED_H` (6 h) | section 13d |
 | `gov:feed` | critical (event, v3) | a market's Pyth feed was replaced through the timelock (`MarketFeedReplaced`); the keeper switches live | expected after a dead-feed swap (13c); otherwise investigate immediately |
 | `solvency:native` | critical | MON held < escrow + owed | pause, investigate |
 | `balance:<role>` | warning; critical below ¼ of the threshold | hot key low (thresholds `ALERT_MIN_*_MON`) | `keeper:fund` (section 9) |
@@ -269,7 +272,8 @@ It never sends before the contract's `nextUpdate`.
 | Auctions (start / take / cure / expire) | the fresh Hermes update inside every keeper tx | none |
 | Order fill | its own unique update (first ≥ `execAfter`) | none |
 | Other legs of a multi-leg order (and the order market's current price for a reduce-only order in auction) | the executor's own `priceUpdate` through the monotonic lane path | **append** `latest` for the account's feeds before the unique fill update (`EXEC_OTHER_LEGS=auto` → `append`) |
-| Users' `[]` calls (withdraw, pool ops) and top-ups beyond the deposit cap (`topUpAllowance` needs a usable price) | Pyth storage or the lane's last price, ≤ 15 s | none: the app fetches a fresh signed update through the keeper's `/hermes` proxy when storage is stale. The keeper's auction txs also refresh the lane price for 15 s |
+| Users' `[]` calls (withdraw, pool ops) | Pyth storage or the lane's last price, ≤ 15 s | none: the app fetches a fresh signed update through the keeper's `/hermes` proxy when storage is stale. The keeper's auction txs also refresh the lane price for 15 s |
+| Holders' margin top-ups beyond the deposit cap (v4: restore equity to 100 % of initial margin) | the update passed to `depositWithPrice(amount, priceUpdate)` | none: the app passes a `/hermes` update (`topUpAllowance` the view still reads storage) |
 | A dead-feed swap (section 13c) | the NEW feed's stored price, ≤ 15 s at execution | `npm run pyth:push -- --feeds 0xNEW --every 10` while the Safe executes |
 
 **Measured inputs** (`npm run pyth:cadence` on Monad mainnet, read-only; gas on the fork):
@@ -336,7 +340,7 @@ It never writes `deployments/143.json` or `bench/*/143-*`.
 
 - MON positions at 9.5x on lanes 0–6, plus two small 9.5x MON longs and a 3x BTC short on lane 7 (insurance 20 AUSD, no pool);
 - **pause**, then MON −10 %: the sweeper starts 10 auctions while paused;
-- a holder top-up cures one account (keeper `cancelAuction`); on v3 a lane-7 account in auction closes with a reduce-only order (the executor appends the current price) and its auction ends;
+- a **beyond-cap rescue top-up** (v4): an account in auction (30 AUSD deposited, cap 50) deposits its whole exemption through `depositWithPrice` with a fresh update → collateral 54.46 AUSD (> the cap) → the keeper cancels its auction (cure at maintenance); a lane-7 account in auction closes with a reduce-only order (the executor appends a current price newer than `execAfter`) and its auction ends;
 - 7 are taken by lane pools; the other pool-less lane-7 auction expires at the max discount;
 - **deficit drill** (section 13b): BTC −90 %, the lane-7 short closes with a profit larger than the lane's insurance → bad debt → `solvency:lane7`; a bystander's withdrawal is haircut (`haircut:lane7`); after a timelock unpause a fresh deposit reverts `LaneInDeficit`; the runbook repair batch (`timelock seed --lanes 7`) clears the deficit and the alert resolves;
 - token-level `solvency()` and `nativeSolvency()` hold;
@@ -350,16 +354,18 @@ It never writes `deployments/143.json` or `bench/*/143-*`.
 | --- | --- | --- | --- |
 | v2 | 24/24 (`v2-1`) | 13/13 (`v2-mock`) | 5/5 (`v2-scale`, v2 artifacts via a debug deploy hook) |
 | v3 | 22/22 (`v3-fork`; v3 artifact snapshot via a debug deploy hook, because the v4 source was mid-edit) | 15/15 (`v3-mock`, DeployProd v3) | 5/5 (`v3-smoke2`, DeployProd v3) |
+| v4 | 23/23 (`v4-final`, DeployProd v4) | 15/15 (DeployProd v4) | 5/5 (DeployProd v4) |
+| **v5 (final, sha256 `1643014507ea…`)** | **23/23** | **15/15** (incl. the `depositWithPrice` rescue top-up, the in-auction reduce-close and the dead-feed swap) | **5/5** — DeployProd v5 on every leg; tracked report `bench/rehearsal/143-fork-v5-2026-10-07T05-41-11Z.json` |
 
 ## 11. MON budget (measured gas, 102 gwei, billed on gas LIMIT)
 
-Contract v3, `npm run rehearse:mainnet` on 2026-10-07 (fork leg: real Pyth + real AUSD; auction gas: the fork's real-Pyth probe + the per-account work measured on the MockPyth leg).
+Contract **v5** (sha256 `1643014507eaf16afd06d25a50d2f9bdac8a0556ede00f960cc9fcbda702a5ed`), the final `npm run rehearse:mainnet` on 2026-10-07 with the real DeployProd on every leg — tracked evidence: `bench/rehearsal/143-fork-v5-2026-10-07T05-41-11Z.json` (fork leg: real Pyth + real AUSD; auction gas: the fork's real-Pyth probe + the per-account work measured on the MockPyth leg).
 
 | Operation (who pays) | Gas limit | MON |
 | --- | --- | --- |
-| Deploy: DeployProd v3, 21 txs (deployer) | 17.57M | **≈ 1.79** |
-| `executeOrder`, single leg (lane keeper; the user's 0.1 MON fee pays it back) | 444k avg (497k max) | 0.045 |
-| `executeOrder`, multi-leg with the appended update (v3) | 674k | 0.069 |
+| Deploy: DeployProd v5, 21 txs (deployer) | 18.09M | **≈ 1.85** |
+| `executeOrder`, single leg (lane keeper; the user's 0.1 MON fee pays it back) | 446k avg (500k max) | 0.046 |
+| `executeOrder`, multi-leg with the appended update (v3+) | 677k | 0.069 |
 | `updateFunding`, per market (OPS) | 88k | 0.0089 |
 | One liquidation: `startAuctions` + pool take (or expire) (lane keeper) | 445k + 606k (459k) | ≈ 0.11 |
 | `cancelAuction` (cure) | 183k | 0.019 |
@@ -372,12 +378,12 @@ Contract v3, `npm run rehearse:mainnet` on 2026-10-07 (fork leg: real Pyth + rea
 
 | | MON |
 | --- | --- |
-| Deployer (one deploy, × 1.3 forge margin, × 1.5 safety) | 3.5 |
+| Deployer (one deploy, × 1.3 forge margin, × 1.5 safety) | 3.65 |
 | Guardian (floor) | 0.5 |
 | OPS (72 updates/market/day × 14 d × 1.5) | 40.6 |
-| Each lane keeper (busiest-lane load; executions floated 2 days, liquidations 14 days, × 1.5) | 18.7 |
+| Each lane keeper (busiest-lane load; executions floated 2 days, liquidations 14 days, × 1.5) | 18.8 |
 | **Total to put on the hot keys** | **≈ 195** |
-| Expected gross spend over 14 days (≈ 14.2 MON/day + deploy) | ≈ 200 |
+| Expected gross spend over 14 days (≈ 14.2 MON/day + deploy) | ≈ 201 |
 | … of which reimbursed by users' execution fees (2,800 orders × 0.1 MON) | 280 (fees exceed the execution cost) |
 | With Pyth push mode (a) instead | + ≈ 59–102 MON/day |
 | With funding updated every 60 s instead (`FUNDING_MIN_CHANGE_BPS=0`) | OPS alone ≈ 38.6 MON/day |
@@ -447,8 +453,19 @@ A feed is "dead" when Pyth stops publishing it (Hermes keeps returning an old `p
 2. **Pause** if the market is actively traded (section 6).
 3. **Schedule:** `npm run timelock -- --network mainnet feed-swap --market MON/AUSD --feed 0xNEW --max-deviation-bps 500` writes the schedule/execute Safe files and prints the steps. The multisig signs the schedule (24 h). Announce it publicly.
 4. **Keep the new feed fresh at execution:** nobody pushes a new feed on Monad, and `replaceMarketFeed` requires its stored price ≤ 15 s old. Start `npm run pyth:push -- --network mainnet --feeds 0xNEW --every 10 --yes-mainnet` (OPS key, ≈ 0.013 MON per push) shortly before executing.
-5. **Execute** the execute file with the multisig while the pusher runs. The contract checks every lane with open interest against its last price (≤ `maxDeviationBps`, at most 10 %; v4 may allow up to 50 % when the old feed is provably dead), resets the lane price markers and repoints the market. A swap too far from the reference reverts `FeedSwapDeviation`.
+5. **Execute** the execute file with the multisig while the pusher runs. The contract checks every lane with open interest against its last price (≤ `maxDeviationBps`), resets the lane price markers and repoints the market. A swap too far from the reference reverts `FeedSwapDeviation`.
+   - **Bound:** up to 1,000 bps (10 %) while the old feed is live; up to **5,000 bps** (v4) only if the old feed is **provably dead on chain when the operation executes**: Pyth has no stored price for it, or it is older than `DEAD_FEED_AGE` (1 h). Schedule with `--max-deviation-bps` up to 5000 only for a really dead feed (the tool prints the caveat).
+   - **Anyone can refute** a false "dead" during the 24 h delay by pushing the old feed on chain: the execute then falls back to the 10 % bound and reverts `FeedSwapDeviation` if the new feed is further off. That is the point of the delay — watch for it, and prefer a bound you can defend publicly.
 6. The keeper sees `MarketFeedReplaced`, switches every loop and the `/hermes` proxy to the new feed live (alert `gov:feed`). Stop the pusher; unpause through the timelock if you paused.
 
 The rehearsal's MockPyth leg runs this end to end: the MON feed freezes → `oracle:stale:MON/AUSD` → schedule → 1 h → `pyth:push` → a 20 %-off candidate reverts `FeedSwapDeviation` → execute → the keeper switches → a MON order fills on the new feed.
+
+## 13d. Pool deposits closed (v4)
+
+`backstopDepositStatus(lane).open` is false while the lane owes its pool a receivable or the pool's unrealised gain exceeds lane insurance; pool deposits revert until it reopens (exits keep working). A hedged pair of positions can keep a lane's pool closed for a long time — a denial of service on new LPs, not a loss. The keeper alerts `pool:closed:lane<i>` (warning) once a lane has been closed longer than `ALERT_POOL_CLOSED_H` (default 6 h); `/health.poolDeposits` shows every lane's status and how long it has been closed.
+
+1. Read `/health.poolDeposits` and `/backstop`: is it a receivable (the lane owes the pool) or the gain cap (pool gain > insurance)?
+2. Receivable: it is repaid from lane inflows before insurance (`BackstopRepaid`); topping up the lane's insurance (`fundLane`) also raises the gain cap. Gain cap: raise insurance with `fundLane` (treasury batch, `timelock seed --lanes <i> --insurance <n>`), or let the pool reduce its exposure (`backstopReduce` by the lane's keeper, or the owner).
+4. **Last LP exit (v5):** the last LP cannot exit while the pool holds positions (`BackstopPositionsOpen`). When that LP's exit request is ripe, the keeper of that lane unwinds the pool's positions with `backstopReduce` (fresh Hermes update) so the exit goes through inside its 1 h window (alert `pool:unwind:lane<i>`, info; `/health.poolExit`).
+3. If one actor holds both sides of the pool's exposure to keep the lane closed, raise it in the incident channel; it costs them fees and funding, and nothing is lost by LPs already in the pool.
 

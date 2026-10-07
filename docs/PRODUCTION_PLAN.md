@@ -492,3 +492,158 @@ regression (FLIPPED header), except R2-06 (accepted bound) and R2-09 (gas measur
   - scale leg 5/5 (600 accounts: 3 start + 5 take txs, max 23.8M gas).
 - **MON budget (v3, two weeks):** ≈ 195 MON on the hot keys and ≈ 200 MON gross spend; users' 0.1 MON execution fees (280 MON) cover executions.
 - **Finding for the frontend:** top-ups beyond the deposit cap (`topUpAllowance`) need a usable stored or lane price (≤ 15 s); with stale storage the allowance reads 0. v4's planned `depositWithPrice` addresses this.
+
+### Contracts agent: v4 after the v3 re-review (`contracts/REVIEW.md` § v3 re-review). **Keeper and frontend must adapt**
+R3-01 … R3-05 are fixed per the coordinator's decisions, and I3-4 (invariant gaps) is closed. Every R3 PoC in
+`contracts/test/review/` is flipped into a regression (FLIPPED header). Mapping: `contracts/SECURITY_NOTES.md` §1a.
+ABI regenerated (`npm run abi`; `npx tsc --noEmit` passes). Contract sha256
+`3e30e90153fd352abea43d5225bd79e7ebfd5d85a772e74ff423a9c4c109df19`; size 51,418 B (initcode 52,780 B; Monad allows
+256 KB, anvil and forge need `--code-size-limit 131072`).
+
+**ABI delta (v3 → v4), additions only (nothing removed or re-typed):**
+- **Added functions:**
+  - `depositWithPrice(uint256 amount, bytes[] priceUpdate) payable` (R3-04; `deposit(uint256)` unchanged);
+  - `backstopDepositStatus(uint8 lane) view returns (bool open, uint256 receivable, int256 unrealizedUncapped, uint256 insurance)`;
+  - constants `MAX_DEAD_FEED_SWAP_DEVIATION_BPS()` = 5000 and `DEAD_FEED_AGE()` = 3600.
+- **Changed value:** `TOP_UP_TARGET_BPS()` is **10000** (was 11000). The deploy JSON's `params.topUpTargetBps` reads it
+  from the contract, so it is 10000 too.
+- **Added events:** `BackstopReceivableNetted(uint8 indexed lane, uint256 amount)`,
+  `BackstopSwept(uint8 indexed lane, uint256 cash, uint256 receivableForgiven)`.
+- **Added errors:** `BackstopReceivableOutstanding(uint8 lane, uint256 receivable)`,
+  `BackstopGainCapBinding(uint8 lane, int256 unrealized, uint256 insurance)`.
+
+**Behaviour the keeper and app must handle:**
+1. **Pool deposits (R3-01).** `backstopDeposit` now also reverts `BackstopReceivableOutstanding` while the pool is owed
+   a receivable, and `BackstopGainCapBinding` while the pool's unrealised gain exceeds lane insurance. Check
+   `backstopDepositStatus(lane).open` before offering the deposit button; show "pool deposits paused: the lane owes the
+   pool X" / "pool gain above lane insurance". Exits are unchanged.
+2. **Pool accounting (R3-01).** A flat pool whose cash goes negative first nets its receivable
+   (`BackstopReceivableNetted`) and is reset only if cash + receivable ≤ 0 (`BackstopPoolReset` unchanged). When the
+   last LP leaves, the receivable is forgiven and any orphaned cash goes to the lane (`BackstopSwept`). Keeper alert
+   suggestion: `BackstopSwept` with `receivableForgiven > 0` → `pool:forgiven` (warn).
+3. **Margin top-ups (R3-03, R3-04).** The exemption now restores equity to exactly 100% of initial margin. The app
+   should call `depositWithPrice(amount, latestUpdateForTheAccountsFeeds)` (fee from `IPyth.getUpdateFee`, excess
+   refunded) whenever the account holds positions, so the exemption is computed at fresh prices even when Pyth
+   storage is stale. `topUpAllowance` (view) still reads storage / lane prices only.
+4. **In-auction reduce executions (R3-05).** The "current" price must be **strictly newer than `execAfter`** and at most
+   `maxStoredPriceAge` (15 s) old. The keeper's `[latest, unique]` blob already satisfies it when executed at least
+   1 s after `execAfter`. Otherwise the call reverts `StalePrice` and the order stays pending; retry with a fresh
+   latest message. Blob order no longer matters.
+5. **Dead feed (R3-02).** `replaceMarketFeed` accepts `maxDeviationBps` up to **5000** when the old feed is provably dead
+   on chain (Pyth has no stored price, or it is older than `DEAD_FEED_AGE` = 1 h when the timelock executes), and up
+   to 1000 otherwise. Anyone can refute a false "dead" during the 24 h delay by pushing the old feed. The runbook's
+   `feed-swap` should allow up to 5000 bps for a dead feed.
+6. **Deploy:** no new variables. Fork simulation (no broadcast) passes all on-chain checks: 17.95M gas, about
+   3.63 MON at 202 gwei.
+
+**Deviations from the coordinator's decisions (refinements, documented):**
+- **R3-01 (option chosen): refuse, don't re-price.** Deposits are refused while a receivable is outstanding or the cap
+  binds (the coordinator's "acceptable" option). Exits stay at the conservative NAV (receivable at 0, gain capped):
+  an LP who exits while a receivable is outstanding forfeits its share of it, to the LPs who stay.
+- **R3-01d (my call): the same gain-cap refusal.** The attack needs a deposit priced while the cap is depressed. With
+  the refusal, every deposit is priced at the full, uncapped NAV, and later cap movements can only lower NAV below
+  that, never raise it above, so a cap that rises after the deposit transfers nothing to the new LP. Rejected
+  alternatives: an insurance snapshot or TWAP for the cap (more state, still movable over time), and a two-NAV scheme
+  (more code for the same guarantee). Residual: a hedged pair can still depress NAV at the moment another LP exits;
+  that LP loses, the stayers gain, the attacker pays fees (SECURITY_NOTES §4.6).
+- **R3-01 sweep:** orphaned cash goes through the normal inflow waterfall (bad debt first, then insurance), not
+  straight into insurance. The receivable is forgiven by zeroing it (future inflows then go to insurance).
+- **R3-05:** the coordinator asked for "a price within `maxStoredPriceAge` of block time, independent of blob order".
+  That alone would still let the fill message (published at `execAfter`, usually < 15 s old) be the "current" price,
+  so the PoC would pass. v4 also requires the current price to be **strictly newer than `execAfter`**, and applies the
+  bound to the resolved price too (so pushing the fill message into Pyth storage doesn't help either). The executor
+  can still choose which real price in that ≤ 15 s window to supply (documented residual).
+- **Added view** `backstopDepositStatus(lane)` so the app can pre-check the new refusals without a revert.
+- **`backstopDeposit` checks `LaneInDeficit` after settling the pool** (settlement can itself create bad debt).
+
+### Keeper / ops agent: adapted to contract v4; final rehearsal (v4)
+- **Executor.** An in-auction reduce-only execution waits until chain time ≥ `execAfter` + 1. It requires the appended `latest` price for the order market to be strictly newer than `execAfter`, and retries on `StalePrice`.
+- **Seed / repair batch (`timelock seed`).** It reads `backstopDepositStatus(lane)` and leaves pool deposits out for closed lanes, printing why (`BackstopReceivableOutstanding` / `BackstopGainCapBinding`). Insurance top-ups are never skipped.
+- **`timelock feed-swap`** accepts up to 5000 bps. It prints the dead-feed condition (old feed missing or > 1 h stale when the operation **executes**) and the note that anyone can refute it during the 24 h delay.
+- **Alerts:**
+  - `BackstopReceivableNetted` → `pool:netted` (info);
+  - `BackstopSwept` → `pool:forgiven` (warning, when `receivableForgiven > 0`) or `pool:swept` (info);
+  - **`pool:closed:lane<i>`**: deposits closed longer than `ALERT_POOL_CLOSED_H` (6 h), against a hedged-pair deposit DoS. `/health.poolDeposits` shows the per-lane status. Runbook §13d.
+- **Rehearsal drill:** a beyond-cap rescue top-up through `depositWithPrice` (collateral 29.87 → 54.46 AUSD against the 50 cap, then the cure). The mock leg now runs 2 s blocks, so the top-up lands before the lane pool's 75 bps take.
+- **Final rehearsal on v4, real DeployProd on every leg (`contracts/cache/rehearsal/v4-final`): 43/43.**
+
+  | Leg | Steps | Notes |
+  | --- | --- | --- |
+  | Fork | 23/23 | DeployProd v4: 21 txs, 17.96M gas limit |
+  | MockPyth | 15/15 | |
+  | Scale | 5/5 | 600 accounts; 3 start + 5 take txs, max 23.8M gas |
+- **Final MON budget (v4 gas, two weeks):** ≈ 195 MON on the hot keys. Gross spend ≈ 200.5 MON; users' execution fees (280 MON) cover executions.
+- **Pyth push decision unchanged:** option (b) on v3+. Cadence in this run: stored ≤ 15 s old 48–58 % of the time; an interval policy would push 5,056 times/day ≈ 94 MON/day.
+- **The launch gate needs this rehearsal re-run on the v5 hash.**
+
+### Contracts agent: v5 after the v4 re-review (`contracts/REVIEW.md` § v4 re-review). **Keeper and frontend must adapt (small)**
+The v4 re-review found no Critical, High or Medium (the review item of the gate passes). v5 is a small, targeted fix
+of its four Lows; every R4 PoC is flipped (FLIPPED v5 headers), mapping in `contracts/SECURITY_NOTES.md` §1a. Final
+contract sha256 **`1643014507eaf16afd06d25a50d2f9bdac8a0556ede00f960cc9fcbda702a5ed`**; size 51,876 B (initcode
+53,238 B). `forge test`: 272 passed, 1 skipped (the opt-in fork test, which passes). Slither on a clean build: 158
+results, no new categories. ABI regenerated (two new errors); `npx tsc --noEmit` passes.
+
+**ABI delta (v4 → v5):** added errors `BackstopPositionsOpen(uint8 lane)` and
+`CollateralAboveCap(int256 collateral, uint256 cap)`. No function, event or constant changed.
+
+**Behaviour the keeper and app must handle:**
+1. **LP exits (R4-01).** `backstopWithdraw` pays its share of `cash + min(unrealised, 0)`: unrealised gains and the
+   receivable count 0 until realised. `backstopNav` now reports exactly this exit NAV (`unrealized = equity − cash`,
+   ≤ 0); show the uncapped figure from `backstopDepositStatus(lane).unrealizedUncapped` as "pending gain (paid when
+   realised)". Deposits are still priced at the full NAV.
+2. **Last LP (R4-02).** The withdrawal that would leave zero shares reverts `BackstopPositionsOpen(lane)` while the pool
+   holds any position, dust included. Keeper: when a pool's last LP has a ripe request, unwind the lane's pool
+   positions with `backstopReduce(lane, market, type(uint256).max, update)`. App: explain the error.
+3. **Margin above the cap (R4-03).** `commitOrder` with `marginDelta > 0` reverts `CollateralAboveCap` while the
+   account's collateral is above `maxDepositPerAccount`, and such an order already committed fails at fill. Reduces,
+   closes and margin-free increases are unaffected. App: offer "withdraw down to the cap".
+4. **Zombie feeds (R4-04).** `replaceMarketFeed`'s 50% bound also applies when the old feed's newest stored price is
+   unusable (non-positive, bad exponent, confidence above `maxConfBps`). The runbook's `feed-swap` should treat such a
+   feed as dead.
+5. **Ops alerts (I4-1, I4-3).** Alert when `backstopDepositStatus(lane).open == false` lasts (deposit-closure DoS via a
+   hedged pair; cleared by lane inflows or `fundLane`). An in-auction reduce parses the update three times: read
+   `getUpdateFee` per call (three fees if Pyth's fee ever returns; 0 today).
+6. **Deploy:** unchanged. Fork simulation (no broadcast) passes all checks: 18.08M gas, about 3.65 MON at 202 gwei.
+
+**Deviations from the coordinator's decisions (refinements, documented):**
+- **R4-01:** the preferred option (`cash + min(unrealised, 0)`) as asked. `backstopNav`'s return values keep their
+  shape but now describe the exit NAV, so `equity = cash + unrealized` still holds for the app.
+- **R4-03:** the cap rule is checked at commit **and at fill** (a top-up between the two must not slip through).
+- **R4-04, found while flipping:** classifying a zombie as dead was not enough. A lane with open interest but no
+  recorded price (single-leg accounts never record one, because fills are historical) took its reference from the old
+  feed's stored price only if usable, so a zombie still reverted `NoReferencePrice`. The reference now ignores the
+  confidence (it only has to catch a wrong-asset feed) and falls back to the market's newest price in any lane
+  (regressions `test_R4_04d`, `test_R4_04e`).
+- **Fair-value ghost (Info):** the reviewer suggested "cash + realisable gain + receivable". The realisable gain
+  depends on insurance, the quantity R4-01 manipulates, so the ghost uses the independent bound "an exit is paid at
+  most its share of the pool's ledger cash". It catches the v4 exit rule as a mutation within 32 runs. I also added an
+  empty-pool ghost checked at the exit itself (it catches a missing R4-02 guard at 256 runs; the end-of-sequence invariant could
+  miss it once a later unwind flattened the pool).
+
+### Keeper / ops agent: v5 and the final rehearsal (launch-gate evidence)
+- **Contract v5:** sha256 `1643014507eaf16afd06d25a50d2f9bdac8a0556ede00f960cc9fcbda702a5ed` (verified on the source file).
+- **Final `npm run rehearse:mainnet`, real DeployProd v5 on every leg: 43/43.**
+
+  | Leg | Steps |
+  | --- | --- |
+  | Fork | 23/23 |
+  | MockPyth | 15/15 |
+  | Scale | 5/5 |
+
+  Deploy: 21 txs, 18.09M gas limit (14.84M used).
+- **Tracked evidence:** `bench/rehearsal/143-fork-v5-2026-10-07T05-41-11Z.json` (checked: no keys in it) and `bench/rehearsal/README.md` with the hash. The `contracts/cache` copies are gitignored.
+- **Keeper additions for v5:**
+  - **Pool exit helper** (`keeper/src/prod/poolexit.ts`). When a lane's last LP has a ripe exit request and the pool holds positions, that lane's keeper (its only backstop operator) calls `backstopReduce` per position with a fresh update. It is not exercised by the rehearsal.
+  - **Expected reverts.** `BackstopPositionsOpen`, `CollateralAboveCap` and `MarginAboveNotional` are recorded as expected refusals and never page.
+  - **Pyth fee.** `getUpdateFee` is read per call, for every blob.
+- **Final MON budget (v5 gas, 102 gwei, two weeks, 200 orders/day, 20 liquidations/day):**
+
+  | Key | MON |
+  | --- | --- |
+  | Deployer | 3.65 |
+  | Guardian | 0.5 |
+  | OPS | 40.6 |
+  | Each of the 8 keepers | 18.8 |
+  | **Total** | **≈ 195** |
+
+  Gross spend is ≈ 201 MON; users' execution fees (≈ 280 MON) cover the executions.
