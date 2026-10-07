@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { RepoFacts, XrayEvidence } from "./benchResults.server";
 import { HeroVisual } from "./HeroVisual";
-import { ArrowRight, CodeIcon } from "./icons";
+import { CodeIcon } from "./icons";
 import { AUCTION, GITHUB_TREE, GITHUB_URL } from "./content";
 import { RISK_ANCHORS, RISK_PATH } from "./disclosures";
 import { fmtInt } from "./format";
@@ -108,7 +108,6 @@ export function Hero({
           <div className={s.ctas}>
             <Link href="/app" className={`${b.btn} ${b.btnPrimary} ${b.btnLg}`}>
               Launch app
-              <ArrowRight className={`${b.btnIcon} ${b.btnIconMove}`} />
             </Link>
             <a href={GITHUB_URL} target="_blank" rel="noreferrer" className={`${b.btn} ${b.btnOutline} ${b.btnLg}`}>
               <CodeIcon className={b.btnIcon} />

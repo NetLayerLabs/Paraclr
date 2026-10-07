@@ -93,7 +93,6 @@ export function Nav({ links, brandHref = "#top" }: { links: readonly NavLink[]; 
           </a>
           <Link href="/app" className={`${b.btn} ${b.btnPrimary} ${s.sheetCta}`} onClick={() => setOpen(false)}>
             Launch app
-            <ArrowRight className={b.btnIcon} />
           </Link>
         </nav>
       </div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { BuiltByBadge } from "@/components/brand/BuiltByBadge";
 import { Mark } from "./brand/Logo";
-import { ArrowRight, ArrowUpRight, CodeIcon, XIcon } from "./icons";
+import { ArrowUpRight, CodeIcon, XIcon } from "./icons";
 import { GITHUB_BLOB, GITHUB_URL, X_URL } from "./content";
 import { AUDIT_STATUS, BETA_LABEL, RISK_PATH, TERMS_PATH } from "./disclosures";
 import b from "./brand/Brand.module.css";
@@ -61,7 +61,6 @@ export function FinalCta({ live }: { live: boolean }) {
         <div className={s.actions}>
           <Link href="/app" className={`${b.btn} ${b.btnInverse} ${b.btnLg}`}>
             Launch app
-            <ArrowRight className={`${b.btnIcon} ${b.btnIconMove}`} />
           </Link>
           {live ? (
             <Link href={RISK_PATH} className={`${b.btn} ${b.btnQuiet} ${b.btnLg}`}>
