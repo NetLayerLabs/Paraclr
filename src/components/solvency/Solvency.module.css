@@ -1,45 +1,57 @@
-/* Header solvency badge + detail dialog. Tokens only. */
+/* Header solvency badge (a cell of the shell's trust strip) + the solvency
+   proof dialog. Tokens only. */
 
 .badge {
   --tone: var(--text-dim);
+  --tone-text: var(--text);
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 30px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--tone) 40%, var(--border));
-  background: color-mix(in srgb, var(--tone) 9%, var(--bg-elev));
-  font-size: 12px;
+  gap: 7px;
+  height: 28px;
+  padding: 0 10px 0 9px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
   white-space: nowrap;
   color: var(--text-dim);
-  transition:
-    border-color 0.15s,
-    background 0.15s;
+  transition: background var(--dur-1);
 }
 
 .badge:hover {
-  background: color-mix(in srgb, var(--tone) 16%, var(--bg-elev));
+  background: var(--bg-hover);
 }
 
-.badge:focus-visible,
+.badge:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-pill);
+}
+
 .close:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
 .badge b {
   font-weight: 600;
-  color: color-mix(in srgb, var(--tone) 75%, var(--text));
+  color: var(--tone-text);
 }
 
+/* Solvent: the brand's positive chip (docs/DESIGN.md §10.5). */
 .badge[data-tone="ok"] {
   --tone: var(--long);
+  --tone-text: var(--long-text);
+  background: var(--long-soft);
+}
+
+.badge[data-tone="ok"]:hover {
+  background: color-mix(in srgb, var(--long) 16%, transparent);
 }
 
 .badge[data-tone="alert"] {
   --tone: var(--short);
+  --tone-text: var(--short-text);
+  background: var(--short-soft);
   animation: alertPulse 1.4s ease-in-out infinite;
 }
 
@@ -67,16 +79,16 @@
   padding: 0;
   border: 1px solid var(--border);
   border-bottom: none;
-  border-radius: 18px 18px 0 0;
+  border-radius: 20px 20px 0 0;
   background: var(--bg-elev);
   color: var(--text);
-  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-pop), var(--card-highlight);
   overflow: hidden;
 }
 
 .dialog::backdrop {
-  background: rgba(4, 3, 8, 0.66);
-  backdrop-filter: blur(3px);
+  background: var(--scrim);
+  backdrop-filter: blur(4px);
 }
 
 .dialog[open] {
@@ -87,10 +99,15 @@
   max-height: 88dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+}
+
+/* The sheet scrolls; its blocks keep their height (no flex shrink clipping). */
+.sheet > * {
+  flex: none;
 }
 
 .head {
@@ -101,15 +118,17 @@
 }
 
 .title {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
 }
 
 .sub {
-  margin-top: 3px;
-  font-size: 11.5px;
-  line-height: 1.45;
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--text-dim);
 }
 
@@ -117,35 +136,47 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
+  border: 1px solid var(--border);
   color: var(--text-dim);
-  background: var(--bg-elev-2);
+  background: var(--bg-elev);
+  transition:
+    color var(--dur-1),
+    border-color var(--dur-1);
 }
 
 .close:hover {
   color: var(--text);
+  border-color: var(--border-strong);
 }
 
 .verdict {
   --tone: var(--long);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 9px;
+  padding: 11px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid color-mix(in srgb, var(--tone) 40%, transparent);
-  background: color-mix(in srgb, var(--tone) 10%, transparent);
-  font-size: 13px;
+  border: 1px solid var(--long-line);
+  background: var(--long-soft);
+  font-size: 13.5px;
+  color: var(--text-2);
 }
 
 .verdict[data-tone="alert"] {
   --tone: var(--short);
+  border-color: var(--short-line);
+  background: var(--short-soft);
 }
 
 .verdict b {
-  color: var(--tone);
+  color: var(--long-text);
+}
+
+.verdict[data-tone="alert"] b {
+  color: var(--short-text);
 }
 
 .verdict .icon {
@@ -153,11 +184,12 @@
   height: 18px;
 }
 
+/* The identity, as a small statement table. */
 .identity {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -166,8 +198,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 9px 12px;
-  font-size: 12.5px;
+  padding: 10px 14px;
+  font-size: 13px;
 }
 
 .identity > div + div {
@@ -182,7 +214,7 @@
 }
 
 .identity dt small {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--text-dim);
   line-height: 1.4;
 }
@@ -193,95 +225,127 @@
 }
 
 .identityTotal {
-  background: var(--bg-elev-2);
+  background: var(--bg-subtle);
+}
+
+.identityTotal dt {
+  font-weight: 600;
 }
 
 .identityTotal dd[data-tone="ok"] {
-  color: var(--long);
+  color: var(--long-text);
 }
 
 .identityTotal dd[data-tone="alert"] {
-  color: var(--short);
+  color: var(--short-text);
 }
 
 .h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
+  letter-spacing: 0.12em;
+  color: var(--accent-text);
 }
 
+.h3::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* Per-lane ledgers: the landing's comparison-table look, dense. */
 .tableWrap {
   overflow-x: auto;
-  margin: -2px 0 0;
+  margin: -4px 0 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
 .table th {
   text-align: right;
+  font-family: var(--font-mono);
   font-weight: 500;
   font-size: 9.5px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0 0 5px 6px;
+  letter-spacing: 0.08em;
+  padding: 8px 0 7px 6px;
   white-space: nowrap;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
 }
 
 .table td {
   text-align: right;
-  padding: 4px 0 4px 6px;
-  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  padding: 6px 0 6px 6px;
+  border-top: 1px solid var(--border);
   white-space: nowrap;
+}
+
+.table tbody tr:first-child td {
+  border-top: none;
 }
 
 .table th:first-child,
 .table td:first-child {
   text-align: left;
-  padding-left: 0;
+  padding-left: 10px;
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 10px;
 }
 
 .table td[data-tone="warn"] {
-  color: var(--warn);
+  color: var(--warn-text);
 }
 
 .table tfoot td {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-strong);
   font-weight: 600;
+  background: var(--bg-subtle);
 }
 
 .check {
-  font-size: 11px;
-  line-height: 1.45;
+  font-size: 11.5px;
+  line-height: 1.5;
   color: var(--text-dim);
 }
 
 .check[data-tone="ok"]::before {
   content: "✓ ";
-  color: var(--long);
+  color: var(--long-text);
   font-weight: 700;
 }
 
 .check[data-tone="warn"] {
-  color: var(--warn);
+  color: var(--warn-text);
 }
 
 .note {
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 11.5px;
+  line-height: 1.55;
   color: var(--text-dim);
 }
 
-/* Phone header: the shield alone (colour + tooltip carry the state). */
-@media (max-width: 639px) {
+/* Phone / tablet header: the shield alone (colour + tooltip carry the state). */
+@media (max-width: 1023px) {
   .badge {
-    width: 30px;
+    width: 28px;
     padding: 0;
     justify-content: center;
   }
@@ -290,7 +354,9 @@
   .badge [data-part="surplus"] {
     display: none;
   }
+}
 
+@media (max-width: 639px) {
   .table th[data-long] {
     display: none;
   }
@@ -309,10 +375,9 @@
 @media (min-width: 640px) {
   .dialog {
     margin: auto;
-    width: min(620px, calc(100vw - 48px));
+    width: min(640px, calc(100vw - 48px));
     border-bottom: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    border-radius: 20px;
   }
 
   .dialog[open] {
@@ -320,12 +385,12 @@
   }
 
   .sheet {
-    padding: 20px 22px 22px;
-    gap: 14px;
+    padding: 22px 24px 24px;
+    gap: 16px;
   }
 
   .title {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .table {
@@ -338,12 +403,22 @@
   }
 
   .table td {
-    padding: 5px 0 5px 10px;
+    padding: 7px 0 7px 10px;
+  }
+
+  .table th:first-child,
+  .table td:first-child {
+    padding-left: 12px;
+  }
+
+  .table th:last-child,
+  .table td:last-child {
+    padding-right: 12px;
   }
 }
 
-/* 640–1279: keep the header bar fitting — word only. */
-@media (min-width: 640px) and (max-width: 1279px) {
+/* 1024–1599: keep the header bar fitting — word only (the dialog has the surplus). */
+@media (min-width: 1024px) and (max-width: 1599px) {
   .badge [data-part="surplus"] {
     display: none;
   }

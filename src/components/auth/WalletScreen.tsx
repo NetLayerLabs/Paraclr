@@ -11,6 +11,8 @@ import { mintTestAusd, refreshAccount, requestFaucet, withdrawFreeCollateral } f
 import { Notice, TxLink, TxTray } from "@/components/chain/ChainUi";
 import { useAuthContext } from "./AuthContext";
 import { PrivySignOutButton } from "./PrivyAuth";
+import { ProdWallet } from "@/components/prod/ProdWallet";
+import { TokenSymbol } from "@/components/prod/Token";
 import styles from "./WalletScreen.module.css";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -45,6 +47,8 @@ function Address({ address }: { address: string }) {
 
 export function WalletScreen() {
   const chainLive = useParaclr((s) => s.chain.status === "ready");
+  const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
+  if (production) return <ProdWallet />;
   return chainLive ? <ChainWallet /> : <SimWallet />;
 }
 
@@ -238,7 +242,7 @@ function ChainWallet() {
         </div>
         <div className={styles.chainRow}>
           <span className={styles.chainDot} data-net={NETWORK.mode} />
-          {NETWORK.isMonad ? "Monad testnet" : "Local anvil — not Monad"} ·{" "}
+          {NETWORK.mode === "anvil" ? "Local anvil — not Monad" : NETWORK.label} ·{" "}
           <span className="mono">{NETWORK.chainId}</span>
           {acct && <span className="mono"> · lane {acct.lane + 1}</span>}
           {explorer && (
@@ -293,7 +297,9 @@ function ChainWallet() {
 
         <dl className={`${styles.split} ${styles.splitPlain}`}>
           <div>
-            <dt>Wallet AUSD</dt>
+            <dt>
+              Wallet <TokenSymbol />
+            </dt>
             <dd className="mono">{acct ? fmt(acct.walletAusd) : "…"}</dd>
           </div>
           <div>

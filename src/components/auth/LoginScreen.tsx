@@ -1,19 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useParaclr } from "@/lib/store";
-import { startDemoSession } from "@/lib/auth/session";
-import { CHAIN_MODE_ON, NETWORK } from "@/lib/chain/config";
+import { burnerAllowed, startDemoSession } from "@/lib/auth/session";
+import { CHAIN_MODE_ON, MAINNET_MODE, NETWORK } from "@/lib/chain/config";
 import { useAuthContext } from "./AuthContext";
 import { BiometricButton, type BiometricPhase } from "./BiometricButton";
 import { PrivyPasskeyLogin } from "./PrivyAuth";
+import { ThemeToggle } from "@/components/shell/theme";
+import { Mark } from "@/components/landing/brand/Logo";
 import styles from "./LoginScreen.module.css";
 
 const PARTNERS = [
   { name: "Monad", color: "var(--accent)" },
   { name: "Agora AUSD", color: "var(--ausd)" },
   { name: "Chainlink", color: "var(--link)" },
+  { name: "Privy", color: "var(--text)" },
+];
+// Production prices come from Pyth (delayed orders execute against Pyth updates).
+const PARTNERS_PROD = [
+  { name: "Monad", color: "var(--accent)" },
+  { name: "Agora AUSD", color: "var(--ausd)" },
+  { name: "Pyth", color: "var(--link)" },
   { name: "Privy", color: "var(--text)" },
 ];
 
@@ -60,7 +69,7 @@ function NetworkBadge() {
       </div>
     );
   }
-  const name = NETWORK.isMonad ? "Monad testnet" : "Local anvil (not Monad)";
+  const name = NETWORK.mode === "anvil" ? "Local anvil (not Monad)" : NETWORK.label;
   const text =
     status === "connecting"
       ? `Connecting to ${NETWORK.label}…`
@@ -68,19 +77,27 @@ function NetworkBadge() {
         ? `${name} unavailable · simulation`
         : `${name} · chain ${NETWORK.chainId}`;
   return (
-    <div className={styles.badge} data-tone={status === "unavailable" || !NETWORK.isMonad ? "warn" : undefined}>
+    <div
+      className={styles.badge}
+      data-tone={status === "unavailable" || !NETWORK.isMonad || NETWORK.isMainnet ? "warn" : undefined}
+    >
       <span className={styles.dot} /> {text}
     </div>
   );
 }
 
 /** One line under the sign-in heading: what you're about to trade on. */
-function venueLine(status: string): string {
+function venueLine(status: string, production: boolean, agora: boolean): string {
   if (!CHAIN_MODE_ON || !NETWORK || status === "unavailable") {
     return "Perps margined in simulated AUSD. Everything runs in this browser; no chain.";
   }
   if (status === "connecting") return `Connecting to ${NETWORK.label}…`;
-  return NETWORK.isMonad
+  if (production) {
+    return NETWORK.isMainnet && !NETWORK.local && agora
+      ? "Perps margined in real Agora AUSD on Monad mainnet. Unaudited beta, capped: use only what you can afford to lose."
+      : `Production contracts on ${NETWORK.label}${agora ? "" : ", with a test collateral token"}: unaudited, capped beta.`;
+  }
+  return NETWORK.mode === "monad"
     ? "Perps margined in test AUSD, settled by the on-chain clearinghouse on Monad testnet."
     : "Perps margined in test AUSD, settled by the clearinghouse on a local anvil chain (not Monad).";
 }
@@ -93,47 +110,58 @@ function venueLine(status: string): string {
 export function LoginScreen() {
   const { privyEnabled } = useAuthContext();
   const status = useParaclr((s) => s.chain.status);
+  const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
+  const agora = useParaclr((s) => s.chain.contracts?.token.agora ?? false);
   const connecting = status === "connecting";
   const chainLive = status === "ready";
+  const burner = burnerAllowed();
+  const rehearsal = MAINNET_MODE && burner;
 
   return (
     <div className={styles.root}>
-      <div className={styles.grid} aria-hidden="true" />
-      <div className={styles.glow} aria-hidden="true" />
-
-      <nav className={styles.top}>
-        <Link href="/" className={styles.back}>
-          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
-            <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Back to home
-        </Link>
+      <nav className={styles.top} aria-label="Site">
+        <span className={styles.brandMark}>
+          <Mark className={styles.markIcon} />
+          <span className={styles.markWord}>Paraclr</span>
+        </span>
+        <span className={styles.topActions}>
+          <ThemeToggle className={styles.themeBtn} />
+          <Link href="/" className={styles.back}>
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden>
+              <path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Back to home
+          </Link>
+        </span>
       </nav>
 
       <div className={styles.center}>
         <div className={styles.card}>
+          {/* The brand panel is a "black chapter" in both themes (docs/DESIGN.md). */}
           <section className={styles.brand}>
             <NetworkBadge />
-            <h1 className={styles.wordmark}>
-              para<span>clr</span>
+            <h1 className={styles.headline}>
+              Fair liquidations. <em>Live solvency proof.</em>
             </h1>
-            <p className={styles.tagline}>
-              Fair liquidations.
-              <br />
-              <em>Live solvency proof.</em>
-            </p>
-            <div className={styles.lanesWrap}>
-              <div className={styles.lanes} aria-hidden="true">
-                {Array.from({ length: 8 }, (_, i) => (
-                  <span key={i} style={{ animationDelay: `${i * 0.13}s` }} />
-                ))}
-              </div>
-              <p className={styles.lanesCaption}>
-                Per-block auctions · per-lane backstops · traders keep their leftover equity
-              </p>
+            <ul className={styles.trustRow}>
+              <li>
+                <i aria-hidden /> Per-block auctions
+              </li>
+              <li>
+                <i aria-hidden /> Per-lane backstops
+              </li>
+              <li>
+                <i aria-hidden /> Traders keep their leftover equity
+              </li>
+            </ul>
+            {/* The brand's 8 lanes taking one quarter turn (the mark's geometry at panel scale). */}
+            <div className={styles.lanes} aria-hidden="true">
+              {Array.from({ length: 8 }, (_, i) => (
+                <i key={i} style={{ "--k": i + 1 } as CSSProperties} />
+              ))}
             </div>
             <footer className={styles.partners}>
-              {PARTNERS.map((p) => (
+              {(production || MAINNET_MODE ? PARTNERS_PROD : PARTNERS).map((p) => (
                 <span key={p.name} className={styles.partner}>
                   <span className={styles.partnerDot} style={{ background: p.color }} />
                   {p.name}
@@ -147,23 +175,44 @@ export function LoginScreen() {
               <h2 id="signin-title" className={styles.signTitle}>
                 Sign in
               </h2>
-              <p className={styles.signSub}>{venueLine(status)}</p>
+              <p className={styles.signSub}>{venueLine(status, production, agora)}</p>
             </header>
             {privyEnabled ? (
               <PrivyPasskeyLogin />
-            ) : (
+            ) : MAINNET_MODE && !burner ? (
+              <p className={styles.hint}>
+                Sign-in isn&apos;t configured for this deployment (Privy app id missing). There is no demo or burner
+                wallet on mainnet.
+              </p>
+            ) : !MAINNET_MODE ? (
               <SimulatedPasskeyLogin disabled={connecting} chainLive={chainLive} />
+            ) : null}
+            {burner && (
+              <>
+                {(privyEnabled || !MAINNET_MODE) && (
+                  <div className={styles.or} aria-hidden="true">
+                    <span>or</span>
+                  </div>
+                )}
+                <button className={styles.demoBtn} disabled={connecting} onClick={() => startDemoSession()}>
+                  {connecting
+                    ? "Connecting…"
+                    : rehearsal
+                      ? "Rehearsal burner wallet (local fork only)"
+                      : chainLive
+                        ? "Try demo mode (burner wallet)"
+                        : "Try demo mode"}
+                </button>
+              </>
             )}
-            <div className={styles.or} aria-hidden="true">
-              <span>or</span>
-            </div>
-            <button className={styles.demoBtn} disabled={connecting} onClick={() => startDemoSession()}>
-              {connecting ? "Connecting…" : chainLive ? "Try demo mode (burner wallet)" : "Try demo mode"}
-            </button>
             <p className={styles.fine}>
-              {chainLive
-                ? "Passkey → Privy embedded wallet. Demo → a burner key generated and stored in this browser (testnet only)."
-                : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
+              {MAINNET_MODE
+                ? rehearsal
+                  ? "Local mainnet-fork rehearsal: a burner key generated in this browser, for testing only. On real mainnet only passkey sign-in is offered."
+                  : "Passkey → Privy embedded wallet. Every transaction asks for your confirmation."
+                : chainLive
+                  ? "Passkey → Privy embedded wallet. Demo → a burner key generated and stored in this browser (testnet only)."
+                  : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
             </p>
           </section>
         </div>

@@ -18,15 +18,17 @@
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
 }
 
 .subtitle {
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 1.45;
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--text-dim);
 }
 
@@ -39,19 +41,22 @@
 .stat {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 9px 10px;
-  border-radius: var(--radius-sm);
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--radius-panel);
   background: var(--bg-elev);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   min-width: 0;
 }
 
 .stat small {
+  font-family: var(--font-mono);
   font-size: 9.5px;
+  font-weight: 500;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -60,6 +65,13 @@
 .stat b {
   font-size: 16px;
   font-weight: 700;
+}
+
+/* The screen's one hero number (total NAV) in the display face. */
+.stat:first-child b {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
 .grid {
@@ -92,11 +104,13 @@
 }
 
 .poolsHead h2 {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
 .poolsHead span {
+  font-family: var(--font-mono);
   font-size: 10.5px;
   color: var(--text-dim);
 }
@@ -113,11 +127,11 @@
 }
 
 .up {
-  color: var(--long);
+  color: var(--long-text);
 }
 
 .down {
-  color: var(--short);
+  color: var(--short-text);
 }
 
 /* ---- phone cards ---------------------------------------------------------- */
@@ -133,18 +147,20 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  padding: 11px 12px;
+  padding: 12px 14px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--bg-elev);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   text-align: left;
   font-size: 12.5px;
   -webkit-tap-highlight-color: transparent;
 }
 
 .card[data-selected] {
-  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  border-color: var(--accent-line);
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg-elev));
+  box-shadow: inset 0 0 0 1px var(--accent-line);
 }
 
 .cardTop {
@@ -197,13 +213,15 @@
 }
 
 .youTag {
-  padding: 1px 6px;
-  border-radius: 999px;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
   font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--accent-text);
   background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
 }
 
 .exposure {
@@ -214,11 +232,11 @@
 }
 
 .exposure [data-side="long"] {
-  color: var(--long);
+  color: var(--long-text);
 }
 
 .exposure [data-side="short"] {
-  color: var(--short);
+  color: var(--short-text);
 }
 
 .exposure small {
@@ -230,8 +248,9 @@
 
 .tableWrap {
   border: 1px solid var(--border);
-  border-radius: var(--radius-panel);
+  border-radius: 14px;
   background: var(--bg-elev);
+  box-shadow: var(--shadow-1), var(--card-highlight);
   overflow-x: auto;
 }
 
@@ -245,22 +264,28 @@
   position: sticky;
   top: 0;
   text-align: left;
+  font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 10px 12px 8px;
+  letter-spacing: 0.1em;
+  padding: 11px 14px 10px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg-elev);
+  background: var(--bg-subtle);
   white-space: nowrap;
 }
 
 .table td {
-  padding: 10px 12px;
-  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  height: 44px;
+  padding: 0 14px;
+  border-top: 1px solid var(--border);
   white-space: nowrap;
   vertical-align: middle;
+}
+
+.table tbody tr:first-child td {
+  border-top: none;
 }
 
 .table tbody tr {
@@ -272,9 +297,10 @@
   background: var(--bg-hover);
 }
 
+/* The selected lane: the comparison table's purple wash + an accent lane edge. */
 .table tbody tr[data-selected] {
-  background: color-mix(in srgb, var(--accent) 9%, transparent);
-  box-shadow: inset 2px 0 0 var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .table small {
@@ -302,30 +328,39 @@
   border-radius: var(--radius);
   background: var(--bg-elev);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-1), var(--card-highlight);
 }
 
+/* Deposit / withdraw: the segmented pill; the current mode is the inverse pill. */
 .modeToggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 40px;
   padding: 3px;
   gap: 3px;
-  border-radius: 12px;
+  border-radius: var(--radius-pill);
   background: var(--bg-elev-2);
+  border: 1px solid var(--border);
 }
 
 .modeBtn,
 .modeOn {
-  border-radius: 9px;
+  border-radius: var(--radius-pill);
   font-size: 13.5px;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--text-dim);
+  transition:
+    color var(--dur-1),
+    background var(--dur-1);
+}
+
+.modeBtn:hover {
+  color: var(--text);
 }
 
 .modeOn {
-  color: #07060c;
-  background: var(--accent);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--bg-elev);
+  background: var(--text);
 }
 
 .fieldHead {
@@ -337,11 +372,12 @@
 }
 
 .label {
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
 .hint {
@@ -360,23 +396,33 @@
   gap: 4px;
 }
 
+/* Lane tabs: 8 lanes, the brand motif as structure. */
 .laneChip,
 .laneChipOn {
   position: relative;
-  height: 32px;
-  border-radius: 8px;
+  height: 34px;
+  border-radius: 10px;
   font-size: 12.5px;
-  font-weight: 650;
+  font-weight: 500;
   font-family: var(--font-mono);
-  color: var(--text-dim);
-  background: var(--bg-elev-2);
-  border: 1px solid transparent;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border);
+  transition:
+    border-color var(--dur-1),
+    color var(--dur-1);
+}
+
+.laneChip:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
 }
 
 .laneChipOn {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent-line);
   background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
 }
 
 .laneChip i,
@@ -394,8 +440,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 48px;
-  padding: 0 12px 0 14px;
+  height: 50px;
+  padding: 0 14px 0 16px;
   border-radius: 12px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -434,12 +480,21 @@
 
 .chip {
   height: 30px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-dim);
-  background: var(--bg-elev-2);
-  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border);
+  transition:
+    border-color var(--dur-1),
+    color var(--dur-1);
+}
+
+.chip:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-strong);
 }
 
 .chip:disabled {
@@ -447,8 +502,8 @@
 }
 
 .chipOn {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent-line);
   background: var(--accent-soft);
 }
 
@@ -466,11 +521,11 @@
 .summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--bg);
-  border: 1px dashed var(--border);
+  gap: 9px 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
 }
 
 .summary div {
@@ -497,20 +552,23 @@
 }
 
 .submit {
-  height: 46px;
-  border-radius: 10px;
+  height: 48px;
+  border-radius: var(--radius-pill);
   font-size: 14.5px;
-  font-weight: 700;
-  color: #07060c;
+  font-weight: 650;
+  color: var(--on-accent);
   background: var(--accent);
   box-shadow:
-    0 6px 22px color-mix(in srgb, var(--accent) 35%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: filter 0.15s;
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 24px -12px color-mix(in srgb, var(--accent) 75%, transparent);
+  transition:
+    background var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
 }
 
 .submit:hover:not(:disabled) {
-  filter: brightness(1.08);
+  background: var(--accent-strong);
+  transform: translateY(-1px);
 }
 
 .submit:disabled {
@@ -527,7 +585,7 @@
 .laneChipOn:focus-visible,
 .modeBtn:focus-visible,
 .card:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -535,23 +593,36 @@
 
 .explain,
 .explainCompact {
-  padding: 12px 14px;
+  padding: 13px 15px;
   border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg-elev) 60%, transparent);
-  font-size: 11.5px;
-  line-height: 1.5;
+  border: 1px dashed var(--border-strong);
+  background: transparent;
+  font-size: 12px;
+  line-height: 1.55;
   color: var(--text-dim);
 }
 
 .explain h3,
 .explainCompact h3 {
-  font-size: 11px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text);
-  margin-bottom: 6px;
+  letter-spacing: 0.12em;
+  color: var(--accent-text);
+  margin-bottom: 8px;
+}
+
+.explain h3::before,
+.explainCompact h3::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--accent);
 }
 
 .explain ol,
@@ -571,7 +642,7 @@
   }
 
   .title {
-    font-size: 24px;
+    font-size: 28px;
   }
 
   .subtitle {
@@ -613,6 +684,10 @@
 
   .stat b {
     font-size: 24px;
+  }
+
+  .stat:first-child b {
+    font-size: 28px;
   }
 
   .stat {

@@ -139,7 +139,7 @@ function LiveBackstop({ active }: { active: boolean }) {
         </div>
         <div className={styles.stat}>
           <small>Discount earned · since deploy</small>
-          <b className="mono" style={{ color: totals && totals.earned > 0 ? "var(--long)" : undefined }}>
+          <b className="mono" style={{ color: totals && totals.earned > 0 ? "var(--long-text)" : undefined }}>
             {totals ? fmtCompact(totals.earned) : "…"}
           </b>
         </div>
@@ -270,7 +270,7 @@ function PoolTable({
                 )}
               </td>
               <td className={`mono ${styles.num}`}>{p.sharePrice === null ? "—" : p.sharePrice.toFixed(4)}</td>
-              <td className={`mono ${styles.num}`} style={{ color: p.discountEarned > 0 ? "var(--long)" : undefined }}>
+              <td className={`mono ${styles.num}`} style={{ color: p.discountEarned > 0 ? "var(--long-text)" : undefined }}>
                 {fmtAusd(p.discountEarned)}
               </td>
               <td className={`mono ${styles.num}`}>{p.taken}</td>
@@ -322,7 +322,7 @@ function PoolCards({
             </span>
             <span>
               <small>Earned since deploy</small>
-              <span className="mono" style={{ color: p.discountEarned > 0 ? "var(--long)" : undefined }}>
+              <span className="mono" style={{ color: p.discountEarned > 0 ? "var(--long-text)" : undefined }}>
                 {fmtAusd(p.discountEarned)}
               </span>
             </span>
@@ -372,9 +372,19 @@ function PoolActions({
 }) {
   const acct = useParaclr((s) => s.chain.account);
   const walletReady = useParaclr((s) => s.chain.wallet.ready);
+  const production = useParaclr((s) => !!s.chain.contracts?.production);
+  const paused = useParaclr((s) => s.chain.prod?.paused === true);
+  const prodParams = useParaclr((s) => s.chain.prod?.params ?? null);
+  // Pool deposits count toward the lane TVL cap (trader collateral + pool cash).
+  // Only the account's own lane TVL is read; other lanes show "—" until selected.
+  const myLaneTvl = useParaclr((s) => s.chain.prod?.lane?.tvl ?? null);
+  const laneRoom =
+    production && prodParams?.maxTvlPerLane != null && myLaneTvl !== null && lane === myLane
+      ? Math.max(0, prodParams.maxTvlPerLane - myLaneTvl)
+      : null;
   const params = useAuctionParams();
   const [mode, setMode] = useState<"deposit" | "withdraw">("deposit");
-  const [amountStr, setAmountStr] = useState("1000");
+  const [amountStr, setAmountStr] = useState(() => (production ? "" : "1000"));
   const [pct, setPct] = useState(1);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
@@ -390,7 +400,13 @@ function PoolActions({
     : !acct
       ? "Reading account…"
       : acct.native <= 0
-        ? "No gas — get test funds on the Wallet tab"
+        ? production
+          ? `Need ${NETWORK?.nativeSymbol ?? "MON"} for gas`
+          : "No gas — get test funds on the Wallet tab"
+        : production && paused
+          ? "Deposits paused by the guardian"
+        : production && laneRoom !== null && amount > laneRoom + 1e-9
+          ? `Over the lane ${lane + 1} TVL cap (${fmtAusd(laneRoom)} left)`
         : amount <= 0
           ? "Enter an amount"
           : amount > wallet + 1e-9
@@ -492,11 +508,23 @@ function PoolActions({
             <span className={styles.token}>AUSD</span>
           </label>
           <div className={styles.chips}>
-            {DEPOSIT_QUICK.map((q) => (
-              <button key={q} type="button" className={styles.chip} onClick={() => setAmountStr(String(q))}>
-                {q.toLocaleString("en-US")}
-              </button>
-            ))}
+            {production
+              ? [0.25, 0.5].map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    className={styles.chip}
+                    disabled={wallet <= 0}
+                    onClick={() => setAmountStr(String(Math.floor(wallet * f * 100) / 100))}
+                  >
+                    {f * 100}%
+                  </button>
+                ))
+              : DEPOSIT_QUICK.map((q) => (
+                  <button key={q} type="button" className={styles.chip} onClick={() => setAmountStr(String(q))}>
+                    {q.toLocaleString("en-US")}
+                  </button>
+                ))}
             <button
               type="button"
               className={styles.chip}

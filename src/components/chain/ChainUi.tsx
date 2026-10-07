@@ -11,6 +11,11 @@ import { shortHash } from "@/lib/chain/units";
 import { retryChainConnect } from "./ChainProvider";
 import styles from "./Chain.module.css";
 
+/** data-net for styling: real Monad chains share the Monad tone; anything local is "anvil". */
+function netAttr(): "monad" | "anvil" {
+  return NETWORK && NETWORK.isMonad ? "monad" : "anvil";
+}
+
 /** "Monad testnet" / "Local anvil — not Monad" / "Simulated" tag. */
 export function NetworkTag({ simulated = false }: { simulated?: boolean }) {
   if (simulated || !NETWORK) {
@@ -21,8 +26,8 @@ export function NetworkTag({ simulated = false }: { simulated?: boolean }) {
     );
   }
   return (
-    <span className={styles.netTag} data-net={NETWORK.mode} title={`Chain ${NETWORK.chainId}`}>
-      {NETWORK.isMonad ? "Monad testnet" : "Local anvil · not Monad"}
+    <span className={styles.netTag} data-net={netAttr()} title={`Chain ${NETWORK.chainId}`}>
+      {NETWORK.mode === "anvil" ? "Local anvil · not Monad" : NETWORK.shortLabel}
     </span>
   );
 }
@@ -75,12 +80,21 @@ export function NetworkPill() {
       <span className={styles.pill} data-net="connecting">
         <i className={styles.pillDot} />
         <b>Connecting…</b>
-        <span className={styles.pillMeta}>{NETWORK.isMonad ? "Monad testnet" : "local anvil"}</span>
+        <span className={styles.pillMeta}>{NETWORK.mode === "anvil" ? "local anvil" : NETWORK.shortLabel}</span>
       </span>
     );
   }
 
   if (status === "unavailable") {
+    if (NETWORK.isMainnet) {
+      return (
+        <span className={styles.pill} data-error="" title={`${NETWORK.label} unavailable`}>
+          <i className={styles.pillDot} />
+          <b>{NETWORK.shortLabel}</b>
+          <span className={styles.pillMeta}>unavailable</span>
+        </span>
+      );
+    }
     return (
       <span className={styles.pill} data-net="fallback" title={`${NETWORK.label} unavailable — running the simulation`}>
         <i className={styles.pillDot} />
@@ -93,13 +107,13 @@ export function NetworkPill() {
   return (
     <span
       className={styles.pill}
-      data-net={NETWORK.mode}
+      data-net={netAttr()}
       data-error={rpcError ? "" : undefined}
       title={rpcError ? `${NETWORK.label}: ${rpcError}` : `${NETWORK.label} · chain ${NETWORK.chainId} · latest block`}
     >
       <i className={styles.pillDot} />
-      {NETWORK.isMonad ? (
-        <b>Monad testnet</b>
+      {NETWORK.mode !== "anvil" ? (
+        <b>{NETWORK.shortLabel}</b>
       ) : (
         <>
           <b data-part="net-full">Local anvil — not Monad</b>
@@ -118,6 +132,7 @@ export function KeeperPill() {
   const status = useParaclr((s) => s.chain.status);
   const keeper = useParaclr((s) => s.chain.keeper.status);
   const error = useParaclr((s) => s.chain.keeper.error);
+  const production = useParaclr((s) => !!s.chain.contracts?.production);
 
   if (!CHAIN_MODE_ON || !NETWORK || status === "unavailable") return null;
   const text = keeper === "online" ? "online" : keeper === "offline" ? "offline" : "…";
@@ -126,7 +141,13 @@ export function KeeperPill() {
       className={styles.keeper}
       data-part="keeper"
       data-s={keeper}
-      title={keeper === "offline" ? (error ?? "Keeper unreachable") : `Keeper (prices, faucet, auction sweeper, crash runs) at ${NETWORK.keeperUrl}`}
+      title={
+        keeper === "offline"
+          ? (error ?? "Keeper unreachable")
+          : production
+            ? `Keeper (executes delayed orders with Pyth prices, funding updates, auction sweeper) at ${NETWORK.keeperUrl}`
+            : `Keeper (prices, faucet, auction sweeper, crash runs) at ${NETWORK.keeperUrl}`
+      }
     >
       <i className={styles.pillDot} />
       <span data-part="label">
