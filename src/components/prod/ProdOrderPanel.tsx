@@ -31,7 +31,7 @@ import { SwipeToTrade } from "@/components/trade/SwipeToTrade";
 import { TradeButton } from "@/components/trade/TradeButton";
 import { baseOf, fmtAusd, fmtCompact, fmtPct, fmtPrice, fmtSize } from "@/components/trade/format";
 import ops from "@/components/trade/OrderPanel.module.css";
-import { TokenSymbol, useCollateral } from "./Token";
+import { TokenIcon, TokenSymbol, useCollateral } from "./Token";
 import { fmtDuration, usePriceName, useSlippage, SLIPPAGE_CHOICES } from "./util";
 import styles from "./Prod.module.css";
 
@@ -274,9 +274,7 @@ export function ProdOrderPanel({
           aria-label="Margin in AUSD"
         />
         <span className={ops.token}>
-          <span className={ops.tokenDot} aria-hidden>
-            A
-          </span>
+          <TokenIcon />
           <TokenSymbol />
         </span>
       </label>

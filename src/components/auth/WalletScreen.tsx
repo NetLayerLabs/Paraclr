@@ -12,7 +12,7 @@ import { Notice, TxLink, TxTray } from "@/components/chain/ChainUi";
 import { useAuthContext } from "./AuthContext";
 import { PrivySignOutButton } from "./PrivyAuth";
 import { ProdWallet } from "@/components/prod/ProdWallet";
-import { TokenSymbol } from "@/components/prod/Token";
+import { TokenIcon, TokenSymbol } from "@/components/prod/Token";
 import { isPrivyMethod, METHOD_LABEL } from "@/lib/types";
 import styles from "./WalletScreen.module.css";
 
@@ -109,7 +109,7 @@ function SimWallet() {
 
       <section className={styles.balanceCard}>
         <div className={styles.balanceLabel}>
-          <span className={styles.ausdMark}>A</span> Total equity · AUSD <span className={styles.simTag}>SIMULATED</span>
+          <TokenIcon /> Total equity · AUSD <span className={styles.simTag}>SIMULATED</span>
         </div>
         <div className={`${styles.equity} mono`}>{fmt(equity)}</div>
         {positions.length > 0 && (
@@ -265,7 +265,7 @@ function ChainWallet() {
 
       <section className={styles.balanceCard}>
         <div className={styles.balanceLabel}>
-          <span className={styles.ausdMark}>A</span> Equity in clearinghouse · AUSD
+          <TokenIcon /> Equity in clearinghouse · AUSD
           {acct?.block != null && <span className={`${styles.blockTag} mono`}>#{acct.block}</span>}
         </div>
         <div className={`${styles.equity} mono`}>{equity !== null ? fmt(equity) : acct ? "—" : "…"}</div>

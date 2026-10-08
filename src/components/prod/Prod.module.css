@@ -480,6 +480,14 @@ details.how[open] summary {
   margin-bottom: 4px;
 }
 
+/* Agora's AUSD coin (Token.tsx); size comes from the width/height attributes. */
+.tokenIcon {
+  flex: none;
+  display: block;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
 .tokenTest[data-kind="testnet"] {
   color: var(--accent-text);
   background: var(--accent-soft);

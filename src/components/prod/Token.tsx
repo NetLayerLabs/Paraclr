@@ -36,6 +36,12 @@ export function useCollateral(): CollateralLabel {
   };
 }
 
+/** Agora's AUSD coin (agora-finance/public-assets). Decorative: the symbol always sits next to it. */
+export function TokenIcon() {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img className={styles.tokenIcon} src="/tokens/ausd.svg" width={20} height={20} alt="" />;
+}
+
 /** "AUSD" plus a TESTNET tag (Agora's testnet AUSD) or a TEST tag (any other test token). */
 export function TokenSymbol({ className }: { className?: string }) {
   const t = useCollateral();
