@@ -323,10 +323,11 @@ function MonadPending() {
         </span>
         <h3 className={s.pendingTitle}>Monad testnet: live on real prices</h3>
         <p className={s.pendingBody}>
-          The production contracts on Monad testnet run on real Pyth prices, so a crash can&rsquo;t be staged there:
-          their auctions run when the market moves. The staged −20% crash runs below are measured on local anvil. A
-          crash run committed as <code className={b.code}>bench/results/10143-*.json</code> would fill this card
-          automatically, with block numbers and explorer links.
+          The production contracts on Monad testnet run on real Pyth prices, so their auctions run when the market
+          moves. The X-ray above comes from a staged crash of the demo stack on Monad testnet. That run&rsquo;s auction
+          economics are kept in <code className={b.code}>bench/diagnostics/</code> rather than here: the keeper
+          resolving it was held back by a 15-request/s public RPC and took about 40 s, which measures the keeper more
+          than the design. The staged runs below are local anvil.
         </p>
       </div>
     </div>

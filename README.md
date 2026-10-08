@@ -358,8 +358,10 @@ payment exceeded the account's equity, which happens with deeply underwater acco
 
 | Network · method | Design | Txs | Dependency edges | Across lanes | Longest chain | Evidence |
 |---|---|---|---|---|---|---|
-| Monad testnet · `[TBD: method]` | Paraclr lanes | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | `bench/xray/10143-[TBD].json` |
-| Monad testnet · `[TBD: method]` | Naive shared state | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | same file |
+| **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 12 | 1 | **0** | 2 | `bench/xray/10143-run-muz0vh3f-wciq2.json` (−30% run) |
+| **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 17 | 6 | **6** | 3 | same file |
+| **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 23 | 1 | **0** | 2 | `bench/xray/10143-run-muyzuvuh-l9hto.json` (−20% run) |
+| **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 22 | 6 | **4** | 3 | same file |
 | local anvil, **not Monad** · live `debug_traceTransaction` | Paraclr lanes | 52 | 34 | 0 | 4 | `bench/xray/31337-run-mux9zc6t-g5jvm.json` (−20% run) |
 | local anvil, **not Monad** · live `debug_traceTransaction` | Naive shared state | 49 | 311 | 277 | 18 | same file |
 | local anvil, **not Monad** · live `debug_traceTransaction` | Paraclr lanes | 18 | 11 | 0 | 5 | `bench/xray/31337-run-muxa18h8-ef0ay.json` (−5% run) |
@@ -369,6 +371,12 @@ Edges are drawn only between transactions in the same block (`edgeScope: "same-b
 design (the takers and the sweeper of one lane share that lane's aggregates); the lane claim is **zero cross-lane
 edges**. anvil executes sequentially, so these graphs show dependencies, not anything about Monad's parallel
 execution or its re-execution counts.
+
+The Monad testnet X-rays come from the demo stack deployed on Monad testnet (`deployments/demo/10143.json`) and were
+traced live on Monad. Their transactions spread over more blocks than on anvil (6 and 17 blocks), so the naive build
+shows fewer same-block conflicts there; the lanes still show none across lanes. The auction economics of those two
+runs are in [`bench/diagnostics/`](bench/diagnostics/README.md), not in the table above: the keeper that resolved them
+was limited by a 15-request/s public RPC, which measures the keeper more than the design.
 
 ### Pre-auction runs (fixed-fee `liquidateBatch`, Oct 4)
 

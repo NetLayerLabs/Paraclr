@@ -1,0 +1,982 @@
+{
+  "runId": "run-muyzuvuh-l9hto",
+  "status": "failed",
+  "chainId": 10143,
+  "network": "monad-testnet",
+  "mode": "auctions",
+  "priceLoopPaused": true,
+  "shock": {
+    "txHash": "0xc3d63d64e79166e1f0cd5f1af1d76cec72ddf29f4f8d2c643fa27d3520f59cb1",
+    "block": 69152207,
+    "submittedAt": 1791431157921,
+    "confirmedAt": 1791431159320,
+    "bps": 8000
+  },
+  "batches": [
+    {
+      "txHash": "0x13826f7b65dad4cee7b15d563e97e1bf28ee98c4f6b5cf9f0d4038c7f63ad07e",
+      "block": 69152261,
+      "submittedAt": 1791431175188,
+      "confirmedAt": 1791431176094,
+      "lane": 1,
+      "keeper": "0xbE53Bd190354C6315059069325C680afD010B52a",
+      "accounts": 3,
+      "liquidated": 0,
+      "gasUsed": "437524",
+      "gasLimit": "437524",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x9851bb8081aaceccc644585174f06c2be93c54a8abb97809f35e04eaefaab0ce",
+      "block": 69152261,
+      "submittedAt": 1791431175237,
+      "confirmedAt": 1791431176191,
+      "lane": 2,
+      "keeper": "0x45993148cD1e8B7C44AE0fB0CEca181509B27367",
+      "accounts": 1,
+      "liquidated": 0,
+      "gasUsed": "229155",
+      "gasLimit": "229155",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x17d250630c6ebc2e6af470646dbb55d5e35500ffdfff92cf4e31548b91a87904",
+      "block": 69152261,
+      "submittedAt": 1791431175339,
+      "confirmedAt": 1791431176291,
+      "lane": 3,
+      "keeper": "0xb588CcEFc9CB4c9E4CD51D6dbE2Bb9735c136C8F",
+      "accounts": 4,
+      "liquidated": 0,
+      "gasUsed": "506531",
+      "gasLimit": "506531",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x6dd20f238b9d5ff8e6bc8bdac127f585f46814ab722c5aaae7d137c42e4d15ae",
+      "block": 69152261,
+      "submittedAt": 1791431175386,
+      "confirmedAt": 1791431176389,
+      "lane": 4,
+      "keeper": "0x8B507Fc6616652A0BC37f1087e8559c06921ff4d",
+      "accounts": 5,
+      "liquidated": 0,
+      "gasUsed": "597357",
+      "gasLimit": "597357",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0xddb76b13971de903b1f859eb21ffb8a83eb20c6d31f3dfee26331f84278f424f",
+      "block": 69152263,
+      "submittedAt": 1791431175891,
+      "confirmedAt": 1791431176873,
+      "lane": 6,
+      "keeper": "0xe1DE92E41dC8e572e7e8091f3d35C4E1813d21Bd",
+      "accounts": 2,
+      "liquidated": 0,
+      "gasUsed": "337815",
+      "gasLimit": "337815",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0x95ff74e479d9b6488d0fa3461baa366f1021cd3f2baf2272d7b667473ea32d46",
+      "block": 69152263,
+      "submittedAt": 1791431175940,
+      "confirmedAt": 1791431176970,
+      "lane": 7,
+      "keeper": "0xD70c105263b843B63eefB099b3ba75584E8d4075",
+      "accounts": 3,
+      "liquidated": 0,
+      "gasUsed": "389081",
+      "gasLimit": "389081",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0xa98caf2da21f8ffddad86f47bfee6c10dece4a1bfc5dacc18b89ea1f917b994c",
+      "block": 69152263,
+      "submittedAt": 1791431176049,
+      "confirmedAt": 1791431177069,
+      "lane": 5,
+      "keeper": "0x55c7589013265dC61Cf22a4E2FF62df13fC582B2",
+      "accounts": 3,
+      "liquidated": 0,
+      "gasUsed": "380212",
+      "gasLimit": "380212",
+      "kind": "startAuctions"
+    },
+    {
+      "txHash": "0xb1948c7e54d5998bca9fd7b2ffb69bb68455748ad849f9ba2c2d5860689c75da",
+      "block": 69152299,
+      "submittedAt": 1791431187018,
+      "confirmedAt": 1791431187707,
+      "lane": 2,
+      "keeper": "0x45993148cD1e8B7C44AE0fB0CEca181509B27367",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "519686",
+      "gasLimit": "519686",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x91f8cb47bc4a5fda04d03ea81093a69bc9a3c184d2d26f5e3bf6930f29c2dc2e",
+      "block": 69152310,
+      "submittedAt": 1791431189886,
+      "confirmedAt": 1791431191495,
+      "lane": 4,
+      "keeper": "0x8B507Fc6616652A0BC37f1087e8559c06921ff4d",
+      "accounts": 5,
+      "liquidated": 5,
+      "gasUsed": "1131531",
+      "gasLimit": "1131531",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0xb9356d562746e43131e812d714810cc453b0bf4ea7553148c2aea8d25af7e5ed",
+      "block": 69152314,
+      "submittedAt": 1791431191823,
+      "confirmedAt": 1791431192314,
+      "lane": 3,
+      "keeper": "0xb588CcEFc9CB4c9E4CD51D6dbE2Bb9735c136C8F",
+      "accounts": 3,
+      "liquidated": 3,
+      "gasUsed": "717255",
+      "gasLimit": "717255",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x9aa700b596d6489bfaa88b4e12903b0f936468b6380d0a4bfaf078f57e41ff1c",
+      "block": 69152315,
+      "submittedAt": 1791431191870,
+      "confirmedAt": 1791431192414,
+      "lane": 3,
+      "keeper": "0x441d1462d9945008186869e04BD32e6ec4C05003",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "595784",
+      "gasLimit": "595784",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xa0f7778cad46876967df400f02b89e32987e3ceab16e11ad976f741c4f0bf6d6",
+      "block": 69152319,
+      "submittedAt": 1791431193155,
+      "confirmedAt": 1791431193641,
+      "lane": 1,
+      "keeper": "0xbE53Bd190354C6315059069325C680afD010B52a",
+      "accounts": 2,
+      "liquidated": 2,
+      "gasUsed": "765097",
+      "gasLimit": "765097",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x1523ab836f552f601efeb03ad8658e924e8d7fa98051c1b43eeb9fce9924b959",
+      "block": 69152319,
+      "submittedAt": 1791431193200,
+      "confirmedAt": 1791431194593,
+      "lane": 1,
+      "keeper": "0xC91546A66B371730B16D5f74f382dD783De773d9",
+      "accounts": 1,
+      "liquidated": 1,
+      "gasUsed": "583564",
+      "gasLimit": "583564",
+      "kind": "take"
+    },
+    {
+      "txHash": "0xd6fb64f23c76c2458f2608a3e4828699d7cb823577d485664c4444088e610045",
+      "block": 69152334,
+      "submittedAt": 1791431197195,
+      "confirmedAt": 1791431201010,
+      "lane": 1,
+      "keeper": "0xC91546A66B371730B16D5f74f382dD783De773d9",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "122028",
+      "gasLimit": "122028",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x2689aebdd2e82b103c033ec31f8aec055cc0b8c3df4497cc68b6f6c47506659a",
+      "block": 69152343,
+      "submittedAt": 1791431200412,
+      "confirmedAt": 1791431201010,
+      "lane": 1,
+      "keeper": "0xC91546A66B371730B16D5f74f382dD783De773d9",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "122396",
+      "gasLimit": "122396",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0xc0a80ef143906859e440b8fa54102f37af10bf6593111d0d6864906f32cb9fb7",
+      "block": 69152345,
+      "submittedAt": 1791431200874,
+      "confirmedAt": 1791431203085,
+      "lane": 3,
+      "keeper": "0x441d1462d9945008186869e04BD32e6ec4C05003",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "133955",
+      "gasLimit": "133955",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x16b86e508670fb84cc359cd1f3c709d11d3c515eaf12be039449966a2f9232a4",
+      "block": 69152350,
+      "submittedAt": 1791431201854,
+      "confirmedAt": 1791431203085,
+      "lane": 3,
+      "keeper": "0x441d1462d9945008186869e04BD32e6ec4C05003",
+      "accounts": 0,
+      "liquidated": 0,
+      "gasUsed": "122329",
+      "gasLimit": "122329",
+      "kind": "closePosition"
+    },
+    {
+      "txHash": "0x39f0a0c0cf5972fb04e47b93980d389e9c54e1f7e5d95aae2b289db9b68da426",
+      "block": 69152356,
+      "submittedAt": 1791431204211,
+      "confirmedAt": 1791431205875,
+      "lane": 5,
+      "keeper": "0x55c7589013265dC61Cf22a4E2FF62df13fC582B2",
+      "accounts": 3,
+      "liquidated": 3,
+      "gasUsed": "573402",
+      "gasLimit": "573402",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0xf87515e53581981bf13f7fb2267757f4d786e18dc248fc94b549af09a58ef143",
+      "block": 69152359,
+      "submittedAt": 1791431205027,
+      "confirmedAt": 1791431206180,
+      "lane": 5,
+      "keeper": "0x55c7589013265dC61Cf22a4E2FF62df13fC582B2",
+      "accounts": 3,
+      "liquidated": 0,
+      "gasUsed": "56435",
+      "gasLimit": "56435",
+      "kind": "expireBatch"
+    },
+    {
+      "txHash": "0x0ee02e0297a5847348d8f12c48673364a82071dc126be1e9d26fffd24696f41d",
+      "block": 69152360,
+      "submittedAt": 1791431205234,
+      "confirmedAt": 1791431206953,
+      "lane": 6,
+      "keeper": "0xe1DE92E41dC8e572e7e8091f3d35C4E1813d21Bd",
+      "accounts": 2,
+      "liquidated": 2,
+      "gasUsed": "778700",
+      "gasLimit": "778700",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x4bba7f8c5d3e2d8201c35b4f82f4f776a757f215c42d27190f63c4f8b578f0b5",
+      "block": 69152363,
+      "submittedAt": 1791431206467,
+      "confirmedAt": 1791431206953,
+      "lane": 6,
+      "keeper": "0xe1DE92E41dC8e572e7e8091f3d35C4E1813d21Bd",
+      "accounts": 2,
+      "liquidated": 0,
+      "gasUsed": "45923",
+      "gasLimit": "45923",
+      "kind": "expireBatch"
+    },
+    {
+      "txHash": "0x1d74f6b5314d9cd9d8585883030b144da30cfd407585f79cade82755984deeba",
+      "block": 69152364,
+      "submittedAt": 1791431206609,
+      "confirmedAt": 1791431207712,
+      "lane": 7,
+      "keeper": "0xD70c105263b843B63eefB099b3ba75584E8d4075",
+      "accounts": 3,
+      "liquidated": 3,
+      "gasUsed": "686176",
+      "gasLimit": "686176",
+      "kind": "backstopTakeBatch"
+    },
+    {
+      "txHash": "0x4b98e10f0ee9a72fc4bd8ce83606631fbc07861b32b059032bf169a74e4a05b1",
+      "block": 69152366,
+      "submittedAt": 1791431207173,
+      "confirmedAt": 1791431207938,
+      "lane": 7,
+      "keeper": "0xD70c105263b843B63eefB099b3ba75584E8d4075",
+      "accounts": 3,
+      "liquidated": 0,
+      "gasUsed": "385413",
+      "gasLimit": "385413",
+      "kind": "expireBatch"
+    }
+  ],
+  "liquidations": [
+    {
+      "lane": 2,
+      "account": "0x7Be280f45F41F0B35Da7f9eA7D998a9BAA7E64FA",
+      "equity": "-11799999",
+      "badDebt": "851559998",
+      "txHash": "0xb1948c7e54d5998bca9fd7b2ffb69bb68455748ad849f9ba2c2d5860689c75da",
+      "logIndex": 11
+    },
+    {
+      "lane": 4,
+      "account": "0x28c32c27496c03A270D33E255E93e16D50bAba04",
+      "equity": "-7602599999",
+      "badDebt": "11418119998",
+      "txHash": "0x91f8cb47bc4a5fda04d03ea81093a69bc9a3c184d2d26f5e3bf6930f29c2dc2e",
+      "logIndex": 4
+    },
+    {
+      "lane": 4,
+      "account": "0xbF345CDE449c9DC96eC1Ee9a47C7009a6f49461c",
+      "equity": "-558000000",
+      "badDebt": "962400000",
+      "txHash": "0x91f8cb47bc4a5fda04d03ea81093a69bc9a3c184d2d26f5e3bf6930f29c2dc2e",
+      "logIndex": 7
+    },
+    {
+      "lane": 4,
+      "account": "0xc664528c69C28E1E6362262B0F9Ebc3A0417c474",
+      "equity": "-6479400000",
+      "badDebt": "10057480000",
+      "txHash": "0x91f8cb47bc4a5fda04d03ea81093a69bc9a3c184d2d26f5e3bf6930f29c2dc2e",
+      "logIndex": 10
+    },
+    {
+      "lane": 4,
+      "account": "0xEF519505a5424423866d69519Cf9152BC3A46854",
+      "equity": "-447999999",
+      "badDebt": "757599998",
+      "txHash": "0x91f8cb47bc4a5fda04d03ea81093a69bc9a3c184d2d26f5e3bf6930f29c2dc2e",
+      "logIndex": 14
+    },
+    {
+      "lane": 4,
+      "account": "0xFE2D6611F55c20cE8c56e66D705d845978233354",
+      "equity": "-270000000",
+      "badDebt": "356400000",
+      "txHash": "0x91f8cb47bc4a5fda04d03ea81093a69bc9a3c184d2d26f5e3bf6930f29c2dc2e",
+      "logIndex": 17
+    },
+    {
+      "lane": 3,
+      "account": "0x14E2bCb168Dc12cd827a589B01Fb4a9Ba77c0D73",
+      "equity": "-439799999",
+      "badDebt": "585959998",
+      "txHash": "0xb9356d562746e43131e812d714810cc453b0bf4ea7553148c2aea8d25af7e5ed",
+      "logIndex": 73
+    },
+    {
+      "lane": 3,
+      "account": "0x210d0Adb66704f25E7968641cD4E9f7ED7035723",
+      "equity": "-2849000000",
+      "badDebt": "3823400000",
+      "txHash": "0xb9356d562746e43131e812d714810cc453b0bf4ea7553148c2aea8d25af7e5ed",
+      "logIndex": 76
+    },
+    {
+      "lane": 3,
+      "account": "0x9d9d489Fc59C4de8F950fEd8AD99CC8553463F23",
+      "equity": "-349800000",
+      "badDebt": "473960000",
+      "txHash": "0xb9356d562746e43131e812d714810cc453b0bf4ea7553148c2aea8d25af7e5ed",
+      "logIndex": 79
+    },
+    {
+      "lane": 3,
+      "account": "0x5eaC26cDf2efc87Ac7194712E6BeC8C9C891D673",
+      "equity": "2302200001",
+      "badDebt": "0",
+      "txHash": "0x9aa700b596d6489bfaa88b4e12903b0f936468b6380d0a4bfaf078f57e41ff1c",
+      "logIndex": 36
+    },
+    {
+      "lane": 1,
+      "account": "0x510Ec8c4612FbDC4dB154E692B52Fe37fDF889f9",
+      "equity": "-1613199999",
+      "badDebt": "3288039998",
+      "txHash": "0xa0f7778cad46876967df400f02b89e32987e3ceab16e11ad976f741c4f0bf6d6",
+      "logIndex": 3
+    },
+    {
+      "lane": 1,
+      "account": "0xF04E22B12EB6E33309C48D3086844edDdb520901",
+      "equity": "-16035599999",
+      "badDebt": "23124319998",
+      "txHash": "0xa0f7778cad46876967df400f02b89e32987e3ceab16e11ad976f741c4f0bf6d6",
+      "logIndex": 8
+    },
+    {
+      "lane": 1,
+      "account": "0x871ad5cEF7DE51122b4E4C7609FE073154e12f99",
+      "equity": "540000001",
+      "badDebt": "0",
+      "txHash": "0x1523ab836f552f601efeb03ad8658e924e8d7fa98051c1b43eeb9fce9924b959",
+      "logIndex": 13
+    },
+    {
+      "lane": 5,
+      "account": "0x23E14278010bA5D5E44ceD86918f0baE969661D5",
+      "equity": "-619000000",
+      "badDebt": "930200000",
+      "txHash": "0x39f0a0c0cf5972fb04e47b93980d389e9c54e1f7e5d95aae2b289db9b68da426",
+      "logIndex": 3
+    },
+    {
+      "lane": 5,
+      "account": "0x65Ce33Dbb58a9cfCF8bf285b1d1d2C2E5C52e905",
+      "equity": "-154200000",
+      "badDebt": "258840000",
+      "txHash": "0x39f0a0c0cf5972fb04e47b93980d389e9c54e1f7e5d95aae2b289db9b68da426",
+      "logIndex": 6
+    },
+    {
+      "lane": 5,
+      "account": "0xbd43ee01c787064e6445279394285C4b624351F5",
+      "equity": "-2537000000",
+      "badDebt": "4750200000",
+      "txHash": "0x39f0a0c0cf5972fb04e47b93980d389e9c54e1f7e5d95aae2b289db9b68da426",
+      "logIndex": 9
+    },
+    {
+      "lane": 6,
+      "account": "0xb53677124089A295924E995631b43Ec13586088E",
+      "equity": "-740600001",
+      "badDebt": "2466880000",
+      "txHash": "0x0ee02e0297a5847348d8f12c48673364a82071dc126be1e9d26fffd24696f41d",
+      "logIndex": 4
+    },
+    {
+      "lane": 6,
+      "account": "0xba53093a27E413162a914eb21da4630471F4E1fe",
+      "equity": "-21895799999",
+      "badDebt": "32986159998",
+      "txHash": "0x0ee02e0297a5847348d8f12c48673364a82071dc126be1e9d26fffd24696f41d",
+      "logIndex": 8
+    },
+    {
+      "lane": 7,
+      "account": "0x2a3D25f0EE4c9c5f6FB5Ae13eB9A9a4c0158C5f7",
+      "equity": "-103800000",
+      "badDebt": "168960000",
+      "txHash": "0x1d74f6b5314d9cd9d8585883030b144da30cfd407585f79cade82755984deeba",
+      "logIndex": 4
+    },
+    {
+      "lane": 7,
+      "account": "0x644e7F6CCd7B2230f947b4BD731b21dAB5a39387",
+      "equity": "-25000000",
+      "badDebt": "52000000",
+      "txHash": "0x1d74f6b5314d9cd9d8585883030b144da30cfd407585f79cade82755984deeba",
+      "logIndex": 7
+    },
+    {
+      "lane": 7,
+      "account": "0xc6157903496B51891B70B0ECDa2F99acF9dcDa1F",
+      "equity": "1",
+      "badDebt": "19599998",
+      "txHash": "0x1d74f6b5314d9cd9d8585883030b144da30cfd407585f79cade82755984deeba",
+      "logIndex": 9
+    }
+  ],
+  "totals": {
+    "accountsScanned": 108,
+    "liquidated": 21,
+    "badDebt": "97332079984",
+    "wallClockMs": 32750,
+    "blocks": [
+      69152261,
+      69152263,
+      69152299,
+      69152310,
+      69152314,
+      69152315,
+      69152319,
+      69152334,
+      69152343,
+      69152345,
+      69152350,
+      69152356,
+      69152359,
+      69152360,
+      69152363,
+      69152364,
+      69152366
+    ],
+    "sameBlock": false,
+    "totalGasUsed": "10217349"
+  },
+  "error": "auctions not resolved within 180000 ms (paraclr: 0 liquidatable, 0 in auction; naive: 0 liquidatable, 0 in auction)",
+  "auctions": {
+    "started": 21,
+    "takenByBackstop": 19,
+    "takenExternal": 2,
+    "cured": 0,
+    "expired": 0,
+    "avgDiscountBps": 500,
+    "traderResidualReturned": "0",
+    "backstopPaid": "34599479991",
+    "badDebt": "97332079984",
+    "legacyCounterfactual": {
+      "traderLoss": "1965831999"
+    },
+    "traderEquityAtStart": "2842200003",
+    "externalTakers": {
+      "demo": true,
+      "accounts": 8,
+      "reservationBps": [
+        25,
+        70
+      ]
+    }
+  },
+  "underwater": {
+    "maxBlocks": 157,
+    "p50Blocks": 112,
+    "p95Blocks": 157,
+    "maxMs": 48392,
+    "perAccount": [
+      {
+        "account": "0xbf345cde449c9dc96ec1ee9a47c7009a6f49461c",
+        "lane": 4,
+        "fromBlock": 69152207,
+        "toBlock": 69152310,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xef519505a5424423866d69519cf9152bc3a46854",
+        "lane": 4,
+        "fromBlock": 69152207,
+        "toBlock": 69152310,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xc664528c69c28e1e6362262b0f9ebc3a0417c474",
+        "lane": 4,
+        "fromBlock": 69152207,
+        "toBlock": 69152310,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x28c32c27496c03a270d33e255e93e16d50baba04",
+        "lane": 4,
+        "fromBlock": 69152207,
+        "toBlock": 69152310,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xfe2d6611f55c20ce8c56e66d705d845978233354",
+        "lane": 4,
+        "fromBlock": 69152207,
+        "toBlock": 69152310,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x5eac26cdf2efc87ac7194712e6bec8c9c891d673",
+        "lane": 3,
+        "fromBlock": 69152207,
+        "toBlock": 69152315,
+        "outcome": "external"
+      },
+      {
+        "account": "0x210d0adb66704f25e7968641cd4e9f7ed7035723",
+        "lane": 3,
+        "fromBlock": 69152207,
+        "toBlock": 69152314,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x14e2bcb168dc12cd827a589b01fb4a9ba77c0d73",
+        "lane": 3,
+        "fromBlock": 69152207,
+        "toBlock": 69152314,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x9d9d489fc59c4de8f950fed8ad99cc8553463f23",
+        "lane": 3,
+        "fromBlock": 69152207,
+        "toBlock": 69152314,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x871ad5cef7de51122b4e4c7609fe073154e12f99",
+        "lane": 1,
+        "fromBlock": 69152207,
+        "toBlock": 69152319,
+        "outcome": "external"
+      },
+      {
+        "account": "0x510ec8c4612fbdc4db154e692b52fe37fdf889f9",
+        "lane": 1,
+        "fromBlock": 69152207,
+        "toBlock": 69152319,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xf04e22b12eb6e33309c48d3086844edddb520901",
+        "lane": 1,
+        "fromBlock": 69152207,
+        "toBlock": 69152319,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x7be280f45f41f0b35da7f9ea7d998a9baa7e64fa",
+        "lane": 2,
+        "fromBlock": 69152207,
+        "toBlock": 69152299,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xc6157903496b51891b70b0ecda2f99acf9dcda1f",
+        "lane": 7,
+        "fromBlock": 69152207,
+        "toBlock": 69152364,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x644e7f6ccd7b2230f947b4bd731b21dab5a39387",
+        "lane": 7,
+        "fromBlock": 69152207,
+        "toBlock": 69152364,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x2a3d25f0ee4c9c5f6fb5ae13eb9a9a4c0158c5f7",
+        "lane": 7,
+        "fromBlock": 69152207,
+        "toBlock": 69152364,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x65ce33dbb58a9cfcf8bf285b1d1d2c2e5c52e905",
+        "lane": 5,
+        "fromBlock": 69152207,
+        "toBlock": 69152356,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xbd43ee01c787064e6445279394285c4b624351f5",
+        "lane": 5,
+        "fromBlock": 69152207,
+        "toBlock": 69152356,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0x23e14278010ba5d5e44ced86918f0bae969661d5",
+        "lane": 5,
+        "fromBlock": 69152207,
+        "toBlock": 69152356,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xb53677124089a295924e995631b43ec13586088e",
+        "lane": 6,
+        "fromBlock": 69152207,
+        "toBlock": 69152360,
+        "outcome": "backstop"
+      },
+      {
+        "account": "0xba53093a27e413162a914eb21da4630471f4e1fe",
+        "lane": 6,
+        "fromBlock": 69152207,
+        "toBlock": 69152360,
+        "outcome": "backstop"
+      }
+    ]
+  },
+  "xrayId": "run-muyzuvuh-l9hto",
+  "bench": {
+    "measuredOn": "Monad testnet",
+    "tool": "npm run bench",
+    "startedAt": "2026-10-08T03:45:53.152Z",
+    "finishedAt": "2026-10-08T03:49:38.942Z",
+    "crashVia": "standalone",
+    "crashMode": "auctions",
+    "rpcHost": "testnet-rpc.monad.xyz",
+    "clientVersion": "Monad/0.16.3",
+    "observedBlockIntervalMs": 287,
+    "seed": 429569614,
+    "designs": [
+      {
+        "design": "paraclr-lanes",
+        "contract": "0x5b40ae35d3AD71A80542B7ea45DC7eEeCc7E21c5"
+      },
+      {
+        "design": "naive-shared",
+        "contract": "0x3A158F70C24661A84C0e597dF23c2bFbC074981c"
+      }
+    ],
+    "accountsSeeded": 100,
+    "accountsSeededPerDesign": 100,
+    "positionsSeeded": 160,
+    "accountsPerLaneSeeded": [
+      10,
+      14,
+      12,
+      10,
+      15,
+      12,
+      17,
+      10
+    ],
+    "seedParams": {
+      "positionsPerAccount": "1 (55%) | 2 (34%) | 3 (11%)",
+      "marketMix": {
+        "MON/AUSD": 0.45,
+        "SOL/AUSD": 0.3,
+        "BTC/AUSD": 0.25
+      },
+      "longShare": 0.6,
+      "leverage": "round(2 + 18·u²)  → 2..20x, median ≈ 6x",
+      "marginAusd": "10^(1.8 + 2.4·u)  → ≈63 … 15,849 AUSD per position",
+      "collateral": "Σmargin × (1 + 0.15 + 2.5·u^1.6)",
+      "entry": "current oracle mark (seedAccounts opens at mark)"
+    },
+    "seedTotalCollateral": "900961000000",
+    "seedGasUsed": "0",
+    "seedGasLimit": "0",
+    "seedWallClockMs": 0,
+    "seedTxs": [],
+    "seeding": {
+      "paraclr-lanes": {
+        "txs": [],
+        "gasUsed": "0",
+        "gasLimit": "0",
+        "wallClockMs": 0
+      },
+      "naive-shared": {
+        "txs": [],
+        "gasUsed": "0",
+        "gasLimit": "0",
+        "wallClockMs": 0
+      }
+    },
+    "backstopFunding": null,
+    "demoTakers": {
+      "demo": true,
+      "seed": 429569614,
+      "perLane": 1,
+      "reservationBps": [
+        25,
+        70
+      ],
+      "collateral": "250000000000",
+      "takers": [
+        {
+          "address": "0xBd08005b0Dd35d5Af694451f9069B88eB3137dC8",
+          "lane": 0,
+          "reservationBps": 64
+        },
+        {
+          "address": "0xC91546A66B371730B16D5f74f382dD783De773d9",
+          "lane": 1,
+          "reservationBps": 66
+        },
+        {
+          "address": "0x89d3822A0b41e96Eb7a046068D314D6287e43492",
+          "lane": 2,
+          "reservationBps": 52
+        },
+        {
+          "address": "0x441d1462d9945008186869e04BD32e6ec4C05003",
+          "lane": 3,
+          "reservationBps": 61
+        },
+        {
+          "address": "0xc40fC762816E0dB33a688a6d511A757EF2C95354",
+          "lane": 4,
+          "reservationBps": 33
+        },
+        {
+          "address": "0x28c8e6f1A48CD9ba0d2D2F14E21374aaB789919D",
+          "lane": 5,
+          "reservationBps": 60
+        },
+        {
+          "address": "0xc23ab54ae39895b97B47fcB8955084a2b38768AE",
+          "lane": 6,
+          "reservationBps": 55
+        },
+        {
+          "address": "0x4674Fb8DF2472A44f04898aA54Ff228B48020697",
+          "lane": 7,
+          "reservationBps": 33
+        }
+      ]
+    },
+    "config": {
+      "receiptPollMs": 100,
+      "gasMarginBps": 1000,
+      "maxTxGas": "30000000",
+      "keeperKeys": 8,
+      "sweeperPollMs": 100
+    },
+    "priceUpdatesDuringRunExcludingShock": null,
+    "recoverTxHash": "0x215a276fc83d11ef5ac0a3ffcc29d2b9bf1e2136e433fdfdfb13ce995d4f8ba1",
+    "naive": {
+      "design": "naive-shared",
+      "contract": "0x3A158F70C24661A84C0e597dF23c2bFbC074981c",
+      "auctions": {
+        "started": 21,
+        "takenByBackstop": 19,
+        "takenExternal": 2,
+        "cured": 0,
+        "expired": 0,
+        "avgDiscountBps": 500,
+        "traderResidualReturned": "0",
+        "backstopPaid": "34599479991",
+        "badDebt": "97332079984",
+        "legacyCounterfactual": {
+          "traderLoss": "1965831999"
+        },
+        "traderEquityAtStart": "2842200003",
+        "externalTakers": {
+          "demo": true,
+          "accounts": 8,
+          "reservationBps": [
+            25,
+            70
+          ]
+        }
+      },
+      "underwater": {
+        "maxBlocks": 157,
+        "p50Blocks": 142,
+        "p95Blocks": 157,
+        "maxMs": null,
+        "accounts": 21
+      },
+      "vsLegacy": {
+        "worse": 2,
+        "equal": 19,
+        "better": 0,
+        "worstExtra": "584048002"
+      },
+      "unresolved": 0,
+      "note": "Same events-based summary as the RunReport, computed for the naive design (keeper ms not tracked for it)."
+    },
+    "laneFunds": {
+      "paraclr-lanes": {
+        "block": {
+          "before": 69152200,
+          "after": 69152366
+        },
+        "insuranceBefore": "800000000000",
+        "insuranceAfter": "923660320007",
+        "recordedBadDebtBefore": "0",
+        "recordedBadDebtAfter": "0"
+      },
+      "naive-shared": {
+        "block": {
+          "before": 69152200,
+          "after": 69152366
+        },
+        "insuranceBefore": "800000000000",
+        "insuranceAfter": "923660320007",
+        "recordedBadDebtBefore": "0",
+        "recordedBadDebtAfter": "0"
+      }
+    },
+    "resolutionGas": {
+      "paraclr-lanes": {
+        "txs": 23,
+        "gasUsed": "10217349",
+        "gasLimit": "10217349"
+      },
+      "naive-shared": {
+        "txs": 22,
+        "gasUsed": "9014096",
+        "gasLimit": "9014096"
+      }
+    },
+    "xray": {
+      "file": "bench/xray/10143-run-muyzuvuh-l9hto.json",
+      "method": "debug_traceTransaction",
+      "summary": {
+        "paraclr-lanes": {
+          "txs": 23,
+          "edges": 1,
+          "longestChain": 2,
+          "independentTxs": 21,
+          "crossLaneEdges": 0,
+          "sameLaneEdges": 1
+        },
+        "naive-shared": {
+          "txs": 22,
+          "edges": 6,
+          "longestChain": 3,
+          "independentTxs": 13,
+          "crossLaneEdges": 4,
+          "sameLaneEdges": 2
+        }
+      }
+    },
+    "derived": {
+      "liquidatedPct": 19.44,
+      "gasPerResolvedAccount": 486540,
+      "gasPerScannedAccount": 94605,
+      "batchCount": 23,
+      "avgGasPerBatch": 444233,
+      "maxGasPerBatch": 1131531,
+      "byKind": {
+        "startAuctions": {
+          "txs": 7,
+          "gasUsed": 2877675,
+          "gasLimit": 2877675,
+          "accounts": 21
+        },
+        "backstopTakeBatch": {
+          "txs": 7,
+          "gasUsed": 5171847,
+          "gasLimit": 5171847,
+          "accounts": 19
+        },
+        "take": {
+          "txs": 2,
+          "gasUsed": 1179348,
+          "gasLimit": 1179348,
+          "accounts": 2
+        },
+        "closePosition": {
+          "txs": 4,
+          "gasUsed": 500708,
+          "gasLimit": 500708,
+          "accounts": 0
+        },
+        "expireBatch": {
+          "txs": 3,
+          "gasUsed": 487771,
+          "gasLimit": 487771,
+          "accounts": 8
+        }
+      },
+      "shockConfirmMs": 1399,
+      "shockSubmitToLastResolutionReceiptMs": 50017,
+      "seedGasPerAccount": 0,
+      "traderLossAuctions": "2842200003",
+      "traderLossLegacyCounterfactual": "1965831999",
+      "accountsVsLegacy": {
+        "worse": 2,
+        "equal": 19,
+        "better": 0,
+        "worstExtra": "584048002"
+      }
+    },
+    "notes": [
+      "Timings are keeper-side wall clock (Date.now()): submittedAt right before eth_sendRawTransaction, confirmedAt when the receipt poll first sees the receipt (includes up to receiptPollMs + RPC latency).",
+      "batches = every sweeper tx on the lane-sharded design during the run (kind: startAuctions | backstopTakeBatch | expireBatch | cancelAuction); wallClockMs = first submitted → last receipt observed.",
+      "underwater: fromBlock = shock block, toBlock = block of the resolving event; maxMs = keeper saw the shock receipt → keeper saw the resolving receipt.",
+      "External takers in this run (auctions.externalTakers.demo = true) are demo bots run by the keeper: same-lane accounts with reservation discounts drawn from auctions.externalTakers.reservationBps, which take when the payment they would really receive (capped at the trader's equity) reaches their reservation, then close what they inherited at mark the next block. bench.demoTakers lists them.",
+      "legacyCounterfactual.traderLoss = Σ min(max(equity, 0), notional × LIQUIDATION_FEE_BPS / 10000) over the same accounts, equity and notional from AuctionStarted (the old liquidateBatch penalty).",
+      "accountsScanned counts every account registered in the 8 lanes of the lane-sharded design, including accounts seeded by earlier runs.",
+      "auctions.badDebt / totals.badDebt = Σ event badDebt = lane-FUNDED shortfall (AuctionTaken: max(0, payment − equity) incl. written-off negative equity; AuctionExpired / Liquidated: negative equity written off). The lane insurance fund pays first; only what it cannot cover becomes recorded lane bad debt — see laneFunds for the recorded before/after.",
+      "AUSD amounts are raw 6-decimal integers; gas values are integers as strings.",
+      "Monad testnet: gas is billed on gas limit; see seedGasLimit and batches[].gasLimit."
+    ]
+  }
+}
