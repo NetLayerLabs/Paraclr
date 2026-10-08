@@ -5,6 +5,7 @@ import { BuiltByBadge } from "@/components/brand/BuiltByBadge";
 import { useParaclr } from "@/lib/store";
 import { LoginScreen } from "@/components/auth/LoginScreen";
 import { TradeScreen } from "@/components/trade/TradeScreen";
+import { PnlCardHost } from "@/components/trade/PnlCard";
 import { ClearingScreen } from "@/components/clearing/ClearingScreen";
 import { WalletScreen } from "@/components/auth/WalletScreen";
 import { BackstopScreen } from "@/components/backstop/BackstopScreen";
@@ -57,6 +58,8 @@ export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray 
           <AppHeader tab={tab} onTab={setTab} />
           <BetaBanner />
           <PausedBanner />
+          {/* The shareable PnL card when a position closes (any tab: production fills land later). */}
+          <PnlCardHost />
           <ChainStatusStrip />
           {/* Screens stay mounted so a clearing run survives a tab switch. */}
           <main className={styles.screen} data-tab="trade" hidden={tab !== "trade"}>

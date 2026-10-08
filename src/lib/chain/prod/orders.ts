@@ -57,6 +57,8 @@ export interface TrackedOrder {
   /** Side of the position this order opens / adds to / reduces. */
   side: Side;
   leverage: number | null;
+  /** Reduce / close: the position when the order was committed (for the PnL card on close). */
+  position?: { entryPrice: number; margin: number } | null;
   /** Signed, 1e18 (> 0 buys). */
   sizeDelta: bigint;
   /** AUSD 6 dp escrowed with the order. */
@@ -218,6 +220,7 @@ export interface CommitArgs {
   kind: OrderKind;
   side: Side;
   leverage: number | null;
+  position?: { entryPrice: number; margin: number };
   sizeDelta: bigint;
   marginDelta: bigint;
   acceptablePrice: bigint;
@@ -253,6 +256,7 @@ export function commitOrder(args: CommitArgs): Promise<TrackedOrder> {
       kind: args.kind,
       side: args.side,
       leverage: args.leverage,
+      position: args.position ?? null,
       sizeDelta: args.sizeDelta,
       marginDelta: args.marginDelta,
       acceptablePrice: args.acceptablePrice,

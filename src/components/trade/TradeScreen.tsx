@@ -11,6 +11,7 @@ import { AccountSummary } from "./AccountSummary";
 import { AuctionBanner } from "./AuctionBanner";
 import { PositionsList, type ClosedMeta } from "./PositionsList";
 import { OrderHistory } from "./OrderHistory";
+import { cardFromPosition, showPnlCard } from "./PnlCard";
 import { INDEXER_ON } from "@/lib/indexer";
 import { baseOf, fmtPrice, fmtSigned } from "./format";
 import { ProdOrderPanel } from "@/components/prod/ProdOrderPanel";
@@ -69,12 +70,14 @@ export function TradeScreen() {
       detail: `Waiting for the next ${pn} — track it under Orders.`,
     });
 
-  const onClosed = (p: Position, realized: number, meta?: ClosedMeta) =>
+  const onClosed = (p: Position, realized: number, meta?: ClosedMeta) => {
     show({
       tone: "neutral",
       title: `${baseOf(p.symbol)} position closed`,
       detail: `Realized ${fmtSigned(realized)} AUSD` + (meta?.block !== undefined ? ` · block #${meta.block}` : ""),
     });
+    showPnlCard(cardFromPosition(p, realized, chainLive));
+  };
 
   return (
     // Phone/tablet: one stacked column in DOM order. Desktop (>=1024px): a

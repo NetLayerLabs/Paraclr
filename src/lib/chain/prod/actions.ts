@@ -365,6 +365,7 @@ export function submitReduceOrder(args: { position: Position; fraction: number; 
     kind: full ? "close" : "reduce",
     side: p.side,
     leverage: p.leverage,
+    position: { entryPrice: p.entryPrice, margin: p.margin },
     sizeDelta: buy ? abs : -abs,
     marginDelta: BigInt(0),
     acceptablePrice: acceptablePrice(args.mark, buy, args.slippagePct),
