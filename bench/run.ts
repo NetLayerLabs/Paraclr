@@ -24,6 +24,9 @@
 //   --paraclr-only    seed/crash only the lane-sharded design
 //   --no-xray         skip the Conflict X-ray
 //   --seed-only       seed the book(s) and stop (no crash; prices untouched)
+//   --resume-seed     the book for --seed S is already seeded in every design (an earlier run
+//                     stopped after seeding): skip seeding and crash it. Needs the same --seed and
+//                     --accounts; the report records the seeding as resumed (no tx list)
 //   --fund-backstop A top up every lane backstop pool to A AUSD of cash before the crash (the
 //                     naive design's single shared pool to 8 × A, so total liquidity is equal)
 //   --no-demo-takers  no keeper-run demo external takers (default: on, derived from --seed, so the
@@ -255,8 +258,16 @@ async function main(): Promise<void> {
   const seeding: Record<string, { txs: Awaited<ReturnType<typeof seedBook>>["txs"]; gasUsed: string; gasLimit: string; wallClockMs: number }> = {};
   let totalCollateral = BigInt(0);
   const backstopFunding: Record<string, unknown> = {};
+  const resumeSeed = args["resume-seed"] === true;
+  if (resumeSeed && args.seed === undefined) throw new Error("--resume-seed needs the --seed of the run that seeded the book");
   try {
     for (const d of designs) {
+      if (resumeSeed) {
+        totalCollateral = book.reduce((sum, a) => sum + a.collateral, BigInt(0));
+        seeding[d.design] = { txs: [], gasUsed: "0", gasLimit: "0", wallClockMs: 0 };
+        console.log(`--resume-seed: ${d.label} ${d.address} already holds this book (${book.length} accounts / ${positions} positions); not seeding`);
+        continue;
+      }
       console.log(`seeding ${book.length} accounts into ${d.label} ${d.address} (per lane: ${perLane.join(" / ")})`);
       const t0 = Date.now();
       const seeded = await seedBook(ctx, book, (m) => console.log(m), d.address);

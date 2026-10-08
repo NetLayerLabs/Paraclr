@@ -16,7 +16,7 @@ export function isRateLimited(err: unknown): boolean {
   return false;
 }
 
-/** Retries rate-limited calls with jittered exponential backoff (≈ 0.25 s … 4 s, 6 tries). */
+/** Retries rate-limited calls with jittered exponential backoff (≈ 0.25 s … 8 s, 10 tries). */
 export function withRateLimitRetry(base: Transport): Transport {
   return (opts) => {
     const t = base(opts);
@@ -25,8 +25,8 @@ export function withRateLimitRetry(base: Transport): Transport {
         try {
           return await t.request(args, options);
         } catch (err) {
-          if (attempt >= 6 || !isRateLimited(err)) throw err;
-          await new Promise((r) => setTimeout(r, Math.min(4_000, 250 * 2 ** attempt) * (0.75 + Math.random() / 2)));
+          if (attempt >= 10 || !isRateLimited(err)) throw err;
+          await new Promise((r) => setTimeout(r, Math.min(8_000, 250 * 2 ** attempt) * (0.75 + Math.random() / 2)));
         }
       }
     }) as typeof t.request;

@@ -100,6 +100,10 @@ export async function setupTakers(
   } else {
     const target = parseEther(process.env.DEMO_TAKER_GAS_MON?.trim() || "0.5");
     const op = ctx.senders.for(ctx.roles.operator);
+    // Monad reserve-balance rule: below 10 MON a value transfer must be the sender's first tx in 3
+    // blocks, and the operator has usually just sent the seeding txs. Wait 3 blocks before the first.
+    const start = await client.getBlockNumber();
+    while ((await client.getBlockNumber()) < start + BigInt(3)) await new Promise((r) => setTimeout(r, 300));
     for (const t of takers) {
       const bal = await client.getBalance({ address: t.address });
       if (bal >= target / BigInt(2)) continue;
