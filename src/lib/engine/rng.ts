@@ -1,6 +1,6 @@
 // Deterministic helpers so every demo run produces the same book.
 
-/** mulberry32 — tiny, fast, seedable PRNG returning floats in [0, 1). */
+/** mulberry32 - tiny, fast, seedable PRNG returning floats in [0, 1). */
 export function createRng(seed: number): () => number {
   let a = seed >>> 0;
   return () => {

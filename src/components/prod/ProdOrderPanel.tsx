@@ -43,7 +43,7 @@ const QUICK = [
 ];
 
 const fmtMon = (wei: bigint | null) => {
-  if (wei === null) return "—";
+  if (wei === null) return "-";
   const n = Number(formatEther(wei));
   return n === 0 ? "0" : n < 0.0001 ? n.toExponential(2) : n.toLocaleString("en-US", { maximumFractionDigits: 6 });
 };
@@ -164,13 +164,13 @@ export function ProdOrderPanel({
       : !prod || prod.status === "loading"
         ? "Reading beta limits…"
         : prod.paused
-          ? "Paused — new positions disabled"
+          ? "Paused - new positions disabled"
           : acct.auction?.active
-            ? "In auction — reduce or close below, or cure it"
+            ? "In auction - reduce or close below, or cure it"
             : existing && existing.side !== side
               ? `You hold a ${base} ${existing.side}: reduce or close it below`
               : pendingHere
-                ? `A ${base} order is pending — one per market`
+                ? `A ${base} order is pending - one per market`
               : aboveCap
                 ? "Collateral above the beta cap: withdraw down to it before adding margin"
               : !price
@@ -334,7 +334,7 @@ export function ProdOrderPanel({
         <div>
           <dt>Size</dt>
           <dd className="mono">
-            {price ? fmtSize(symbol, size) : "—"} {base}
+            {price ? fmtSize(symbol, size) : "-"} {base}
           </dd>
         </div>
         <div>
@@ -355,13 +355,13 @@ export function ProdOrderPanel({
         <div>
           <dt>Est. liq. price (cross)</dt>
           <dd className={`mono ${ops.liq}`}>
-            {liq != null ? fmtPrice(symbol, Math.max(0, liq)) : "—"}
+            {liq != null ? fmtPrice(symbol, Math.max(0, liq)) : "-"}
             {liqDist != null && <span className={ops.liqDist}>{fmtPct(liqDist, 1)}</span>}
           </dd>
         </div>
         <div>
           <dt>Lane OI room ({side})</dt>
-          <dd className="mono">{oiRoom === null ? "—" : fmtCompact(oiRoom)}</dd>
+          <dd className="mono">{oiRoom === null ? "-" : fmtCompact(oiRoom)}</dd>
         </div>
       </dl>
 
@@ -369,7 +369,7 @@ export function ProdOrderPanel({
         <div>
           <dt>Trading fee{feeBps !== null ? ` (${(feeBps / 100).toFixed(2)}%, from margin)` : ""}</dt>
           <dd className="mono">
-            {tradingFee === null ? "—" : fmtAusd(tradingFee, 4)} <small>{token.symbol}</small>
+            {tradingFee === null ? "-" : fmtAusd(tradingFee, 4)} <small>{token.symbol}</small>
           </dd>
         </div>
         <div>
@@ -389,7 +389,7 @@ export function ProdOrderPanel({
         <div className={styles.feesTotal}>
           <dt>Fill window</dt>
           <dd className="mono">
-            {params?.minExecDelay != null ? `≥ ${fmtDuration(params.minExecDelay)}` : "—"}
+            {params?.minExecDelay != null ? `≥ ${fmtDuration(params.minExecDelay)}` : "-"}
             {params?.maxExecDelay != null ? ` · expires ${fmtDuration(params.maxExecDelay)}` : ""}
           </dd>
         </div>
@@ -404,7 +404,7 @@ export function ProdOrderPanel({
         <Notice>
           First {acked ? "" : "you'll confirm the beta risk notice, then "}an exact-amount approve
           {acct && acct.allowanceUnits > BigInt(0) ? " (if needed)" : ""} and a deposit of{" "}
-          <span className="mono">{fmtAusd(deposit)}</span> {token.symbol}, then the order — each an on-chain
+          <span className="mono">{fmtAusd(deposit)}</span> {token.symbol}, then the order - each an on-chain
           transaction.
         </Notice>
       )}

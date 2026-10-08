@@ -1,4 +1,4 @@
-// Contract addresses from env — the FALLBACK when `deployments/<chainId>.json`
+// Contract addresses from env - the FALLBACK when `deployments/<chainId>.json`
 // is missing (see deployments.ts for precedence). Literal
 // `process.env.NEXT_PUBLIC_*` access so Next inlines them at build time
 // (dynamic lookups are NOT inlined). Missing/invalid → null.

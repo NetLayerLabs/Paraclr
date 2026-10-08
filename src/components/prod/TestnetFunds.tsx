@@ -24,7 +24,7 @@ import { TokenSymbol } from "./Token";
 import { useNow } from "./util";
 import styles from "./Prod.module.css";
 
-const whole = (n: number | null) => (n === null ? "—" : n.toLocaleString("en-US", { maximumFractionDigits: 0 }));
+const whole = (n: number | null) => (n === null ? "-" : n.toLocaleString("en-US", { maximumFractionDigits: 0 }));
 
 export function TestnetFunds() {
   const acct = useParaclr((s) => s.chain.account);

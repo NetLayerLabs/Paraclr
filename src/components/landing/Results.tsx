@@ -390,7 +390,7 @@ export function Results({ evidence }: { evidence: LandingEvidence }) {
             <div className={`${s.banner} ${s.bannerAnvil}`} role="note">
               <span className={`${b.chip} ${b.chipWarn}`}>
                 <span className={`${b.dot} ${b.dotWarn}`} aria-hidden="true" />
-                local anvil — not Monad
+                local anvil - not Monad
               </span>
               <p>
                 <b>Measured on local anvil, not Monad.</b>{" "}

@@ -47,7 +47,7 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
   const a = args ?? [];
   switch (name) {
     case "PositionExists":
-      return "You already have a position in this market. The clearinghouse allows one position per market — close it first.";
+      return "You already have a position in this market. The clearinghouse allows one position per market - close it first.";
     case "NoPosition":
       return "No open position in this market (it may already be closed or liquidated).";
     case "InsufficientMargin":
@@ -62,18 +62,18 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
       return "Too many open markets on this account.";
     case "StalePrice":
       return a.length >= 2
-        ? "Prices are refreshing — retry in a few seconds. (The Pyth price stored on chain is older than the contract accepts.)"
-        : "The oracle price is stale — is the keeper's price pusher running?";
+        ? "Prices are refreshing - retry in a few seconds. (The Pyth price stored on chain is older than the contract accepts.)"
+        : "The oracle price is stale - is the keeper's price pusher running?";
     case "InvalidPrice":
       return a.length >= 1 ? "Pyth has no valid price for this market right now." : "The oracle has no price for this market yet.";
     case "ZeroAmount":
       return "Amount is too small.";
     case "TransferFailed":
-      return "AUSD transfer failed — check your AUSD balance and allowance.";
+      return "AUSD transfer failed - check your AUSD balance and allowance.";
     case "InsufficientBalance":
       return "Not enough AUSD in your wallet.";
     case "InsufficientAllowance":
-      return "AUSD allowance too low — approve the clearinghouse first.";
+      return "AUSD allowance too low - approve the clearinghouse first.";
     case "MintCapExceeded":
       return "The AUSD faucet mints at most 10,000 per call.";
     case "AccountNotInLane":
@@ -91,7 +91,7 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
     case "NotInAuction":
       return "That account isn't in an auction (it may already have been taken, cured or expired).";
     case "NotLiquidatable":
-      return "That account is healthy again, so it can't be taken — its auction can only be cancelled.";
+      return "That account is healthy again, so it can't be taken - its auction can only be cancelled.";
     case "NotRegistered":
       return "Deposit collateral first: this account isn't registered with the clearinghouse yet (it registers on its first deposit).";
     case "SelfTake":
@@ -120,7 +120,7 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
     case "OrderNotReady":
       return "Too early: the order can only be executed with a Pyth price published after its minimum delay.";
     case "OrderExpired":
-      return "This order's execution window has passed — cancel it to release the escrow and get the execution fee back.";
+      return "This order's execution window has passed - cancel it to release the escrow and get the execution fee back.";
     case "OrderNotExpired":
       return "An order can only be cancelled after its execution window has passed (no free option).";
     case "OrderWouldFlip":
@@ -148,7 +148,7 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
     case "InsufficientPythFee":
       return "Not enough MON sent for the Pyth price update fee.";
     case "PriceConfidenceTooWide":
-      return "Pyth's confidence interval is too wide right now — the contract refuses to price with it. Try again shortly.";
+      return "Pyth's confidence interval is too wide right now - the contract refuses to price with it. Try again shortly.";
     case "InvalidPythResponse":
       return "The Pyth contract returned an unexpected price response.";
     case "InvalidPriceExpo":
@@ -171,7 +171,7 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
     case "LaneInsolvent":
       return "This lane can't pay that out right now (it holds less than requested). Try a smaller amount.";
     case "WithdrawNotReady":
-      return `Your pool withdrawal isn't ready yet — it opens at ${typeof a[0] === "bigint" ? new Date(Number(a[0]) * 1000).toLocaleTimeString() : "the end of the waiting period"}.`;
+      return `Your pool withdrawal isn't ready yet - it opens at ${typeof a[0] === "bigint" ? new Date(Number(a[0]) * 1000).toLocaleTimeString() : "the end of the waiting period"}.`;
     case "WithdrawRequestExpired":
       return "Your pool withdrawal request expired (its window has passed). Request again.";
     case "NoWithdrawRequest":
@@ -251,12 +251,12 @@ function noGas(): string {
   const sym = NETWORK?.nativeSymbol ?? "native token";
   if (NETWORK?.isTestnetProd) {
     return NETWORK.sandbox
-      ? `Not enough ${sym} for gas — use the sandbox faucet on the Wallet tab.`
-      : `Not enough testnet ${sym} for gas (and the order execution / Pyth fees) — get some from faucet.monad.xyz.`;
+      ? `Not enough ${sym} for gas - use the sandbox faucet on the Wallet tab.`
+      : `Not enough testnet ${sym} for gas (and the order execution / Pyth fees) - get some from faucet.monad.xyz.`;
   }
   return NETWORK?.isMainnet
     ? `Not enough ${sym} in your wallet for gas (and the order execution / Pyth fees). Send some ${sym} to your wallet address.`
-    : `Not enough ${sym} for gas — request test funds on the Wallet tab.`;
+    : `Not enough ${sym} for gas - request test funds on the Wallet tab.`;
 }
 
 export function readableError(err: unknown): string {
@@ -273,10 +273,10 @@ export function readableError(err: unknown): string {
       return noGas();
     }
     if (err.walk((e) => e instanceof ChainMismatchError)) {
-      return `Wallet is on the wrong network — expected ${NETWORK?.label ?? "the configured chain"}.`;
+      return `Wallet is on the wrong network - expected ${NETWORK?.label ?? "the configured chain"}.`;
     }
     if (err.walk((e) => e instanceof WaitForTransactionReceiptTimeoutError)) {
-      return "Timed out waiting for the transaction receipt — it may still confirm.";
+      return "Timed out waiting for the transaction receipt - it may still confirm.";
     }
     if (err.walk((e) => e instanceof HttpRequestError || e instanceof TimeoutError)) {
       return `RPC unreachable (${NETWORK?.rpcUrl ?? "no RPC"}).`;

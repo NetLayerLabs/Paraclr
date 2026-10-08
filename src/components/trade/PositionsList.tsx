@@ -56,7 +56,7 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     try {
       const o = await submitReduceOrder({ position: p, fraction, mark, slippagePct: slip });
       setNote(
-        `${fraction >= 1 ? "Close" : `Reduce ${Math.round(fraction * 100)}%`} order submitted${o.orderId !== null ? ` (${orderLabelId(o)})` : ""} — fills at the next ${pn}. Track it under Orders.`,
+        `${fraction >= 1 ? "Close" : `Reduce ${Math.round(fraction * 100)}%`} order submitted${o.orderId !== null ? ` (${orderLabelId(o)})` : ""} - fills at the next ${pn}. Track it under Orders.`,
       );
     } catch (e) {
       setError(readableError(e));
@@ -300,7 +300,7 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
           onClick={m.requestClose}
           title={
             m.inAuction && !m.production
-              ? "Frozen during the liquidation auction — cure it from the banner above"
+              ? "Frozen during the liquidation auction - cure it from the banner above"
               : m.production
                 ? m.inAuction
                   ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"
@@ -383,7 +383,7 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
             onClick={m.requestClose}
             title={
               m.inAuction && !m.production
-                ? "Frozen during the liquidation auction — cure it from the banner above"
+                ? "Frozen during the liquidation auction - cure it from the banner above"
                 : m.production
                   ? m.inAuction
                     ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"

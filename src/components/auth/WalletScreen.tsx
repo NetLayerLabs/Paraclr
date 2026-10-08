@@ -155,7 +155,7 @@ function SimWallet() {
           </svg>
         </div>
         <div>
-          <p className={styles.keyTitle}>{isPasskey ? "Privy embedded wallet" : "Demo mode — nothing is signed"}</p>
+          <p className={styles.keyTitle}>{isPasskey ? "Privy embedded wallet" : "Demo mode - nothing is signed"}</p>
           <p className={styles.note}>
             {isPasskey
               ? "You're signed in with Privy. In this mode trading is simulated in the browser, so no transactions are sent."
@@ -243,7 +243,7 @@ function ChainWallet() {
         </div>
         <div className={styles.chainRow}>
           <span className={styles.chainDot} data-net={NETWORK.mode} />
-          {NETWORK.mode === "anvil" ? "Local anvil — not Monad" : NETWORK.label} ·{" "}
+          {NETWORK.mode === "anvil" ? "Local anvil - not Monad" : NETWORK.label} ·{" "}
           <span className="mono">{NETWORK.chainId}</span>
           {acct && <span className="mono"> · lane {acct.lane + 1}</span>}
           {explorer && (
@@ -268,7 +268,7 @@ function ChainWallet() {
           <TokenIcon /> Equity in clearinghouse · AUSD
           {acct?.block != null && <span className={`${styles.blockTag} mono`}>#{acct.block}</span>}
         </div>
-        <div className={`${styles.equity} mono`}>{equity !== null ? fmt(equity) : acct ? "—" : "…"}</div>
+        <div className={`${styles.equity} mono`}>{equity !== null ? fmt(equity) : acct ? "-" : "…"}</div>
         {acct?.healthError && <p className={styles.note}>{acct.healthError}</p>}
         {positions.length > 0 && (
           <div className={`${styles.pnl} mono`} data-sign={pnl >= 0 ? "pos" : "neg"}>
@@ -284,11 +284,11 @@ function ChainWallet() {
         <dl className={styles.split}>
           <div>
             <dt>Free collateral</dt>
-            <dd className="mono">{free !== null ? fmt(free) : "—"}</dd>
+            <dd className="mono">{free !== null ? fmt(free) : "-"}</dd>
           </div>
           <div>
             <dt>Initial margin</dt>
-            <dd className="mono">{im !== null ? fmt(im) : "—"}</dd>
+            <dd className="mono">{im !== null ? fmt(im) : "-"}</dd>
           </div>
           <div>
             <dt>Open positions</dt>
@@ -391,7 +391,7 @@ function ChainWallet() {
               : isPasskey
                 ? `Your ${session.method === "passkey" ? "passkey" : `${METHOD_LABEL[session.method]} sign-in`} unlocks a Privy embedded wallet. Its confirmation popups are turned off, so trades are sent as soon as you place them. There are no session keys or scoped permissions.`
               : wallet.persisted
-                ? "A throwaway key generated in this browser and stored unencrypted in localStorage. Testnet only — never send real funds to it."
+                ? "A throwaway key generated in this browser and stored unencrypted in localStorage. Testnet only - never send real funds to it."
                 : "A throwaway key generated in this browser and kept in memory only (storage is blocked), so it's lost on reload. Testnet only."}
           </p>
         </div>

@@ -19,7 +19,7 @@ function requireLive(): { signer: ChainSigner; c: LiveContracts } {
   const s = getState();
   if (s.chain.status !== "ready" || !s.chain.contracts) throw new ChainActionError("Chain not connected.");
   const signer = getSigner();
-  if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet — try again in a moment.");
+  if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet - try again in a moment.");
   return { signer, c: s.chain.contracts };
 }
 
@@ -66,7 +66,7 @@ export function openPositionOnChain(args: {
     applyChainAccount(snap);
     if (snap.positions.some((p) => p.symbol === args.symbol)) {
       throw new ChainActionError(
-        `You already have a ${args.symbol.split("/")[0]} position. The clearinghouse allows one position per market — close it first.`,
+        `You already have a ${args.symbol.split("/")[0]} position. The clearinghouse allows one position per market - close it first.`,
       );
     }
     const marginUnits = ausdToUnits(args.margin);
@@ -206,7 +206,7 @@ export async function requestFaucet(address: Address, { onlyIfLow }: { onlyIfLow
     const r = await keeperApi.faucet(address);
     setFaucet({
       status: "requesting",
-      message: "Faucet transactions sent — waiting for confirmation…",
+      message: "Faucet transactions sent - waiting for confirmation…",
       gasTxHash: r.gasTxHash ?? null,
       ausdTxHash: r.ausdTxHash ?? null,
     });

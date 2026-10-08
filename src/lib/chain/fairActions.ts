@@ -23,7 +23,7 @@ function requireLive(): { signer: ChainSigner; c: LiveContracts } {
   const s = getState();
   if (s.chain.status !== "ready" || !s.chain.contracts) throw new ChainActionError("Chain not connected.");
   const signer = getSigner();
-  if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet — try again in a moment.");
+  if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet - try again in a moment.");
   return { signer, c: s.chain.contracts };
 }
 

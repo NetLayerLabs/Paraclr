@@ -5,7 +5,7 @@
 // `sim` is the fully in-browser simulation and never touches an RPC. In the
 // chain modes, NETWORK describes the target; whether it is actually usable
 // (deployment present, RPC reachable, right chain id) is decided at runtime by
-// runtime.ts, and the app falls back to the simulation if it isn't — except
+// runtime.ts, and the app falls back to the simulation if it isn't - except
 // the two PRODUCTION modes, which never fall back to a simulation (they fail
 // closed and say why):
 //   monad-mainnet  production contracts on Monad mainnet (143), real money;
@@ -123,7 +123,7 @@ function monadMainnetNetwork(): NetworkInfo {
     chainId: monad.id, // 143
     rpcUrl,
     explorerUrl: local ? null : monad.blockExplorers.default.url, // https://monadscan.com
-    label: local ? "Monad mainnet fork — local rehearsal, not Monad" : "Monad mainnet",
+    label: local ? "Monad mainnet fork - local rehearsal, not Monad" : "Monad mainnet",
     shortLabel: local ? "Mainnet fork (local)" : "Monad mainnet",
     isMonad: !local,
     isMainnet: true,
@@ -184,7 +184,7 @@ function anvilNetwork(): NetworkInfo {
     chainId: ANVIL_CHAIN_ID,
     rpcUrl,
     explorerUrl: null,
-    label: "local anvil — not Monad",
+    label: "local anvil - not Monad",
     shortLabel: "Local anvil",
     isMonad: false,
     isMainnet: false,
@@ -211,10 +211,10 @@ export const NETWORK: NetworkInfo | null =
           ? anvilNetwork()
           : null;
 
-/** "Monad testnet" / "Local anvil — not Monad" / "Monad mainnet" / the sandbox label for pills and tags. */
+/** "Monad testnet" / "Local anvil - not Monad" / "Monad mainnet" / the sandbox label for pills and tags. */
 export function networkName(net: NetworkInfo | null = NETWORK): string {
   if (!net) return "Simulation";
-  if (net.mode === "anvil") return "Local anvil — not Monad";
+  if (net.mode === "anvil") return "Local anvil - not Monad";
   return net.label;
 }
 
@@ -236,7 +236,7 @@ export function blockUrl(block: number | bigint): string | null {
  * Optional override for the Hermes-compatible base URL the production app
  * reads Pyth data from (update data for withdraw / cure / backstop calls, and
  * display prices). Default: the keeper's `/hermes` proxy, which holds the Pyth
- * API key server-side — a browser must never hold one. See prod/priceUpdate.ts.
+ * API key server-side - a browser must never hold one. See prod/priceUpdate.ts.
  */
 export const PYTH_HERMES_URL: string | null = process.env.NEXT_PUBLIC_PYTH_HERMES_URL
   ? process.env.NEXT_PUBLIC_PYTH_HERMES_URL.replace(/\/+$/, "")

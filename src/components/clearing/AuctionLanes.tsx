@@ -5,7 +5,7 @@
 //
 // One cell per registered account (getLaneAccounts). A cell is
 //   risk      underwater (liquidatable) but not in an auction yet
-//   auction   in a per-block Dutch auction — its shade deepens as the
+//   auction   in a per-block Dutch auction - its shade deepens as the
 //             discount ticks up, min(MAX, STEP × (block − start))
 //   backstop  taken by the lane's backstop pool
 //   external  taken by an external same-lane taker

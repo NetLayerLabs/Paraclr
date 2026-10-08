@@ -22,7 +22,7 @@ const STATUS: Record<Row, [string, string]> = {
 };
 
 function networkLabel(x: XrayEvidence): string {
-  return x.chainId === MONAD_TESTNET_CHAIN_ID ? "Monad testnet" : "local anvil — not Monad";
+  return x.chainId === MONAD_TESTNET_CHAIN_ID ? "Monad testnet" : "local anvil - not Monad";
 }
 
 function MiniMatrix({ design, good }: { design: XrayDesign | null; good: boolean }) {

@@ -4,7 +4,7 @@
 // contract change surfaces here as a type error instead of a runtime surprise.
 //
 // Reads are always made with allowFailure: a view this deployment doesn't have
-// shows "—" instead of breaking the page.
+// shows "-" instead of breaking the page.
 
 import { parseAbi } from "viem";
 
@@ -26,7 +26,7 @@ export const pythAbi = parseAbi([
 
 /**
  * Agora's AUSD faucet (Monad testnet, behind a transparent proxy). Read from
- * the implementation's bytecode on chain 2026-10-07 — Agora documents only the
+ * the implementation's bytecode on chain 2026-10-07 - Agora documents only the
  * address and `requestFunds(recipient)`. One drip per `maxDripFrequency`
  * seconds across ALL callers (`lastDripTimestamp` is global), refused once the
  * recipient holds `maxAmountToOwn`.
@@ -46,7 +46,7 @@ export const agoraFaucetAbi = parseAbi([
 /** `getOrder(...).status` (ParaclrClearinghouseProd.OrderStatus). */
 export const ORDER_STATUS = { none: 0, pending: 1, executed: 2, failed: 3, cancelled: 4 } as const;
 
-/** orderId = (uint160(account) << 96) | nonce — the nonce is what people see. */
+/** orderId = (uint160(account) << 96) | nonce - the nonce is what people see. */
 export function orderNonce(orderId: bigint): bigint {
   return orderId & ((BigInt(1) << BigInt(96)) - BigInt(1));
 }

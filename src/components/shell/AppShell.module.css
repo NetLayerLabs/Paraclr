@@ -1,4 +1,4 @@
-/* App shell: a full-viewport responsive web app — no device frame at any size.
+/* App shell: a full-viewport responsive web app - no device frame at any size.
    Phone (<640): slim top bar + scrolling screen + bottom tab bar.
    Tablet (640–1023) and desktop (>=1024): header with primary nav; screens
    lay themselves out (the trade screen is a CSS-grid terminal on desktop).
@@ -468,7 +468,7 @@
   }
 
   /* Tablet: avatar-only chip, sign out on the Wallet screen; keeper badge
-     hidden — the banner and clearing screen still report it. */
+     hidden - the banner and clearing screen still report it. */
   .chipEquity,
   .chipAddr,
   .account .signOut {
@@ -576,7 +576,7 @@
   }
 }
 
-/* >=1440: everything — equity in the wallet chip. */
+/* >=1440: everything - equity in the wallet chip. */
 @media (min-width: 1440px) {
   .chipEquity {
     display: inline-flex;

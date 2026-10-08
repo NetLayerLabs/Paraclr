@@ -10,10 +10,10 @@ interface Props {
 }
 
 const USER_COPY: Record<AccountResult["outcome"], { label: string; tone: string }> = {
-  healthy: { label: "Survived — healthy", tone: "var(--long-text)" },
-  warning: { label: "Survived — near maintenance", tone: "var(--warn-text)" },
+  healthy: { label: "Survived - healthy", tone: "var(--long-text)" },
+  warning: { label: "Survived - near maintenance", tone: "var(--warn-text)" },
   liquidated: { label: "Liquidated", tone: "var(--short-text)" },
-  settled: { label: "Liquidated — bad debt covered by insurance", tone: "var(--short-text)" },
+  settled: { label: "Liquidated - bad debt covered by insurance", tone: "var(--short-text)" },
 };
 
 export function ResultCard({ run, user }: Props) {

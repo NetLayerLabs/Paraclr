@@ -2,7 +2,7 @@
 
 // Result of a real flash-crash run (crash run v2: auction liquidations).
 // Every number is from the keeper's RunReport (its clock, its receipts) or
-// from the clearinghouse's auction events — nothing here is modeled.
+// from the clearinghouse's auction events - nothing here is modeled.
 
 import { demoTakers, type RunReport } from "@/lib/chain/keeper";
 import type { AuctionRecord } from "@/lib/chain/auctionFeed";
@@ -15,7 +15,7 @@ import { fmtMs } from "./format";
 import styles from "./ClearingScreen.module.css";
 
 function BlockRef({ block }: { block: number | null }) {
-  if (block === null) return <span className="mono">—</span>;
+  if (block === null) return <span className="mono">-</span>;
   const url = blockUrl(block);
   return url ? (
     <a className="mono" href={url} target="_blank" rel="noreferrer">
@@ -46,7 +46,7 @@ export function LiveResultCard({
   me: string | null;
 }) {
   const isMonad = report.network === "monad-testnet";
-  const where = isMonad ? "Monad testnet" : "local anvil — not Monad";
+  const where = isMonad ? "Monad testnet" : "local anvil - not Monad";
   const { totals, shock, auctions, underwater } = report;
   const blocks = totals.blocks.length
     ? totals.blocks
@@ -60,7 +60,7 @@ export function LiveResultCard({
   const takes = auctions ? auctions.takenByBackstop + auctions.takenExternal : 0;
   const rows = report.batches.slice().sort((a, b) => (a.block ?? 0) - (b.block ?? 0) || a.lane - b.lane);
   const blockSpan =
-    blocks.length === 0 ? "—" : blocks.length <= 3 ? blocks.map((b) => `#${b}`).join(" ") : `#${blocks[0]}–#${blocks[blocks.length - 1]}`;
+    blocks.length === 0 ? "-" : blocks.length <= 3 ? blocks.map((b) => `#${b}`).join(" ") : `#${blocks[0]}–#${blocks[blocks.length - 1]}`;
 
   return (
     <section className={`${styles.result} ${styles.resultLive}`} data-net={isMonad ? "monad" : "anvil"}>
@@ -97,7 +97,7 @@ export function LiveResultCard({
         <div className={styles.resultGrid}>
           <div>
             <small>Shock block</small>
-            <b className="mono">{shock.block !== null ? `#${shock.block}` : "—"}</b>
+            <b className="mono">{shock.block !== null ? `#${shock.block}` : "-"}</b>
           </div>
           <div>
             <small>Sweeper blocks</small>
@@ -119,7 +119,7 @@ export function LiveResultCard({
           </div>
           <div>
             <small>Avg discount</small>
-            <b className="mono">{takes > 0 && auctions ? fmtBps(auctions.avgDiscountBps) : "—"}</b>
+            <b className="mono">{takes > 0 && auctions ? fmtBps(auctions.avgDiscountBps) : "-"}</b>
           </div>
         </div>
 
@@ -152,12 +152,12 @@ export function LiveResultCard({
               {rows.slice(0, MAX_ROWS).map((b) => (
                 <tr key={b.txHash}>
                   <td>{b.lane + 1}</td>
-                  <td>{b.kind ? (KIND_LABEL[b.kind] ?? b.kind) : "—"}</td>
+                  <td>{b.kind ? (KIND_LABEL[b.kind] ?? b.kind) : "-"}</td>
                   <td className="mono">{b.accounts}</td>
                   <td>
                     <BlockRef block={b.block} />
                   </td>
-                  <td className="mono">{b.confirmedAt ? `${b.confirmedAt - b.submittedAt} ms` : "—"}</td>
+                  <td className="mono">{b.confirmedAt ? `${b.confirmedAt - b.submittedAt} ms` : "-"}</td>
                   <td className="mono">{fmtGas(parseBigIntString(b.gasUsed))}</td>
                   <td>
                     <TxLink hash={b.txHash} label={shortHash(b.txHash, 4, 3)} />
@@ -179,9 +179,9 @@ export function LiveResultCard({
       <p className={styles.note}>
         Measured by the keeper on {where}. Time underwater runs from the first block an account was liquidatable to
         the block its auction resolved; the milliseconds are the keeper&apos;s clock (submit → receipt seen), so they
-        include RPC round-trips and block inclusion — not EVM execution time. Auction prices come from the block
+        include RPC round-trips and block inclusion - not EVM execution time. Auction prices come from the block
         clock, not from gas bidding.
-        {!isMonad && " Anvil executes sequentially — these numbers say nothing about Monad's parallel execution."}
+        {!isMonad && " Anvil executes sequentially - these numbers say nothing about Monad's parallel execution."}
       </p>
     </section>
   );
@@ -197,8 +197,8 @@ function YourOutcome({ r }: { r: AuctionRecord }) {
         {r.status === "backstop" && `Taken by the lane ${r.lane + 1} backstop at ${fmtBps(r.discountBps ?? 0)}`}
         {r.status === "external" &&
           `Taken by ${r.taker && demoTakers.has(r.taker) ? "a keeper-run demo taker bot" : "an external same-lane taker"} at ${fmtBps(r.discountBps ?? 0)}`}
-        {r.status === "cured" && "Auction cured — your account is healthy again"}
-        {r.status === "expired" && "Auction expired with no taker — closed at mark against the lane"}
+        {r.status === "cured" && "Auction cured - your account is healthy again"}
+        {r.status === "expired" && "Auction expired with no taker - closed at mark against the lane"}
       </b>
       <span className="mono">
         {r.traderResidual !== null && <>you kept {fmtAusd(r.traderResidual)} AUSD · </>}

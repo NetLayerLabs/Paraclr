@@ -417,7 +417,7 @@
   }
 }
 
-/* 1024–1599: keep the header bar fitting — word only (the dialog has the surplus). */
+/* 1024–1599: keep the header bar fitting - word only (the dialog has the surplus). */
 @media (min-width: 1024px) and (max-width: 1599px) {
   .badge [data-part="surplus"] {
     display: none;

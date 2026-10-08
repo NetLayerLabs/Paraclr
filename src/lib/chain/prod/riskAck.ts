@@ -1,7 +1,7 @@
 "use client";
 
 // Risk acknowledgement (production): required once per wallet per chain before
-// the first deposit — trading collateral, auto-deposit on order submit, or a
+// the first deposit - trading collateral, auto-deposit on order submit, or a
 // backstop deposit. Kept in localStorage; bump RISK_ACK_VERSION to re-ask
 // everyone (e.g. after the terms change).
 //

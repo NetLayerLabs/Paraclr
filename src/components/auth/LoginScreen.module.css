@@ -1,7 +1,7 @@
 /* In-app sign-in, in the landing hero's language: mark + wordmark, a Sora
    headline with a grey second clause, a trust row, pill buttons, and the one
    lane bend the app allows (docs/DESIGN.md §10.6).
-   Phone: brand card on top, sign-in below. Tablet/desktop: one centred card —
+   Phone: brand card on top, sign-in below. Tablet/desktop: one centred card -
    a black brand panel beside the sign-in pane, in both themes. */
 
 .root {

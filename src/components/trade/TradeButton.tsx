@@ -1,8 +1,8 @@
 "use client";
 
 // Desktop counterpart of SwipeToTrade: a plain, prominent submit button
-// ("Long 10x MON"). Same contract — onConfirm may be sync (sim) or async (an
-// on-chain transaction) — and the same idle → pending → done/failed states.
+// ("Long 10x MON"). Same contract - onConfirm may be sync (sim) or async (an
+// on-chain transaction) - and the same idle → pending → done/failed states.
 // Enter / Space work because it is a native button.
 
 import { useEffect, useRef, useState } from "react";

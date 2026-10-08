@@ -91,7 +91,7 @@ export function PausedBanner() {
   );
 }
 
-/** A production mode that couldn't connect: explain and offer a retry — never a simulated terminal. */
+/** A production mode that couldn't connect: explain and offer a retry - never a simulated terminal. */
 export function MainnetUnavailable() {
   const reason = useParaclr((s) => s.chain.reason);
   const status = useParaclr((s) => s.chain.status);
@@ -245,7 +245,7 @@ function RiskAckDialog() {
             Not now
           </button>
           <button type="button" className={styles.btnPrimary} disabled={!all} onClick={acceptRiskAck}>
-            I understand — continue
+            I understand - continue
           </button>
         </div>
       </div>

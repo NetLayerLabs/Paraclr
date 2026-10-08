@@ -1,11 +1,11 @@
 // Production display prices: Pyth.
 //
 // Primary: Hermes "latest" for the markets' feeds, polled through the keeper's
-// `/hermes` proxy (it holds the Pyth API key; the browser never sees it) — or
+// `/hermes` proxy (it holds the Pyth API key; the browser never sees it) - or
 // NEXT_PUBLIC_PYTH_HERMES_URL if set (with an SSE stream). The Pyth price
 // *stored* on chain can be minutes old on Monad mainnet, so it is only the
 // fallback: the clearinghouse's `latestPrice(market)` every block when the
-// proxy is unreachable. Display only — transaction price data is chosen in
+// proxy is unreachable. Display only - transaction price data is chosen in
 // priceUpdate.ts.
 
 import type { Address, Hex } from "viem";

@@ -199,7 +199,7 @@ async function call<T>(
     });
   } catch {
     throw new KeeperError(
-      `Keeper unreachable at ${keeperUrl()} — start it with \`npm run keeper\` (or set NEXT_PUBLIC_KEEPER_URL).`,
+      `Keeper unreachable at ${keeperUrl()} - start it with \`npm run keeper\` (or set NEXT_PUBLIC_KEEPER_URL).`,
       "unreachable",
     );
   } finally {
@@ -216,7 +216,7 @@ async function call<T>(
       json && typeof json === "object" && typeof (json as { error?: unknown }).error === "string"
         ? (json as { error: string }).error
         : res.status === 429
-          ? "Rate limited — try again in a bit."
+          ? "Rate limited - try again in a bit."
           : `HTTP ${res.status}`;
     throw new KeeperError(`Keeper ${path.split("/")[1] ?? ""}: ${msg}`, "http", res.status);
   }

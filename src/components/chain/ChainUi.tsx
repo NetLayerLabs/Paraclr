@@ -16,7 +16,7 @@ function netAttr(): "monad" | "anvil" {
   return NETWORK && NETWORK.isMonad ? "monad" : "anvil";
 }
 
-/** "Monad testnet" / "Local anvil — not Monad" / "Simulated" tag. */
+/** "Monad testnet" / "Local anvil - not Monad" / "Simulated" tag. */
 export function NetworkTag({ simulated = false }: { simulated?: boolean }) {
   if (simulated || !NETWORK) {
     return (
@@ -42,7 +42,7 @@ export function Notice({ tone = "info", children }: { tone?: "info" | "warn" | "
 
 /** Explorer link on Monad; plain short hash on anvil (no explorer). */
 export function TxLink({ hash, label }: { hash: string | null | undefined; label?: string }) {
-  if (!hash || hash === "0x") return <span className="mono">—</span>;
+  if (!hash || hash === "0x") return <span className="mono">-</span>;
   const url = txUrl(hash);
   const text = label ?? shortHash(hash);
   return url ? (
@@ -50,7 +50,7 @@ export function TxLink({ hash, label }: { hash: string | null | undefined; label
       {text} ↗
     </a>
   ) : (
-    <span className="mono" title={`${hash} (local anvil — no explorer)`}>
+    <span className="mono" title={`${hash} (local anvil - no explorer)`}>
       {text}
     </span>
   );
@@ -58,7 +58,7 @@ export function TxLink({ hash, label }: { hash: string | null | undefined; label
 
 /**
  * Header pill: where this app's numbers come from. "Monad testnet" /
- * "Local anvil — not Monad" with the live block, "Simulation" in sim mode or
+ * "Local anvil - not Monad" with the live block, "Simulation" in sim mode or
  * after a chain-mode fallback.
  */
 export function NetworkPill() {
@@ -68,7 +68,7 @@ export function NetworkPill() {
 
   if (!CHAIN_MODE_ON || !NETWORK) {
     return (
-      <span className={styles.pill} data-net="sim" title="Fully in-browser simulation — no chain">
+      <span className={styles.pill} data-net="sim" title="Fully in-browser simulation - no chain">
         <i className={styles.pillDot} />
         <b>Simulation</b>
       </span>
@@ -97,7 +97,7 @@ export function NetworkPill() {
       );
     }
     return (
-      <span className={styles.pill} data-net="fallback" title={`${NETWORK.label} unavailable — running the simulation`}>
+      <span className={styles.pill} data-net="fallback" title={`${NETWORK.label} unavailable - running the simulation`}>
         <i className={styles.pillDot} />
         <b>Simulation</b>
         <span className={styles.pillMeta}>chain unavailable</span>
@@ -117,7 +117,7 @@ export function NetworkPill() {
         <b>{NETWORK.shortLabel}</b>
       ) : (
         <>
-          <b data-part="net-full">Local anvil — not Monad</b>
+          <b data-part="net-full">Local anvil - not Monad</b>
           <b data-part="net-short">Anvil · not Monad</b>
         </>
       )}
@@ -161,7 +161,7 @@ export function KeeperPill() {
 /**
  * Slim banner under the header in chain modes, only when something needs
  * attention: chain mode unavailable (running the simulation, with retry) or a
- * failing RPC. The healthy state — network, block, keeper — lives in the
+ * failing RPC. The healthy state - network, block, keeper - lives in the
  * header pills. Renders nothing in sim mode.
  */
 export function ChainStatusStrip() {
@@ -176,7 +176,7 @@ export function ChainStatusStrip() {
       <div className={styles.strip} data-tone="warn" data-expanded="">
         <span className={styles.stripDot} />
         <span className={styles.stripText}>
-          <b>On-chain mode unavailable — running the simulation.</b> {reason}
+          <b>On-chain mode unavailable - running the simulation.</b> {reason}
         </span>
         <button className={styles.stripBtn} onClick={retryChainConnect}>
           Retry

@@ -1,4 +1,4 @@
-// Shared domain types for Paraclr. Every feature module codes against these —
+// Shared domain types for Paraclr. Every feature module codes against these -
 // change them only in coordination with all owners.
 
 export type MarketSymbol = "MON/AUSD" | "SOL/AUSD" | "BTC/AUSD";
@@ -8,7 +8,7 @@ export const MARKETS: MarketSymbol[] = ["MON/AUSD", "SOL/AUSD", "BTC/AUSD"];
 /**
  * One price observation: a Chainlink Data Streams report, a simulated
  * equivalent, (chain modes) a read of the on-chain oracle contract the
- * clearinghouse settles against, or (production) a Pyth price from Hermes —
+ * clearinghouse settles against, or (production) a Pyth price from Hermes -
  * the price stream delayed orders are executed against.
  */
 export interface PriceTick {
@@ -60,7 +60,7 @@ export interface ClearingAccount {
   id: string;
   /**
    * Conflict-free storage lane, 0..LANE_COUNT-1 (on chain: uint160(account) % 8).
-   * Field name is historical — this is NOT a Monad execution thread; contracts
+   * Field name is historical - this is NOT a Monad execution thread; contracts
    * can't choose those. Lanes only guarantee disjoint storage per batch.
    */
   thread: number;

@@ -10,7 +10,7 @@ import type { MarketHistory, PriceSource, TickHandler } from "./source";
  * Chain-mode price source: reads `getPrice(marketId)` from the oracle contract
  * the clearinghouse settles against (MockOracle on testnet, pushed by the
  * keeper), once per new block. These are the exact marks the contract uses for
- * margin and liquidation — not Chainlink, and labelled as such in the UI.
+ * margin and liquidation - not Chainlink, and labelled as such in the UI.
  *
  * Ticks carry the on-chain `updatedAt` (1s resolution) as their timestamp and
  * the block they were read at.

@@ -102,11 +102,11 @@ export function OrderPanel({
       : !acct
         ? "Reading account from chain…"
         : acct.auction?.active
-          ? "In liquidation auction — cure it first"
+          ? "In liquidation auction - cure it first"
           : existing
           ? `Close your ${base} position first`
           : acct.native <= 0
-            ? "No gas — get test funds on the Wallet tab"
+            ? "No gas - get test funds on the Wallet tab"
             : null;
 
   const disabledReason =
@@ -283,7 +283,7 @@ export function OrderPanel({
         <div>
           <dt>Position size</dt>
           <dd className="mono">
-            {price ? fmtSize(symbol, size) : "—"} {baseOf(symbol)}
+            {price ? fmtSize(symbol, size) : "-"} {baseOf(symbol)}
           </dd>
         </div>
         <div>
@@ -297,7 +297,7 @@ export function OrderPanel({
         <div>
           <dt>{chainLive ? "Liq. price (cross)" : "Liq. price"}</dt>
           <dd className={`mono ${styles.liq}`}>
-            {liq != null ? fmtPrice(symbol, Math.max(0, liq)) : "—"}
+            {liq != null ? fmtPrice(symbol, Math.max(0, liq)) : "-"}
             {liqDist != null && <span className={styles.liqDist}>{fmtPct(liqDist, 1)}</span>}
           </dd>
         </div>
@@ -314,7 +314,7 @@ export function OrderPanel({
           {clickToTrade ? "Placing this order" : "Swiping"} first deposits{" "}
           <span className="mono">{fmtAusd(deposit)}</span> AUSD from your wallet
           {acct && acct.allowanceUnits === BigInt(0) ? " (one-time approve + deposit)" : ""}, then opens the
-          position — each step is an on-chain transaction.
+          position - each step is an on-chain transaction.
         </Notice>
       )}
 

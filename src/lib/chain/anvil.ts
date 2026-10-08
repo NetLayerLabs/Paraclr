@@ -2,7 +2,7 @@
 // chain-mode module picks its chain from one place (see config.ts).
 //
 // Anvil numbers are NEVER Monad numbers: anything measured here must be
-// labelled "local anvil — not Monad" (NETWORK.label does that).
+// labelled "local anvil - not Monad" (NETWORK.label does that).
 
 import { defineChain } from "viem";
 

@@ -27,7 +27,7 @@ export function AccountSummary() {
   const pnl = positions.reduce((sum, p) => sum + unrealizedPnl(p, prices[p.symbol]?.price ?? p.entryPrice), 0);
   const posMargin = positions.reduce((sum, p) => sum + p.margin, 0);
   const pnlTone = pnl > 0 ? "up" : pnl < 0 ? "down" : undefined;
-  const dash = (n: number | null | undefined) => (n == null ? "—" : fmtAusd(n));
+  const dash = (n: number | null | undefined) => (n == null ? "-" : fmtAusd(n));
 
   if (chainLive) {
     const equity = acct?.equity ?? null;

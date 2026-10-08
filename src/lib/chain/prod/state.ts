@@ -1,7 +1,7 @@
 // Production state read from ParaclrClearinghouseProd: pause flag, fees,
 // order timing, caps and their utilisation, per-market funding, and the
 // signed-in account's pending order ids / claimable execution fees. Every
-// read is allowFailure: a view the deployment doesn't expose renders as "—",
+// read is allowFailure: a view the deployment doesn't expose renders as "-",
 // never as a guessed number. Only the deployment's listed markets
 // (`LiveContracts.listed`) are read; unlisted ones stay empty.
 //
@@ -84,7 +84,7 @@ export interface ProdMine {
   /**
    * AUSD this account may deposit beyond the caps right now (`topUpAllowance`:
    * only while it holds positions with equity below initial margin; read at
-   * stored / lane prices, so 0 when those are stale — `depositWithPrice`
+   * stored / lane prices, so 0 when those are stale - `depositWithPrice`
    * recomputes it at fresh prices).
    */
   topUpAllowance: number | null;

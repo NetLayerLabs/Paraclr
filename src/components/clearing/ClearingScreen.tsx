@@ -30,7 +30,7 @@ export function ClearingScreen({
   const status = useParaclr((s) => s.chain.status);
   const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
   const [viewChoice, setView] = useState<View>("live");
-  // Production: real auctions only — no simulated crash view next to real money.
+  // Production: real auctions only - no simulated crash view next to real money.
   const view: View = production || PRODUCTION_MODE ? "live" : viewChoice;
   const chainLive = status === "ready";
   const showLive = CHAIN_MODE_ON && view === "live";

@@ -40,11 +40,11 @@ function Row({ o }: { o: IndexedOrder }) {
       <td>{o.market.symbol.replace("/AUSD", "")}</td>
       <td className={size >= 0 ? styles.buy : styles.sell}>{size >= 0 ? "Buy" : "Sell"}</td>
       <td className={`mono ${styles.num}`}>{symbol ? fmtSize(symbol, Math.abs(size)) : Math.abs(size).toFixed(4)}</td>
-      <td className={`mono ${styles.num}`}>{filled && symbol ? fmtPrice(symbol, wad(o.fillPrice)) : "—"}</td>
+      <td className={`mono ${styles.num}`}>{filled && symbol ? fmtPrice(symbol, wad(o.fillPrice)) : "-"}</td>
       <td className={`mono ${styles.num} ${pnl > 0 ? styles.up : pnl < 0 ? styles.down : ""}`}>
-        {filled && o.realizedPnl !== "0" ? fmtSigned(pnl) : "—"}
+        {filled && o.realizedPnl !== "0" ? fmtSigned(pnl) : "-"}
       </td>
-      <td className={`mono ${styles.num}`}>{filled ? fmtAusd(ausd(o.tradingFee), 4) : "—"}</td>
+      <td className={`mono ${styles.num}`}>{filled ? fmtAusd(ausd(o.tradingFee), 4) : "-"}</td>
       <td>
         <span className={styles.status} data-status={o.status}>
           {STATUS[o.status]}

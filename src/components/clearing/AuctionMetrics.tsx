@@ -21,7 +21,7 @@ function fmtPair(n: number): string {
 export function AuctionMetrics({ report, laneBadDebt }: { report: RunReport; laneBadDebt: number | null }) {
   const a = report.auctions;
   const u = report.underwater;
-  const where = report.network === "monad-testnet" ? "Monad testnet" : "local anvil — not Monad";
+  const where = report.network === "monad-testnet" ? "Monad testnet" : "local anvil - not Monad";
   if (!a && !u) {
     return (
       <p className={styles.note}>
@@ -63,7 +63,7 @@ export function AuctionMetrics({ report, laneBadDebt }: { report: RunReport; lan
       {bots && (
         <p className={styles.metricsNote}>
           External takers in this run are demo bots run by the keeper
-          {botRange ? `, each taking once the discount reaches its reservation level (${botRange})` : ""} — not
+          {botRange ? `, each taking once the discount reaches its reservation level (${botRange})` : ""} - not
           independent market participants.
         </p>
       )}
@@ -147,7 +147,7 @@ export function AuctionMetrics({ report, laneBadDebt }: { report: RunReport; lan
                 ? "insurance pays first"
                 : laneBadDebt > 0
                   ? `lane bad debt now ${fmtAusdCompact(laneBadDebt)}`
-                  : "lane bad debt now 0 — insurance covered it"}
+                  : "lane bad debt now 0 - insurance covered it"}
             </span>
           </div>
         )}

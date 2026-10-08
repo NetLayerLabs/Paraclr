@@ -105,8 +105,8 @@ export function IndexedActivity() {
                         {outcome(a)}
                       </td>
                       <td className={`mono ${styles.num}`}>{fmtAusd(ausd(a.notional))}</td>
-                      <td className={`mono ${styles.num}`}>{a.payment ? fmtAusd(ausd(a.payment)) : "—"}</td>
-                      <td className={`mono ${styles.num}`}>{a.traderResidual ? fmtAusd(ausd(a.traderResidual)) : "—"}</td>
+                      <td className={`mono ${styles.num}`}>{a.payment ? fmtAusd(ausd(a.payment)) : "-"}</td>
+                      <td className={`mono ${styles.num}`}>{a.traderResidual ? fmtAusd(ausd(a.traderResidual)) : "-"}</td>
                       <td>
                         <TxLink hash={a.resolvedTx ?? a.startTx} />
                       </td>

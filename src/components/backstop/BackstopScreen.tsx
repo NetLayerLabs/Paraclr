@@ -4,7 +4,7 @@
 // lane once the auction discount reaches the pool's minimum, inheriting the
 // positions at the oracle mark. Every number is read from the clearinghouse
 // (backstopNav / backstopStats / backstopPositions / backstopSharesOf).
-// Returns are "earned since deploy" — never annualised.
+// Returns are "earned since deploy" - never annualised.
 
 import { useEffect, useMemo, useState } from "react";
 import type { Address } from "viem";
@@ -126,7 +126,7 @@ function LiveBackstop({ active }: { active: boolean }) {
         <Header />
         <Notice tone="warn">
           The clearinghouse deployed on {NETWORK?.label} predates backstop pools (it has no{" "}
-          <span className="mono">backstopNav</span>). Redeploy the contracts — e.g.{" "}
+          <span className="mono">backstopNav</span>). Redeploy the contracts - e.g.{" "}
           <span className="mono">npm run dev:chain -- --redeploy</span> on anvil.
         </Notice>
         <Explainer />
@@ -170,7 +170,7 @@ function LiveBackstop({ active }: { active: boolean }) {
             </span>
           </header>
           {!pools ? (
-            <p className={styles.empty}>{state === "error" ? "—" : "Reading pools…"}</p>
+            <p className={styles.empty}>{state === "error" ? "-" : "Reading pools…"}</p>
           ) : wide ? (
             <PoolTable pools={pools} selected={selected} myLane={myLane} onSelect={setLane} />
           ) : (
@@ -253,7 +253,7 @@ function PoolTable({
             <th className={styles.num} title={production ? "Exit value per share" : "NAV per share"}>
               Share price
             </th>
-            <th className={styles.num} title="Auction discounts received since deploy — not annualised">
+            <th className={styles.num} title="Auction discounts received since deploy - not annualised">
               Earned since deploy
             </th>
             <th className={styles.num}>Taken</th>
@@ -282,7 +282,7 @@ function PoolTable({
                   <small className={p.unrealizedPnl > 0 ? styles.up : styles.down}> {fmtSigned(p.unrealizedPnl)}</small>
                 )}
               </td>
-              <td className={`mono ${styles.num}`}>{p.sharePrice === null ? "—" : p.sharePrice.toFixed(4)}</td>
+              <td className={`mono ${styles.num}`}>{p.sharePrice === null ? "-" : p.sharePrice.toFixed(4)}</td>
               <td className={`mono ${styles.num}`} style={{ color: p.discountEarned > 0 ? "var(--long-text)" : undefined }}>
                 {fmtAusd(p.discountEarned)}
               </td>
@@ -291,7 +291,7 @@ function PoolTable({
               <td>
                 <Exposure pool={p} />
               </td>
-              <td className={`mono ${styles.num}`}>{p.myShares > 0 ? fmtAusd(p.myValue) : <span className={styles.dim}>—</span>}</td>
+              <td className={`mono ${styles.num}`}>{p.myShares > 0 ? fmtAusd(p.myValue) : <span className={styles.dim}>-</span>}</td>
             </tr>
           ))}
         </tbody>
@@ -331,7 +331,7 @@ function PoolCards({
           <span className={styles.cardGrid}>
             <span>
               <small>Share price</small>
-              <span className="mono">{p.sharePrice === null ? "—" : p.sharePrice.toFixed(4)}</span>
+              <span className="mono">{p.sharePrice === null ? "-" : p.sharePrice.toFixed(4)}</span>
             </span>
             <span>
               <small>Earned since deploy</small>
@@ -389,7 +389,7 @@ function PoolActions({
   const paused = useParaclr((s) => s.chain.prod?.paused === true);
   const prodParams = useParaclr((s) => s.chain.prod?.params ?? null);
   // Pool deposits count toward the lane TVL cap (trader collateral + pool cash).
-  // Only the account's own lane TVL is read; other lanes show "—" until selected.
+  // Only the account's own lane TVL is read; other lanes show "-" until selected.
   const myLaneTvl = useParaclr((s) => s.chain.prod?.lane?.tvl ?? null);
   const laneRoom =
     production && prodParams?.maxTvlPerLane != null && myLaneTvl !== null && lane === myLane
@@ -420,7 +420,7 @@ function PoolActions({
       : acct.native <= 0
         ? production
           ? `Need ${NETWORK?.nativeSymbol ?? "MON"} for gas`
-          : "No gas — get test funds on the Wallet tab"
+          : "No gas - get test funds on the Wallet tab"
         : production && paused
           ? "Deposits paused by the guardian"
         : production && laneRoom !== null && amount > laneRoom + 1e-9
@@ -531,7 +531,7 @@ function PoolActions({
         {pool && (
           <span className={styles.hint}>
             {production ? "Exit value" : "NAV"} <span className="mono">{fmtCompact(pool.equity)}</span> · share{" "}
-            <span className="mono">{pool.sharePrice === null ? "—" : pool.sharePrice.toFixed(4)}</span>
+            <span className="mono">{pool.sharePrice === null ? "-" : pool.sharePrice.toFixed(4)}</span>
             {production && (bp?.depositStatus?.unrealizedUncapped ?? 0) > 0 && (
               <>
                 {" "}
@@ -621,7 +621,7 @@ function PoolActions({
           <dl className={styles.summary}>
             <div>
               <dt>≈ Shares minted</dt>
-              <dd className="mono">{amount > 0 ? fmtAusd(estShares, 4) : "—"}</dd>
+              <dd className="mono">{amount > 0 ? fmtAusd(estShares, 4) : "-"}</dd>
             </div>
             <div>
               <dt>Takes accounts at</dt>
@@ -741,14 +741,14 @@ function Explainer({ compact = false }: { compact?: boolean }) {
   const max = fmtBps(params.maxDiscountBps);
   return (
     <section className={compact ? styles.explainCompact : styles.explain}>
-      <h3>How a pool earns — and what it risks</h3>
+      <h3>How a pool earns - and what it risks</h3>
       <ol>
         <li>
           An account below maintenance margin goes to a per-block Dutch auction. Its discount starts at 0 and rises{" "}
-          {step} per block (max {max}) — the price is set by the block clock, not by gas bidding.
+          {step} per block (max {max}) - the price is set by the block clock, not by gas bidding.
         </li>
         <li>
-          Once the discount reaches the pool&apos;s minimum ({min}), the lane&apos;s pool can take the account — if it
+          Once the discount reaches the pool&apos;s minimum ({min}), the lane&apos;s pool can take the account - if it
           can carry it (pool equity must stay ≥ 10% of its exposure). It inherits the positions at the oracle mark and
           is paid the discount; the trader keeps the rest of their equity.
         </li>
@@ -761,7 +761,7 @@ function Explainer({ compact = false }: { compact?: boolean }) {
           of its exposure, or exceed its cash.
         </li>
       </ol>
-      <p>Earnings are shown as discount earned since deploy — never as an annualised APY.</p>
+      <p>Earnings are shown as discount earned since deploy - never as an annualised APY.</p>
     </section>
   );
 }

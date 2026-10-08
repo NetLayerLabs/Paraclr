@@ -8,8 +8,8 @@ type Vars = CSSProperties & Record<`--${string}`, number>;
  * corner turns through a large quarter circle, and 8 thin lane stripes follow
  * that curve on the dark side (the brand mark's geometry at page scale).
  *
- *   into="dark"  — light section above ends with a rounded bottom corner.
- *   into="light" — light section below starts with a rounded top corner.
+ *   into="dark"  - light section above ends with a rounded bottom corner.
+ *   into="light" - light section below starts with a rounded top corner.
  *
  * Pure CSS (nested rounded borders share the corner's centre, so the lanes are
  * exactly concentric at every viewport width). Decorative: aria-hidden.

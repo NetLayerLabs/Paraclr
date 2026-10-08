@@ -1,7 +1,7 @@
 // Deployed contract addresses for the active chain.
 //
 // Precedence (docs/ONCHAIN_PLAN.md):
-//   1. `deployments/<chainId>.json` written by the deploy flow — read on the
+//   1. `deployments/<chainId>.json` written by the deploy flow - read on the
 //      server by deployments.server.ts and handed to the client as a prop, so a
 //      missing file never breaks the build;
 //   2. NEXT_PUBLIC_CLEARINGHOUSE_ADDRESS / _AUSD_ADDRESS / _ORACLE_ADDRESS;
@@ -35,7 +35,7 @@ export interface DeploymentFile {
    * the Pyth data trial. runtime.ts reads the live oracle from `pyth()`.
    */
   fallbackOracle: Address | null;
-  /** Pyth price feed id per app market (production; optional — also readable on chain). */
+  /** Pyth price feed id per app market (production; optional - also readable on chain). */
   pythFeeds: Partial<Record<string, Hex>>;
   timelock: Address | null;
   guardian: Address | null;

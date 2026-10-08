@@ -33,7 +33,7 @@ export function applyTick(
     return next;
   }
 
-  // Out-of-order tick for an older bucket — ignore rather than rewrite history.
+  // Out-of-order tick for an older bucket - ignore rather than rewrite history.
   if (t < last.time) return candles;
 
   const next = candles.slice();

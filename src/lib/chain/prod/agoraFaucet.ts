@@ -11,7 +11,7 @@
 //
 // In the local sandbox (an anvil fork of Monad testnet) the same contract works
 // on the forked state, and the sandbox keeper also runs its own faucet (gas +
-// AUSD) — see requestSandboxFaucet().
+// AUSD) - see requestSandboxFaucet().
 
 import { useEffect, useState } from "react";
 import { encodeFunctionData, erc20Abi, type Address } from "viem";
@@ -125,7 +125,7 @@ export function claimTestAusd(): Promise<number> {
     if (s.chain.status !== "ready" || !c) throw new ChainActionError("Chain not connected.");
     if (!agoraFaucetAvailable(c)) throw new ChainActionError("Agora's AUSD faucet is only on Monad testnet.");
     const signer = getSigner();
-    if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet — try again in a moment.");
+    if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet - try again in a moment.");
     const f = await readAgoraFaucet(c);
     if (!f.tokenMatches) {
       throw new ChainActionError("Agora's faucet pays out a different token than this deployment's collateral.");

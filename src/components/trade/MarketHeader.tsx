@@ -42,7 +42,7 @@ function UnlistedPill({ symbol }: { symbol: MarketSymbol }) {
       type="button"
       className={`${styles.pill} ${styles.pillOff}`}
       disabled
-      title={`${symbol} isn't listed on this deployment — no orders, prices or reads for it.`}
+      title={`${symbol} isn't listed on this deployment - no orders, prices or reads for it.`}
     >
       <span className={styles.pillBase}>{meta.base}</span>
       <span className={styles.pillNote}>not listed</span>
@@ -76,7 +76,7 @@ function BlockMark() {
 
 /**
  * Chain modes: the price is read from the oracle contract the clearinghouse
- * settles against (MockOracle, pushed by the keeper) — not Chainlink. Age has
+ * settles against (MockOracle, pushed by the keeper) - not Chainlink. Age has
  * 1s resolution because `updatedAt` is a block timestamp.
  */
 function OracleBadge({ symbol }: { symbol: MarketSymbol }) {
@@ -107,7 +107,7 @@ function OracleBadge({ symbol }: { symbol: MarketSymbol }) {
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
         <span className="mono">
-          {age == null ? "—" : age < 60_000 ? `${Math.floor(age / 1000)}s` : "stale"}
+          {age == null ? "-" : age < 60_000 ? `${Math.floor(age / 1000)}s` : "stale"}
         </span>
       </span>
     </div>
@@ -115,7 +115,7 @@ function OracleBadge({ symbol }: { symbol: MarketSymbol }) {
 }
 
 /**
- * Production: Pyth prices from Hermes — the price stream delayed orders are
+ * Production: Pyth prices from Hermes - the price stream delayed orders are
  * executed against. Age is publish-time based (1 s resolution).
  */
 function PythBadge({ symbol }: { symbol: MarketSymbol }) {
@@ -162,7 +162,7 @@ function PythBadge({ symbol }: { symbol: MarketSymbol }) {
       </span>
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
-        <span className="mono">{age == null ? "—" : age < 60_000 ? `${Math.floor(age / 1000)}s` : "stale"}</span>
+        <span className="mono">{age == null ? "-" : age < 60_000 ? `${Math.floor(age / 1000)}s` : "stale"}</span>
       </span>
     </div>
   );
@@ -204,7 +204,7 @@ function StreamsBadge({ symbol }: { symbol: MarketSymbol }) {
       )}
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
-        <span className="mono">{age == null ? "—" : age < 10_000 ? `${age}ms` : "stale"}</span>
+        <span className="mono">{age == null ? "-" : age < 10_000 ? `${age}ms` : "stale"}</span>
       </span>
     </div>
   );
@@ -294,17 +294,17 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
         {isPyth ? (
           <div className={styles.stat}>
             <span className={styles.statLabel}>Published</span>
-            <span className="mono">{feed.observedAt ? new Date(feed.observedAt).toISOString().slice(11, 19) : "—"}</span>
+            <span className="mono">{feed.observedAt ? new Date(feed.observedAt).toISOString().slice(11, 19) : "-"}</span>
           </div>
         ) : isOracle ? (
           <div className={styles.stat}>
             <span className={styles.statLabel}>Read at block</span>
-            <span className="mono">{feed.block != null ? `#${feed.block}` : "—"}</span>
+            <span className="mono">{feed.block != null ? `#${feed.block}` : "-"}</span>
           </div>
         ) : (
           <div className={styles.stat}>
             <span className={styles.statLabel}>Delivery</span>
-            <span className="mono">{feed.ticks ? `${feed.latencyMs}ms` : "—"}</span>
+            <span className="mono">{feed.ticks ? `${feed.latencyMs}ms` : "-"}</span>
           </div>
         )}
         {/* Desktop hides this one: the price-source badge beside it says the same. */}
@@ -319,7 +319,7 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
                 ? "On-chain"
                 : feed.source
                   ? "Simulated"
-                  : "—"}
+                  : "-"}
           </span>
         </div>
       </div>

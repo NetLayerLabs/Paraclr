@@ -12,14 +12,14 @@ const LIVE = { privyEnabled: true };
 // Embedded wallet chain follows NEXT_PUBLIC_CHAIN_MODE (anvil / Monad testnet
 // 10143 / Monad mainnet 143); sim mode keeps Monad testnet as before.
 //
-// RPC: Privy's embedded-wallet provider runs in this page — it fills nonce /
+// RPC: Privy's embedded-wallet provider runs in this page - it fills nonce /
 // gas and broadcasts through a viem client of its own, and only the signature
 // comes from Privy's iframe. Its URL resolution is
 // `rpcUrls.privyWalletOverride` → `rpcUrls.privy` (Privy's hosted RPC, which it
 // injects for chains it knows, e.g. Monad mainnet) → `rpcUrls.default`. So the
 // app's RPC is pinned as `privyWalletOverride`: transactions go where the app
 // reads, including a localhost fork (the testnet sandbox, a mainnet-fork
-// rehearsal) — otherwise a known chain's transactions would go to the real
+// rehearsal) - otherwise a known chain's transactions would go to the real
 // network's RPC instead of the fork.
 const PRIVY_CHAIN = NETWORK ? addRpcUrlOverrideToChain(NETWORK.chain, NETWORK.rpcUrl) : monadTestnet;
 // Real money: on mainnet every transaction shows Privy's confirmation UI.

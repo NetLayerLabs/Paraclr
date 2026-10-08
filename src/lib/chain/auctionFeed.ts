@@ -44,7 +44,7 @@ export interface AuctionFeedState {
   /** Latest block applied. */
   block: number | null;
   records: ReadonlyMap<string, AuctionRecord>;
-  /** Browser time each block was first applied (ms epoch) — replay pacing only. */
+  /** Browser time each block was first applied (ms epoch) - replay pacing only. */
   blockSeenAt: ReadonlyMap<number, number>;
 }
 

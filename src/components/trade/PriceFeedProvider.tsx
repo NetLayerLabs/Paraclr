@@ -4,10 +4,10 @@
 // the global store (pushPrice) and the candle store:
 //   - sim mode, or chain mode that fell back: Chainlink Data Streams when
 //     configured, simulator otherwise, with the flash-crash `priceShock`;
-//   - chain mode live: the on-chain oracle (OraclePriceSource) — the exact
+//   - chain mode live: the on-chain oracle (OraclePriceSource) - the exact
 //     marks the clearinghouse uses. No client-side shock is ever applied to
 //     it; on chain the crash is a real oracle transaction;
-//   - production contracts: Pyth prices from Hermes (PythPriceSource) — the
+//   - production contracts: Pyth prices from Hermes (PythPriceSource) - the
 //     price stream delayed orders are executed against.
 
 import { useEffect } from "react";
@@ -19,7 +19,7 @@ import { PythPriceSource } from "@/lib/chain/prod/pythPrices";
 
 // The applied shock follows `priceShock` through an under-damped spring, so a
 // jump 1 → 0.8 plays out as a ~1.5s slide that overshoots a couple of percent
-// and bounces — a visible crash wick on the chart instead of a teleport.
+// and bounces - a visible crash wick on the chart instead of a teleport.
 const STIFFNESS = 18; // 1/s²
 const DAMPING = 5.2; // 1/s
 const SPRING_STEP_MS = 16;

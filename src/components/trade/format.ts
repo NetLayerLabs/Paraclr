@@ -16,7 +16,7 @@ function fmt(n: number, min: number, max = min): string {
 }
 
 export function fmtPrice(symbol: MarketSymbol, p: number | null | undefined): string {
-  if (p == null || !Number.isFinite(p)) return "—";
+  if (p == null || !Number.isFinite(p)) return "-";
   const d = MARKET_META[symbol].priceDecimals;
   return fmt(p, d);
 }

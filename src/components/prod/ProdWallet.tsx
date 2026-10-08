@@ -37,7 +37,7 @@ import styles from "./Prod.module.css";
 
 const fmtMon = (wei: bigint | null | undefined, max = 6) =>
   wei === null || wei === undefined
-    ? "—"
+    ? "-"
     : Number(formatEther(wei)).toLocaleString("en-US", { maximumFractionDigits: max });
 
 function clean(raw: string): string {
@@ -54,8 +54,8 @@ function CapBar({ label, used, cap }: { label: string; used: number | null; cap:
       <div className={styles.capHead}>
         <span>{label}</span>
         <span>
-          <span className="mono">{used === null ? "—" : fmtAusd(used)}</span> /{" "}
-          <span className="mono">{cap === null ? "—" : fmtAusd(cap)}</span> AUSD
+          <span className="mono">{used === null ? "-" : fmtAusd(used)}</span> /{" "}
+          <span className="mono">{cap === null ? "-" : fmtAusd(cap)}</span> AUSD
         </span>
       </div>
       <div className={styles.bar} data-tone={tone}>
@@ -188,7 +188,7 @@ export function ProdWallet() {
           : amount > free + 1e-9
             ? "More than your free collateral"
             : priced.needed && quote.error
-              ? "Prices are refreshing — retry in a few seconds"
+              ? "Prices are refreshing - retry in a few seconds"
               : acct.native <= 0
                 ? `Need ${NETWORK.nativeSymbol} for gas`
                 : null;
@@ -275,11 +275,11 @@ export function ProdWallet() {
           </div>
           <div>
             <dt>Equity</dt>
-            <dd className="mono">{acct?.equity != null ? fmtAusd(acct.equity) : "—"}</dd>
+            <dd className="mono">{acct?.equity != null ? fmtAusd(acct.equity) : "-"}</dd>
           </div>
           <div>
             <dt>Free to withdraw</dt>
-            <dd className="mono">{acct?.freeCollateral != null ? fmtAusd(acct.freeCollateral) : "—"}</dd>
+            <dd className="mono">{acct?.freeCollateral != null ? fmtAusd(acct.freeCollateral) : "-"}</dd>
           </div>
           <div>
             <dt>Lane</dt>
@@ -360,11 +360,11 @@ export function ProdWallet() {
             )}
             <div>
               <dt>Room under your account cap</dt>
-              <dd className="mono">{room.accountRoom === null ? "—" : fmtAusd(room.accountRoom)}</dd>
+              <dd className="mono">{room.accountRoom === null ? "-" : fmtAusd(room.accountRoom)}</dd>
             </div>
             <div>
               <dt>Room under lane {acct ? acct.lane + 1 : ""} TVL cap</dt>
-              <dd className="mono">{room.laneRoom === null ? "—" : fmtAusd(room.laneRoom)}</dd>
+              <dd className="mono">{room.laneRoom === null ? "-" : fmtAusd(room.laneRoom)}</dd>
             </div>
             <div className={styles.feesTotal}>
               <dt>Approval</dt>
@@ -387,7 +387,7 @@ export function ProdWallet() {
             </div>
             <div>
               <dt>Stored-price age limit</dt>
-              <dd className="mono">{priced.maxStoredAge !== null ? fmtDuration(priced.maxStoredAge) : "—"}</dd>
+              <dd className="mono">{priced.maxStoredAge !== null ? fmtDuration(priced.maxStoredAge) : "-"}</dd>
             </div>
             <div className={styles.feesTotal}>
               <dt>{keeperSigned ? "Price update fee" : "Pyth update fee"}</dt>
@@ -429,7 +429,7 @@ export function ProdWallet() {
             {preview && preview.amount === amountNum && amountNum > 0 ? (
               <>
                 {" "}
-                — withdrawing <span className="mono">{fmtAusd(amountNum)}</span> pays{" "}
+                - withdrawing <span className="mono">{fmtAusd(amountNum)}</span> pays{" "}
                 <span className="mono">{fmtAusd(preview.paid)}</span> {token.symbol}
               </>
             ) : null}
@@ -465,15 +465,15 @@ export function ProdWallet() {
         <dl className={styles.kv}>
           <div>
             <dt>Max leverage</dt>
-            <dd className="mono">{params?.maxLeverage != null ? `${params.maxLeverage}x` : "—"}</dd>
+            <dd className="mono">{params?.maxLeverage != null ? `${params.maxLeverage}x` : "-"}</dd>
           </div>
           <div>
             <dt>Min position</dt>
-            <dd className="mono">{params?.minPositionNotional != null ? fmtAusd(params.minPositionNotional) : "—"}</dd>
+            <dd className="mono">{params?.minPositionNotional != null ? fmtAusd(params.minPositionNotional) : "-"}</dd>
           </div>
           <div>
             <dt>Trading fee</dt>
-            <dd className="mono">{params?.tradingFeeBps != null ? `${(params.tradingFeeBps / 100).toFixed(2)}%` : "—"}</dd>
+            <dd className="mono">{params?.tradingFeeBps != null ? `${(params.tradingFeeBps / 100).toFixed(2)}%` : "-"}</dd>
           </div>
           <div>
             <dt>Execution fee</dt>
@@ -486,12 +486,12 @@ export function ProdWallet() {
             <dd className="mono">
               {params?.minExecDelay != null && params.maxExecDelay != null
                 ? `${fmtDuration(params.minExecDelay)}–${fmtDuration(params.maxExecDelay)}`
-                : "—"}
+                : "-"}
             </dd>
           </div>
           <div>
             <dt>Funding interval</dt>
-            <dd className="mono">{params?.fundingInterval != null ? fmtDuration(params.fundingInterval) : "—"}</dd>
+            <dd className="mono">{params?.fundingInterval != null ? fmtDuration(params.fundingInterval) : "-"}</dd>
           </div>
         </dl>
         <p className={styles.fine}>

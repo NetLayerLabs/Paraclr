@@ -1,7 +1,7 @@
 // Server-only: the most recent recorded Conflict X-ray (`bench/xray/*.json`,
 // written by `npm run bench`) for the app's Clearing screen, so it can show
 // measured evidence before anyone runs a crash in this session. Import ONLY
-// from Server Components (src/app/app/page.tsx) — it uses node:fs.
+// from Server Components (src/app/app/page.tsx) - it uses node:fs.
 //
 // Preference: the given chain id first (the network the app runs against),
 // then Monad testnet, then anything. Newest file wins. Malformed files are

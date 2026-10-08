@@ -58,7 +58,7 @@ export function SolvencyBadge() {
     ? (error ?? "Reading solvency() from the clearinghouse…")
     : `${snapshot.solvent ? "Solvent" : "INSOLVENT"}: the clearinghouse holds ${full(snapshot.ausdHeld)} AUSD against ${full(
         snapshot.liabilities,
-      )} AUSD of liabilities. Read from solvency() every block — click for the per-lane ledger.`;
+      )} AUSD of liabilities. Read from solvency() every block - click for the per-lane ledger.`;
 
   return (
     <>
@@ -68,7 +68,7 @@ export function SolvencyBadge() {
         data-tone={tone}
         onClick={() => setOpen(true)}
         title={title}
-        aria-label={`${!snapshot ? "Solvency loading" : snapshot.solvent ? "Solvent" : "Insolvent"} — open the solvency proof`}
+        aria-label={`${!snapshot ? "Solvency loading" : snapshot.solvent ? "Solvent" : "Insolvent"} - open the solvency proof`}
       >
         <ShieldIcon ok={tone !== "alert"} />
         <b>{!snapshot ? "Solvency…" : snapshot.solvent ? "Solvent" : "Insolvent"}</b>
@@ -261,7 +261,7 @@ function SolvencyBody({ s, error }: { s: SolvencySnapshot; error: string | null 
           <p className={styles.check} data-tone={matches ? "ok" : "warn"}>
             {matches
               ? `Σ lane nets = ${full(sum.net)} AUSD = the liabilities solvency() reports.`
-              : `Σ lane nets = ${full(sum.net)} AUSD, solvency() reports ${full(s.liabilities)} AUSD of liabilities — see the contract docs for the exact terms.`}
+              : `Σ lane nets = ${full(sum.net)} AUSD, solvency() reports ${full(s.liabilities)} AUSD of liabilities - see the contract docs for the exact terms.`}
           </p>
         </>
       )}
@@ -324,7 +324,7 @@ function LaneSolvencyTable({ lanes, liabilities }: { lanes: LaneSolvency[] | nul
                   {l.badDebt > 0 ? `−${compact(l.badDebt)}` : "0.00"}
                 </td>
                 <td className="mono" data-tone={l.haircutBps > 0 ? "warn" : undefined}>
-                  {l.haircutBps > 0 ? `${(l.haircutBps / 100).toFixed(2)}%` : "—"}
+                  {l.haircutBps > 0 ? `${(l.haircutBps / 100).toFixed(2)}%` : "-"}
                 </td>
               </tr>
             ))}

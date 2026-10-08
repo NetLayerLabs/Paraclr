@@ -67,7 +67,7 @@ export function AuctionBanner() {
 
   // Look up how the auction ended: once per address on load (recent history),
   // and whenever an auction we watched stops being active. Primitive deps
-  // only — the account snapshot is a new object every block.
+  // only - the account snapshot is a new object every block.
   const auctionsSupported = acct?.auction != null;
   useEffect(() => {
     if (!live || !clearinghouse || !address || active || !auctionsSupported) return;
@@ -158,7 +158,7 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
       const r = await cureAuctionOnChain(amount);
       setMsg(
         r.cancelled
-          ? { tone: "ok", text: "Cured — the auction is cancelled and your account is unfrozen." }
+          ? { tone: "ok", text: "Cured - the auction is cancelled and your account is unfrozen." }
           : { tone: "warn", text: "Deposited, but the account is still below maintenance margin. Add more to cure." },
       );
       setAmountStr(null);
@@ -215,7 +215,7 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
             ) : toMax > 0 ? (
               <>the lane backstop can take it now</>
             ) : (
-              <>at the max discount — expires if nobody takes it</>
+              <>at the max discount - expires if nobody takes it</>
             )}
           </span>
           <div className={styles.clock} aria-hidden>
@@ -247,7 +247,7 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
               <span className="mono">{fmtAusd(wallet)}</span>
             </>
           ) : (
-            "Healthy again at the current marks — cancel the auction."
+            "Healthy again at the current marks - cancel the auction."
           )}
         </small>
       </div>
@@ -306,7 +306,7 @@ function Outcome({ r, free, onDismiss }: { r: AuctionRecord; free: number | null
         ? `Your positions moved to the taker at the oracle mark${blocks !== null ? ` after ${blocks} block${blocks === 1 ? "" : "s"}` : ""}; the rest of your equity stayed with you as free collateral.`
         : "The discount was at least your remaining equity, so nothing was left over. You never lose more than your equity: any negative equity is written off against the lane (insurance first, then lane bad debt), never charged to you.";
   } else if (r.status === "cured") {
-    title = "Auction cured — your account is healthy again";
+    title = "Auction cured - your account is healthy again";
     detail = "The auction was cancelled (top-up or price recovery). Your positions are unchanged and the account is unfrozen.";
   } else {
     title = `Auction expired at ${fmtBps(p.maxDiscountBps)} with no taker`;

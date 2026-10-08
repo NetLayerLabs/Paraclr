@@ -1,6 +1,6 @@
 // Social card for opengraph-image / twitter-image (next/og ImageResponse).
 // Satori subset: flexbox only, inline styles, every multi-child div is flex.
-// Fonts: static Sora instances (OFL, brand/fonts/) — Satori can't read woff2
+// Fonts: static Sora instances (OFL, brand/fonts/) - Satori can't read woff2
 // or variable fonts. Colours come from brand/tokens.ts.
 
 import { readFile } from "node:fs/promises";

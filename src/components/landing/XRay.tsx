@@ -156,7 +156,7 @@ export function XRay({ xray }: { xray: XrayEvidence | null }) {
           <div className={s.meta}>
             <span className={`${b.chip} ${monad ? b.chipPos : b.chipWarn}`}>
               <span className={`${b.dot} ${monad ? b.dotPos : b.dotWarn}`} aria-hidden="true" />
-              {monad ? "Monad testnet · chain 10143" : `local anvil — not Monad · chain ${xray.chainId}`}
+              {monad ? "Monad testnet · chain 10143" : `local anvil - not Monad · chain ${xray.chainId}`}
             </span>
             <span className={s.metaItem}>
               <span>method</span> {methodLabel(xray)}

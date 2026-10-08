@@ -122,7 +122,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
           {toEligible !== null ? (
             <>
               {" "}
-              — eligible in <b className="mono">{fmtDuration(toEligible)}</b>
+              - eligible in <b className="mono">{fmtDuration(toEligible)}</b>
             </>
           ) : null}
           .
@@ -189,7 +189,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
       msg = "Cancelled · margin escrow released, execution fee refunded.";
       break;
     case "settled":
-      msg = o.error ?? "No longer pending — see your positions for the result.";
+      msg = o.error ?? "No longer pending - see your positions for the result.";
       break;
     case "rejected":
       msg = o.error ?? "The order wasn't submitted.";

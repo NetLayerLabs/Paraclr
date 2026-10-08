@@ -5,7 +5,7 @@
 // per-lane aggregate mapped to one shared key (NaiveClearinghouseDemo).
 //
 // Nodes are transactions, grouped by lane (rows) in block order (columns).
-// An edge i → j means tx j read or wrote a storage slot an earlier tx i wrote —
+// An edge i → j means tx j read or wrote a storage slot an earlier tx i wrote -
 // the condition under which Monad's optimistic executor re-executes j. It is
 // NOT a measured re-execution count. Data: keeper `GET /runs/:id/xray` or a
 // recorded bench/xray/*.json file.
@@ -76,7 +76,7 @@ export function XrayPanel({
               {methodLabel(xray)}
             </span>
             <span className={styles.tag} data-k={xray.network === "monad-testnet" ? "monad" : "anvil"}>
-              {xray.network === "monad-testnet" ? "Monad testnet" : "Local anvil — not Monad"}
+              {xray.network === "monad-testnet" ? "Monad testnet" : "Local anvil - not Monad"}
             </span>
           </div>
         )}
@@ -90,7 +90,7 @@ export function XrayPanel({
         </p>
       )}
       <p className={styles.explain}>
-        An edge <b>i → j</b> means tx <i>j</i> read or wrote a storage slot that an earlier tx <i>i</i> wrote — the
+        An edge <b>i → j</b> means tx <i>j</i> read or wrote a storage slot that an earlier tx <i>i</i> wrote - the
         condition under which Monad&apos;s optimistic executor re-executes <i>j</i>. Edges are storage dependencies,
         not measured re-executions. The lane design&apos;s claim is <b>zero edges across lanes</b>; txs within one lane
         (its pool take, a taker&apos;s take and close) can still depend on that lane&apos;s own storage.
@@ -363,7 +363,7 @@ function ConflictGraph({ d, labels }: { d: XrayDesign; labels: Record<string, st
         <g key={`row-${lane ?? "x"}`}>
           <line className={styles.rowLine} x1={gutter - 4} x2={W - 4} y1={TOP + i * ROW_H + ROW_H / 2} y2={TOP + i * ROW_H + ROW_H / 2} />
           <text className={styles.rowLabel} x={gutter - 7} y={TOP + i * ROW_H + ROW_H / 2 + 3} textAnchor="end">
-            {lane === null ? "—" : `L${lane + 1}`}
+            {lane === null ? "-" : `L${lane + 1}`}
           </text>
         </g>
       ))}

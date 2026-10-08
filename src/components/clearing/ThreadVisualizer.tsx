@@ -92,7 +92,7 @@ export function ThreadVisualizer({
       setText(seqCount, "0");
       LANES.forEach((l) => {
         setBar(laneBars[l], 0);
-        setText(laneMs[l], "—");
+        setText(laneMs[l], "-");
         laneRows[l]?.removeAttribute("data-done");
       });
     };
@@ -200,7 +200,7 @@ export function ThreadVisualizer({
         <span>
           Insurance{" "}
           <b className="mono" data-fund>
-            —
+            -
           </b>
         </span>
       </div>
@@ -211,7 +211,7 @@ export function ThreadVisualizer({
             <div className={styles.laneLabel}>
               <span>Lane {l + 1}</span>
               <small className="mono" data-lane-ms={l}>
-                —
+                -
               </small>
             </div>
             <div className={styles.laneBody}>

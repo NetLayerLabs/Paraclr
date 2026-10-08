@@ -40,7 +40,7 @@ export function MarketRisk({ symbol }: { symbol: MarketSymbol }) {
         title="Funding from the global long/short skew (sum of all 8 lanes). Positive: longs pay shorts."
       >
         <small>Funding / 1h</small>
-        <b className="mono">{pct === null ? "—" : `${pct > 0 ? "+" : pct < 0 ? "−" : ""}${Math.abs(pct).toFixed(4)}%`}</b>
+        <b className="mono">{pct === null ? "-" : `${pct > 0 ? "+" : pct < 0 ? "−" : ""}${Math.abs(pct).toFixed(4)}%`}</b>
         <em>{pct === null ? "not readable" : pct > 0 ? "longs pay shorts" : pct < 0 ? "shorts pay longs" : "balanced"}</em>
       </div>
       <div
@@ -48,25 +48,25 @@ export function MarketRisk({ symbol }: { symbol: MarketSymbol }) {
         title="Funding accrues continuously at the current rate; the rate is re-set from the global skew by updateFunding (anyone, at most once per interval). Positions settle funding when touched."
       >
         <small>Next rate update</small>
-        <b className="mono">{next === null ? "—" : next <= 0 ? "due" : fmtDuration(next)}</b>
+        <b className="mono">{next === null ? "-" : next <= 0 ? "due" : fmtDuration(next)}</b>
         <em>{interval !== null ? `at most every ${fmtDuration(interval)}` : "interval unknown"}</em>
       </div>
       <div
         className={styles.mcell}
         title="Open interest of your lane in this market vs its per-side cap: min(market cap, (lane insurance + backstop cash) × multiplier)."
       >
-        <small>Lane {lane !== null ? lane + 1 : "—"} OI</small>
+        <small>Lane {lane !== null ? lane + 1 : "-"} OI</small>
         <b className="mono">
-          {oi ? `${fmtCompact(oi.long)} L · ${fmtCompact(oi.short)} S` : "—"}
+          {oi ? `${fmtCompact(oi.long)} L · ${fmtCompact(oi.short)} S` : "-"}
         </b>
         <em>{cap !== null ? `cap ${fmtCompact(cap)}${util !== null ? ` · ${(util * 100).toFixed(0)}% used` : ""}` : "cap unknown"}</em>
       </div>
       <div
         className={styles.mcell}
-        title="Age of the Pyth price stored on chain — what the contract's views (health, free collateral) use. Pyth pushes it regularly; fills and withdrawals also push a fresh one."
+        title="Age of the Pyth price stored on chain - what the contract's views (health, free collateral) use. Pyth pushes it regularly; fills and withdrawals also push a fresh one."
       >
         <small>{keeperSigned ? "On-chain price (simulated)" : "On-chain Pyth"}</small>
-        <b className="mono">{age === null ? "—" : age < 120 ? `${Math.round(age)}s old` : `${fmtDuration(age)} old`}</b>
+        <b className="mono">{age === null ? "-" : age < 120 ? `${Math.round(age)}s old` : `${fmtDuration(age)} old`}</b>
         <em>
           {prod.params.maxStoredPriceAge !== null
             ? `contract uses ≤ ${fmtDuration(prod.params.maxStoredPriceAge)}`

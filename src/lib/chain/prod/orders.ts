@@ -192,7 +192,7 @@ function requireLive(): { c: LiveContracts } {
 
 function signerOrThrow() {
   const signer = getSigner();
-  if (!signer || !getState().chain.wallet.ready) throw new ChainActionError("Wallet not ready yet — try again in a moment.");
+  if (!signer || !getState().chain.wallet.ready) throw new ChainActionError("Wallet not ready yet - try again in a moment.");
   return signer;
 }
 
@@ -242,7 +242,7 @@ export function commitOrder(args: CommitArgs): Promise<TrackedOrder> {
     }
     if (orders.some((o) => o.symbol === args.symbol && isOpen(o)) || prod?.mine?.pending[args.symbol]) {
       throw new ChainActionError(
-        `You already have a pending ${args.symbol.split("/")[0]} order — the contract allows one per market. Wait for it to fill, or cancel it after its window.`,
+        `You already have a pending ${args.symbol.split("/")[0]} order - the contract allows one per market. Wait for it to fill, or cancel it after its window.`,
       );
     }
     if (args.before) await args.before();
@@ -306,7 +306,7 @@ export function commitOrder(args: CommitArgs): Promise<TrackedOrder> {
       };
       if (committed.orderId === null) {
         committed.phase = "settled";
-        committed.error = "Committed, but the order id wasn't in the receipt — check your positions.";
+        committed.error = "Committed, but the order id wasn't in the receipt - check your positions.";
       }
       put(committed);
       return committed;

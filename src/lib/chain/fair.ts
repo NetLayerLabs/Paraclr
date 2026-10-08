@@ -263,7 +263,7 @@ export async function readBackstopPools(
       });
     }
     const equity = signedAusd(equityU);
-    // Shares are minted against AUSD (6dp) — the ratio is decimal-free as long
+    // Shares are minted against AUSD (6dp) - the ratio is decimal-free as long
     // as both use the same scale.
     const shareSupply = ausdToNumber(supplyU);
     const sharePrice = supplyU > BigInt(0) ? equity / shareSupply : null;

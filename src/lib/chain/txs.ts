@@ -109,7 +109,7 @@ const GAS_MARGIN_PCT = BigInt(115);
 // ---- Monad reserve balance ------------------------------------------------------
 // docs.monad.xyz "Reserve Balance": an account holding under 10 MON may send a
 // transaction that carries MON (`commitOrder`'s execution fee, a Pyth update fee
-// — 1 wei per message on testnet) only as its first transaction in 3 blocks.
+// - 1 wei per message on testnet) only as its first transaction in 3 blocks.
 // So such a transaction waits until 3 blocks have passed since this account's
 // previous one (≈ 1.2–2 s). Only on a real Monad chain (anvil doesn't enforce it).
 

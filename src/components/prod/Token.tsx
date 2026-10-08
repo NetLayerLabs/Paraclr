@@ -29,9 +29,9 @@ export function useCollateral(): CollateralLabel {
     test,
     testnet: token.testnet,
     description: token.testnet
-      ? `Agora's testnet ${token.symbol} on Monad testnet — test funds, no real value`
+      ? `Agora's testnet ${token.symbol} on Monad testnet - test funds, no real value`
       : test
-        ? `test ${token.symbol}${token.name ? ` (${token.name})` : ""}${production ? " — not Agora AUSD" : ""}`
+        ? `test ${token.symbol}${token.name ? ` (${token.name})` : ""}${production ? " - not Agora AUSD" : ""}`
         : `Agora ${token.symbol} on Monad mainnet`,
   };
 }

@@ -10,15 +10,15 @@
 //      → send `[]` (no fee, no network round trip);
 //   2. otherwise fetch Hermes "latest" for ALL listed feeds (partial updates are
 //      fine for the contract; one request is simpler) from the keeper's
-//      `/hermes` proxy — or NEXT_PUBLIC_PYTH_HERMES_URL if set — and attach it
+//      `/hermes` proxy - or NEXT_PUBLIC_PYTH_HERMES_URL if set - and attach it
 //      with `msg.value = IPyth.getUpdateFee(update)` (0 on Monad today, but read);
-//   3. proxy unreachable and those prices too old → "Prices are refreshing —
+//   3. proxy unreachable and those prices too old → "Prices are refreshing -
 //      retry in a few seconds."
 //
 // The proxy holds the Pyth API key server-side; the browser never sees it.
 // The update data is Pyth's Wormhole-signed accumulator payload and is
 // verified by the Pyth contract on chain, so the proxy cannot forge or alter a
-// price — it can only withhold one (then step 3 applies).
+// price - it can only withhold one (then step 3 applies).
 
 import type { Address, Hex } from "viem";
 import type { MarketSymbol } from "../../types";
@@ -46,7 +46,7 @@ export function storedFreshThreshold(maxAge: number = maxStoredAge()): number {
   return Math.max(3, Math.floor(maxAge * 0.7));
 }
 
-export const REFRESHING = "Prices are refreshing — retry in a few seconds.";
+export const REFRESHING = "Prices are refreshing - retry in a few seconds.";
 
 /** Hermes-compatible base for update data: an explicit override, else the keeper's proxy. */
 export function updateBaseUrl(): string | null {
@@ -135,10 +135,10 @@ export async function fetchLatestUpdate(c: LiveContracts, timeoutMs = 6_000): Pr
   }
 }
 
-/** IPyth.getUpdateFee(update) — 0 on Monad today, but always read. */
+/** IPyth.getUpdateFee(update) - 0 on Monad today, but always read. */
 export async function pythUpdateFee(c: LiveContracts, updateData: Hex[]): Promise<bigint> {
   if (updateData.length === 0) return BigInt(0);
-  if (!c.pyth) throw new ChainActionError("Pyth contract address unknown — can't price the update fee.");
+  if (!c.pyth) throw new ChainActionError("Pyth contract address unknown - can't price the update fee.");
   return publicClient().readContract({
     address: c.pyth as Address,
     abi: pythAbi,

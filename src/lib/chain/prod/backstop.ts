@@ -4,7 +4,7 @@
 //   - backstopDepositStatus(lane): pool deposits are refused while the lane owes
 //     the pool a receivable, or while the pool's unrealised gain exceeds lane
 //     insurance (its NAV is capped), or while the lane has bad debt;
-//   - backstopWithdrawRequest(lane, lp): LP exits are two steps — request, wait
+//   - backstopWithdrawRequest(lane, lp): LP exits are two steps - request, wait
 //     backstopWithdrawDelay, then withdraw ONCE inside the window;
 //   - laneSolvency(lane): bad debt → a pro-rata haircut on payouts.
 

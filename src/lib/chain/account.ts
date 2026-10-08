@@ -1,6 +1,6 @@
 // One consistent read of the signed-in account from chain: collateral,
 // health, free collateral, positions, wallet balances and the oracle marks
-// they were valued at — all in one multicall (Monad) / parallel batch (anvil).
+// they were valued at - all in one multicall (Monad) / parallel batch (anvil).
 
 import type { Address } from "viem";
 import { MARKETS, type MarketSymbol, type Position } from "../types";

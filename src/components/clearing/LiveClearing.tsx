@@ -1,7 +1,7 @@
 "use client";
 
 // Clearing screen, Live mode. Everything here is read from chain or reported
-// by the keeper — nothing is modeled:
+// by the keeper - nothing is modeled:
 //   - lane stats + accounts from the clearinghouse;
 //   - the auction lifecycle from the clearinghouse's auction events
 //     (AuctionStarted / Taken / Cancelled / Expired), one eth_getLogs per block;
@@ -69,7 +69,7 @@ export function LiveClearing({
   const keeperError = useParaclr((s) => s.chain.keeper.error);
   const keeperCrashed = useParaclr((s) => s.chain.keeper.health?.crashed ?? false);
   const me = useParaclr((s) => s.session?.address?.toLowerCase() ?? null);
-  // Production: no flash crash, no recover, no demo takers — real auctions only.
+  // Production: no flash crash, no recover, no demo takers - real auctions only.
   const production = useParaclr((s) => !!s.chain.contracts?.production);
 
   const [lanes, setLanes] = useState<LaneStat[] | null>(null);
@@ -370,7 +370,7 @@ export function LiveClearing({
         <div className={styles.stat}>
           <small>In auction</small>
           <b className="mono" style={{ color: inAuction > 0 ? "var(--warn-text)" : undefined }}>
-            {feed.status === "live" ? inAuction : feed.status === "loading" || feed.status === "idle" ? "…" : "—"}
+            {feed.status === "live" ? inAuction : feed.status === "loading" || feed.status === "idle" ? "…" : "-"}
           </b>
         </div>
         {phase === "idle" ? (
@@ -401,7 +401,7 @@ export function LiveClearing({
         <Notice tone="warn">
           The clearinghouse on {NETWORK.label} predates auction liquidations (no{" "}
           <span className="mono">getAuctionAccounts</span>), so there is no auction lifecycle to show. Redeploy the
-          contracts — e.g. <span className="mono">npm run dev:chain -- --redeploy</span> on anvil.
+          contracts - e.g. <span className="mono">npm run dev:chain -- --redeploy</span> on anvil.
         </Notice>
       )}
       {feed.status === "error" && feed.error && <Notice tone="warn">Couldn&apos;t read auction events: {feed.error}</Notice>}
@@ -537,7 +537,7 @@ export function LiveClearing({
           {fmtBps(params.maxDiscountBps)}), so the price is set by the block clock, not by
           gas bidding. The lane&apos;s backstop pool takes the account once the discount reaches its minimum and the
           trader keeps the rest of their equity; a top-up cures it; with no taker at the max it expires and closes at
-          mark. The keeper&apos;s sweeper drives all {LANE_COUNT} lanes concurrently from {LANE_COUNT} keeper wallets —
+          mark. The keeper&apos;s sweeper drives all {LANE_COUNT} lanes concurrently from {LANE_COUNT} keeper wallets -
           and anyone may call the same functions.
         </p>
       )}
@@ -555,7 +555,7 @@ function LiveMarks({ down, crashed, pyth = false }: { down: boolean; crashed: bo
         const p = prices[m]?.price;
         return (
           <span key={m} className="mono" data-down={down ? "" : undefined}>
-            {m.split("/")[0]} {p != null ? fmtMark(p) : "—"}
+            {m.split("/")[0]} {p != null ? fmtMark(p) : "-"}
           </span>
         );
       })}
@@ -569,7 +569,7 @@ function LiveMarks({ down, crashed, pyth = false }: { down: boolean; crashed: bo
  * External takers: auctions running in the signed-in account's own lane (the
  * contract only lets a same-lane account take, so every write stays
  * lane-local). The taker inherits the positions at the mark and earns up to
- * discount × notional, capped at the trader's equity (min(P, max(E, 0)) — the
+ * discount × notional, capped at the trader's equity (min(P, max(E, 0)) - the
  * lane never subsidises an external taker), and must stay above initial margin.
  */
 function TakeList({
@@ -676,7 +676,7 @@ function TakeList({
               className="mono"
               title={capped ? `Discount × notional = ${fmtAusd(full ?? 0)}, capped at the trader's equity` : undefined}
             >
-              {notional !== null ? `${fmtCompact(notional)} notional` : "—"}
+              {notional !== null ? `${fmtCompact(notional)} notional` : "-"}
               {pay !== null && (
                 <>
                   {" "}

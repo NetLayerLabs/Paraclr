@@ -22,7 +22,7 @@ import type { PriceSource, TickHandler } from "./source";
  *    uint192 nativeFee, uint192 linkFee, uint32 expiresAt,
  *    int192 benchmarkPrice, int192 bid, int192 ask)
  * Prices are fixed-point with 18 decimals. We decode word 6 (benchmarkPrice)
- * client-side below — no dependency needed. The rawRs/rawSs/rawVs signatures
+ * client-side below - no dependency needed. The rawRs/rawSs/rawVs signatures
  * are only needed for on-chain verification via the VerifierProxy (e.g. when
  * the clearinghouse contract settles against a report).
  *
@@ -44,7 +44,7 @@ import type { PriceSource, TickHandler } from "./source";
  * the client, so NEXT_PUBLIC_CHAINLINK_STREAMS_WS should point at a small
  * server-side relay that holds CHAINLINK_API_KEY / CHAINLINK_API_SECRET,
  * opens the authenticated upstream socket and forwards messages verbatim.
- * Sketch (Node, `ws` package — not installed in this repo):
+ * Sketch (Node, `ws` package - not installed in this repo):
  *
  *   const up = new WebSocket(`${UPSTREAM}/api/v1/ws?feedIDs=${ids}`, {
  *     headers: signHeaders("GET", `/api/v1/ws?feedIDs=${ids}`),

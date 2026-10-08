@@ -11,7 +11,7 @@ export interface MarketMeta {
   priceDecimals: number;
   /** Decimals shown for base-asset size. */
   sizeDecimals: number;
-  /** Per-tick (250ms) log-return stdev of the simulator — demo-amplified. */
+  /** Per-tick (250ms) log-return stdev of the simulator - demo-amplified. */
   tickVol: number;
 }
 

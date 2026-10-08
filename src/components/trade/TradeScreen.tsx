@@ -67,7 +67,7 @@ export function TradeScreen() {
     show({
       tone: o.side === "long" ? "long" : "short",
       title: `Order submitted · ${o.label}`,
-      detail: `Waiting for the next ${pn} — track it under Orders.`,
+      detail: `Waiting for the next ${pn} - track it under Orders.`,
     });
 
   const onClosed = (p: Position, realized: number, meta?: ClosedMeta) => {
@@ -81,7 +81,7 @@ export function TradeScreen() {
 
   return (
     // Phone/tablet: one stacked column in DOM order. Desktop (>=1024px): a
-    // CSS-grid terminal — ticker across the top, chart filling the height,
+    // CSS-grid terminal - ticker across the top, chart filling the height,
     // order column docked right, positions table under the chart.
     <div className={styles.screen}>
       <div className={styles.ticker}>

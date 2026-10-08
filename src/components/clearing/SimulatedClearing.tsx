@@ -2,7 +2,7 @@
 
 // The in-browser clearing simulation (the original Clearing screen body).
 //
-// `isolated` (chain live): the run is self-contained — it never shocks the
+// `isolated` (chain live): the run is self-contained - it never shocks the
 // global price feed and never touches your positions, because in chain modes
 // prices and positions come from the chain and the simulation must not fake
 // them. In sim mode (`isolated` false) it behaves exactly as before.
@@ -165,7 +165,7 @@ export function SimulatedClearing({ isolated }: { isolated: boolean }) {
       <Notice tone="warn">
         <b>Simulated, instant-liquidation model.</b> This in-browser engine closes underwater accounts at the mark in
         one step to show the lane-sharded clearing workload. It does not simulate the per-block auctions, backstop
-        pools or solvency proof — those run on chain
+        pools or solvency proof - those run on chain
         {isolated ? " (see Live)" : "; run the app against a chain (anvil or Monad testnet) to see them"}.
       </Notice>
       <div className={styles.stats}>

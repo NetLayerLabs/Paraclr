@@ -27,7 +27,7 @@ function requireLive(): { signer: ChainSigner; c: LiveContracts } {
   const s = getState();
   if (s.chain.status !== "ready" || !s.chain.contracts) throw new ChainActionError("Chain not connected.");
   const signer = getSigner();
-  if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet — try again in a moment.");
+  if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet - try again in a moment.");
   return { signer, c: s.chain.contracts };
 }
 
@@ -353,7 +353,7 @@ export function submitIncreaseOrder(args: {
 export function submitReduceOrder(args: { position: Position; fraction: number; mark: number; slippagePct: number }) {
   const p = args.position;
   if (!p.sizeUnits || p.sizeUnits === BigInt(0)) {
-    return Promise.reject(new ChainActionError("Position size unknown — wait for the next on-chain read."));
+    return Promise.reject(new ChainActionError("Position size unknown - wait for the next on-chain read."));
   }
   const full = args.fraction >= 0.9999;
   const abs = full ? p.sizeUnits : (p.sizeUnits * BigInt(Math.round(args.fraction * 10_000))) / BigInt(10_000);

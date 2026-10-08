@@ -11,7 +11,7 @@ export const BETA_LABEL = "Unaudited beta · capped · use only what you can aff
 
 export const AUDIT_STATUS = "Not audited: internal review and Slither only";
 
-export const LEGAL_DRAFT_NOTICE = "DRAFT — not legal advice; requires legal review before launch";
+export const LEGAL_DRAFT_NOTICE = "DRAFT - not legal advice; requires legal review before launch";
 
 /** Stable section ids on /risk. */
 export const RISK_ANCHORS = {

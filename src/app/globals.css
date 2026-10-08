@@ -1,4 +1,4 @@
-/* Paraclr app tokens — the trading terminal at /app, in the brand system of
+/* Paraclr app tokens - the trading terminal at /app, in the brand system of
    docs/DESIGN.md (§10). Dark-first; the light set is scoped under
    [data-theme="light"] on <html>, which only /app sets (see
    src/components/shell/theme.ts). The landing and legal pages use their own
@@ -75,9 +75,9 @@
   --dur-2: 240ms;
 
   /* Layout. The app is a full-viewport responsive web app (no device frame):
-       < 640px    phone   — top bar + bottom tab bar, stacked cards, swipe-to-trade
-       640–1023px tablet  — header nav, single-column stacking of the desktop sections
-       >= 1024px  desktop — header nav, CSS-grid trading terminal
+       < 640px    phone   - top bar + bottom tab bar, stacked cards, swipe-to-trade
+       640–1023px tablet  - header nav, single-column stacking of the desktop sections
+       >= 1024px  desktop - header nav, CSS-grid trading terminal
      Media queries can't read custom properties, so the breakpoints are literal
      640px / 1024px / 1280px in the modules. */
   --header-h: 60px;

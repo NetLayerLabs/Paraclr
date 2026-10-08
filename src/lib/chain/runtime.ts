@@ -1,6 +1,6 @@
 // Decides at runtime whether the requested chain mode is usable, and records
 // why not. On any failure the app keeps running the simulation (status
-// "unavailable" + reason shown inline) instead of breaking — except in the
+// "unavailable" + reason shown inline) instead of breaking - except in the
 // production modes (monad-mainnet, monad-testnet), where the shell shows a
 // blocking "can't connect" screen instead of a simulation (a production
 // deployment must never look simulated, or vice versa).
@@ -93,7 +93,7 @@ async function doConnect({ raw, loadError }: { raw: unknown; loadError: string |
   // is shared with the production deployment; that one belongs to monad-testnet.
   if (net.mode === "monad" && deployment?.production) {
     fileProblem =
-      'deployments/10143.json is the production deployment ("production": true), not the demo stack — ' +
+      'deployments/10143.json is the production deployment ("production": true), not the demo stack - ' +
       "run NEXT_PUBLIC_CHAIN_MODE=monad-testnet for it";
     deployment = null;
   }
@@ -113,7 +113,7 @@ async function doConnect({ raw, loadError }: { raw: unknown; loadError: string |
     if (!resolved.production) {
       fail(
         net.isMainnet
-          ? `deployments/${net.chainId}.json is not marked "production": true — refusing to use it in mainnet mode ` +
+          ? `deployments/${net.chainId}.json is not marked "production": true - refusing to use it in mainnet mode ` +
               "(the demo contracts must never hold real funds)."
           : `deployments/${net.chainId}.json is not marked "production": true (it looks like the older demo-stack ` +
               "deployment). monad-testnet mode runs only the production contracts; use NEXT_PUBLIC_CHAIN_MODE=monad for the demo stack.",
@@ -126,7 +126,7 @@ async function doConnect({ raw, loadError }: { raw: unknown; loadError: string |
       setKeeper({ status: "online", error: null, health, checkedAt: Date.now() });
       resolved = contractsFromKeeper(health.addresses);
     } catch {
-      /* keeper down too — reported below */
+      /* keeper down too - reported below */
     }
   }
   if (!resolved) {
@@ -173,7 +173,7 @@ async function doConnect({ raw, loadError }: { raw: unknown; loadError: string |
     fail(
       `No clearinghouse contract at ${resolved.clearinghouse} on ${net.label} (address from ${resolved.source}). ` +
         (net.mode === "anvil" || net.sandbox
-          ? "The local chain was probably restarted — redeploy."
+          ? "The local chain was probably restarted - redeploy."
           : "Is the deployment file stale?"),
     );
     return;
