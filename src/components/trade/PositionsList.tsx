@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import type { Position } from "@/lib/types";
 import { closePosition, liquidationPrice, unrealizedPnl, useParaclr } from "@/lib/store";
 import { readableError } from "@/lib/chain/errors";
@@ -33,6 +34,7 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [reduceOpen, setReduceOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   // Production: the contract allows one pending order per market (an expired
   // one keeps blocking until it is cancelled from the Orders list).
   const pendingId = useParaclr((s) => s.chain.prod?.mine?.pending[p.symbol] ?? null);
@@ -97,6 +99,10 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     error,
     note,
     close,
+    // Close asks first (unless the viewer turned the question off): a mis-click shouldn't close a trade.
+    requestClose: () => (closeConfirmOff() ? void close() : setConfirming(true)),
+    confirming,
+    setConfirming,
     inAuction,
     production,
     pn,
@@ -134,6 +140,79 @@ function closeLabel(m: PositionModel): string {
   if (m.inAuction && !m.production) return "Frozen";
   if (m.exitPending) return "Order pending";
   return "Close";
+}
+
+const CONFIRM_OFF_KEY = "paraclr.confirmClose.off";
+
+function closeConfirmOff(): boolean {
+  try {
+    return window.localStorage.getItem(CONFIRM_OFF_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** "Close your SOL long?" with No (focused) / Yes and a don't-ask-again option. */
+function CloseConfirm({ p, m }: { p: Position; m: PositionModel }) {
+  const [dontAsk, setDontAsk] = useState(false);
+  const noBtn = useRef<HTMLButtonElement | null>(null);
+  const { setConfirming } = m;
+
+  useEffect(() => {
+    noBtn.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setConfirming(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [setConfirming]);
+
+  const yes = () => {
+    if (dontAsk) {
+      try {
+        window.localStorage.setItem(CONFIRM_OFF_KEY, "1");
+      } catch {
+        /* storage blocked: asks again next time */
+      }
+    }
+    setConfirming(false);
+    void m.close();
+  };
+
+  const base = baseOf(p.symbol);
+  return createPortal(
+    <div className={styles.confirmOverlay} onClick={() => setConfirming(false)}>
+      <div
+        className={styles.confirm}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="close-confirm-title"
+        aria-describedby="close-confirm-body"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="close-confirm-title" className={styles.confirmTitle}>
+          Close your {base} {p.side}?
+        </h2>
+        <p id="close-confirm-body" className={styles.confirmBody}>
+          {fmtSize(p.symbol, p.size)} {base} at about <span className="mono">{fmtPrice(p.symbol, m.mark)}</span>.
+          Unrealized PnL{" "}
+          <b className={`mono ${m.up ? styles.up : styles.down}`}>{fmtSigned(m.pnl)} AUSD</b>.
+          {m.production ? ` It sends a close order, filled at the next ${m.pn} within your slippage.` : ""}
+        </p>
+        <div className={styles.confirmActions}>
+          <button ref={noBtn} type="button" className={styles.confirmNo} onClick={() => setConfirming(false)}>
+            No, keep it
+          </button>
+          <button type="button" className={styles.confirmYes} onClick={yes}>
+            Yes, close
+          </button>
+        </div>
+        <label className={styles.confirmOff}>
+          <input type="checkbox" checked={dontAsk} onChange={(e) => setDontAsk(e.target.checked)} />
+          Don&apos;t ask me again
+        </label>
+      </div>
+    </div>,
+    document.body,
+  );
 }
 
 function HealthBar({ health }: { health: number }) {
@@ -218,7 +297,7 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
           type="button"
           className={styles.close}
           disabled={m.closeDisabled}
-          onClick={m.close}
+          onClick={m.requestClose}
           title={
             m.inAuction && !m.production
               ? "Frozen during the liquidation auction — cure it from the banner above"
@@ -233,6 +312,7 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
         </button>
       </div>
       <ReduceChips m={m} />
+      {m.confirming && <CloseConfirm p={p} m={m} />}
       {m.note && <Notice tone="ok">{m.note}</Notice>}
       {m.error && <Notice tone="error">{m.error}</Notice>}
     </article>
@@ -300,7 +380,7 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
             type="button"
             className={styles.closeSm}
             disabled={m.closeDisabled}
-            onClick={m.close}
+            onClick={m.requestClose}
             title={
               m.inAuction && !m.production
                 ? "Frozen during the liquidation auction — cure it from the banner above"
@@ -315,6 +395,8 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
           </button>
         </td>
       </tr>
+      {/* Portaled to <body>, so it can sit here inside the table body. */}
+      {m.confirming && <CloseConfirm p={p} m={m} />}
       {(m.reduceOpen && m.production) || m.note || m.error ? (
         <tr className={styles.errorRow}>
           <td colSpan={COLUMNS}>
