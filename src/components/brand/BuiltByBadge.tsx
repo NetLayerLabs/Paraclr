@@ -1,6 +1,6 @@
 import styles from "./BuiltByBadge.module.css";
 
-const HREF = "https://github.com/NetLayerLabs";
+const HREF = "https://www.netlayerlabs.com/";
 
 const srcSet = (tone: "white" | "ink") =>
   `/brand/netlayer-mark-${tone}-32.png 1x, /brand/netlayer-mark-${tone}-64.png 2x, /brand/netlayer-mark-${tone}-128.png 4x`;
