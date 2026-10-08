@@ -5,6 +5,7 @@
 // keeper in the loop). Hidden in sim mode and on deployments that predate the
 // solvency proof.
 
+import { LaneAlert, LaneCheck } from "@/components/brand/Glyph";
 import { useEffect, useRef, useState } from "react";
 import { useParaclr } from "@/lib/store";
 import { NETWORK } from "@/lib/chain/config";
@@ -259,6 +260,7 @@ function SolvencyBody({ s, error }: { s: SolvencySnapshot; error: string | null 
             </table>
           </div>
           <p className={styles.check} data-tone={matches ? "ok" : "warn"}>
+            {matches ? <LaneCheck className={styles.checkIcon} /> : <LaneAlert className={styles.checkIcon} />}
             {matches
               ? `Σ lane nets = ${full(sum.net)} AUSD = the liabilities solvency() reports.`
               : `Σ lane nets = ${full(sum.net)} AUSD, solvency() reports ${full(s.liabilities)} AUSD of liabilities - see the contract docs for the exact terms.`}
@@ -345,6 +347,7 @@ function LaneSolvencyTable({ lanes, liabilities }: { lanes: LaneSolvency[] | nul
         </table>
       </div>
       <p className={styles.check} data-tone={matches && lanes.every((l) => l.surplus >= 0) ? "ok" : "warn"}>
+        {matches && lanes.every((l) => l.surplus >= 0) ? <LaneCheck className={styles.checkIcon} /> : <LaneAlert className={styles.checkIcon} />}
         {matches
           ? `Σ lanes held = ${full(held)} AUSD = the liabilities solvency() reports.`
           : `Σ lanes held = ${full(held)} AUSD, solvency() reports ${full(liabilities)} AUSD.`}

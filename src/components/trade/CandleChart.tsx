@@ -1,5 +1,6 @@
 "use client";
 
+import { CARET_PATH } from "@/components/brand/Glyph";
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import type { MarketSymbol, Position } from "@/lib/types";
 import { liquidationPrice, useParaclr } from "@/lib/store";
@@ -232,8 +233,19 @@ export function CandleChart({ symbol }: { symbol: MarketSymbol }) {
               <g key={l.key} className={cls}>
                 {!off && <line x1={0} x2={plotW} y1={ly} y2={ly} className={styles.lvLine} />}
                 <rect x={plotW + 1} y={ly - LABEL_H / 2} width={AXIS_W - 2} height={LABEL_H} rx={4} className={styles.lvTag} />
-                <text x={plotW + AXIS_W / 2} y={ly + 3.5} textAnchor="middle" className={styles.lvText}>
-                  {off === "up" ? "▲ " : off === "down" ? "▼ " : ""}
+                {off && (
+                  <path
+                    d={CARET_PATH[off]}
+                    transform={`translate(${plotW + 4} ${ly - 4}) scale(0.5)`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={styles.lvCaret}
+                  />
+                )}
+                <text x={plotW + AXIS_W / 2 + (off ? 4 : 0)} y={ly + 3.5} textAnchor="middle" className={styles.lvText}>
                   {l.kind === "liq" ? fmtPrice(symbol, l.price) : l.label}
                 </text>
                 {!off && (

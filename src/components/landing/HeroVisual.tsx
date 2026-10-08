@@ -1,4 +1,5 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { LaneCheck } from "@/components/brand/Glyph";
 import { MONAD_TESTNET_CHAIN_ID, type XrayDesign, type XrayEvidence } from "./benchResults.server";
 import { MatrixSvg } from "./XrayMatrix";
 import { Lanes } from "./icons";
@@ -14,8 +15,13 @@ type Row = "take3" | "take2" | "cured" | "healthy";
 const ROWS: Row[] = ["take3", "healthy", "take2", "take3", "cured", "take3", "healthy", "take3"];
 const TICKS = AUCTION.backstopMinBps / AUCTION.stepBps; // 3 blocks to the pool threshold
 
-const STATUS: Record<Row, [string, string]> = {
-  take3: ["auction", "backstop ✓"],
+const STATUS: Record<Row, [string, ReactNode]> = {
+  take3: [
+    "auction",
+    <>
+      backstop <LaneCheck key="c" />
+    </>,
+  ],
   take2: ["auction", `taken · ${2 * AUCTION.stepBps}`],
   cured: ["auction", "cured"],
   healthy: ["healthy", "healthy"],

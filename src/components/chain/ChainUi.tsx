@@ -3,6 +3,7 @@
 // Small shared chain-mode UI: status strip, network tag, inline notice,
 // transaction link and the transaction tray.
 
+import { LaneAlert, LaneCheck } from "@/components/brand/Glyph";
 import type { ReactNode } from "react";
 import { useParaclr } from "@/lib/store";
 import { CHAIN_MODE_ON, NETWORK, txUrl } from "@/lib/chain/config";
@@ -224,7 +225,7 @@ export function TxTray({ max = 4 }: { max?: number }) {
         {shown.map((t) => (
           <li key={t.id} className={styles.trayRow} data-s={t.status}>
             <span className={styles.trayIcon} data-s={t.status} aria-hidden>
-              {t.status === "confirmed" ? "✓" : t.status === "failed" ? "!" : ""}
+              {t.status === "confirmed" ? <LaneCheck size={11} /> : t.status === "failed" ? <LaneAlert size={11} /> : null}
             </span>
             <span className={styles.trayLabel}>
               {t.label}

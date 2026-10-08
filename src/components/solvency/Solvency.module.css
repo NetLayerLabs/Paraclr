@@ -326,10 +326,13 @@
   color: var(--text-dim);
 }
 
-.check[data-tone="ok"]::before {
-  content: "✓ ";
+.check[data-tone="ok"] .checkIcon {
   color: var(--long-text);
-  font-weight: 700;
+}
+
+.checkIcon {
+  margin-right: 5px;
+  color: var(--warn-text);
 }
 
 .check[data-tone="warn"] {

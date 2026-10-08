@@ -155,6 +155,9 @@
   stroke: var(--lv);
   stroke-width: 1;
 }
+.lvCaret {
+  color: var(--lv-text);
+}
 .lvText {
   font-family: var(--font-mono);
   font-size: 9.5px;
