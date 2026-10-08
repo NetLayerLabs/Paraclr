@@ -19,6 +19,7 @@ import {
 import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
 import { anvil as anvilChain, monadTestnet } from "viem/chains";
 import { DEPLOYMENTS_DIR, envStr, REPO_ROOT } from "./env";
+import { withRateLimitRetry } from "./rpc-retry";
 
 export type Network = "anvil" | "monad-testnet";
 /** Matches NEXT_PUBLIC_CHAIN_MODE in the app. */
@@ -76,11 +77,15 @@ export function makeClient(rpcUrl: string, chain?: Chain): Client {
     // batch: concurrent calls made in the same tick (8 receipt polls, the 8 lane batches'
     // eth_sendRawTransaction) go out as ONE JSON-RPC batch request. KEEPER_RPC_BATCH=0 disables
     // it for RPCs that reject batches.
-    transport: http(rpcUrl, {
-      batch: envStr("KEEPER_RPC_BATCH") === "0" ? false : { wait: 0 },
-      retryCount: 2,
-      timeout: 20_000,
-    }),
+    // Rate-limited calls (public Monad RPC) are retried with backoff; KEEPER_RPC_BATCH_SIZE keeps
+    // batches small on a public RPC, where every call in a batch counts.
+    transport: withRateLimitRetry(
+      http(rpcUrl, {
+        batch: envStr("KEEPER_RPC_BATCH") === "0" ? false : { wait: 0, batchSize: Math.max(1, Number(envStr("KEEPER_RPC_BATCH_SIZE") || 100) || 100) },
+        retryCount: 2,
+        timeout: 20_000,
+      }),
+    ),
   }) as Client;
 }
 
