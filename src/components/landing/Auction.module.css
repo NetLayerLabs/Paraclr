@@ -553,3 +553,13 @@
     flex-basis: 26%;
   }
 }
+
+/* The deployment's own step, under the defaults chart. */
+.deployNote {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pc-line);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--pc-ink-2);
+}

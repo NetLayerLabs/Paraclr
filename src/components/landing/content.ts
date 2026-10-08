@@ -26,3 +26,10 @@ export const AUCTION = {
   backstopMinBps: 75,
   maintenanceBps: 250,
 } as const;
+
+/**
+ * The Monad testnet deployment's auction step (deployments/10143.json `params.auctionStepBps`), set
+ * through the timelock on 2026-10-08: at the default 25 bps Monad's ~0.35 s blocks reach the cap in
+ * ~7 s, quicker than a keeper on a shared public RPC reacts.
+ */
+export const TESTNET_AUCTION_STEP_BPS = 5;

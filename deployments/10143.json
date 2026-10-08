@@ -25,7 +25,7 @@
   "owner": "0xCC62247E59A3872013e2dB7A52696A3117F2e4c3",
   "params": {
     "auctionMaxDiscountBps": 500,
-    "auctionStepBps": 25,
+    "auctionStepBps": 5,
     "backstopMinDiscountBps": 75,
     "backstopWithdrawDelaySeconds": 3600,
     "backstopWithdrawWindowSeconds": 3600,

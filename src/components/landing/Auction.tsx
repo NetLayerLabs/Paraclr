@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Layers, Percent, Shield } from "./icons";
-import { AUCTION } from "./content";
+import { AUCTION, TESTNET_AUCTION_STEP_BPS } from "./content";
 import b from "./brand/Brand.module.css";
 import s from "./Auction.module.css";
 
@@ -209,6 +209,14 @@ export function Auction() {
                 </span>
               </li>
             </ol>
+            <p className={s.deployNote}>
+              On the Monad testnet deployment the step is {TESTNET_AUCTION_STEP_BPS} bps per block, set through the
+              timelock: Monad&rsquo;s blocks come every ~0.35 s, so the pool&rsquo;s {AUCTION.backstopMinBps} bps minimum
+              arrives after {AUCTION.backstopMinBps / TESTNET_AUCTION_STEP_BPS} blocks (about{" "}
+              {Math.round((AUCTION.backstopMinBps / TESTNET_AUCTION_STEP_BPS) * 0.35)} s) and the cap after{" "}
+              {AUCTION.maxBps / TESTNET_AUCTION_STEP_BPS} (about {Math.round((AUCTION.maxBps / TESTNET_AUCTION_STEP_BPS) * 0.35)} s),
+              which leaves the keepers time to react.
+            </p>
           </figure>
 
           <div className={s.side}>
