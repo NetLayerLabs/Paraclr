@@ -289,6 +289,8 @@ export function makeProdClient(rpcUrl: string, chain: Chain): Client {
     chain,
     cacheTime: 0,
     pollingInterval: 400,
+    // Same-tick reads as one Multicall3 eth_call (see keeper/src/network.ts makeClient).
+    batch: envStr("KEEPER_MULTICALL") === "0" ? undefined : { multicall: { wait: 0 } },
     transport: withRateLimitRetry(
       http(rpcUrl, {
         batch: envStr("KEEPER_RPC_BATCH") === "0" ? false : { wait: 0, batchSize },

@@ -74,6 +74,11 @@ export function makeClient(rpcUrl: string, chain?: Chain): Client {
     chain: chain ?? anvilChain,
     cacheTime: 0, // getBlockNumber must be live (viem caches it for 4s by default)
     pollingInterval: 250,
+    // Reads made in the same tick (the sweeper's per-lane lists and per-account health) go out as one
+    // Multicall3 eth_call where the chain has it (Monad testnet does): one request instead of dozens,
+    // which matters on a per-second-capped RPC. Chains without Multicall3 (a fresh anvil) fall back to
+    // plain calls. KEEPER_MULTICALL=0 disables it.
+    batch: envStr("KEEPER_MULTICALL") === "0" ? undefined : { multicall: { wait: 0 } },
     // batch: concurrent calls made in the same tick (8 receipt polls, the 8 lane batches'
     // eth_sendRawTransaction) go out as ONE JSON-RPC batch request. KEEPER_RPC_BATCH=0 disables
     // it for RPCs that reject batches.
