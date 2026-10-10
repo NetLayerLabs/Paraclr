@@ -6,6 +6,7 @@
 // silent simulation). On Monad testnet the banner leads with "test funds, no
 // real value"; in the local sandbox it says it's a local fork, not live.
 
+import { LogoLoader } from "@/components/brand/LogoLoader";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useParaclr } from "@/lib/store";
@@ -101,11 +102,18 @@ export function MainnetUnavailable() {
     : NETWORK?.isTestnetProd
       ? "Can't reach the testnet deployment"
       : "Can't reach the mainnet beta";
+  if (status === "connecting") {
+    return (
+      <main className={styles.blocked}>
+        <LogoLoader label={`Connecting to ${where}`} />
+      </main>
+    );
+  }
   return (
     <main className={styles.blocked}>
       <section className={styles.blockedCard}>
-        <h1>{status === "connecting" ? `Connecting to ${where}…` : title}</h1>
-        {status !== "connecting" && (
+        <h1>{title}</h1>
+        {(
           <>
             <p>
               The app is configured for the production contracts on {where} and never falls back to a simulation
