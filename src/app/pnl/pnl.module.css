@@ -32,7 +32,26 @@
   aspect-ratio: 1200 / 630;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 80px -30px rgba(110, 84, 255, 0.45);
+}
+
+/* Fine print over a sample card: says plainly it isn't a trade. */
+.sampleTag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #ffc46b;
+}
+
+.sampleTag::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffb547;
 }
 
 .lede {

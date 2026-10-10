@@ -11,6 +11,22 @@ import styles from "./pnl.module.css";
 
 type Search = Record<string, string | string[] | undefined>;
 
+/**
+ * Shown when the link carries no card (a bare /pnl): what a shared card looks like, labelled as a
+ * sample on the page and in its alt text. Network "demo", so the image itself says it isn't a fill.
+ */
+const SAMPLE: PnlCardData = {
+  symbol: "SOL/AUSD",
+  side: "long",
+  leverage: 3,
+  entry: 110,
+  exit: 112.2,
+  pnl: 0.6,
+  pnlPct: 6,
+  network: "demo",
+  at: 1_760_000_000,
+};
+
 function cardFrom(sp: Search): PnlCardData | null {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(sp)) if (typeof v === "string") q.set(k, v);
@@ -61,7 +77,21 @@ export default async function PnlSharePage(props: PageProps<"/pnl">) {
             </p>
           </>
         ) : (
-          <p className={styles.lede}>This card link is incomplete.</p>
+          <>
+            <p className={styles.sampleTag}>Sample card · not a real trade</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.card}
+              src={`/api/pnl-card?${cardQuery(SAMPLE)}`}
+              width={1200}
+              height={630}
+              alt="Sample Paraclr PnL card (demo data, not a real trade): SOL long 3x closed +6%."
+            />
+            <p className={styles.lede}>
+              This link carries no card, so here is a sample. Close a position in the app and choose Share on X to make
+              your own; the link then shows your card here and in the post preview.
+            </p>
+          </>
         )}
         <div className={styles.actions}>
           <Link className={styles.primary} href="/app">
