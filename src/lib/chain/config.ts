@@ -69,12 +69,19 @@ export interface NetworkInfo {
   /** `RunReport.network` value the keeper reports for this chain. */
   reportNetwork: "anvil" | "monad-testnet" | "monad-mainnet";
   nativeSymbol: string;
-  /** Block-number polling interval (ms). */
+  /**
+   * Head polling interval (ms). Public Monad RPCs cap requests per IP (~15/s,
+   * shared with a keeper on the same machine), so live chains poll every
+   * REMOTE_POLL_MS; local chains can go faster.
+   */
   pollMs: number;
   keeperUrl: string;
 }
 
 const KEEPER_URL = (process.env.NEXT_PUBLIC_KEEPER_URL || "http://127.0.0.1:8787").replace(/\/+$/, "");
+
+/** Head poll on a public RPC: a new block shows within ~2 s, at a third of the request rate of 500 ms. */
+const REMOTE_POLL_MS = 1_500;
 
 function isLocalUrl(url: string): boolean {
   try {
@@ -104,7 +111,7 @@ function monadNetwork(): NetworkInfo {
     local: false,
     reportNetwork: "monad-testnet",
     nativeSymbol: monadTestnet.nativeCurrency.symbol,
-    pollMs: 500,
+    pollMs: REMOTE_POLL_MS,
     keeperUrl: KEEPER_URL,
   };
 }
@@ -133,7 +140,7 @@ function monadMainnetNetwork(): NetworkInfo {
     local,
     reportNetwork: "monad-mainnet",
     nativeSymbol: monad.nativeCurrency.symbol,
-    pollMs: local ? 1_000 : 500,
+    pollMs: local ? 1_000 : REMOTE_POLL_MS,
     keeperUrl: KEEPER_URL,
   };
 }
@@ -170,7 +177,7 @@ function monadTestnetProdNetwork(): NetworkInfo {
     local,
     reportNetwork: "monad-testnet",
     nativeSymbol: monadTestnet.nativeCurrency.symbol,
-    pollMs: local ? 1_000 : 500,
+    pollMs: local ? 1_000 : REMOTE_POLL_MS,
     keeperUrl: KEEPER_URL,
   };
 }

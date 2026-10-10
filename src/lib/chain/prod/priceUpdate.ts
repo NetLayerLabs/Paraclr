@@ -23,7 +23,7 @@
 import type { Address, Hex } from "viem";
 import type { MarketSymbol } from "../../types";
 import { getState } from "../../store";
-import { publicClient } from "../clients";
+import { chainTimeNow, publicClient } from "../clients";
 import { NETWORK, PYTH_HERMES_URL } from "../config";
 import { ChainActionError } from "../errors";
 import type { LiveContracts } from "../runtime";
@@ -72,6 +72,16 @@ function allFeeds(c: LiveContracts): Hex[] {
   return c.listed.map((m) => c.pythFeeds[m]).filter((x): x is Hex => !!x);
 }
 
+/** Chain time (s) from the shared head (extrapolated since it arrived); one eth_getBlockByNumber only before the first poll. */
+async function chainTimeAtHead(): Promise<number | null> {
+  const t = chainTimeNow();
+  if (t !== null) return Math.floor(t);
+  return publicClient()
+    .getBlock({ blockTag: "latest" })
+    .then((b) => Number(b.timestamp))
+    .catch(() => null);
+}
+
 /**
  * Age (s), at the latest block, of the oldest usable price across every listed
  * market, where a market's price is the newer of the Pyth-stored price and the
@@ -90,14 +100,8 @@ export async function oldestStoredAge(c: LiveContracts, lane: number | null = nu
       calls.push({ address: c.clearinghouse, abi: prodAbi, functionName: "lanePrice", args: [lane, c.markets[m]] }),
     );
   }
-  const [res, head] = await Promise.all([
-    readLoose(calls),
-    publicClient()
-      .getBlock({ blockTag: "latest" })
-      .catch(() => null),
-  ]);
-  if (!head) return null;
-  const now = Number(head.timestamp);
+  const [res, now] = await Promise.all([readLoose(calls), chainTimeAtHead()]);
+  if (now === null) return null;
   let oldest = 0;
   for (let i = 0; i < listed.length; i++) {
     const stored = res[i];

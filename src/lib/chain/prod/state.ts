@@ -10,7 +10,7 @@
 
 import type { Abi, Address } from "viem";
 import { MARKETS, type MarketSymbol } from "../../types";
-import { readMany, publicClient } from "../clients";
+import { getLatestHead, publicClient, readMany } from "../clients";
 import type { LiveContracts } from "../runtime";
 import { ausdToNumber, priceToNumber } from "../units";
 import { prodAbi } from "./abi";
@@ -247,12 +247,22 @@ export async function readLaneSolvencies(c: LiveContracts): Promise<LaneSolvency
   return out.every((x) => x !== null) ? (out as LaneSolvency[]) : null;
 }
 
+/** Latest head from the shared block watcher; one eth_getBlockByNumber only before its first poll. */
+async function latestHead(): Promise<{ number: bigint; timestamp: bigint; seenAt: number } | null> {
+  const head = getLatestHead();
+  if (head) return head;
+  return publicClient()
+    .getBlock({ blockTag: "latest" })
+    .then((b) => ({ number: b.number, timestamp: b.timestamp, seenAt: Date.now() }))
+    .catch(() => null);
+}
+
 /** Per-block state: pause, funding, on-chain Pyth prices, the account's lane and own orders/fees. */
 export async function readProdDynamic(
   c: LiveContracts,
   lane: number | null,
   account: Address | null,
-): Promise<Pick<ProdState, "paused" | "markets" | "lane" | "mine" | "chainTime" | "block">> {
+): Promise<Pick<ProdState, "paused" | "markets" | "lane" | "mine" | "chainTime" | "chainTimeAt" | "block">> {
   const ch = c.clearinghouse;
   const listed = c.listed;
   const ids = listed.map((s) => c.markets[s]);
@@ -279,12 +289,7 @@ export async function readProdDynamic(
     ids.forEach((id) => calls.push(call("pendingOrderOf", [account, id])));
     calls.push(call("topUpAllowance", [account]));
   }
-  const [res, head] = await Promise.all([
-    readLoose(calls),
-    publicClient()
-      .getBlock({ blockTag: "latest" })
-      .catch(() => null),
-  ]);
+  const [res, head] = await Promise.all([readLoose(calls), latestHead()]);
 
   let i = 0;
   const pausedR = res[i++];
@@ -340,6 +345,7 @@ export async function readProdDynamic(
     lane: laneState,
     mine,
     chainTime: head ? Number(head.timestamp) : null,
+    chainTimeAt: head ? head.seenAt : Date.now(),
     block: head ? Number(head.number) : null,
   };
 }

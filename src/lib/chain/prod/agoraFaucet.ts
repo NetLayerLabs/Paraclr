@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { encodeFunctionData, erc20Abi, type Address } from "viem";
 import { getState, useParaclr } from "../../store";
 import { AGORA_AUSD_FAUCET_TESTNET, NETWORK } from "../config";
-import { coalesce, publicClient, subscribeBlocks } from "../clients";
+import { chainTimeNow, coalesce, publicClient, subscribeBlocks } from "../clients";
 import { ChainActionError } from "../errors";
 import type { LiveContracts } from "../runtime";
 import { getSigner } from "../signer";
@@ -64,9 +64,12 @@ export async function readAgoraFaucet(c: LiveContracts): Promise<AgoraFaucetStat
       call("token"),
       { address: c.ausd, abi: erc20Abi, functionName: "balanceOf", args: [f] },
     ]).catch(() => null),
-    publicClient()
-      .getBlock({ blockTag: "latest" })
-      .catch(() => null),
+    // Chain time from the shared head; a direct read only before its first poll.
+    chainTimeNow() !== null
+      ? Promise.resolve({ timestamp: BigInt(Math.floor(chainTimeNow() as number)) })
+      : publicClient()
+          .getBlock({ blockTag: "latest" })
+          .catch(() => null),
   ]);
   const big = (i: number) => {
     const r = res?.[i];

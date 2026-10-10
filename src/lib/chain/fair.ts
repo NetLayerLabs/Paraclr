@@ -157,19 +157,16 @@ export interface SolvencySnapshot {
 }
 
 export async function readSolvency(clearinghouse: Address, block: number | null): Promise<SolvencySnapshot> {
-  const [[s], ledgers] = await Promise.all([
-    readMany({ contracts: [{ address: clearinghouse, abi: fairAbi, functionName: "solvency" as const }] }),
-    readMany({
-      contracts: LANE_IDS.map((l) => ({
-        address: clearinghouse,
-        abi: fairAbi,
-        functionName: "laneLedger" as const,
-        args: [l] as const,
-      })),
-    }),
-  ]);
+  // One batch: `solvency()` plus the eight lane ledgers (mixed views: decoded loosely below).
+  type Loose = { status: "success"; result: unknown } | { status: "failure"; error: Error };
+  const [s, ...ledgers] = (await readMany({
+    contracts: [
+      { address: clearinghouse, abi: fairAbi, functionName: "solvency" },
+      ...LANE_IDS.map((l) => ({ address: clearinghouse, abi: fairAbi, functionName: "laneLedger", args: [l] })),
+    ] as never,
+  })) as unknown as Loose[];
   if (s.status !== "success") throw s.error;
-  const [ausdHeld, liabilities, surplus, solvent] = s.result;
+  const [ausdHeld, liabilities, surplus, solvent] = s.result as readonly [bigint, bigint, bigint, boolean];
   let lanes: LaneLedger[] | null = ledgers.map((r, lane) => {
     if (r.status !== "success") return null;
     const [collateral, insurance, backstopCash, keeperRewards, badDebt] = (r.result as readonly bigint[]).map(ausdToNumber);

@@ -12,7 +12,7 @@ import { erc20Abi, type Address } from "viem";
 import type { MarketSymbol, Position } from "../../types";
 import { getState } from "../../store";
 import { CHAIN_MAINTENANCE_MARGIN, crossLiquidationPrice, type ChainAccountSnapshot } from "../account";
-import { getLatestBlock, publicClient } from "../clients";
+import { getLatestBlock, nativeBalanceCall, publicClient } from "../clients";
 import { readableError } from "../errors";
 import type { LiveContracts } from "../runtime";
 import { ausdToNumber, nativeToNumber, priceToNumber, sizeToNumber } from "../units";
@@ -43,7 +43,9 @@ export async function readProdAccountSnapshot(address: Address, c: LiveContracts
     functionName,
     args,
   });
-  const [res, nativeUnits] = await Promise.all([
+  // Native balance in the same batch when Multicall3 is there (one eth_call for the whole snapshot).
+  const nativeCall = nativeBalanceCall(address);
+  const [res, nativeDirect] = await Promise.all([
     readLoose([
       call("getAccount", [address]),
       call("accountHealth", [address]),
@@ -53,12 +55,15 @@ export async function readProdAccountSnapshot(address: Address, c: LiveContracts
       call("auctionOf", [address]),
       ...ids.map((id) => call("getPosition", [address, id])),
       ...ids.map((id) => call("unrealizedPnl", [address, id])),
+      ...(nativeCall ? [nativeCall] : []),
     ]),
-    publicClient().getBalance({ address }),
+    nativeCall ? Promise.resolve(null) : publicClient().getBalance({ address }),
   ]);
   const [acctR, healthR, freeR, balR, allowR, aucR, ...rest] = res;
   const posR = rest.slice(0, listed.length);
-  const upnlR = rest.slice(listed.length);
+  const upnlR = rest.slice(listed.length, 2 * listed.length);
+  const nativeUnits =
+    nativeDirect ?? big(rest[2 * listed.length]) ?? (await publicClient().getBalance({ address }).catch(() => BigInt(0)));
 
   const acct = tuple(acctR);
   if (!acct) throw acctR.status === "failure" ? acctR.error : new Error("getAccount returned nothing");
