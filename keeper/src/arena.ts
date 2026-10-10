@@ -449,6 +449,10 @@ export class Arena {
     for (;;) {
       try {
         await this.readParams();
+        // Waiting for gas costs nothing: no baseline refresh (an operator tx) until the wallets
+        // can afford a cycle.
+        await this.refreshBalances(true);
+        if (this.refuelling()) throw new Error("Arena is refuelling: waiting for the keeper wallets to be topped up");
         await this.ensureBaseline();
         await this.prepareBook();
         this.toReady(false);
