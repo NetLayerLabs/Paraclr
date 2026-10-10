@@ -1,9 +1,12 @@
-/* Activity since deploy (Envio): the clearing screen's stat tiles and a compact auction table. */
+/* Activity since deploy (Envio): an inline stat strip and a ledger of the latest auctions,
+   ruled sections on the clearing screen's surface. */
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
 .head {
@@ -15,9 +18,10 @@
 }
 
 .title {
-  font-size: 15px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
 }
 
 .subTitle {
@@ -32,39 +36,40 @@
   color: var(--text-dim);
 }
 
+/* One inline strip: figures divided by thin rules. */
 .tiles {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 0;
 }
 
 .tile {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 9px 10px;
-  border-radius: var(--radius-panel);
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-1), var(--card-highlight);
+  gap: 3px;
+  padding: 0 24px;
   min-width: 0;
 }
 
+.tile:first-child {
+  padding-left: 0;
+}
+
+.tile + .tile {
+  border-left: 1px solid var(--border);
+}
+
 .tile dt {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 500;
+  font-size: 12px;
   color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .tile dd {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -76,7 +81,11 @@
   gap: 8px;
 }
 
+/* Worded empty state: one ledger line on a hairline. */
 .empty {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--text-dim);
@@ -84,9 +93,8 @@
 
 .tableWrap {
   overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg-elev);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .table {
@@ -105,8 +113,12 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
-  background: var(--bg-subtle);
   box-shadow: inset 0 -1px 0 var(--border);
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: 0;
 }
 
 .table td {
@@ -142,6 +154,17 @@
 
 @media (max-width: 639px) {
   .tiles {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tile,
+  .tile:first-child {
+    padding: 0 12px;
+  }
+
+  .tile:nth-child(odd) {
+    padding-left: 0;
+    border-left: none;
   }
 }

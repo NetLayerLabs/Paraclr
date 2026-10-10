@@ -194,16 +194,23 @@
   background: currentColor;
 }
 
+/* Network: a dot and the name as fine print, no pill. */
+.netTag[data-net] {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
 .netTag[data-net="monad"] {
-  color: var(--long-text);
-  background: var(--long-soft);
-  border-color: var(--long-line);
+  color: var(--text-2);
+}
+
+.netTag[data-net="monad"]::before {
+  background: var(--long);
 }
 
 .netTag[data-net="anvil"] {
   color: var(--warn-text);
-  background: var(--warn-soft);
-  border-color: var(--warn-line);
 }
 
 .netTag[data-net="anvil"]::before {
@@ -212,8 +219,6 @@
 
 .netTag[data-net="sim"] {
   color: var(--text-2);
-  background: var(--bg-elev-2);
-  border-color: var(--border);
 }
 
 .netTag[data-net="sim"]::before {
