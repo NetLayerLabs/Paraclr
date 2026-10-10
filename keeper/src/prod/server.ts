@@ -330,8 +330,14 @@ function readBody(req: IncomingMessage): Promise<unknown> {
     let raw = "";
     req.on("data", (c: Buffer) => {
       raw += c.toString();
-      if (raw.length > 10_000) req.destroy();
+      if (raw.length > 10_000) {
+        // Oversized body: drop it and answer as an empty body (the route then rejects it) instead
+        // of leaving the handler pending forever.
+        req.destroy();
+        resolve({});
+      }
     });
+    req.on("error", () => resolve({}));
     req.on("end", () => {
       try {
         resolve(raw ? JSON.parse(raw) : {});

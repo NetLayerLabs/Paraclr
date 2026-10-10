@@ -173,8 +173,14 @@ export class HermesClient {
     } catch (err) {
       throw new HermesError(`${host(url)}: ${(err as Error)?.name === "TimeoutError" ? "timeout" : ((err as Error)?.message ?? err)}`, null, true);
     }
-    if (res.status === 404) return null; // not published yet (publish_time route) — not a failure
+    // Every early return below releases the unread body: an unconsumed fetch body keeps its
+    // connection buffers alive outside the JS heap.
+    if (res.status === 404) {
+      void res.body?.cancel().catch(() => undefined);
+      return null; // not published yet (publish_time route) — not a failure
+    }
     if (res.status === 401 || res.status === 403) {
+      void res.body?.cancel().catch(() => undefined);
       this.opts.alerter?.fire(
         "hermes:auth",
         "critical",
@@ -183,6 +189,7 @@ export class HermesClient {
       throw new HermesError(`${host(url)}: HTTP ${res.status} (API key ${this.opts.apiKey ? "rejected" : "missing"})`, res.status, false);
     }
     if (!res.ok) {
+      void res.body?.cancel().catch(() => undefined);
       const transient = res.status === 429 || res.status >= 500;
       throw new HermesError(`${host(url)}: HTTP ${res.status}`, res.status, transient);
     }
