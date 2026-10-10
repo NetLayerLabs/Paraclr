@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { BRAND } from "./brand/tokens";
 import { LANE_RADII, LANE_STROKE, TILE_RX, lanePath } from "./brand/Logo";
+import { AUCTION, TESTNET_AUCTION_STEP_BPS } from "./content";
 
 const FONT_DIR = join(process.cwd(), "src", "components", "landing", "brand", "fonts");
 
@@ -61,9 +62,13 @@ export async function renderOgImage(
       : { text: "Mainnet beta: launch pending", dot: "#F59E0B", fg: "#7A4605", bg: "#FEF6E7", line: "#F6DCAA" };
   const audit = live ? "Unaudited beta" : "Not audited";
 
+  // The auction step: the live testnet deployment runs 5 bps per block (set through the
+  // timelock on 2026-10-08); everywhere else the contract default from content.ts.
+  const stepBps = testnetLive && !live ? TESTNET_AUCTION_STEP_BPS : AUCTION.stepBps;
+
   const stats = [
     { k: "8", v: "lanes, lane-local storage" },
-    { k: "+25 bps", v: "discount per block" },
+    { k: `+${stepBps} bps`, v: "discount per block" },
     { k: "E − P", v: "back to the trader" },
   ];
 
@@ -214,7 +219,7 @@ export async function renderOgImage(
         </div>
       </div>
 
-      {/* Dark side: the mechanism in three numbers (contract defaults). */}
+      {/* Dark side: the mechanism in three numbers (contract defaults; the live testnet step). */}
       <div
         style={{
           display: "flex",
