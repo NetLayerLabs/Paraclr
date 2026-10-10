@@ -13,8 +13,15 @@
 //   POST /price-loop {paused}    → pause/resume price pushes (bench: identical books for both designs)
 //   GET  /demo-takers            → the keeper-run demo external takers
 //   POST /demo-takers {enabled?, seed?, perLane?, minBps?, maxBps?} → re-derive + fund them (bench)
+//
+// Arena mode (`--arena` / ARENA=1, keeper/src/arena.ts):
+//   GET  /arena                  → cycle state, cooldown, current/last run, book per design per lane, budget
+//   POST /arena/crash            → 202 { runId } | 409 { error, code, retryAfterS? }
+//   POST /crash, /recover, /price-loop, /demo-takers, /faucet need header x-admin-token = ARENA_ADMIN_TOKEN
+//   (refused when it is unset). Every GET stays public.
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
+import { ArenaRefusal, isAdminRoute, type Arena } from "./arena";
 import { readOraclePrices, type KeeperContext } from "./context";
 import { BusyError, NotCrashedError, type CrashController } from "./crash";
 import { FaucetError, type Faucet } from "./faucet";
@@ -30,6 +37,8 @@ interface Deps {
   faucet: Faucet;
   loop: PriceLoop | null;
   sweeper: Sweeper | null;
+  /** Arena mode (null = the plain demo keeper). */
+  arena?: Arena | null;
 }
 
 const MAX_BODY = 16 * 1024;
@@ -41,7 +50,7 @@ function corsHeaders(req: IncomingMessage, allowed: string[]): Record<string, st
   else if (origin && allowed.includes(origin)) allow = origin;
   const h: Record<string, string> = {
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Allow-Headers": "content-type, x-admin-token",
     "Access-Control-Max-Age": "600",
     Vary: "Origin",
   };
@@ -145,6 +154,7 @@ function sweepTxJson(t: Sweeper["recent"][number]) {
 
 export function startServer(deps: Deps): Server {
   const { ctx, crash, faucet, loop, sweeper } = deps;
+  const arena = deps.arena ?? null;
   const server = createServer(async (req, res) => {
     const cors = corsHeaders(req, ctx.config.corsOrigins);
     const url = new URL(req.url ?? "/", "http://keeper.local");
@@ -155,6 +165,24 @@ export function startServer(deps: Deps): Server {
         res.writeHead(204, cors);
         res.end();
         return;
+      }
+      if (arena && isAdminRoute(req.method, path) && !arena.adminOk(req.headers["x-admin-token"])) {
+        throw new HttpError(
+          403,
+          arena.config.adminToken
+            ? "arena mode: this route needs the x-admin-token header"
+            : "arena mode: admin routes are disabled (ARENA_ADMIN_TOKEN is not set)",
+        );
+      }
+      if (req.method === "GET" && path === "/arena") {
+        if (!arena) throw new HttpError(404, "this keeper is not in arena mode (--arena / ARENA=1)");
+        return send(res, 200, await arena.view(), cors);
+      }
+      if (req.method === "POST" && path === "/arena/crash") {
+        if (!arena) throw new HttpError(404, "this keeper is not in arena mode (--arena / ARENA=1)");
+        await readJson(req); // body ignored (the arena always shocks ARENA_BPS); size-capped
+        const ip = arena.clientIp(req.headers, req.socket.remoteAddress);
+        return send(res, 202, await arena.requestCrash(ip), cors);
       }
       if (req.method === "GET" && (path === "/health" || path === "/")) {
         return send(res, 200, await health(deps), cors);
@@ -257,6 +285,7 @@ export function startServer(deps: Deps): Server {
       throw new HttpError(404, `no route ${req.method} ${path}`);
     } catch (err) {
       if (err instanceof HttpError) return send(res, err.status, { error: err.message, ...err.extra }, cors);
+      if (err instanceof ArenaRefusal) return send(res, err.status, { error: err.message, code: err.code, ...err.extra }, cors);
       if (err instanceof FaucetError) return send(res, err.status, { error: err.message, ...err.extra }, cors);
       if (err instanceof BusyError) return send(res, 409, { error: err.message, runId: err.runId }, cors);
       if (err instanceof NotCrashedError) return send(res, 409, { error: err.message }, cors);

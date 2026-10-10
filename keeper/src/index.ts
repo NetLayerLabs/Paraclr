@@ -11,9 +11,10 @@
 
 import type { Server } from "node:http";
 import { encodeFunctionData, formatEther } from "viem";
+import { Arena, arenaEnabled } from "./arena";
 import { abis, createContext, ensureAnvilBalances, readOraclePrices, roleBalances, type KeeperContext } from "./context";
 import { CrashController } from "./crash";
-import { loadKeeperEnv, parseArgs, rpcHost } from "./env";
+import { loadKeeperEnv, parseArgs, REPO_ROOT, rpcHost } from "./env";
 import { Faucet } from "./faucet";
 import { applyPrivateStackDefaults, defaultRpcUrl, deploymentLabel } from "./network";
 import { fromWad, PriceLoop, PriceSim } from "./prices";
@@ -47,7 +48,7 @@ async function ensurePusherIsUpdater(ctx: KeeperContext): Promise<void> {
   console.log(`[keeper] allowlisted price pusher ${pusher} on the oracle (${sub.hash})`);
 }
 
-async function main(): Promise<void> {
+async function main(cli: Record<string, string | true>): Promise<void> {
   const envFile = loadKeeperEnv();
   applyPrivateStackDefaults(defaultRpcUrl());
   const ctx = await createContext();
@@ -92,9 +93,15 @@ async function main(): Promise<void> {
   } else {
     console.log(`[keeper] demo external takers OFF${ctx.features.auctions ? " (DEMO_TAKERS=1 enables them)" : ""}`);
   }
-  loop.start();
-  if (config.sweeperEnabled) sweeper.start();
-  const server: Server = startServer({ ctx, crash, faucet, loop, sweeper });
+  // Arena mode: prices are held at the baseline between crashes (no random walk: the book is sized
+  // against it) and the sweeper runs only inside crash runs (crash.ts starts and stops it).
+  const arena = arenaEnabled(cli) ? new Arena(ctx, crash, sweeper) : null;
+  if (arena && !ctx.features.auctions) throw new Error("arena mode needs the auction API (startAuctions) on the clearinghouse");
+  if (!arena) {
+    loop.start();
+    if (config.sweeperEnabled) sweeper.start();
+  }
+  const server: Server = startServer({ ctx, crash, faucet, loop, sweeper, arena });
   server.on("error", (err: NodeJS.ErrnoException) => {
     console.error(
       err.code === "EADDRINUSE"
@@ -105,7 +112,7 @@ async function main(): Promise<void> {
   });
 
   console.log(
-    `[keeper] price loop ${config.priceLoopEnabled ? `every ${config.priceIntervalMs}ms` : "OFF"}` +
+    `[keeper] price loop ${arena ? "OFF (arena: prices held at the baseline between crashes)" : config.priceLoopEnabled ? `every ${config.priceIntervalMs}ms` : "OFF"}` +
       (config.priceIdleMs ? ` (pauses after ${Math.round(config.priceIdleMs / 1000)}s without HTTP traffic)` : "") +
       ` · faucet ${formatEther(config.faucetGasWei)} gas + ${Number(config.faucetAusd) / 1e6} AUSD` +
       ` · max tx gas ${config.maxTxGas} · gas margin ${config.gasMarginBps / 100}%`,
@@ -116,10 +123,20 @@ async function main(): Promise<void> {
   console.log(
     !ctx.features.auctions
       ? "[keeper] sweeper OFF: the deployed clearinghouse has no auction API (crash runs use legacy liquidateBatch)"
-      : `[keeper] sweeper ${config.sweeperEnabled ? `ON (every block, poll ${config.sweeperPollMs}ms, ${sweeper.designs.map((d) => (d.label === "naive" ? `naive [${config.sweepNaive}]` : d.label)).join(" + ")})` : "OFF (SWEEPER=0; crash runs start it for the run)"}` +
+      : `[keeper] sweeper ${arena ? "ON only inside crash runs (arena)" : config.sweeperEnabled ? `ON (every block, poll ${config.sweeperPollMs}ms, ${sweeper.designs.map((d) => (d.label === "naive" ? `naive [${config.sweepNaive}]` : d.label)).join(" + ")})` : "OFF (SWEEPER=0; crash runs start it for the run)"}` +
           ` · X-ray ${config.xray} → ${config.xrayDir}`,
   );
   console.log(`[keeper] listening on http://127.0.0.1:${config.port}  (CORS: ${config.corsOrigins.join(", ")})`);
+  if (arena) {
+    const a = arena.config;
+    console.log(
+      `[keeper] ARENA mode: GET /arena, POST /arena/crash · ${a.perLane}/lane × 8 lanes per design, shock ${a.bps} bps · ` +
+        `cooldown ${a.cooldownMs / 1000}s, 1 crash/IP per ${a.ipWindowMs / 60_000} min${a.trustProxy ? " (X-Forwarded-For trusted)" : ""}, ` +
+        `${a.dailyMax}/day · admin routes ${a.adminToken ? "need x-admin-token" : "LOCKED (ARENA_ADMIN_TOKEN unset)"} · ` +
+        `price loop and idle sweeper off · state ${a.stateFile.startsWith(REPO_ROOT + "/") ? a.stateFile.slice(REPO_ROOT.length + 1) : a.stateFile}`,
+    );
+    arena.start();
+  }
 
   let stopping = false;
   const shutdown = async (signal: string) => {
@@ -139,7 +156,7 @@ if (cli.network !== undefined && cli.network !== "mainnet" && cli.network !== "t
   console.error(`[keeper] --network must be mainnet or testnet (production) or omitted (demo stack: anvil / testnet from keeper/.env), got "${String(cli.network)}"`);
   process.exit(1);
 }
-(cli.network === "mainnet" || cli.network === "testnet" ? runProdKeeper(cli) : main()).catch((err: unknown) => {
+(cli.network === "mainnet" || cli.network === "testnet" ? runProdKeeper(cli) : main(cli)).catch((err: unknown) => {
   console.error(`[keeper] fatal: ${(err as Error)?.message ?? err}`);
   process.exit(1);
 });

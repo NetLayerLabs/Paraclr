@@ -698,6 +698,47 @@ git add bench/results/10143-*.json bench/xray/10143-*.json deployments/10143.jso
 
 The result is labelled `network: "monad-testnet"` and `measuredOn: "Monad testnet"`. The X-ray says whether it was a live `debug_traceTransaction` or an `anvil-fork-replay` (with `forkedFrom`). The anvil files stay labelled anvil. Never mix them.
 
+## Arena mode (`--arena`)
+
+The public `/arena` page (src/app/arena) is driven by the demo keeper in arena mode
+(keeper/src/arena.ts): anyone presses "Crash the market −20%" and every viewer watches the same run.
+
+```bash
+# Demo stack on Monad testnet (keys from keeper/.env; never commit them)
+DEPLOYMENTS_OUT=deployments/demo/10143.json KEEPER_PORT=8791 \
+ARENA_ADMIN_TOKEN=<long random string> KEEPER_CORS_ORIGIN=https://your-app.example \
+npm run keeper -- --arena            # or ARENA=1
+
+# The page (any host): NEXT_PUBLIC_ARENA_KEEPER_URL=https://<arena keeper>
+```
+
+One cycle: `seeding → ready → crashing → resolving → xray → recovering → seeding → ready`.
+
+- **seeding**: a fresh book of `ARENA_PER_LANE` (3) keyless accounts in each of the 8 lanes, identical in both designs, from a new seed each cycle. Accounts are sized against the shock: most go underwater (positive equity left), a few go below zero (lane-funded shortfall), a few stay healthy, and one gets an operator-funded top-up mid-auction so it is cured (`ARENA_CURE=0` disables it). Backstop pools below half of `ARENA_BACKSTOP_CASH` (500k AUSD per lane) are topped up.
+- **crashing / resolving / xray**: the normal crash run (`/crash` logic): one `shockPrices`, the sweeper resolves every auction on both designs, then the Conflict X-ray.
+- **recovering**: one `setPrices` back to the baseline.
+
+Prices are held at a baseline between crashes in arena mode: no random-walk price loop, and the sweeper only runs inside crash runs. The baseline, the cycle counters and the uncrashed book live in `keeper/.arena/<chainId>-<clearinghouse>.json` (gitignored). A restart reuses a book that was seeded but never crashed.
+
+| Route | |
+| --- | --- |
+| `GET /arena` | `state`, `canCrash`, `reason {code, message}`, `cooldownRemainingS`, `current {runId, shockBlock}`, `last` (blocks to resolve per design, the naive design's auction summary, xrayId, recover tx), `book.designs[].lanes[].accounts[]` (state, live discount, equity / residual / bad debt / fixed penalty), `feed`, `budget` (daily count, refuelling, balances, thresholds, `lastCycleCost`), `limits` |
+| `POST /arena/crash` | `202 {runId}`, or `409 {error, code}` with code `running`, `seeding`, `starting`, `error`, `cooldown`, `daily-cap`, `refuelling` or `ip-limit` (+ `retryAfterS`) |
+| `POST /crash`, `/recover`, `/price-loop`, `/demo-takers`, `/faucet` | `403` unless header `x-admin-token` = `ARENA_ADMIN_TOKEN` (always refused when it is unset) |
+
+Every other GET (`/health`, `/sweeper`, `/runs/:id`, `/runs/:id/xray`, `/solvency`, `/backstop`) stays public.
+
+| Variable | Default | |
+| --- | --- | --- |
+| `ARENA_COOLDOWN_S` | 180 | after each cycle is back to ready |
+| `ARENA_IP_WINDOW_S` | 600 | one crash per IP per window |
+| `ARENA_TRUST_PROXY` | off | `1`: client IP = first `X-Forwarded-For` hop (only behind your own proxy) |
+| `ARENA_DAILY_MAX` | 40 | cycles per UTC day |
+| `ARENA_MIN_OPERATOR_MON` / `ARENA_MIN_KEEPER_MON` | 1.5 × the last measured cycle (first cycle on Monad: 2.5 / 0.3) | gas guard: below it, "Arena is refuelling" |
+| `ARENA_PER_LANE`, `ARENA_BPS`, `ARENA_BACKSTOP_CASH`, `ARENA_CURE`, `ARENA_POLL_MS`, `ARENA_STATE_FILE`, `ARENA_REF_GAS_GWEI` | 3, 8000, 500000, 1, 500 (anvil 250), see above, 102 | |
+
+**Cost per cycle**, measured on local anvil (gas limits × 102 gwei, which is what Monad bills): about **2.45 MON** per cycle at 3 accounts per lane. Seeding 48 accounts (both designs) is about 13.6M gas (1.39 MON, operator). The sweeper's 34 txs are about 10.2M gas (1.05 MON across the 8 lane keepers, busiest key about 0.16 MON). Shock, two cure top-ups and recover add about 0.25M gas (0.025 MON). The first cycle also tops up the backstop pools (9 deposits, about 0.6M gas). `GET /arena` reports the live figure as `budget.lastCycleCost` (Monad: at the live gas price). At 40 cycles a day that is about 100 MON a day; `ARENA_PER_LANE=2` cuts seeding by a third.
+
 ## Configuration (`keeper/.env`)
 
 | Variable | Default (anvil / monad) | Meaning |

@@ -18,7 +18,7 @@
     "deploy:testnet": "tsx scripts/deploy-mainnet.ts --network testnet",
     "keeper": "tsx keeper/src/index.ts",
     "keeper:init": "tsx keeper/src/init-env.ts",
-    "test:keeper": "tsx --test keeper/src/prod/*.test.ts",
+    "test:keeper": "tsx --test keeper/src/*.test.ts keeper/src/prod/*.test.ts",
     "keeper:fund": "tsx keeper/src/fund-roles.ts",
     "guardian:pause": "tsx keeper/src/prod/guardian.ts",
     "timelock": "tsx keeper/src/prod/timelock.ts",

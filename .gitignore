@@ -17,6 +17,7 @@
 /.next/
 /.next-sandbox/
 /.next-testnet/
+/.next-arena/
 /out/
 
 # production
@@ -58,6 +59,8 @@ deployments/sandbox/
 keeper/.signer-state-*
 # the testnet gas drip's ledger of dripped addresses (keeper/src/prod/drip.ts)
 keeper/.drip-state-*
+# arena mode's state (baseline prices, cycle counts, the uncrashed book; keeper/src/arena.ts)
+keeper/.arena/
 
 # teaser video (video/teaser): dependencies and renders stay local
 video/teaser/node_modules
