@@ -21,7 +21,8 @@ deviate, append to **Deviations** at the bottom and say so in your report.
 
 ## Mechanism
 
-Constants (owner-configurable, sane defaults): `AUCTION_STEP_BPS = 25` per block,
+Constants (owner-configurable, sane defaults): `AUCTION_STEP_BPS = 25` per block (5 bps on
+the live testnet deployment, set through the timelock on 2026-10-08),
 `AUCTION_MAX_DISCOUNT_BPS = 500`, start discount 0, per-lane backstop
 `minDiscountBps` default 150 (≈6 blocks ≈ 2.4 s on Monad). Maintenance margin stays
 2.5% (250 bps).
@@ -229,7 +230,7 @@ All additive; nothing in the plan's shapes was removed or renamed. Details are i
 - **X-ray `summary` adds `crossLaneEdges` / `sameLaneEdges`.** With takers, several txs of one lane share a block and that lane's aggregates (same-lane edges are expected). The lane design's claim is **0 cross-lane edges**: run A shows 0 of 34 edges cross-lane on paraclr, vs 277 of 311 on naive. `closePosition`, `openPosition`, `deposit` and `withdraw` nodes get `lane = laneOf(sender)`.
 
 ### Contracts agent: default backstop min discount lowered to 75 bps
-- The per-lane pool `minDiscountBps` default is now **75 bps** (3 blocks at 25 bps/block), replacing the plan's 150 bps (≈6 blocks). That puts it below the 100 bps legacy liquidation fee. The keeper's bench had shown that at 150 the auction took more from traders than the legacy 1% penalty: +27% at −20% and +50% at −5%.
+- The per-lane pool `minDiscountBps` default is now **75 bps** (3 blocks at 25 bps/block; 15 blocks at the live testnet deployment's 5 bps), replacing the plan's 150 bps (≈6 blocks). That puts it below the 100 bps legacy liquidation fee. The keeper's bench had shown that at 150 the auction took more from traders than the legacy 1% penalty: +27% at −20% and +50% at −5%.
 - `setBackstopMinDiscount(lane, bps)` remains available for per-lane tuning. The deploy script gained an optional `BACKSTOP_MIN_DISCOUNT_BPS` env var for both clearinghouses; when unset, the contract default applies. The default is an internal constant, so the **ABI is unchanged**. The keeper should read the threshold per lane with `backstopMinDiscountBps(lane)` rather than hard-coding 150.
 - Tested: `test_DefaultPoolTake_LeavesTraderMoreThanLegacy` and a 1024-run fuzz over 2x–20x leverage and E from 1% to 2.5% of notional. A pool take at the default threshold leaves the trader exactly `E − 0.75%·N`, which is strictly more than the legacy `E − 1%·N`. The pool does not take at block +2 and does take at +3.
 - Existing deployments (anvil :8545) still use 150 until they are redeployed (keeper agent) or re-tuned per lane with `setBackstopMinDiscount`.

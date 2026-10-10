@@ -48,6 +48,8 @@ Ours: a per-block Dutch auction. d = min(500, 25 × blocks since start), in bps.
 A taker inherits the positions at the mark and is paid P = d × notional; the trader keeps E − P. Gas can't buy a bigger d, only an earlier take at a smaller one. MEV-resistant, not MEV-free.
 ```
 
+25 is the contract default step (5 bps on the live testnet deployment, through the timelock since 2026-10-08). At 280 there is no room for the parenthetical; write `5 ×` instead if the thread goes out while the testnet value stands.
+
 ### 4/10 (274 chars)
 
 ```

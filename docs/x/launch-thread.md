@@ -65,6 +65,8 @@ Every block, each underwater account goes to a Dutch auction. The discount start
 A taker inherits the positions at the mark and is paid P = discount × notional. The trader keeps E − P as free collateral. Never loses more than E.
 ```
 
+25 bps per block is the contract default (5 bps on the live testnet deployment, through the timelock since 2026-10-08). The post has no room for the parenthetical at 280; say "5 bps per block" instead if it goes out while the testnet value stands.
+
 Media: `[IMAGE: the discount-by-block staircase from the landing page]`
 
 ### 3/8: MEV-resistant, not MEV-free (242 chars)

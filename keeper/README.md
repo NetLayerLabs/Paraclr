@@ -485,7 +485,7 @@ So `XRAY=auto` should get the live method on a provider with the debug namespace
 These are from `npm run bench -- --accounts 500 --seed 20261006`, each on a fresh private anvil (`DEMO_TAKER_SEED=20261006 npm run dev:chain -- --port 8645`) with the keeper running, so the crash went through `/crash` and the price loop was paused.
 
 - **Books:** both designs got the **identical** book: the same 500 accounts, 783 positions, 4,753,603 AUSD collateral; per lane 65 / 53 / 65 / 64 / 64 / 55 / 71 / 63. The price loop was paused during seeding, so every position opened at the same mark.
-- **Parameters:** `backstopMinDiscountBps` = 75 on every lane (verified after deploy), step 25 bps per block, max 500.
+- **Parameters:** `backstopMinDiscountBps` = 75 on every lane (verified after deploy), step 25 bps per block (the contract default; the live production deployment on Monad testnet runs 5 bps per block since 2026-10-08, through the timelock), max 500.
 - **Demo external takers:** 24 keeper-run bots (3 per lane), reservations 25–70 bps drawn from seed 20261006 (the bench lists them).
 - **Shock:** MON, SOL and BTC together.
 

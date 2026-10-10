@@ -1,4 +1,4 @@
-# Hosting the production keeper (Monad mainnet)
+# Hosting the production keeper (Monad testnet today, Monad mainnet at launch)
 
 The production keeper is one long-running Node process. Run **exactly one instance per key set**. Two instances would race the same nonces and send every execution twice. The duplicates revert harmlessly with `OrderNotPending`, but each one still burns gas.
 
@@ -11,6 +11,21 @@ It holds no state worth keeping. On restart it rebuilds everything from chain lo
 
 What it does and what it refuses to do is in [`keeper/README.md`](README.md#production-monad-mainnet). Procedures (deploy, pause, key rotation, incidents) are in [`docs/RUNBOOK.md`](../docs/RUNBOOK.md).
 
+## Testnet (what runs today)
+
+The production contracts have been live on **Monad testnet** (chain 10143) since 2026-10-07; nothing is on mainnet yet. The testnet keeper is the same process with the testnet profile:
+
+| | Testnet |
+| --- | --- |
+| Deployment file | `deployments/10143.json` (`"production": true, "network": "monad-testnet"`, committed) |
+| Command | `node keeper/src/keeper.cjs --network testnet --yes-testnet` (from source: `npm run keeper -- --network testnet --yes-testnet`) |
+| Env template | `keeper/.env.testnet.example` → the platform's secret store (`KEEPER_SECRETS_FROM_ENV=1`), or `keeper/.env.testnet` (mode 600) when run from source |
+| Host | `https://api.paraclr.xyz` (planned; the app at `https://paraclr.xyz` sets `NEXT_PUBLIC_KEEPER_URL=https://api.paraclr.xyz` and `NEXT_PUBLIC_PYTH_HERMES_URL=https://api.paraclr.xyz/hermes`) |
+| RPC | a dedicated endpoint; see [RPC tuning](#rpc-tuning) for the public-RPC and QuickNode-free settings |
+| Refuses | any chain but 10143, `KEEPER_CORS_ORIGIN=*`, a deployment file without `"production": true`, a missing or rejected `PYTH_API_KEY` |
+
+Everything below applies to both profiles unless it says mainnet; the Docker image, secrets table, health checks and platform notes are the same. The [Monad testnet](#monad-testnet) section at the end covers the trial-end oracle fallback.
+
 ## The image
 
 ```bash
@@ -18,11 +33,11 @@ docker build -f keeper/Dockerfile -t paraclr-keeper .     # context = repo root
 ```
 
 - **Contents.** One bundled file, `keeper/src/prod/cli.ts` → `keeper.cjs` (viem included), plus the committed `deployments/*.json`. No demo code is in it: no faucet, price pusher, crash or demo takers. No keys or env files are in it either. `.dockerignore` and `keeper/Dockerfile.dockerignore` allowlist only `keeper/src`, the production ABI and `deployments/*.json`.
-- **Deployment file.** Build the image **after** `deployments/143.json` is committed. Without it the keeper refuses to start: `no production deployment at deployments/143.json`.
+- **Deployment file.** Build the image **after** the profile's deployment file is committed: `deployments/10143.json` for testnet (committed), `deployments/143.json` for mainnet. Without it the keeper refuses to start: `no production deployment at deployments/143.json`.
 - **Build dependencies.** Only viem and esbuild are installed, at the versions pinned as `ARG`s. This sidesteps a lockfile that npm 10 rejects. Keep the `ARG`s equal to `package-lock.json`.
-- **Runtime.** It runs as the unprivileged `node` user and starts with `node keeper/src/keeper.cjs --network mainnet --yes-mainnet`. Deploying the container is the confirmation. At startup it still:
+- **Runtime.** It runs as the unprivileged `node` user and starts with `node keeper/src/keeper.cjs --network mainnet --yes-mainnet`; for testnet override the command with `--network testnet --yes-testnet`. Deploying the container is the confirmation. At startup it still:
   - prints every hot-key balance and the expected MON burn;
-  - refuses any chain other than 143;
+  - refuses any chain other than the profile's (143 on mainnet, 10143 on testnet);
   - refuses to start without `PYTH_API_KEY`, or when Hermes answers 401/403.
 - **Size.** About 350 MB (`node:22-bookworm-slim`). The bundle itself is about 0.8 MB.
 
@@ -42,7 +57,7 @@ Set `KEEPER_SECRETS_FROM_ENV=1` (the image default). The keeper then reads no fi
 | `KEEPER_PRIVATE_KEYS` (8) | **yes** | yes |
 | `PYTH_API_KEY` | **yes** | yes (required) |
 | `ALERT_WEBHOOK_URL` | yes (the URL is the credential) | yes |
-| `KEEPER_CORS_ORIGIN` | no | yes, your app origin(s). Never `*` (refused on mainnet) |
+| `KEEPER_CORS_ORIGIN` | no | yes, your app origin(s). Never `*` (refused on both production profiles, testnet and mainnet) |
 | `GUARDIAN_PRIVATE_KEY` | **yes** | **no**. Keep it on a separate machine (laptop / hardware-backed). Only needed here with `AUTO_PAUSE_ON_INSOLVENCY=1` |
 | `DEPLOYER_PRIVATE_KEY` | **yes** | **no**. Powerless after deploy. The keeper warns if it finds it |
 | `OWNER_MULTISIG_ADDRESS` | no (an address) | optional |
@@ -165,6 +180,17 @@ Put Caddy or nginx in front of it for TLS (`reverse_proxy 127.0.0.1:8787`).
   - per sweep (≥ 1 s), one `eth_simulateV1` per lane plus a few reads;
   - log scans, plus receipts for the keeper's own txs.
 - **Required methods.** The keeper needs `eth_simulateV1` (Monad supports it) and state overrides. It does **not** need `debug_*`: there is no X-ray on mainnet.
+
+### RPC tuning
+
+| Variable | Default | What it does | Set it when |
+| --- | --- | --- | --- |
+| `KEEPER_LOG_RANGE` | 100 | Blocks per `eth_getLogs` query for the order executor's scans and startup backfill | The provider's window is smaller than 100 blocks: QuickNode's free Discover plan allows 5, so set `4` there. The public Monad RPCs allow 100 |
+| `KEEPER_RPC_BATCH_SIZE` | 50 | Max calls per JSON-RPC batch request (a tick's reads, receipts and sends go out as one batch) | The public RPC (`testnet-rpc.monad.xyz` / `rpc.monad.xyz`): every call in a batch counts against its per-second cap (15/s per IP on testnet), so set `10`. A dedicated endpoint can use 50 |
+| `KEEPER_RPC_BATCH` | on | JSON-RPC batching at all | `0` for a provider that rejects batch requests |
+| `KEEPER_MULTICALL` | on | Same-tick contract reads go out as one Multicall3 call | `0` on a bare anvil (no Multicall3 deployed) or a provider where the aggregate call misbehaves; forks of Monad keep it on |
+
+Rate-limited calls (`-32007`, "request limit reached") are retried with backoff on both profiles; the settings above keep the keeper under the cap in the first place.
 
 ## Monad testnet
 

@@ -43,6 +43,8 @@ Price set by the block clock, not gas.
 
 Media: `[IMAGE: the discount-by-block staircase, or forge test output for the auction tests]`
 
+25 bps per block was the live value on Oct 7 and is the contract default; the live testnet deployment runs 5 bps per block since Oct 8 (timelock). Later posts should say "(5 bps on the live testnet deployment)".
+
 ## Thu Oct 8: backstops + solvency (263 chars)
 
 ```

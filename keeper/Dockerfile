@@ -1,6 +1,10 @@
-# Paraclr PRODUCTION keeper (Monad mainnet) — see keeper/HOSTING.md.
+# Paraclr PRODUCTION keeper (Monad testnet today, Monad mainnet at launch) — see keeper/HOSTING.md.
 #
 #   docker build -f keeper/Dockerfile -t paraclr-keeper .        # context = repo root
+#   # Monad testnet (what runs today; deployments/10143.json, keeper/.env.testnet.example):
+#   docker run --env-file keeper/.env.testnet -e KEEPER_SECRETS_FROM_ENV=1 -p 8787:8787 paraclr-keeper \
+#     node keeper/src/keeper.cjs --network testnet --yes-testnet
+#   # Monad mainnet (the image's default CMD; needs deployments/143.json):
 #   docker run --env-file keeper/.env.mainnet -e KEEPER_SECRETS_FROM_ENV=1 -p 8787:8787 paraclr-keeper
 #
 # The image holds ONE bundled file (keeper/src/prod/cli.ts → keeper.cjs, viem included) plus the

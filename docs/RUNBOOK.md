@@ -475,11 +475,13 @@ The rehearsal's MockPyth leg runs this end to end: the MON feed freezes → `ora
 
 ## 14. Monad testnet (chain 10143): the production contract on test funds
 
-Interface contract: [`TESTNET_PLAN.md`](TESTNET_PLAN.md). Same contract (v5, sha256 `1643014507ea…`), same deploy script, same keeper; only the network profile differs. **Test funds, no real value.** Nothing in this section has been sent to Monad testnet yet: everything below was exercised on anvil forks (section 14.8).
+Interface contract: [`TESTNET_PLAN.md`](TESTNET_PLAN.md). Same contract (v5, sha256 `1643014507ea…`), same deploy script, same keeper; only the network profile differs. **Test funds, no real value.** Sections 14.1–14.9 were written before the deploy, from read-only checks and anvil-fork rehearsals (section 14.8); the contracts have been **live on Monad testnet since 2026-10-07** (section 14.10).
 
 | | Mainnet | Testnet |
 | --- | --- | --- |
 | Env file | `keeper/.env.mainnet` | `keeper/.env.testnet` (template `keeper/.env.testnet.example`, gitignored) |
+| Auction step | 25 bps per block (contract default) | **5 bps per block** since 2026-10-08 (`setAuctionParams` through the timelock; cap 500 bps, pool minimum 75 bps unchanged) |
+| Keeper RPC | dedicated endpoint | dedicated endpoint; on the public RPC `KEEPER_RPC_BATCH_SIZE=10`, on QuickNode's free plan `KEEPER_LOG_RANGE=4` |
 | Confirmation flag | `--yes-mainnet` | `--yes-testnet` (they are not interchangeable) |
 | AUSD | `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` | `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` (Agora testnet AUSD) |
 | Pyth | `0x2880aB155794e7179c9eE2e38200202908C17B43`, fee 0 | same address, **fee 1 wei per update message** |
@@ -525,7 +527,7 @@ The app shows "Get testnet AUSD" (frontend); on a `MaxFrequencyExceeded` it shou
 6. **Deploy:** `npm run deploy:testnet` (dry run: preflight + cost, then refuses) → `npm run deploy:testnet -- --yes-testnet`. It writes `deployments/10143.json` (commit it; the app reads it) and `contracts/cache/deploy-testnet/10143-<time>-verify.json`. Any ✗ = do not announce.
 7. **Seed lanes** from the Safe: get AUSD from the faucet for the Safe (14.2; 2,400 AUSD for the default), then `npm run timelock -- --network testnet seed --insurance 200 --pool 100` → import the JSON in the Safe Transaction Builder (chain 10143).
 8. **Fund the hot keys:** `npm run keeper:fund -- --network testnet --send --yes-testnet --funder-env FUNDER_PRIVATE_KEY`. Sweep the deployer's leftover MON.
-9. **Keeper:** `npm run keeper -- --network testnet --yes-testnet` (or the container with `CMD ["node","keeper/src/keeper.cjs","--network","testnet","--yes-testnet"]`, `keeper/HOSTING.md`). `/health` shows `mode: "monad-testnet"`, `testnet: true`, `priceSource: "pyth"`.
+9. **Keeper:** `npm run keeper -- --network testnet --yes-testnet` (or the container with `CMD ["node","keeper/src/keeper.cjs","--network","testnet","--yes-testnet"]`, `keeper/HOSTING.md`). `/health` shows `mode: "monad-testnet"`, `testnet: true`, `priceSource: "pyth"`. Run it on a dedicated RPC (`KEEPER_RPC_URL`). On the public RPC set `KEEPER_RPC_BATCH_SIZE=10` (every call in a JSON-RPC batch counts against its per-second cap; default 50); on QuickNode's free plan, whose `eth_getLogs` window is 5 blocks, set `KEEPER_LOG_RANGE=4` (default 100). `KEEPER_MULTICALL=0` turns off the Multicall3 batching of same-tick reads (needed on a bare anvil), `KEEPER_RPC_BATCH=0` turns off JSON-RPC batching altogether.
 10. **Operations** are the mainnet procedures with `--network testnet`: `guardian:pause` (section 6), `timelock prepare|status|seed|feed-swap` (sections 7, 13c; the delay is 600 s), `keeper:fund`, key rotation (section 12).
 
 ### 14.4 Testnet MON budget (~3 weeks of light demo use)
@@ -551,6 +553,8 @@ Expected gross burn ≈ 1.9 testnet MON/day at those assumptions, more than paid
 - Watches the clearinghouse's `pyth()`: after a timelocked `setPyth` it switches its price source live (alert `gov:oracle`; 14.6).
 
 ### 14.6 Trial-end fallback (after the Pyth API trial, ~2026-10-20)
+
+**Calendar.** The 13-day Hermes trial key ends around **Tuesday 2026-10-20**. The hackathon submission closes 2026-10-13 and judging runs past the trial's end, so the switch happens **while judges may be using the testnet app**: do it at least 1 h before the key expires, announce it (status strip, `docs/x`), and expect the "simulated after the Pyth trial" labels to be what judges see afterwards.
 
 After the trial the Free plan has no Hermes access, so nobody can fetch signed Pyth updates. The fallback is a keeper-fed oracle, `contracts/src/testnet/KeeperSignedPyth.sol` (**testnet only**): the slice of `IPyth` the clearinghouse uses (`getUpdateFee` = 0, `getPriceUnsafe`, `parsePriceFeedUpdates`, `parsePriceFeedUpdatesUnique`, `updatePriceFeeds`, Pyth's semantics incl. the unique-first rule), fed by prices the keeper signs with `PRICE_SIGNER_PRIVATE_KEY` (EIP-191 over `keccak256(DOMAIN_TAG, chainid, oracle, msgs)`). Owner = the timelock (only the Safe, after 600 s, adds or removes signers; renounce disabled). The keeper's signer relays the price Pyth stores on **Monad mainnet** (read-only, refreshed every 2 s; `SIGNED_PRICE_SOURCE=sim` for a random walk) and stops signing if that source is older than 300 s. The app and landing label prices "simulated after the Pyth trial" (`deployments/10143.json` `"priceSource": "keeper-signed"`, `/health.priceSource`). Not deployed yet. Do it **≥ 1 h before the trial ends**:
 
@@ -620,4 +624,13 @@ Rehearsal on the deploying commit: 36/36 (`bench/rehearsal/10143-fork-2026-10-07
 - The first run's post-deploy verification failed on the **public RPC's rate limit**: `testnet-rpc.monad.xyz` is QuickNode-backed and refuses calls over its per-second cap with `-32007` ("50/second request limit reached", "requests limited to 15/sec"). Every call in a JSON-RPC batch counts. The contracts were already deployed; the verification was re-run read-only and passed. Since then `makeProdClient` retries rate-limited calls with backoff (keeper and scripts), and `KEEPER_RPC_BATCH_SIZE=10` keeps batches small on the public RPC. A dedicated RPC endpoint can use 50.
 - `keeper:fund --send`: 24.38 testnet MON to 10 hot keys (guardian 0.2, ops 9.02, keepers 1.90 each). ≈ 3.57 MON left on the deployer.
 - Lane seeding: the owner Safe got 10,000 AUSD from Agora's faucet; `timelock seed --insurance 200 --pool 100` → a 17-call Transaction Builder batch (approve 2,400 AUSD, then `fundLane` + `backstopDeposit` per lane) for the Safe to execute.
+
+Since the deploy:
+
+- **Auction step 25 → 5 bps per block (timelock, 2026-10-08).** `setAuctionParams(5, 500)` scheduled and executed by the Safe through the 600 s timelock. Reason: the demo stack's first crash run on testnet (`bench/diagnostics/README.md`) showed that at 25 bps and ~0.35 s blocks the discount reaches the 500 bps cap in ~7 s, before a keeper on the public RPC can take; at 5 bps the cap is 100 blocks (≈ 35 s) and the pool minimum block 15 (≈ 5 s). `deployments/10143.json` `params.auctionStepBps` = 5; the landing and the share image show it.
+- **Dedicated RPC** for the production keeper (the public RPC's per-second cap was shared with everything on the same machine); `KEEPER_RPC_BATCH_SIZE`, `KEEPER_LOG_RANGE` and Multicall3 read batching added (14.3 step 9).
+- **Keeper host:** planned at `https://api.paraclr.xyz` (app `https://paraclr.xyz` on Vercel, `NEXT_PUBLIC_KEEPER_URL` + `NEXT_PUBLIC_PYTH_HERMES_URL=https://api.paraclr.xyz/hermes`); `keeper/HOSTING.md`.
+- **Envio indexer** (`indexer/`, Envio Cloud `paraclr-testnet`) from the deploy block: orders, auctions, flows and totals; the app reads it through `NEXT_PUBLIC_ENVIO_GRAPHQL_URL`.
+- **Demo stack deployed on testnet (2026-10-08)**, `deployments/demo/10143.json` (`ParaclrClearinghouseDemo`, `NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`), for crash runs and live Conflict X-rays; it never touches the production file and the demo keeper refuses `deployments/10143.json`.
+- **Open:** the trial-end oracle switch (14.6) before ~2026-10-20.
 

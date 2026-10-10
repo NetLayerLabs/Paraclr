@@ -12,12 +12,16 @@ Underneath, the clearinghouse shards its mutable risk state into 8 lanes (`uint1
 auction transactions write disjoint storage and can resolve in the same block. Lanes are the engine. The product is
 fair, fast liquidation you can check.
 
-Built for **Monad Metropolis** (Onchain Finance & Trading track). You trade on it in the browser with a passkey and
-AUSD-denominated margin: a desktop trading terminal that collapses to a touch layout with swipe-to-trade on phones.
+Built for **Monad Metropolis** (Onchain Finance & Trading track). You trade on it in the browser with a passkey (or
+email, a social login or an external wallet, through Privy) and AUSD-denominated margin: a desktop trading terminal
+that collapses to a touch layout with swipe-to-trade on phones, installable as a web app.
 
-> **Status.** The production contracts run on **Monad testnet** with Agora's testnet AUSD and Pyth prices, test
-> funds and no real value (addresses [below](#deployed-contracts-monad-testnet-chain-id-10143)); the measured crash
-> runs come from the demo stack on local anvil. A
+> **Status (2026-10-10).** The production contracts have run on **Monad testnet** since 2026-10-07 with Agora's
+> testnet AUSD and Pyth prices: test funds, no real value (addresses
+> [below](#deployed-contracts-monad-testnet-chain-id-10143)). Its auction step was lowered from the contract default
+> of 25 to **5 bps per block** through the timelock on 2026-10-08; an Envio indexer feeds the app's order history.
+> The measured crash runs in [Results](#results) come from the demo stack on local anvil; the Monad testnet
+> Conflict X-rays from the demo stack deployed on testnet. A
 > **capped, unaudited beta with real Agora AUSD on Monad mainnet** is built as a separate contract set and launches
 > only if its [launch gate](#production-beta-monad-mainnet-gated) passes; until `deployments/143.json` with
 > `"production": true` is committed, nothing of ours is on mainnet. Every number in this repo and in the app is
@@ -39,19 +43,24 @@ than a competitive price for the takeover.
 ## The auction
 
 Contract defaults (owner-configurable): step **25 bps per block**, cap **500 bps**, backstop pool minimum discount
-**75 bps**, maintenance margin **2.5%**.
+**75 bps**, maintenance margin **2.5%**. The **live testnet deployment runs a 5 bps step** since 2026-10-08 (set
+through the timelock; see [Deployed contracts](#deployed-contracts-monad-testnet-chain-id-10143)): the cap is
+reached in 100 blocks (≈ 35 s at Monad's ~0.35 s blocks) and the pool minimum at block 15 (≈ 5 s), which gives a
+keeper on a shared RPC time to take at a small discount. The anvil bench runs below used the default 25.
 
 1. **Start.** `startAuctions(lane, accounts)`: anyone can put an account below maintenance margin into auction. It is
    frozen (no withdraw, no new or closed positions); deposits still work.
-2. **Tick.** `discountBps = min(500, 25 × (block.number − startBlock))`. Only the block number moves it.
+2. **Tick.** `discountBps = min(500, step × (block.number − startBlock))`, step 25 by default (5 on the live
+   testnet). Only the block number moves it.
 3. **Take.** At discount `d` the taker inherits every position at the current mark and is paid
    `P = d × notional`. The trader's equity `E` (collateral + PnL at mark) pays `P`, and the trader keeps
    **`max(0, E − P)`** as free collateral. If `E < P` and the backstop pool takes, the lane's insurance fund pays
    the shortfall, then lane bad debt does. An external taker is paid only `min(P, max(E, 0))` from the trader's own
    equity, so the lane never subsidizes an outside taker (this closes self-liquidation; see
    `test_SelfLiquidationAttack_NetsNothingFromLane`). A trader never loses more than `E`. Takers:
-   - the **lane backstop pool**, `backstopTakeBatch(lane, accounts)`, once `d ≥ minDiscountBps` (75 by default,
-     block +3, about 1.2 s at 400 ms blocks; below the old 1% fixed fee) and the pool can carry the positions;
+   - the **lane backstop pool**, `backstopTakeBatch(lane, accounts)`, once `d ≥ minDiscountBps` (75 by default:
+     block +3 at the 25 bps step, block +15 ≈ 5 s at the live testnet's 5 bps; below the old 1% fixed fee) and the
+     pool can carry the positions;
    - an **external taker**, `take(account)`, from an account in the same lane that stays above initial margin.
 4. **Cure.** `cancelAuction(account)` once the account is healthy again (top-up or price recovery).
 5. **Expire.** Untaken at the 500 bps cap (for example, an empty pool): `expireBatch(lane, accounts)` closes it at mark
@@ -133,11 +142,21 @@ transactions **don't depend on each other's writes**.
 
 ## Architecture
 
+Two stacks share the app and the keeper code. The **production stack** is what runs on Monad testnet today
+(`NEXT_PUBLIC_CHAIN_MODE=monad-testnet`): `ParaclrClearinghouseProd` behind a timelock and a Safe, Agora's AUSD as
+collateral, **Pyth** prices pulled through the keeper's `/hermes` proxy (the API key never reaches browsers),
+**delayed orders** (`commitOrder` / `executeOrder`, filled by the keeper at the first Pyth update after the delay),
+funding and fees, caps, the same per-lane auctions and backstop pools, and an **Envio** indexer for order history and
+activity. Sign-in is through Privy: passkey, email, Google / X / Discord / GitHub (where enabled in the Privy
+dashboard) or an external wallet, each unlocking an embedded wallet. The **demo stack** below (anvil, or the demo
+deployment on testnet) is the crash-run and X-ray evidence; its labelled burner wallet is offered only where Privy is
+not configured, never on the live testnet with Privy set and never on mainnet (`src/lib/auth/session.ts`).
+
 ```
   Web app (Next.js, src/)                      keeper/ (Node; the only holder of operator keys)
   +--------------------------------+           +----------------------------------------------+
-  | passkey -> Privy embedded      |  HTTP     | price loop: simulated GBM -> MockOracle ~1s  |
-  |   wallet (or labelled burner)  |---------->| /faucet: test gas + 10,000 test AUSD         |
+  | Privy sign-in -> embedded      |  HTTP     | price loop: simulated GBM -> MockOracle ~1s  |
+  |   wallet (burner: demo only)   |---------->| /faucet: test gas + 10,000 test AUSD         |
   | trade: deposit / openPosition  | /faucet   | sweeper: every block, one key per lane:      |
   | clearing: auctions per lane,   | /crash    |   startAuctions, backstopTakeBatch,          |
   |   Conflict X-ray, Simulated    | /runs/:id |   cancelAuction, expireBatch                 |
@@ -184,7 +203,7 @@ chain: AUSD held = insurance + backstop + deposits, and the executed-order count
 | ~500 accounts | Generated in the browser | Seeded with `seedAccounts` (demo-only, owner-funded). These are **synthetic accounts**, not 500 users or 500 funded wallets |
 | Prices | In-browser GBM simulator | The **simulated** GBM feed is pushed on-chain to `MockOracle` by the keeper. The oracle is the on-chain source of truth, but it is **not a real market feed** |
 | AUSD | Simulated balance | `MockAUSD`, a 6-decimal testnet stand-in. **Not Agora's AUSD** |
-| Login / wallet | Privy passkey if `NEXT_PUBLIC_PRIVY_APP_ID` is set, otherwise a simulated passkey | Privy passkey with an embedded wallet, or a demo burner key held in localStorage (labelled) |
+| Login / wallet | Privy sign-in if `NEXT_PUBLIC_PRIVY_APP_ID` is set, otherwise a simulated passkey | Privy sign-in (passkey, email, Google / X / Discord / GitHub where enabled, external wallet) with an embedded wallet. A labelled demo burner key in localStorage only where Privy is not configured; hidden on the live testnet once Privy is set, never on mainnet |
 | Chainlink Data Streams | Not used | `ChainlinkStreamsOracle` adapter is written and unit-tested against a **mock** verifier. Not deployed, not used in the demo |
 | Scoped session keys | Not implemented | Not implemented |
 
@@ -196,9 +215,11 @@ The demo stack above (`ParaclrClearinghouseDemo`, `NaiveClearinghouseDemo`, `Moc
 price pusher, the crash runner, the X-ray and the bench) **stays as it is**: it is the hackathon evidence. Production is
 a **separate contract set** in `contracts/src/prod/`, specified in [`docs/PRODUCTION_PLAN.md`](docs/PRODUCTION_PLAN.md).
 
-**Status:** pending its launch gate. The landing page reads `deployments/143.json` at build time and shows "Live on
-Monad mainnet · unaudited beta · capped", with the contract table and beta limits, only when that file exists with
-`"production": true`. Otherwise it shows "Mainnet beta: pending launch gate".
+**Status (2026-10-10):** not on mainnet. The launch gate below has passed; the launch waits on Pyth price data for
+mainnet (the Hermes trial key the testnet runs on ends ~2026-10-20). The landing page reads `deployments/143.json` at
+build time and shows "Live on Monad mainnet · unaudited beta · capped", with the contract table and beta limits, only
+when that file exists with `"production": true`. Otherwise it shows "Mainnet beta: pending launch gate". The same
+contract set is what runs on Monad testnet today (`deployments/10143.json`).
 
 ### What changes for real money
 
@@ -270,17 +291,10 @@ and print balances and costs first.
 
 ### Deployed contracts (Monad mainnet, chain id 143)
 
-<!-- Copy from deployments/143.json after the production deploy. Leave [TBD] until then. -->
-
-| Contract / role | Address | Explorer |
-|---|---|---|
-| Clearinghouse (production) | `[TBD]` | `https://monadscan.com/address/[TBD]` |
-| Timelock (owner) | `[TBD]` | `https://monadscan.com/address/[TBD]` |
-| Owner multisig | `[TBD]` | `https://monadscan.com/address/[TBD]` |
-| Guardian | `[TBD]` | `https://monadscan.com/address/[TBD]` |
-| AUSD (Agora, external) | `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` (re-verified by the deploy script) | `https://monadscan.com/address/0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` |
-| Pyth (external) | `0x2880aB155794e7179c9eE2e38200202908C17B43` (re-verified by the deploy script) | `https://monadscan.com/address/0x2880aB155794e7179c9eE2e38200202908C17B43` |
-| Deploy block | `[TBD]` | |
+None: nothing of ours is on Monad mainnet. The launch gate has passed and the launch is pending on Pyth price data
+for mainnet; when it happens, `deployments/143.json` (`"production": true`) is the list of addresses and the landing
+page renders it with Monadscan links. The external contracts it will re-verify: Agora AUSD
+`0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a`, Pyth `0x2880aB155794e7179c9eE2e38200202908C17B43`.
 
 ---
 
@@ -309,20 +323,39 @@ npm run bench -- --accounts 500                # optional: seed + crash + X-ray
 On anvil every role uses anvil's public dev mnemonic. Details in [`keeper/README.md`](keeper/README.md) and
 [`contracts/README.md`](contracts/README.md). Numbers from this mode are **local anvil, not Monad**.
 
-### 3. Monad testnet (chain id 10143)
+### 3a. Monad testnet (chain id 10143): what's live
 
-The full runbook (key generation, funding, deploy, keeper, bench) is in [`keeper/README.md`](keeper/README.md):
+`deployments/10143.json` is the **production** contract set (`"production": true`); the demo keeper refuses it.
+The production keeper runs it (`keeper/.env.testnet` from `keeper/.env.testnet.example`; keys, funding and deploy in
+[`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14, hosting in [`keeper/HOSTING.md`](keeper/HOSTING.md)):
 
 ```bash
-npm run keeper:init                            # keeper/.env with fresh keys (never commit it)
-npm run keeper:fund -- --send                  # top up every role from the operator
-npm run deploy:monad                           # writes deployments/10143.json (commit it)
-npm run keeper                                 # price loop, faucet, sweeper, crash API
-NEXT_PUBLIC_CHAIN_MODE=monad npm run dev       # app against Monad testnet
-npm run bench -- --accounts 500 --yes          # writes bench/results/10143-*.json + bench/xray/10143-*.json
+npm run keeper -- --network testnet --yes-testnet   # order executor, funding, auction sweeper, /hermes Pyth proxy
+# the app against it (the committed deployments/10143.json; .env.local):
+#   NEXT_PUBLIC_CHAIN_MODE=monad-testnet
+#   NEXT_PUBLIC_KEEPER_URL=https://<keeper host>              # /hermes, /orders, /health
+#   NEXT_PUBLIC_ENVIO_GRAPHQL_URL=<Envio endpoint>            # order history + activity (indexer/README.md)
+#   NEXT_PUBLIC_MONAD_TESTNET_RPC_URL=<dedicated RPC>         # recommended; the public RPC rate-limits
+npm run dev
 ```
 
-Monad charges for the gas **limit**, so the keeper keeps limits tight.
+Use a dedicated RPC for the keeper; on the public RPC set `KEEPER_RPC_BATCH_SIZE=10` (and `KEEPER_LOG_RANGE=4` on
+QuickNode's free plan). Test funds only: AUSD from Agora's faucet contract (the app's "Get testnet AUSD"), MON from
+faucet.monad.xyz. Monad charges for the gas **limit**, so the keeper keeps limits tight.
+
+### 3b. Demo stack on Monad testnet (bench + Conflict X-ray)
+
+The demo stack (`ParaclrClearinghouseDemo`, `NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`) also runs on
+testnet, from its own deployment file so it never touches the production one. It is where the Monad testnet X-rays
+come from. Keys and steps in [`keeper/README.md`](keeper/README.md#monad-testnet-runbook):
+
+```bash
+npm run keeper:init                                   # keeper/.env with fresh demo keys (never commit it)
+npm run keeper:fund -- --send                         # top up every role from the operator
+DEPLOYMENTS_OUT=deployments/demo/10143.json npm run deploy:monad   # demo contracts (commit the file)
+DEPLOYMENTS_OUT=deployments/demo/10143.json npm run keeper         # price loop, faucet, sweeper, crash API
+DEPLOYMENTS_OUT=deployments/demo/10143.json npm run bench -- --accounts 100 --yes   # bench/results + bench/xray/10143-*
+```
 
 ---
 
@@ -343,7 +376,6 @@ same files at build time.
 
 | Network | Shock | Accounts | Went to auction | Backstop / external (demo bots) / cured / expired | Avg discount | Time underwater p50 / max | Equity returned to traders | Taken from traders: auction vs old fixed-fee path | Lane-funded shortfall | Evidence |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **Monad testnet** (10143) | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD]` | `[TBD] bps` | `[TBD] / [TBD] blocks` | `[TBD] AUSD` | `[TBD]` vs `[TBD] AUSD` | `[TBD] AUSD` | `bench/results/10143-[TBD].json` |
 | local anvil (31337), **not Monad** | −20% | 524 | 96 | 80 / 13 / 0 / 3 | 76.61 bps | 4 / 21 blocks (20,988 ms) | 5,101.41 AUSD | 4,642.19 vs 7,082.64 AUSD | 292,780.30 AUSD | `bench/results/31337-2026-10-06T22-53-30Z.json` |
 | local anvil (31337), **not Monad** | −20% | 524 | 96 | 80 / 13 / 0 / 3 | 76.61 bps | 4 / 21 blocks (8,407 ms) | 5,101.41 AUSD | 4,642.19 vs 7,082.64 AUSD | 292,780.30 AUSD | `bench/results/31337-2026-10-06T22-54-24Z.json` |
 | local anvil (31337), **not Monad** | −5% | 524 | 7 | 1 / 6 / 0 / 0 | 64.29 bps | 4 / 4 blocks (4,024 ms) | 5,640.10 AUSD | 2,937.70 vs 4,526.41 AUSD | 0 AUSD | `bench/results/31337-2026-10-06T22-54-58Z.json` |
@@ -354,6 +386,12 @@ traderResidualReturned`, directly comparable with the keeper's counterfactual fo
 lane-funded shortfall is `auctions.badDebt`: what lane insurance (then lane bad debt) paid where a backstop take's
 payment exceeded the account's equity, which happens with deeply underwater accounts after a −20% shock.
 
+There is no Monad testnet row: the two crash runs of the demo stack on testnet (2026-10-08, 100 accounts, −20% and
+−30%) are kept in [`bench/diagnostics/`](bench/diagnostics/README.md) with their caveat. Their keeper ran over the
+15-request/s public RPC and needed ~40 s to take, so every auction in the first run hit the 500 bps cap: they measure
+the keeper's latency, not the auction design. That is why the live deployment's step went to 5 bps and its keeper to a
+dedicated RPC. Their X-rays are valid and are in the table below.
+
 ### Conflict X-ray
 
 | Network · method | Design | Txs | Dependency edges | Across lanes | Longest chain | Evidence |
@@ -362,7 +400,7 @@ payment exceeded the account's equity, which happens with deeply underwater acco
 | **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 17 | 6 | **6** | 3 | same file |
 | **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 23 | 1 | **0** | 2 | `bench/xray/10143-run-muyzuvuh-l9hto.json` (−20% run) |
 | **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 22 | 6 | **4** | 3 | same file |
-| local anvil, **not Monad** · live `debug_traceTransaction` | Paraclr lanes | 52 | 34 | 0 | 4 | `bench/xray/31337-run-mux9zc6t-g5jvm.json` (−20% run) |
+| local anvil, **not Monad** · live `debug_traceTransaction` | Paraclr lanes | 52 | 34 | 0 | 4 | `bench/xray/31337-run-muxa08r6-x9rft.json` (−20% run) |
 | local anvil, **not Monad** · live `debug_traceTransaction` | Naive shared state | 49 | 311 | 277 | 18 | same file |
 | local anvil, **not Monad** · live `debug_traceTransaction` | Paraclr lanes | 18 | 11 | 0 | 5 | `bench/xray/31337-run-muxa18h8-ef0ay.json` (−5% run) |
 | local anvil, **not Monad** · live `debug_traceTransaction` | Naive shared state | 18 | 27 | 16 | 6 | same file |
@@ -417,12 +455,20 @@ value. Addresses from [`deployments/10143.json`](deployments/10143.json) (deploy
 | Guardian (pause only) | `0x35b9f469988ef7748DcD6CC232e6f3b665cCBFC8` | `https://testnet.monadexplorer.com/address/0x35b9f469988ef7748DcD6CC232e6f3b665cCBFC8` |
 | AUSD (Agora, testnet, external) | `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` | `https://testnet.monadexplorer.com/address/0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` |
 | Pyth (external) | `0x2880aB155794e7179c9eE2e38200202908C17B43` | `https://testnet.monadexplorer.com/address/0x2880aB155794e7179c9eE2e38200202908C17B43` |
+| Agora AUSD faucet (external; `requestFunds(address)`, 10,000 AUSD per call) | `0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C` | `https://testnet.monadexplorer.com/address/0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C` |
 
 Markets: SOL/AUSD and BTC/AUSD (MON isn't listed: the Pyth data access these prices run on doesn't cover it). Caps:
-50 AUSD per account, 500 AUSD per lane, 10x.
+50 AUSD per account, 500 AUSD per lane, 10x. Auction: **step 5 bps per block** (set through the timelock on
+2026-10-08; the contract default is 25), cap 500 bps, backstop pool minimum 75 bps. Envio indexer (HyperIndex on
+Envio Cloud, `paraclr-testnet`): `https://indexer.dev.hyperindex.xyz/e9de9e4/v1/graphql` (the app's
+`NEXT_PUBLIC_ENVIO_GRAPHQL_URL`; each Envio deployment gets its own URL, see [`indexer/README.md`](indexer/README.md)).
+The Pyth prices run on a Hermes trial key that ends ~2026-10-20; the planned switch to a keeper-signed fallback oracle
+through the timelock is [`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14.6.
 
-The measured crash runs and X-rays in [Results](#results) come from the demo stack
-(`ParaclrClearinghouseDemo`, `NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`) on local anvil, labelled as such.
+The measured crash runs in [Results](#results) come from the demo stack (`ParaclrClearinghouseDemo`,
+`NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`) on local anvil, labelled as such. The same demo stack is deployed
+on Monad testnet from [`deployments/demo/10143.json`](deployments/demo/10143.json) (since 2026-10-08, kept apart from
+the production file): the Monad testnet X-rays were traced there.
 
 ---
 
@@ -440,11 +486,14 @@ bench/results/      RunReport JSON from bench runs, committed as evidence
 bench/xray/         XrayReport JSON (lanes vs naive), committed as evidence
 deployments/        <chainId>.json: deployed addresses + market ids, read by the app
 scripts/            dev-chain, deploy, export-abi (npm run abi -> src/lib/chain/abi/*.ts, generated)
-src/app/            Next.js 16 App Router: landing page (/), the app (/app), /risk and /terms (drafts)
+src/app/            Next.js 16 App Router: landing page (/), the app (/app), /pnl (shared PnL card; its image at
+                    /api/pnl-card), /risk and /terms (drafts), manifest.ts (installable web app, no service worker),
+                    opengraph-image / twitter-image (the share card)
 src/components/     landing/, auth/, trade/, clearing/ (auctions, X-ray), backstop/, solvency/, shell/
 src/lib/            chain clients and ABIs, in-browser simulation, price sources
-docs/               PRODUCTION_PLAN.md, FAIR_LIQUIDATION_PLAN.md, ONCHAIN_PLAN.md (build contracts), RUNBOOK.md
-                    (mainnet operations), SUBMISSION.md, x/ (social drafts)
+docs/               PRODUCTION_PLAN.md, TESTNET_PLAN.md (the testnet production deployment), FAIR_LIQUIDATION_PLAN.md,
+                    ONCHAIN_PLAN.md (build contracts), RUNBOOK.md (operations; section 14 = Monad testnet),
+                    DESIGN.md (brand and design system), SUBMISSION.md, x/ (social drafts)
 ```
 
 ## Known limitations

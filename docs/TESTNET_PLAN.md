@@ -48,7 +48,9 @@ Interface contract between agents; deviations go at the bottom.
 - New chain mode `NEXT_PUBLIC_CHAIN_MODE=monad-testnet` = the **production** adapter on
   chain 10143 (viem `monadTestnet`, explorer testnet.monadexplorer.com), reading
   `deployments/10143.json` with `production: true`. Same fail-closed rules as mainnet
-  (no simulation fallback), but the burner/demo wallet is allowed on testnet, labelled.
+  (no simulation fallback). The burner/demo wallet is **hidden on the live testnet once Privy
+  is configured** (`src/lib/auth/session.ts`, since 2026-10-07); a testnet build without
+  Privy keeps it, labelled.
 - Markets come from the deployment (`markets` keys), not the hard-coded list: unlisted
   markets (MON) are hidden or shown as "not listed".
 - AUSD: show "Get testnet AUSD" linking to Agora's faucet (address above; find Agora's
@@ -63,7 +65,7 @@ Interface contract between agents; deviations go at the bottom.
 
 ### Keeper / deploy (chain agent, 2026-10-07)
 
-Implemented as specified unless listed here. Everything was exercised on anvil forks only; nothing was sent to Monad testnet or mainnet. Contract `ParaclrClearinghouseProd.sol` unchanged (sha256 `1643014507eaf16afd06d25a50d2f9bdac8a0556ede00f960cc9fcbda702a5ed`).
+Implemented as specified unless listed here. When this entry was written everything had been exercised on anvil forks only; the live deploy to Monad testnet followed the same day (RUNBOOK §14.10; [Status 2026-10-10](#status-2026-10-10) below). Nothing has been sent to mainnet. Contract `ParaclrClearinghouseProd.sol` unchanged (sha256 `1643014507eaf16afd06d25a50d2f9bdac8a0556ede00f960cc9fcbda702a5ed`).
 
 **Verified facts that change assumptions (read-only on chain; details in RUNBOOK §14.1–14.2):**
 - **Testnet Pyth charges 1 wei per update message** (`singleUpdateFeeInWei` = 1; mainnet 0). Every priced call must send `getUpdateFee(update)` as `msg.value` (the app already reads it). Consequence via Monad's reserve-balance rule: an account below 10 MON can send a value-carrying tx only as its first tx in 3 blocks — this hits the keepers (handled: `MONAD_RESERVE_GUARD`) **and users** (`commitOrder`'s 0.1 MON fee already did on mainnet; on testnet also withdraw / pool calls with an update). **Frontend:** if a wallet holds < 10 MON, space priced txs ≥ ~2 s apart, and map a revert right after another tx to "wait a moment and retry".
@@ -84,7 +86,7 @@ Implemented as specified unless listed here. Everything was exercised on anvil f
 
 **Local sandbox (added scope):** `npm run sandbox [-- --detach --smoke | --stop]` — anvil fork of testnet on **:8645** (chain 10143, 1 s blocks), production keeper on **:8887** (`KEEPER_CORS_ORIGIN=http://localhost:3002`), deployment **`deployments/sandbox/10143.json`** (gitignored), owner = anvil dev account 0 `0xf39F…2266` (`OWNER_IS_EOA=true`, its 7702 delegation cleared on the fork), lanes seeded from Agora's faucet. `PYTH_API_KEY=` line in **`keeper/.env.sandbox`** (gitignored) → live Hermes; no key → the keeper-signed fallback switched in through the timelock (the 600 s delay is warped: **the sandbox's chain clock runs ~10 min ahead of the wall clock** in that mode). Sandbox-only `POST /faucet {address}` → `{ gasTxHash, ausdTxHash | null, method: "agora-faucet" | "storage-cheat", mon: "20", ausd: "10000", sandbox: true, label }` (an `ausdTxHash` of null = storage cheat, nothing to track). App: `npm run dev:sandbox` (= `NEXT_PUBLIC_CHAIN_MODE=monad-testnet NEXT_PUBLIC_MONAD_TESTNET_RPC_URL=http://127.0.0.1:8645 NEXT_PUBLIC_KEEPER_URL=http://127.0.0.1:8887 PARACLR_DEPLOYMENTS_DIR=deployments/sandbox next dev -p 3002`).
 
-**Not done / untested:** live Hermes (no `PYTH_API_KEY` was readable here): the rehearsal replays real signed updates and the sandbox was verified in keeper-signed mode; Hermes mode with a real key is the rehearsed production code path but has not run end to end. The reserve-balance guard is exercised on forks (anvil doesn't enforce the rule) — its first real test is testnet.
+**Not done / untested at the time (since done, see Status below):** live Hermes (no `PYTH_API_KEY` was readable here): the rehearsal replays real signed updates and the sandbox was verified in keeper-signed mode; Hermes mode with a real key was the rehearsed production code path but had not run end to end. Since 2026-10-07 the live testnet keeper runs Hermes mode with the trial key: orders fill on real Pyth updates. The reserve-balance guard was exercised on forks (anvil doesn't enforce the rule); its first real test was testnet.
 
 ### Frontend (app + landing), 2026-10-07
 - **Mode** `NEXT_PUBLIC_CHAIN_MODE=monad-testnet` (alias `testnet`). The legacy `monad` mode (demo stack)
@@ -127,4 +129,32 @@ Implemented as specified unless listed here. Everything was exercised on anvil f
   `realPyth`, `ausdFaucet`, `fallbackOracle`, `fallbackSigner` with their own names.
 - **Verified** (headless Chrome, `npm run sandbox -- --detach` + `npm run dev:sandbox`, keeper-signed prices):
   burner sign-in → sandbox faucet → SOL long (risk notice, exact approve, deposit, commit; keeper filled) →
-  close (filled) → 20 AUSD backstop deposit. Passkey/Privy login was not exercised (needs a real passkey).
+  close (filled) → 20 AUSD backstop deposit. Passkey/Privy login was not exercised there (needs a real passkey);
+  on the live testnet Privy is the only way in (see Status below).
+
+## Status 2026-10-10
+
+Done:
+- **Deployed** to Monad testnet on 2026-10-07 (RUNBOOK §14.10): clearinghouse `0xbC1fD0165FBfF4EF32337E42D0e2Ad59bF52b203`,
+  timelock `0xdD66E8118e0a1096D8eEC5b0A0eE9612890047Ab`, owner Safe `0xCC62247E59A3872013e2dB7A52696A3117F2e4c3`,
+  guardian `0x35b9f469988ef7748DcD6CC232e6f3b665cCBFC8`; markets SOL/AUSD and BTC/AUSD; caps 50 / 500 / 10x;
+  lanes seeded from the Safe. The keeper runs Hermes mode with the trial key (real Pyth updates).
+- **Auction step 25 → 5 bps per block** through the timelock on 2026-10-08 (contract default stays 25): the demo
+  stack's first testnet crash run showed a keeper on the public RPC can't take before the 25 bps step hits the cap
+  (`bench/diagnostics/README.md`). The landing and share image show the live value.
+- **Dedicated RPC** for the production keeper, `KEEPER_RPC_BATCH_SIZE` (10 on the public RPC, default 50),
+  `KEEPER_LOG_RANGE` (4 on QuickNode's free plan), same-tick reads batched through Multicall3 (`KEEPER_MULTICALL=0` off).
+- **Envio** HyperIndex for the clearinghouse (`indexer/`, Envio Cloud `paraclr-testnet`): order history and
+  activity since deploy in the app (`NEXT_PUBLIC_ENVIO_GRAPHQL_URL`).
+- **Demo stack on testnet** (`deployments/demo/10143.json`, 2026-10-08) for crash runs and live Conflict X-rays
+  (`bench/xray/10143-*.json`), kept apart from the production file.
+- **PnL card** (`/pnl`, image at `/api/pnl-card`, "Share on X" when a position closes) and an **installable web
+  app** (`src/app/manifest.ts`, no service worker).
+- **Sign-in** through Privy: passkey, email, Google / X / Discord / GitHub (where enabled in the Privy dashboard),
+  external wallet. The demo burner is hidden on the live testnet when Privy is configured.
+
+Open:
+- **Pyth trial ends ~2026-10-20**: switch to the KeeperSignedPyth fallback through the timelock (RUNBOOK §14.6) at
+  least 1 h before; it overlaps judging, so announce it.
+- **Hosting**: app at `https://paraclr.xyz` (Vercel), keeper at `https://api.paraclr.xyz` (`keeper/HOSTING.md`).
+- Mainnet: not deployed; the launch waits on Pyth price data for mainnet.
