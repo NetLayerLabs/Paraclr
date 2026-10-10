@@ -34,8 +34,8 @@ const fmtAusd = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits
 export function Wordmark({ className }: { className?: string }) {
   return (
     <Link href="/" className={className ?? styles.wordmark} title="Paraclr home" aria-label="Paraclr home">
-      <ParaclrLogo tone="auto" height={26} className={styles.lockupFull} />
-      <ParaclrLogo tone="auto" variant="mark" height={26} className={styles.lockupMark} />
+      <ParaclrLogo tone="auto" height={24} className={styles.lockupFull} />
+      <ParaclrLogo tone="auto" variant="mark" height={24} className={styles.lockupMark} />
     </Link>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
+import { displayFont } from "@/components/landing/brand/fonts";
 import { fmtPenaltyPct } from "@/lib/kept";
 import { cardQuery, fmtSignedPct, keptStrip, narration, parseCard, type PnlCardData } from "@/lib/pnlCard";
 import styles from "./pnl.module.css";
@@ -37,7 +38,7 @@ export async function generateMetadata(props: PageProps<"/pnl">): Promise<Metada
 export default async function PnlSharePage(props: PageProps<"/pnl">) {
   const card = cardFrom(await props.searchParams);
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${displayFont.variable}`}>
       <header className={styles.top}>
         <Link href="/" aria-label="Paraclr home">
           <ParaclrLogo tone="white" height={28} />

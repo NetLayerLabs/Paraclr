@@ -1,26 +1,41 @@
+/* Vector lockup (docs/DESIGN.md, Logo): mark at the logo's height, wordmark in Sora 800 at
+   ~0.71x, gap 0.5em. The wordmark's ink follows `data-tone`. */
+
 .logo {
   display: inline-flex;
   align-items: center;
+  gap: 0.52em;
   flex: none;
+  line-height: 1;
 }
 
-.logo img {
+.mark {
   display: block;
   height: 100%;
   width: auto;
+  aspect-ratio: 1;
+  flex: none;
 }
 
-/* tone="auto": white lockup on the dark app theme, ink lockup on the light one. */
-.ink {
-  display: none !important;
+.word {
+  font-family: var(--font-pc-display), "Sora", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  /* Optical: Sora's cap height sits a hair high next to the tile. */
+  padding-bottom: 0.04em;
 }
 
-:global(html[data-theme="light"]) .logo[data-tone="auto"] .white {
-  display: none !important;
+.logo[data-tone="auto"] .word {
+  color: var(--text, #f5f4fa);
 }
 
-:global(html[data-theme="light"]) .logo[data-tone="auto"] .ink {
-  display: block !important;
+.logo[data-tone="white"] .word {
+  color: #f5f4fa;
+}
+
+.logo[data-tone="ink"] .word {
+  color: #0b0a12;
 }
 
 .sr {
