@@ -54,7 +54,7 @@ export async function refreshProd(): Promise<void> {
     const lane = st.chain.account?.lane ?? null;
     const account = (st.session?.address as Address | undefined) ?? null;
     const dyn = await readProdDynamic(c, lane, account);
-    setProd({ ...dyn, chainTimeAt: Date.now(), status: "ready", error: null });
+    setProd({ ...dyn, status: "ready", error: null });
   } catch (e) {
     setProd({ status: getState().chain.prod?.status === "ready" ? "ready" : "error", error: (e as Error).message });
   }
