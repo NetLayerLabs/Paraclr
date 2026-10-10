@@ -153,3 +153,25 @@ export function fmtSignedAusd(n: number): string {
 export function fmtSignedPct(n: number): string {
   return (n >= 0 ? "+" : "−") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + "%";
 }
+
+/**
+ * Which orders just moved to "filled" with their fill details known, given the phase last seen per
+ * order key. Updates `last` in place. An order seen as filled before its details are known keeps
+ * its previous phase, so it is reported once they arrive; an order first seen already filled (one
+ * restored from storage) is never reported.
+ */
+export function newlyFilled<T extends { key: string; phase: string; fillPrice: number | null; realizedPnl: number | null }>(
+  last: Map<string, string>,
+  orders: readonly T[],
+): T[] {
+  const out: T[] = [];
+  for (const o of orders) {
+    const prev = last.get(o.key);
+    const detailed = o.fillPrice !== null && o.realizedPnl !== null;
+    const justFilled = o.phase === "filled" && prev !== undefined && prev !== "filled";
+    if (justFilled && !detailed) continue;
+    last.set(o.key, o.phase);
+    if (justFilled) out.push(o);
+  }
+  return out;
+}

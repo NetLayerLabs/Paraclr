@@ -19,14 +19,16 @@ export async function generateMetadata(props: PageProps<"/pnl">): Promise<Metada
   const card = cardFrom(await props.searchParams);
   if (!card) return { title: "Paraclr PnL card" };
   const base = card.symbol.replace("/AUSD", "");
-  const title = `${fmtSignedPct(card.pnlPct)} on ${base}-PERP ${card.side} ${card.leverage}x · Paraclr`;
-  const image = { url: `/api/pnl-card?${cardQuery(card)}`, width: 1200, height: 630, alt: title };
+  // The layout's title template appends "· Paraclr"; the share previews carry it explicitly.
+  const title = `${fmtSignedPct(card.pnlPct)} on ${base}-PERP ${card.side} ${card.leverage}x`;
+  const fullTitle = `${title} · Paraclr`;
+  const image = { url: `/api/pnl-card?${cardQuery(card)}`, width: 1200, height: 630, alt: `${title} · Paraclr` };
   const description = `“${narration(card)}” Fair liquidations, auctioned per block, on Monad.`;
   return {
     title,
     description,
-    openGraph: { title, description, images: [image] },
-    twitter: { card: "summary_large_image", title, description, images: [image.url] },
+    openGraph: { title: fullTitle, description, images: [image] },
+    twitter: { card: "summary_large_image", title: fullTitle, description, images: [image.url] },
   };
 }
 

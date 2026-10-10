@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { NETWORK } from "@/lib/chain/config";
 import { useOrders } from "@/lib/chain/prod/orders";
-import { cardQuery, fmtSignedPct, narration, type CardNetwork, type PnlCardData } from "@/lib/pnlCard";
+import { cardQuery, fmtSignedPct, narration, newlyFilled, type CardNetwork, type PnlCardData } from "@/lib/pnlCard";
 import type { Position } from "@/lib/types";
 import styles from "./PnlCard.module.css";
 
@@ -71,20 +71,25 @@ export function cardFromPosition(p: Position, realized: number, chainLive: boole
   };
 }
 
-/** Production: open the card when a close order fills (orders already final at mount are ignored). */
+/**
+ * Production: open the card when a close order is seen moving to "filled". The phase last seen per
+ * order is seeded from the first non-empty list (the orders restored from localStorage at sign-in),
+ * so a close that was already filled before this mount never shows a card again. An order marked
+ * filled before its fill details are known keeps its previous phase until they arrive, so the card
+ * still shows then.
+ */
 function useCloseFills() {
   const orders = useOrders();
-  const seen = useRef<Set<string> | null>(null);
+  const last = useRef<Map<string, string> | null>(null);
   useEffect(() => {
-    if (seen.current === null) {
-      seen.current = new Set(orders.filter((o) => o.phase !== "signing" && o.phase !== "waiting" && o.phase !== "executing").map((o) => o.key));
+    if (last.current === null) {
+      if (orders.length === 0) return;
+      last.current = new Map(orders.map((o) => [o.key, o.phase]));
       return;
     }
-    for (const o of orders) {
-      if (o.kind !== "close" || o.phase !== "filled" || seen.current.has(o.key)) continue;
-      seen.current.add(o.key);
+    for (const o of newlyFilled(last.current, orders)) {
       const pos = o.position;
-      if (!pos || o.fillPrice === null || o.realizedPnl === null) continue;
+      if (o.kind !== "close" || !pos || o.fillPrice === null || o.realizedPnl === null) continue;
       showPnlCard({
         symbol: o.symbol,
         side: o.side,
@@ -110,6 +115,7 @@ export function PnlCardHost() {
 function CardDialog({ card }: { card: PnlCardData }) {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const closeBtn = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -131,14 +137,19 @@ function CardDialog({ card }: { card: PnlCardData }) {
 
   const download = async () => {
     setBusy(true);
+    setSaveError(null);
     try {
-      const blob = await (await fetch(image)).blob();
+      const res = await fetch(image);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `paraclr-${base.toLowerCase()}-${fmtSignedPct(card.pnlPct).replace(/[^0-9a-z.+-]/gi, "")}.png`;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setSaveError("Couldn't save the image. Try again, or share the link instead.");
     } finally {
       setBusy(false);
     }
@@ -183,6 +194,7 @@ function CardDialog({ card }: { card: PnlCardData }) {
             Close
           </button>
         </div>
+        {saveError && <p className={styles.error}>{saveError}</p>}
         <label className={styles.off}>
           <input
             type="checkbox"
