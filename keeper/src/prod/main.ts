@@ -8,7 +8,8 @@
 //   sweeper   fair-liquidation auctions with fresh Pyth updates, per lane from the lane keeper key
 //   monitor   balances, oracle staleness/confidence, pause, solvency, caps, governance → alerts
 // HTTP: /health (production, paused, caps, priceSource "pyth", hot-key balances), /orders,
-// /solvency, /backstop, /alerts, /txs, /hermes proxy. Demo endpoints answer 403.
+// /solvency, /backstop, /alerts, /txs, /hermes proxy, POST /drip (testnet visitor gas drip, drip.ts).
+// Demo endpoints answer 403.
 // There is no faucet, no price pusher, no demo taker and no synthetic crash in this mode.
 
 import { formatEther } from "viem";
@@ -16,6 +17,7 @@ import { rpcHost } from "../env";
 import { activityFromEnv, computeBudget, loadGasTable } from "./budget";
 import { confirmMainnet, connectMainnet, KNOWN, loadMainnetEnv, loadProdRoles, mainnetRpcUrl, printBalances, rel, roleList, type Args } from "./config";
 import { createProdContext, short } from "./context";
+import { createGasDrip } from "./drip";
 import { OrderExecutor } from "./executor";
 import { FundingUpdater } from "./funding";
 import { HeadWatcher } from "./head";
@@ -126,9 +128,11 @@ export async function runProdKeeper(args: Args): Promise<void> {
   heads.subscribe("sweeper", (h) => sweeper.tick(h));
   heads.subscribe("funding", (h) => funding.tick(h), 5_000);
   heads.subscribe("monitor", (h) => monitor.tick(h), config.monitorIntervalMs);
+  const drip = createGasDrip(ctx);
+  if (drip.gate.enabled) heads.subscribe("drip", () => drip.refreshBalance(), 15_000);
   heads.start();
 
-  const server = startProdServer({ ctx, heads, executor, funding, sweeper, monitor, ledger, pusher, poolExit, prepush });
+  const server = startProdServer({ ctx, heads, executor, funding, sweeper, monitor, ledger, pusher, poolExit, prepush, drip });
   server.on("error", (err: NodeJS.ErrnoException) => {
     console.error(err.code === "EADDRINUSE" ? `[keeper] fatal: port ${config.port} is in use` : `[keeper] fatal: ${err.message}`);
     process.exit(1);

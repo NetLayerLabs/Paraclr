@@ -15,6 +15,9 @@
 //   POST /faucet, /crash, /recover, /price-loop, /demo-takers, GET /runs…  → 403: the demo
 //        endpoints do not exist in production (no faucet, no price pusher, no synthetic crash,
 //        no demo bots).
+//   POST /drip {address}               testnet visitor gas drip (drip.ts): DRIP_AMOUNT_MON once per
+//                                      fresh address; errors are {error, code}. GET /drip/:address
+//                                      polls its status. Off without DRIP_PRIVATE_KEY, never on mainnet.
 //   POST /faucet {address}  ONLY in the local sandbox (SANDBOX_FAUCET=1, refused unless the chain
 //        is an anvil fork): fork MON + testnet AUSD (sandbox-faucet.ts).
 
@@ -32,6 +35,7 @@ import type { FallbackPrepush } from "./oracle-switch";
 import type { PoolExitHelper } from "./poolexit";
 import type { PricePusher } from "./pricepush";
 import type { ProdSweeper } from "./sweeper";
+import { DripError, type GasDrip } from "./drip";
 import { SandboxFaucet, SandboxFaucetError } from "./sandbox-faucet";
 import { txJson, type TxLedger } from "./tx";
 
@@ -46,6 +50,7 @@ export interface ProdDeps {
   pusher: PricePusher;
   poolExit: PoolExitHelper;
   prepush?: FallbackPrepush;
+  drip?: GasDrip;
 }
 
 const DISABLED = /^\/(faucet|crash|recover|price-loop|demo-takers|runs)(\/|$)/;
@@ -54,6 +59,7 @@ class HttpError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    readonly code?: string,
   ) {
     super(message);
   }
@@ -161,6 +167,8 @@ export function healthJson(d: ProdDeps, faucet: SandboxFaucet | null = null) {
     lastRunId: null,
     priceLoop: null,
     faucet: faucet ? faucet.status() : null,
+    /** Testnet visitor gas drip (POST /drip). */
+    drip: d.drip ? d.drip.healthJson() : { enabled: false, reason: "not wired" },
     demoTakers: null,
     disabled: faucet ? ["crash", "recover", "price-loop", "demo-takers", "runs"] : ["faucet", "crash", "recover", "price-loop", "demo-takers", "runs"],
   };
@@ -357,6 +365,16 @@ export function startProdServer(d: ProdDeps): Server {
           throw err;
         }
       }
+      if (path === "/drip" && req.method === "POST") {
+        if (!d.drip) throw new HttpError(403, "The gas drip is off on this keeper.", "disabled");
+        const body = (await readBody(req)) as { address?: unknown };
+        try {
+          return send(res, 200, await d.drip.request(body.address, d.drip.clientIp(req)), h);
+        } catch (err) {
+          if (err instanceof DripError) throw new HttpError(err.status, err.message, err.code);
+          throw err;
+        }
+      }
       if (DISABLED.test(path)) {
         throw new HttpError(
           403,
@@ -382,6 +400,11 @@ export function startProdServer(d: ProdDeps): Server {
         if (!o) throw new HttpError(404, `order ${om[1]} not tracked by this keeper`);
         return send(res, 200, orderJson(o), h);
       }
+      const dm = /^\/drip\/(0x[0-9a-fA-F]{40})$/.exec(path);
+      if (dm) {
+        if (!d.drip) throw new HttpError(403, "The gas drip is off on this keeper.", "disabled");
+        return send(res, 200, d.drip.status(dm[1]), h);
+      }
       if (path === "/solvency") return send(res, 200, await solvencyJson(ctx), h);
       if (path === "/backstop") return send(res, 200, await backstopJson(ctx, url.searchParams.get("lp")), h);
       if (path === "/alerts") return send(res, 200, ctx.alerter.status(), h);
@@ -393,7 +416,7 @@ export function startProdServer(d: ProdDeps): Server {
       }
       throw new HttpError(404, `no route ${req.method} ${path}`);
     } catch (err) {
-      if (err instanceof HttpError) return send(res, err.status, { error: err.message }, h);
+      if (err instanceof HttpError) return send(res, err.status, err.code ? { error: err.message, code: err.code } : { error: err.message }, h);
       const msg = short(err);
       console.error(`[http] ${req.method} ${path} failed: ${msg}`);
       return send(res, 502, { error: msg }, h);
