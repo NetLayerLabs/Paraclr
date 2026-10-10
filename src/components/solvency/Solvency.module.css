@@ -33,26 +33,38 @@
 }
 
 .badge b {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--tone-text);
 }
 
-/* Solvent: the brand's positive chip (docs/DESIGN.md §10.5). */
+/* Solvent: a green dot and the word, like the other header status items. */
 .badge[data-tone="ok"] {
   --tone: var(--long);
-  --tone-text: var(--long-text);
-  background: var(--long-soft);
+  --tone-text: var(--text);
 }
 
-.badge[data-tone="ok"]:hover {
-  background: color-mix(in srgb, var(--long) 16%, transparent);
-}
-
+/* Insolvent: the one status that may shout - red word, tinted, pulsing. */
 .badge[data-tone="alert"] {
   --tone: var(--short);
   --tone-text: var(--short-text);
   background: var(--short-soft);
   animation: alertPulse 1.4s ease-in-out infinite;
+}
+
+/* Desktop: a dot in place of the shield, so the group reads as one row of dots. */
+@media (min-width: 1024px) {
+  .badge > .icon {
+    display: none;
+  }
+
+  .badge::before {
+    content: "";
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--tone);
+  }
 }
 
 .badge[data-tone="pending"] {

@@ -44,8 +44,11 @@ export function BetaBanner() {
       <div className={styles.beta} data-tone="testnet" data-notice="testnet" role="note" aria-label="Testnet notice">
         <i className={styles.bannerDot} aria-hidden />
         <span className={styles.bannerText}>
-          <b>{NETWORK.sandbox ? `${NETWORK.label} · test funds, no real value` : TESTNET_FUNDS_LABEL}</b> · production
-          contracts, unaudited, capped{keeperSigned ? " · prices simulated after the Pyth trial" : ""}
+          <b>{NETWORK.sandbox ? `${NETWORK.label} · test funds, no real value` : TESTNET_FUNDS_LABEL}</b>
+          <span className={styles.bannerMore}>
+            {" "}
+            · production contracts, unaudited, capped{keeperSigned ? " · prices simulated after the Pyth trial" : ""}
+          </span>
         </span>
         <span className={styles.bannerLinks}>
           <Link href={TERMS_PATH} target="_blank">

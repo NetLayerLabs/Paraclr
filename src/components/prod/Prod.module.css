@@ -3,8 +3,9 @@
    (deposit / withdraw / limits). Tokens only; brand: docs/DESIGN.md. */
 
 /* ---- persistent banners -------------------------------------------------- */
-/* Honest status, styled as part of the design: a tinted strip with a dot,
-   one bold clause and the links to /terms and /risk. */
+/* The beta / testnet notice is one line of fine print under the header: a dot,
+   the fact, the links, a close button. No tinted strip - the network is also
+   in the header's status group. The pause notice stays a tinted alert. */
 
 .beta,
 .paused {
@@ -13,32 +14,38 @@
   flex: none;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 4px 10px;
-  min-height: 34px;
-  padding: 6px max(var(--gutter), env(safe-area-inset-right)) 6px max(var(--gutter), env(safe-area-inset-left));
-  font-size: 12.5px;
+  min-height: 28px;
+  padding: 4px max(var(--gutter), env(safe-area-inset-right)) 4px max(var(--gutter), env(safe-area-inset-left));
+  font-size: 11.5px;
   line-height: 1.4;
-  color: var(--text-2);
-  background: var(--warn-soft);
-  border-bottom: 1px solid var(--warn-line);
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
 }
 
 .beta[data-tone="testnet"] {
-  --tone: var(--accent);
-  --tone-text: var(--accent-text);
-  background: var(--accent-soft);
-  border-bottom-color: color-mix(in srgb, var(--accent) 28%, transparent);
+  --tone: var(--long);
+  --tone-text: var(--text-2);
 }
 
 .paused {
   --tone: var(--short);
   --tone-text: var(--short-text);
+  flex-wrap: wrap;
+  min-height: 34px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 12.5px;
+  color: var(--text-2);
   background: var(--short-soft);
   border-bottom-color: var(--short-line);
 }
 
-.beta b,
+.beta b {
+  font-weight: 500;
+  color: var(--tone-text);
+}
+
 .paused b {
   font-weight: 650;
   color: var(--tone-text);
@@ -46,32 +53,39 @@
 
 .bannerDot {
   flex: none;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--tone);
 }
 
 .bannerText {
-  flex: 1 1 260px;
+  flex: 1 1 auto;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paused .bannerText {
+  white-space: normal;
 }
 
 .bannerLinks {
   display: inline-flex;
-  gap: 14px;
+  gap: 12px;
   flex: none;
-  font-weight: 550;
 }
 
 .bannerLinks a {
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--text) 35%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--text) 30%, transparent);
   text-underline-offset: 3px;
-  color: var(--text);
+  color: var(--text-2);
 }
 
 .bannerLinks a:hover {
+  color: var(--text);
   text-decoration-color: currentColor;
 }
 
@@ -79,11 +93,11 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   margin-right: -6px;
   border-radius: var(--radius-pill);
-  color: var(--text-2);
+  color: var(--text-dim);
   transition:
     color var(--dur-1),
     background var(--dur-1);
@@ -91,12 +105,19 @@
 
 .bannerClose:hover {
   color: var(--text);
-  background: color-mix(in srgb, var(--text) 8%, transparent);
+  background: var(--bg-hover);
 }
 
 .bannerClose:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
+}
+
+/* Phones: the fact only; the qualifiers are on /risk. */
+@media (max-width: 639px) {
+  .bannerMore {
+    display: none;
+  }
 }
 
 /* ---- risk acknowledgement modal ------------------------------------------- */
@@ -502,24 +523,20 @@ details.how[open] summary {
   object-fit: contain;
 }
 
-.tokenTest[data-kind="testnet"] {
-  color: var(--accent-text);
-  background: var(--accent-soft);
-  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
-}
-
+/* TESTNET / TEST next to the symbol: fine print, not a pill. Test tokens that
+   aren't Agora's testnet AUSD keep the warn ink. */
 .tokenTest {
-  margin-left: 4px;
-  padding: 1px 6px;
-  border-radius: var(--radius-pill);
+  margin-left: 5px;
   font-family: var(--font-mono);
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.08em;
   color: var(--warn-text);
-  background: var(--warn-soft);
-  border: 1px solid var(--warn-line);
   vertical-align: 1px;
+}
+
+.tokenTest[data-kind="testnet"] {
+  color: var(--text-dim);
 }
 
 /* ---- caps / utilisation ---------------------------------------------------- */

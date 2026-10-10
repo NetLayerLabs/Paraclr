@@ -109,19 +109,14 @@
   justify-content: flex-end;
 }
 
-/* The status trust strip: solvency · network · keeper in one bordered pill,
-   divided by hairlines, like the landing hero's trust row. Each badge states
-   a fact and follows the chain; none is decoration. */
+/* The status group: solvency · network · keeper as dot + text items divided
+   by hairlines - no box, no tints (the Arena's bar). Each item states a fact
+   and follows the chain; none is decoration. */
 .trust {
   display: flex;
   align-items: center;
   min-width: 0;
   height: 32px;
-  padding: 0 2px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  background: var(--bg-elev);
-  box-shadow: var(--shadow-1);
 }
 
 .slot {
@@ -212,9 +207,7 @@
   width: 32px;
   height: 32px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
-  color: var(--text-2);
+  color: var(--text-dim);
   transition:
     color var(--dur-1),
     border-color var(--dur-1),
@@ -223,38 +216,34 @@
 
 .themeBtn:hover {
   color: var(--text);
-  border-color: var(--border-strong);
+  background: var(--bg-hover);
 }
 
 /* ---- wallet chip + sign out (tablet and up) ----------------------------- */
 
+/* Account: address and equity as plain text with a hairline between; the
+   whole group opens the Wallet screen. */
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   height: 34px;
-  padding: 0 13px 0 4px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
-  box-shadow: var(--shadow-1);
+  padding: 0 10px;
+  border-radius: 8px;
   font-size: 12.5px;
   white-space: nowrap;
-  transition:
-    border-color var(--dur-1),
-    background var(--dur-1);
+  transition: background var(--dur-1);
 }
 
 .chip:hover {
-  border-color: var(--accent-line);
+  background: var(--bg-hover);
 }
 
 .avatar {
   flex: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1.5px rgba(8, 7, 13, 0.3);
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
 }
 
 .chipAddr {
@@ -264,11 +253,12 @@
 .chipEquity {
   display: inline-flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 6px;
   padding-left: 10px;
   border-left: 1px solid var(--border);
   color: var(--text);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .chipLabel,
@@ -279,36 +269,29 @@
 }
 
 .chipLabel {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 9.5px;
+  font-size: 12px;
 }
 
 .copyBtn {
   flex: none;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
-  color: var(--text-2);
+  color: var(--text-dim);
   transition:
     color var(--dur-1),
-    border-color var(--dur-1),
     background var(--dur-1);
 }
 
 .copyBtn:hover {
   color: var(--text);
-  border-color: var(--accent-line);
+  background: var(--bg-hover);
 }
 
 .copyBtn[data-copied] {
   color: var(--long-text);
-  border-color: var(--long-text);
 }
 
 .copyBtn:focus-visible {
@@ -332,9 +315,8 @@
 }
 
 .signOut:hover:not(:disabled) {
-  color: var(--short-text);
-  border-color: var(--short-line);
-  background: var(--short-soft);
+  color: var(--text);
+  background: var(--bg-hover);
 }
 
 /* ---- screens ------------------------------------------------------------ */
@@ -429,42 +411,66 @@
     font-size: 19px;
   }
 
-  /* Primary nav: a segmented pill group; the current tab is the inverse pill. */
+  /* Primary nav: plain text tabs after a hairline; the current tab carries a
+     2px accent lane on the header's bottom rule. */
   .nav {
+    position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    align-self: stretch;
     gap: 2px;
-    margin-left: 4px;
-    padding: 3px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    background: var(--bg-elev);
-    box-shadow: var(--shadow-1);
+    margin-left: 6px;
+    padding-left: 14px;
+  }
+
+  .nav::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1px;
+    height: 18px;
+    margin-top: -9px;
+    background: var(--border-strong);
   }
 
   .navBtn,
   .navActive {
-    height: 30px;
-    padding: 0 12px;
-    border-radius: var(--radius-pill);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 10px;
     font-size: 13.5px;
-    font-weight: 550;
+    font-weight: 500;
     letter-spacing: -0.005em;
     color: var(--text-dim);
-    transition:
-      color var(--dur-1),
-      background var(--dur-1);
+    transition: color var(--dur-1);
   }
 
   .navBtn:hover {
     color: var(--text);
-    background: var(--bg-hover);
   }
 
   .navActive {
-    color: var(--bg-elev);
-    background: var(--text);
+    color: var(--text);
     font-weight: 600;
+  }
+
+  .navActive::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--accent);
+  }
+
+  .app .navBtn:focus-visible,
+  .app .navActive:focus-visible {
+    outline-offset: -4px;
+    border-radius: 8px;
   }
 
   .account {
@@ -483,20 +489,11 @@
   }
 
   .chip {
-    padding: 0 4px;
+    padding: 0 8px;
   }
 
   .keeperSlot {
     display: none;
-  }
-
-  .trust {
-    height: 34px;
-  }
-
-  .themeBtn {
-    width: 34px;
-    height: 34px;
   }
 
   .tabbar {
@@ -555,7 +552,7 @@
   }
 
   .chip {
-    padding: 0 13px 0 4px;
+    padding: 0 10px;
   }
 
   .screen {

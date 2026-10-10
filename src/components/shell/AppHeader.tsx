@@ -1,8 +1,8 @@
 "use client";
 
-// Top bar of the signed-in app. Desktop/tablet: brand, primary nav (pills),
-// solvency / network / keeper status as one trust strip, theme toggle, wallet
-// chip, sign out. Phone: brand + status + theme toggle (navigation is the
+// Top bar of the signed-in app. Desktop/tablet: brand, primary nav (text tabs),
+// solvency / network / keeper status as one dot-and-divider group, theme
+// toggle, account (address + equity), copy, sign out. Phone: brand + status + theme toggle (navigation is the
 // bottom tab bar there).
 
 import Link from "next/link";
@@ -62,7 +62,6 @@ function WalletChip({ onOpen }: { onOpen: () => void }) {
   const chainLive = useParaclr((s) => s.chain.status === "ready");
   const equity = useEquity();
   if (!session) return null;
-  const hue = Number.parseInt(session.address.slice(2, 8), 16) % 360 || 0;
   const kind =
     session.method === "wallet"
       ? "Your wallet (Privy)"
@@ -84,7 +83,12 @@ function WalletChip({ onOpen }: { onOpen: () => void }) {
       onClick={onOpen}
       title={`${kind} · ${session.address}${chainLive ? " · equity in the clearinghouse (from chain)" : " · simulated equity"}`}
     >
-      <span className={styles.avatar} style={{ background: `conic-gradient(from 90deg, hsl(${hue} 80% 62%), var(--accent), hsl(${(hue + 120) % 360} 70% 58%), hsl(${hue} 80% 62%))` }} aria-hidden />
+      <span className={styles.avatar} aria-hidden>
+        <svg viewBox="0 0 16 16" width="15" height="15">
+          <rect x="1.75" y="3.5" width="12.5" height="9.5" rx="2" fill="none" stroke="currentColor" strokeWidth="1.4" />
+          <path d="M1.75 6.5h12.5M10.5 9.75h1.25" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      </span>
       <span className={`${styles.chipAddr} mono`}>{shortAddress(session.address, 6, 4)}</span>
       <span className={styles.chipEquity}>
         <span className={styles.chipLabel}>Equity</span>

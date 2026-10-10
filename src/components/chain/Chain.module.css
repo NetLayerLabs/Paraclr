@@ -21,16 +21,15 @@
 }
 
 .pill b {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--tone-text);
 }
 
-/* Local anvil / simulation fallback: honest warn tint, never decoration. */
+/* Local anvil / simulation fallback: honest warn tone on the dot and label, never decoration. */
 .pill[data-net="anvil"],
 .pill[data-net="fallback"] {
   --tone: var(--warn);
   --tone-text: var(--warn-text);
-  background: var(--warn-soft);
 }
 
 .pill[data-net="monad"] {
@@ -44,7 +43,6 @@
 .pill[data-error] {
   --tone: var(--short);
   --tone-text: var(--short-text);
-  background: var(--short-soft);
 }
 
 .pillDot {
@@ -66,14 +64,11 @@
 
 .keeper[data-s="online"] .pillDot {
   background: var(--long);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--long) 60%, transparent);
-  animation: ping 2s ease-out infinite;
 }
 
 .keeper[data-s="offline"] {
   --tone: var(--short);
   color: var(--short-text);
-  background: var(--short-soft);
 }
 
 .keeper[data-s="offline"] .pillDot {
@@ -82,21 +77,11 @@
 
 .keeperState {
   color: var(--text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .keeper[data-s="offline"] .keeperState {
   color: inherit;
-}
-
-@keyframes ping {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--long) 55%, transparent);
-  }
-  70%,
-  100% {
-    box-shadow: 0 0 0 6px transparent;
-  }
 }
 
 @keyframes blink {
