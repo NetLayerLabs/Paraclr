@@ -131,7 +131,7 @@ export function PrivyPasskeyLogin() {
       <BiometricButton
         phase={phase}
         disabled={!ready || phase === "scanning" || phase === "success"}
-        label={ready ? "Sign in with FaceID" : "Loading passkeys…"}
+        label={ready ? "Sign in with a passkey" : "Loading passkeys…"}
         onClick={() => run(() => loginWithPasskey())}
       />
       {error && <p className={styles.error}>{error}</p>}

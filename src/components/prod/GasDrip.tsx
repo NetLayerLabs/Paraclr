@@ -109,6 +109,8 @@ export function GasDrip({ address, nativeWei }: { address: string | null; native
   }
   // Only for wallets that need it; once a drip is under way, keep showing its progress.
   if (phase.kind === "idle" && (nativeWei === null || nativeWei >= min)) return null;
+  // Don't offer a drip the keeper can't pay (its wallet is below one drip): the faucet hint stays.
+  if (phase.kind === "idle" && !dripFunded(drip.walletBalance, drip.amount)) return null;
 
   const amount = monText(drip.amount ?? "0.3");
   const request = async () => {
@@ -164,4 +166,13 @@ export function GasDrip({ address, nativeWei }: { address: string | null; native
       )}
     </div>
   );
+}
+
+function dripFunded(balance: string | null | undefined, amount: string | undefined): boolean {
+  if (balance == null) return true; // unknown: let the keeper answer
+  try {
+    return parseEther(balance) >= parseEther(amount ?? "0.3");
+  } catch {
+    return true;
+  }
 }

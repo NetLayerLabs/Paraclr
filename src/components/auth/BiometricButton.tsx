@@ -49,7 +49,7 @@ export function BiometricButton({
       </span>
       <span className={styles.passkeyText}>
         <span className={styles.passkeyLabel}>{text}</span>
-        <span className={styles.passkeySub}>Passkey · TouchID · Fingerprint</span>
+        <span className={styles.passkeySub}>Face ID · Touch ID · Windows Hello · fingerprint</span>
       </span>
     </button>
   );

@@ -46,7 +46,7 @@ function SimulatedPasskeyLogin({ disabled, chainLive }: { disabled: boolean; cha
     <>
       <BiometricButton
         phase={phase}
-        label="Sign in with FaceID"
+        label="Sign in with a passkey"
         disabled={disabled || phase !== "idle"}
         onClick={start}
       />
