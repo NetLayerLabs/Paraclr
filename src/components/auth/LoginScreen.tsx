@@ -108,9 +108,9 @@ function venueLine(status: string, production: boolean, agora: boolean): string 
 }
 
 /**
- * In-app sign-in (the marketing pitch lives on the landing page at "/"):
- * a compact brand panel next to the sign-in card on wider screens, stacked on
- * phones.
+ * In-app sign-in (the marketing pitch lives on the landing page at "/"): one full-width page in the
+ * app's surface, a short headline beside one primary control, other methods as a quiet secondary,
+ * partners as a "Built on" line, and the lane bend at the page's corner.
  */
 export function LoginScreen() {
   const { privyEnabled } = useAuthContext();
@@ -122,8 +122,17 @@ export function LoginScreen() {
   const burner = burnerAllowed();
   const rehearsal = MAINNET_MODE && burner;
 
+  const partners = production || PRODUCTION_MODE ? PARTNERS_PROD : PARTNERS;
+
   return (
     <div className={styles.root}>
+      {/* The one bend the app allows (docs/DESIGN.md §10.6): 8 lanes turning round the page's corner. */}
+      <div className={styles.lanes} aria-hidden="true">
+        {Array.from({ length: 8 }, (_, i) => (
+          <i key={i} style={{ "--k": i + 1 } as CSSProperties} />
+        ))}
+      </div>
+
       <nav className={styles.top} aria-label="Site">
         <Link href="/" className={styles.brandMark} title="Paraclr home" aria-label="Paraclr home">
           <ParaclrLogo tone="auto" height={26} />
@@ -134,103 +143,85 @@ export function LoginScreen() {
       </nav>
 
       <div className={styles.center}>
-        <div className={styles.card}>
-          {/* The brand panel is a "black chapter" in both themes (docs/DESIGN.md). */}
-          <section className={styles.brand}>
-            <NetworkBadge />
-            <h1 className={styles.headline}>
-              Fair liquidations. <em>Live solvency proof.</em>
-            </h1>
-            <ul className={styles.trustRow}>
-              <li>
-                <i aria-hidden /> Per-block auctions
-              </li>
-              <li>
-                <i aria-hidden /> Per-lane backstops
-              </li>
-              <li>
-                <i aria-hidden /> Traders keep their leftover equity
-              </li>
-            </ul>
-            {/* The brand's 8 lanes taking one quarter turn (the mark's geometry at panel scale). */}
-            <div className={styles.lanes} aria-hidden="true">
-              {Array.from({ length: 8 }, (_, i) => (
-                <i key={i} style={{ "--k": i + 1 } as CSSProperties} />
-              ))}
-            </div>
-            <footer className={styles.partners}>
-              {(production || PRODUCTION_MODE ? PARTNERS_PROD : PARTNERS).map((p) => (
-                <span key={p.name} className={styles.partner}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className={styles.partnerLogo} src={p.logo} width={14} height={14} alt="" />
-                  {p.name}
-                </span>
-              ))}
-            </footer>
-          </section>
+        <section className={styles.brand} aria-labelledby="signin-title">
+          <NetworkBadge />
+          <h1 id="signin-title" className={styles.headline}>
+            Fair liquidations. <em>Sign in to trade.</em>
+          </h1>
+          <p className={styles.signSub}>{venueLine(status, production, agora)}</p>
+        </section>
 
-          <section className={styles.actions} aria-labelledby="signin-title">
-            <header className={styles.signHead}>
-              <h2 id="signin-title" className={styles.signTitle}>
-                Sign in
-              </h2>
-              <p className={styles.signSub}>{venueLine(status, production, agora)}</p>
-            </header>
-            {privyEnabled ? (
-              <>
-                <PrivyPasskeyLogin />
-                <PrivyOtherLogin disabled={connecting} />
-              </>
-            ) : MAINNET_MODE && !burner ? (
-              <p className={styles.hint}>
-                Sign-in isn&apos;t configured for this deployment (Privy app id missing). There is no demo or burner
-                wallet on mainnet.
-              </p>
-            ) : PRODUCTION_MODE ? (
-              // Testnet production: no simulated passkey next to real contracts.
-              <p className={styles.hint}>
-                Passkey sign-in isn&apos;t configured here (NEXT_PUBLIC_PRIVY_APP_ID unset). The demo burner wallet works
-                without it.
-              </p>
-            ) : (
-              <SimulatedPasskeyLogin disabled={connecting} chainLive={chainLive} />
-            )}
-            {burner && (
-              <>
-                {(privyEnabled || !PRODUCTION_MODE) && (
-                  <div className={styles.or} aria-hidden="true">
-                    <span>or</span>
-                  </div>
-                )}
-                <button className={styles.demoBtn} disabled={connecting} onClick={() => startDemoSession()}>
-                  {connecting
-                    ? "Connecting…"
-                    : rehearsal
-                      ? "Rehearsal burner wallet (local fork only)"
-                      : NETWORK?.isTestnetProd
-                        ? NETWORK.sandbox
-                          ? "Demo burner wallet (local sandbox)"
-                          : "Demo burner wallet (testnet, no real value)"
-                        : chainLive
-                          ? "Try demo mode (burner wallet)"
-                          : "Try demo mode"}
-                </button>
-              </>
-            )}
-            <p className={styles.fine}>
-              {MAINNET_MODE
-                ? rehearsal
-                  ? "Local mainnet-fork rehearsal: a burner key generated in this browser, for testing only. On real mainnet only passkey sign-in is offered."
-                  : "Passkey, email or a social account → a Privy embedded wallet; a wallet sign-in uses your own wallet. Every transaction asks for your confirmation."
-                : NETWORK?.isTestnetProd
-                  ? `Passkey, email or a social account → a Privy embedded wallet on Monad testnet; a wallet sign-in uses your own wallet.${burner ? " Demo → a burner key generated and stored in this browser (testnet only, never on mainnet)." : " Test funds, no real value."}`
-                  : chainLive
-                    ? "Passkey, email or a social account → a Privy embedded wallet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only)."
-                    : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
+        <section className={styles.actions} aria-label="Sign-in methods">
+          {privyEnabled ? (
+            <>
+              <PrivyPasskeyLogin />
+              <div className={styles.or} aria-hidden="true">
+                <span>or</span>
+              </div>
+              <PrivyOtherLogin disabled={connecting} />
+            </>
+          ) : MAINNET_MODE && !burner ? (
+            <p className={styles.hint}>
+              Sign-in isn&apos;t configured for this deployment (Privy app id missing). There is no demo or burner
+              wallet on mainnet.
             </p>
-          </section>
-        </div>
+          ) : PRODUCTION_MODE ? (
+            // Testnet production: no simulated passkey next to real contracts.
+            <p className={styles.hint}>
+              Passkey sign-in isn&apos;t configured here (NEXT_PUBLIC_PRIVY_APP_ID unset). The demo burner wallet works
+              without it.
+            </p>
+          ) : (
+            <SimulatedPasskeyLogin disabled={connecting} chainLive={chainLive} />
+          )}
+          {burner && (
+            <>
+              {!privyEnabled && !PRODUCTION_MODE && (
+                <div className={styles.or} aria-hidden="true">
+                  <span>or</span>
+                </div>
+              )}
+              <button className={styles.demoBtn} disabled={connecting} onClick={() => startDemoSession()}>
+                {connecting
+                  ? "Connecting…"
+                  : rehearsal
+                    ? "Rehearsal burner wallet (local fork only)"
+                    : NETWORK?.isTestnetProd
+                      ? NETWORK.sandbox
+                        ? "Demo burner wallet (local sandbox)"
+                        : "Demo burner wallet (testnet, no real value)"
+                      : chainLive
+                        ? "Try demo mode (burner wallet)"
+                        : "Try demo mode"}
+              </button>
+            </>
+          )}
+          <p className={styles.fine}>
+            {MAINNET_MODE
+              ? rehearsal
+                ? "Local mainnet-fork rehearsal: a burner key generated in this browser, for testing only. On real mainnet only passkey sign-in is offered."
+                : "Passkey, email or a social account → a Privy embedded wallet; a wallet sign-in uses your own wallet. Every transaction asks for your confirmation."
+              : NETWORK?.isTestnetProd
+                ? `Passkey, email or a social account → a Privy embedded wallet on Monad testnet; a wallet sign-in uses your own wallet.${burner ? " Demo → a burner key generated and stored in this browser (testnet only, never on mainnet)." : " Test funds, no real value."}`
+                : chainLive
+                  ? "Passkey, email or a social account → a Privy embedded wallet; a wallet sign-in uses your own wallet. Demo → a burner key generated and stored in this browser (testnet only)."
+                  : "No seed phrase. Your passkey stays in your device\u2019s secure enclave."}
+          </p>
+        </section>
       </div>
+
+      <footer className={styles.partners}>
+        <span className={styles.builtOn}>Built on</span>
+        <ul>
+          {partners.map((p) => (
+            <li key={p.name} className={styles.partner}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className={styles.partnerLogo} src={p.logo} width={14} height={14} alt="" />
+              {p.name}
+            </li>
+          ))}
+        </ul>
+      </footer>
     </div>
   );
 }

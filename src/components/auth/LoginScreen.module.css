@@ -1,60 +1,51 @@
-/* In-app sign-in, in the landing hero's language: mark + wordmark, a Sora
-   headline with a grey second clause, a trust row, pill buttons, and the one
-   lane bend the app allows (docs/DESIGN.md §10.6).
-   Phone: brand card on top, sign-in below. Tablet/desktop: one centred card -
-   a black brand panel beside the sign-in pane, in both themes. */
+/* In-app sign-in in the clearing-console language (the Arena): one full-width page in the app's
+   own surface, a Sora headline with a grey second clause beside one solid control, other methods as
+   a quiet secondary, partners as a fine "Built on" line, and the one lane bend the app allows
+   (docs/DESIGN.md §10.6) turning round the page's bottom-right corner. Follows the app theme. */
 
 .root {
+  --lane: #8f7cff;
+  --pad-x: clamp(16px, 3.2vw, 40px);
+
   position: relative;
+  isolation: isolate;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: calc(6px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
-    calc(20px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  padding: env(safe-area-inset-top) max(var(--pad-x), env(safe-area-inset-right)) env(safe-area-inset-bottom)
+    max(var(--pad-x), env(safe-area-inset-left));
   overflow-x: hidden;
   overflow-y: auto;
-  background: var(--header-bg);
+  background: var(--bg);
 }
 
 /* ---- top bar -------------------------------------------------------------- */
 
 .top {
   flex: none;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  height: 52px;
+  height: 60px;
+  border-bottom: 1px solid var(--border);
 }
 
 .brandMark {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   color: inherit;
   text-decoration: none;
-  border-radius: var(--radius-pill, 999px);
-  transition: opacity 150ms ease;
+  border-radius: 6px;
+  transition: opacity var(--dur-1);
 }
 
 .brandMark:hover {
   opacity: 0.8;
-}
-
-.markIcon {
-  flex: none;
-  width: 28px;
-  height: 28px;
-}
-
-.markWord {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.045em;
-  color: var(--text);
 }
 
 .topActions {
@@ -70,7 +61,6 @@
   height: 34px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
-  background: var(--bg-elev);
   color: var(--text-2);
   transition:
     color var(--dur-1),
@@ -85,80 +75,46 @@
 .brandMark:focus-visible,
 .themeBtn:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* ---- layout --------------------------------------------------------------- */
+/* ---- command: headline | the one control ---------------------------------- */
 
 .center {
   flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  padding-top: 8px;
+  justify-content: center;
+  gap: 32px;
+  padding: 36px 0 40px;
 }
-
-.card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* ---- brand panel: always a black chapter ----------------------------------- */
 
 .brand {
-  /* Dark tokens, whatever the theme. */
-  --text: #f5f4fa;
-  --text-2: #b6b3c6;
-  --text-dim: #8e8aa2;
-  --display-2: #77748a;
-  --border: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --bg-elev: #111019;
-  --accent-text: #a898ff;
-  --warn: #ffb547;
-  --warn-text: #ffc46b;
-  --warn-soft: rgba(255, 181, 71, 0.09);
-  --warn-line: rgba(255, 181, 71, 0.3);
-  --long: #3ddc97;
-  color-scheme: dark;
-
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  flex: none; /* never shrink (and clip) on short phones */
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 22px 20px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  background: #08070d;
-  color: var(--text);
-  box-shadow: var(--shadow-2);
+  align-items: flex-start;
+  min-width: 0;
 }
 
+/* Network: a dot and one mono line, no pill. */
 .badge {
-  align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 28px;
-  padding: 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.03);
+  gap: 9px;
+  margin-bottom: 18px;
   font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
   color: var(--text-2);
-  letter-spacing: 0.01em;
 }
 
 .badge[data-tone="warn"] {
   color: var(--warn-text);
-  border-color: var(--warn-line);
-  background: var(--warn-soft);
 }
 
 .dot {
@@ -175,150 +131,42 @@
 
 .headline {
   font-family: var(--font-display);
-  font-size: clamp(34px, 9vw, 44px);
+  font-size: clamp(40px, 6.2vw, 76px);
   font-weight: 800;
-  line-height: 1.02;
+  line-height: 0.98;
   letter-spacing: -0.05em;
   color: var(--text);
   text-wrap: balance;
 }
 
-/* Grey second clause, on its own line (the landing's headline pattern). */
+/* Grey second clause on its own line (the landing's headline pattern). */
 .headline em {
   display: block;
-  margin-top: 4px;
   font-style: normal;
-  font-size: 0.62em;
-  line-height: 1.12;
-  letter-spacing: -0.045em;
-  color: var(--display-2);
-}
-
-/* Trust row: one bordered box, cells divided by hairlines. */
-.trustRow {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  list-style: none;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: rgba(17, 16, 25, 0.82);
-  backdrop-filter: blur(6px);
-  overflow: hidden;
-}
-
-.trustRow li {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: -0.005em;
-  color: var(--text);
-}
-
-.trustRow li + li {
-  border-top: 1px solid var(--border);
-}
-
-.trustRow i {
-  flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #8f7cff;
-}
-
-/* 8 lanes hugging the panel's bottom-right corner: lane k sits k·d in from
-   both edges and turns on a radius R − k·d, so all 8 share one centre. */
-.lanes {
-  --R: 150px;
-  --d: 7px;
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(to right, transparent 48%, #000 88%);
-  mask-image: linear-gradient(to right, transparent 48%, #000 88%);
-}
-
-.lanes i {
-  position: absolute;
-  right: calc(var(--k) * var(--d));
-  bottom: calc(var(--k) * var(--d));
-  width: 140%;
-  height: calc(var(--R) * 1.25);
-  border: 0 solid #8f7cff;
-  border-right-width: 1px;
-  border-bottom-width: 1px;
-  border-bottom-right-radius: calc(var(--R) - var(--k) * var(--d));
-  opacity: calc(0.74 - var(--k) * 0.07);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
-}
-
-.partners {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-}
-
-.partner {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--font-mono);
-  font-size: 11px;
   color: var(--text-dim);
-  letter-spacing: 0.02em;
 }
 
-.partnerLogo {
-  display: block;
-  width: 14px;
-  height: 14px;
-  object-fit: contain;
-  flex: none;
+.signSub {
+  max-width: 560px;
+  margin-top: 20px;
+  font-size: clamp(15px, 1.25vw, 17px);
+  line-height: 1.6;
+  color: var(--text-2);
+  text-wrap: pretty;
 }
-
-/* ---- sign-in pane --------------------------------------------------------- */
 
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-bottom: 6px;
-}
-
-.signHead {
-  display: none;
-}
-
-.signTitle {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
-}
-
-.signSub {
-  margin-top: 8px;
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--text-2);
-  text-wrap: pretty;
+  gap: 14px;
+  min-width: 0;
 }
 
 .or {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin: 4px 0;
   font-family: var(--font-mono);
   font-size: 10.5px;
   text-transform: uppercase;
@@ -334,24 +182,107 @@
   background: var(--border);
 }
 
-/* Primary: the purple pill, with the Face ID glyph in a round tile. */
+/* ---- the bend: 8 lanes turning round the page's bottom-right corner --------
+   Lane k sits k·d in from both edges and turns on a radius R - k·d, so all 8 share one centre
+   (the mark's geometry at page scale). Behind the content; fades in from the left and the top. */
+
+.lanes {
+  --R: clamp(64px, 9vw, 132px);
+  --d: clamp(5px, 0.55vw, 8px);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 20%, #000 80%);
+  mask-image: linear-gradient(to right, transparent 20%, #000 80%);
+}
+
+.lanes i {
+  position: absolute;
+  right: calc(var(--k) * var(--d));
+  bottom: calc(var(--k) * var(--d));
+  width: 100%;
+  height: calc(var(--R) * 2.2);
+  border: 0 solid var(--lane);
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-bottom-right-radius: calc(var(--R) - var(--k) * var(--d));
+  opacity: calc(0.66 - var(--k) * 0.06);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
+}
+
+/* ---- Built on: one quiet line ---------------------------------------------- */
+
+.partners {
+  flex: none;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  padding: 16px 0 clamp(52px, 6.4vw, 92px);
+  border-top: 1px solid var(--border);
+}
+
+.builtOn {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.partners ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  list-style: none;
+}
+
+.partner {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+/* Partner marks in one quiet ink: no brand colours on the line. */
+.partnerLogo {
+  display: block;
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  flex: none;
+  filter: grayscale(1) brightness(1.7);
+  opacity: 0.75;
+}
+
+:global(html[data-theme="light"]) .partnerLogo {
+  filter: grayscale(1) brightness(0.3);
+  opacity: 0.8;
+}
+
+/* Primary: one solid pill (the Arena's control), the Face ID glyph small at its left. */
 .passkeyBtn {
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
-  min-height: 64px;
-  padding: 8px 24px 8px 8px;
+  min-height: 60px;
+  padding: 8px 24px 8px 10px;
   border-radius: var(--radius-pill);
   color: var(--on-accent);
   background: var(--accent);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 14px 30px -14px color-mix(in srgb, var(--accent) 80%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
   text-align: left;
   transition:
     transform var(--dur-2) var(--ease),
-    box-shadow var(--dur-2) var(--ease),
     background var(--dur-2) var(--ease);
 }
 
@@ -361,7 +292,7 @@
 }
 
 .passkeyBtn:active:not(:disabled) {
-  transform: scale(0.99);
+  transform: translateY(0);
 }
 
 .passkeyBtn:disabled {
@@ -376,13 +307,10 @@
 .passkeyBtn[data-phase="success"] {
   color: var(--on-fill);
   background: var(--long);
-  box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--long) 80%, transparent);
 }
 
 .passkeyBtn[data-phase="error"] {
-  box-shadow:
-    0 0 0 2px var(--short),
-    0 14px 30px -14px color-mix(in srgb, var(--short) 60%, transparent);
+  box-shadow: 0 0 0 2px var(--short);
 }
 
 .glyphWrap {
@@ -390,29 +318,19 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(8, 7, 13, 0.2);
 }
 
 .passkeyBtn[data-phase="success"] .glyphWrap {
   background: rgba(8, 7, 13, 0.12);
 }
 
-.glyphWrap[data-phase="idle"]::before,
-.glyphWrap[data-phase="error"]::before {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
-  animation: ring 2.2s ease-out infinite;
-}
-
 .glyph {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   stroke: currentColor;
   overflow: visible;
 }
@@ -455,24 +373,25 @@
   opacity: 0.78;
 }
 
-/* Secondary: the outline pill. */
+/* Secondary: quiet - a hairline pill in the body ink, never a second purple button. */
 .demoBtn {
   width: 100%;
-  min-height: 50px;
+  min-height: 48px;
   padding: 12px 20px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid var(--accent);
+  border: 1px solid var(--border-strong);
   background: transparent;
-  color: var(--accent-text);
-  font-size: 15px;
-  font-weight: 600;
+  color: var(--text);
+  font-size: 14.5px;
+  font-weight: 550;
   transition:
     background var(--dur-2) var(--ease),
     border-color var(--dur-2) var(--ease);
 }
 
 .demoBtn:hover:not(:disabled) {
-  background: var(--accent-soft);
+  background: var(--bg-hover);
+  border-color: var(--text-dim);
 }
 
 .demoBtn:focus-visible,
@@ -486,42 +405,40 @@
   cursor: default;
 }
 
+/* The state line under the primary: the sign-up path, as a link. */
 .linkBtn {
-  align-self: center;
+  align-self: flex-start;
+  margin-left: 4px;
   font-size: 14px;
-  font-weight: 550;
+  font-weight: 500;
   color: var(--accent-text);
   text-decoration: underline;
   text-underline-offset: 3px;
+  text-decoration-color: var(--accent-line);
+  border-radius: 4px;
+}
+
+.linkBtn:hover:not(:disabled) {
+  text-decoration-color: currentColor;
 }
 
 .hint,
 .fine {
   font-size: 12.5px;
   line-height: 1.55;
-  text-align: center;
+  text-align: left;
   color: var(--text-dim);
   text-wrap: pretty;
 }
 
 .error {
   font-size: 13px;
-  text-align: center;
+  line-height: 1.5;
+  text-align: left;
   color: var(--short-text);
 }
 
 /* ---- keyframes ----------------------------------------------------------- */
-
-@keyframes ring {
-  from {
-    opacity: 0.8;
-    transform: scale(0.94);
-  }
-  to {
-    opacity: 0;
-    transform: scale(1.22);
-  }
-}
 
 @keyframes breathe {
   50% {
@@ -545,7 +462,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glyphWrap::before,
   .beam,
   .glyph .brackets {
     animation: none !important;
@@ -556,130 +472,40 @@
   }
 }
 
-/* ---- wider phones: trust row in three cells --------------------------------- */
+/* ---- phones: stacked; the control fills the width ------------------------- */
 
-@media (min-width: 480px) {
-  .trustRow {
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 0.96fr) minmax(0, 1.12fr);
-  }
-
-  .trustRow li {
-    align-items: flex-start;
-    padding: 12px 14px;
-  }
-
-  .trustRow i {
-    margin-top: 6px;
-  }
-
-  .trustRow li + li {
-    border-top: none;
-    border-left: 1px solid var(--border);
-  }
-}
-
-/* ---- tablet and up: centred card, brand panel | sign-in pane ------------- */
-
-@media (min-width: 640px) {
-  .root {
-    padding: 12px 28px 28px;
-  }
-
+@media (max-width: 639px) {
   .top {
-    height: 56px;
+    height: 52px;
   }
 
   .center {
-    justify-content: center;
-    align-items: center;
-    padding: 16px 0 40px;
+    justify-content: flex-start;
+    padding-top: 32px;
+  }
+}
+
+/* ---- tablet and up --------------------------------------------------------- */
+
+@media (min-width: 640px) {
+  .actions {
+    max-width: 440px;
   }
 
-  .card {
-    flex: none;
-    width: 100%;
-    max-width: 1000px;
+}
+
+/* ---- desktop: headline left, control right, bottoms aligned (the Arena's command row) ---- */
+
+@media (min-width: 960px) {
+  .center {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    background: var(--bg-elev);
-    box-shadow: var(--shadow-2), var(--card-highlight);
-    overflow: hidden;
-  }
-
-  .brand {
-    gap: 20px;
-    padding: 36px 40px;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
+    align-content: center;
+    align-items: end;
+    gap: 32px clamp(40px, 6vw, 96px);
   }
 
   .actions {
-    justify-content: center;
-    gap: 14px;
-    padding: 36px 40px;
-  }
-
-  .signHead {
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  .hint,
-  .fine {
-    text-align: left;
-  }
-}
-
-@media (min-width: 880px) {
-  .card {
-    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
-    min-height: 500px;
-  }
-
-  /* Centre the brand block; partners stay pinned to the bottom. */
-  .brand > .badge {
-    margin-top: auto;
-  }
-
-  .brand {
-    padding: 44px 44px 36px;
-  }
-
-  .actions {
-    padding: 48px 48px 44px;
-  }
-
-  .partners {
-    margin-top: auto;
-    padding-top: 16px;
-  }
-
-  .headline {
-    font-size: 44px;
-  }
-
-  .trustRow li {
-    font-size: 12.5px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .root {
-    padding: 14px 32px 32px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .headline {
-    font-size: 54px;
-  }
-
-  .lanes {
-    --R: 190px;
-    --d: 8px;
+    max-width: none;
   }
 }
