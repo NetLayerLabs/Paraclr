@@ -131,10 +131,7 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
       )}
 
       <p className={styles.fine}>
-        Agora&apos;s AUSD faucet on Monad testnet is a contract, not a web page. This button calls its{" "}
-        <code>requestFunds(your address)</code> from your wallet: {drip !== null ? `${whole(drip)} AUSD` : "a fixed amount"}{" "}
-        per claim, one claim a minute across everyone, while you hold under{" "}
-        {faucet?.maxOwn != null ? `${whole(faucet.maxOwn)} AUSD` : "its limit"}. Test funds, no real value.
+        Calls Agora&apos;s faucet contract from your wallet - test funds, no real value.
       </p>
       <dl className={styles.kv}>
         <div>
@@ -154,6 +151,15 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
         {busy ? "Claiming on chain…" : (reason ?? `Claim ${drip !== null ? whole(drip) : ""} test AUSD`.replace("  ", " "))}
       </button>
       {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
+      <details className={styles.more}>
+        <summary>How the faucet works</summary>
+        <p className={styles.fine}>
+          Agora&apos;s AUSD faucet on Monad testnet is a contract, not a web page. The button calls its{" "}
+          <code>requestFunds(your address)</code> from your wallet:{" "}
+          {drip !== null ? `${whole(drip)} AUSD` : "a fixed amount"} per claim, one claim a minute across everyone, while
+          you hold under {faucet?.maxOwn != null ? `${whole(faucet.maxOwn)} AUSD` : "its limit"}.
+        </p>
+      </details>
       <p className={styles.fine}>
         <a href={`${MONAD_TESTNET_EXPLORER}/address/${AGORA_AUSD_FAUCET_TESTNET}`} target="_blank" rel="noreferrer">
           Faucet contract{sandbox ? " (on the real testnet)" : ""} ↗

@@ -34,6 +34,7 @@ import { TestnetFunds } from "./TestnetFunds";
 import { TokenSymbol, useCollateral } from "./Token";
 import { fmtDuration, useKeeperSigned } from "./util";
 import { isPrivyMethod, METHOD_LABEL } from "@/lib/types";
+import { StateLine } from "@/components/trade/TradeButton";
 import styles from "./Prod.module.css";
 
 const fmtMon = (wei: bigint | null | undefined, max = 6) =>
@@ -246,15 +247,14 @@ export function ProdWallet() {
         </div>
         {testnet ? (
           <p className={styles.fine}>
-            Fund this address with {token.testnet ? "Agora's testnet AUSD" : `the test ${token.symbol}`} (below) and some
-            {NETWORK.sandbox ? "" : " testnet"} {NETWORK.nativeSymbol} for gas, order execution and Pyth fees on{" "}
-            {NETWORK.label}. Test funds, no real value.
+            Fund it with {token.testnet ? "Agora's testnet AUSD" : `the test ${token.symbol}`} and some
+            {NETWORK.sandbox ? "" : " testnet"} {NETWORK.nativeSymbol} for gas and fees - test funds, no real value.
           </p>
         ) : (
           <p className={styles.fine}>
-            Send {token.test ? `the test ${token.symbol}` : "Agora AUSD"} and some {NETWORK.nativeSymbol} (gas, order
-            execution and Pyth fees) to this address on {NETWORK.isMainnet && !NETWORK.local ? "Monad mainnet" : NETWORK.label}.
-            There is no faucet.
+            Send {token.test ? `the test ${token.symbol}` : "Agora AUSD"} and some {NETWORK.nativeSymbol} for gas and fees
+            to this address on {NETWORK.isMainnet && !NETWORK.local ? "Monad mainnet" : NETWORK.label} - there is no
+            faucet.
           </p>
         )}
         <dl className={styles.kv}>
@@ -274,7 +274,7 @@ export function ProdWallet() {
             <dt>Deposited</dt>
             <dd className="mono">{acct ? fmtAusd(acct.collateral) : "…"}</dd>
           </div>
-          <div>
+          <div data-hero="">
             <dt>Equity</dt>
             <dd className="mono">{acct?.equity != null ? fmtAusd(acct.equity) : "-"}</dd>
           </div>
@@ -441,18 +441,34 @@ export function ProdWallet() {
         {tab === "deposit" && !acked && !depositPaused && (
           <p className={styles.fine}>Your first deposit asks you to confirm the beta risk notice.</p>
         )}
-        <button type="button" className={styles.submit} disabled={busy || reason !== null} onClick={submit}>
+        {/* Always labelled with what it does; a blocking reason sits on the state line under it. */}
+        <button
+          type="button"
+          className={styles.submit}
+          disabled={busy || reason !== null}
+          aria-describedby={reason !== null && !busy ? "wallet-submit-state" : undefined}
+          onClick={submit}
+        >
           {busy
             ? "Confirming on chain…"
-            : (reason ?? (tab === "deposit" ? `Deposit ${fmtAusd(amount)} ${token.symbol}` : `Withdraw ${fmtAusd(amount)} ${token.symbol}`))}
+            : tab === "deposit"
+              ? amount > 0
+                ? `Deposit ${fmtAusd(amount)} ${token.symbol}`
+                : `Deposit ${token.symbol}`
+              : amount > 0
+                ? `Withdraw ${fmtAusd(amount)} ${token.symbol}`
+                : `Withdraw ${token.symbol}`}
         </button>
+        <StateLine id="wallet-submit-state" reason={busy ? null : reason} />
         {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
-        <p className={styles.fine}>
-          Withdrawals stay open while trading is paused.{" "}
-          {keeperSigned
-            ? "The health check uses the price stored on chain when it's fresh, else a fresh update signed by the Paraclr keeper: simulated after the Pyth trial, checked against the keeper's key on chain, not attested by Pyth."
-            : "The health check uses the Pyth price stored on chain when it's fresh, else a Pyth-signed update relayed by the keeper (verified on chain, so the relay can't alter it)."}
-        </p>
+        <details className={styles.more}>
+          <summary>Withdrawals stay open while trading is paused</summary>
+          <p className={styles.fine}>
+            {keeperSigned
+              ? "The health check uses the price stored on chain when it's fresh, else a fresh update signed by the Paraclr keeper: simulated after the Pyth trial, checked against the keeper's key on chain, not attested by Pyth."
+              : "The health check uses the Pyth price stored on chain when it's fresh, else a Pyth-signed update relayed by the keeper (verified on chain, so the relay can't alter it)."}
+          </p>
+        </details>
       </section>
 
       <section className={styles.card}>

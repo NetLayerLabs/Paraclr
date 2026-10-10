@@ -32,45 +32,56 @@
   color: var(--text-dim);
 }
 
+/* One inline strip with thin dividers; the first figure (total exit value / NAV) is the
+   screen's hero number in the display face. Phones: the hero on its own row, then three. */
 .stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
 }
 
 .stat {
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 4px;
-  padding: 10px 12px;
-  border-radius: var(--radius-panel);
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-1), var(--card-highlight);
+  padding: 0 12px;
   min-width: 0;
 }
 
+.stat:first-child {
+  grid-column: 1 / -1;
+  padding-left: 0;
+}
+
+.stat:nth-child(2) {
+  padding-left: 0;
+}
+
+.stat + .stat:not(:nth-child(2)) {
+  border-left: 1px solid var(--border);
+}
+
 .stat small {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 500;
+  font-size: 12px;
   color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .stat b {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 500;
 }
 
-/* The screen's one hero number (total NAV) in the display face. */
 .stat:first-child b {
   font-family: var(--font-display);
+  font-size: 44px;
   font-weight: 800;
+  line-height: 0.95;
   letter-spacing: -0.04em;
 }
 
@@ -104,9 +115,10 @@
 }
 
 .poolsHead h2 {
-  font-size: 13.5px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
 }
 
 .poolsHead span {
@@ -136,10 +148,11 @@
 
 /* ---- phone cards ---------------------------------------------------------- */
 
+/* Phones: one ruled ledger entry per lane, not a card. */
 .cards {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  border-top: 1px solid var(--border);
 }
 
 .card {
@@ -147,20 +160,20 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
-  box-shadow: var(--shadow-1), var(--card-highlight);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
   text-align: left;
   font-size: 12.5px;
   -webkit-tap-highlight-color: transparent;
 }
 
 .card[data-selected] {
-  border-color: var(--accent-line);
-  background: color-mix(in srgb, var(--accent) 5%, var(--bg-elev));
-  box-shadow: inset 0 0 0 1px var(--accent-line);
+  margin: 0 -10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: calc(100% + 20px);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .cardTop {
@@ -212,16 +225,13 @@
   font-weight: 600;
 }
 
+/* Fine print, not a pill. */
 .youTag {
-  padding: 1px 7px;
-  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--accent-text);
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-line);
 }
 
 .exposure {
@@ -246,11 +256,10 @@
 
 /* ---- table (>= 720px) -------------------------------------------------------- */
 
+/* A ledger on the page surface: hairlines only. */
 .tableWrap {
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--bg-elev);
-  box-shadow: var(--shadow-1), var(--card-highlight);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   overflow-x: auto;
 }
 
@@ -270,14 +279,19 @@
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  padding: 11px 14px 10px;
+  padding: 10px 14px 9px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg-subtle);
+  background: var(--bg);
   white-space: nowrap;
 }
 
+.table th:first-child,
+.table td:first-child {
+  padding-left: 12px;
+}
+
 .table td {
-  height: 44px;
+  height: 40px;
   padding: 0 14px;
   border-top: 1px solid var(--border);
   white-space: nowrap;
@@ -320,38 +334,29 @@
 
 /* ---- deposit / withdraw panel ------------------------------------------------- */
 
+/* A ruled column, not a card. */
 .panel {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px;
-  border-radius: var(--radius);
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-1), var(--card-highlight);
 }
 
-/* Deposit / withdraw: the segmented pill; the current mode is the inverse pill. */
+/* Deposit / withdraw: text tabs on a hairline, the current one with a 2px accent lane. */
 .modeToggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 40px;
-  padding: 3px;
-  gap: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-elev-2);
-  border: 1px solid var(--border);
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
 }
 
 .modeBtn,
 .modeOn {
-  border-radius: var(--radius-pill);
-  font-size: 13.5px;
-  font-weight: 600;
+  position: relative;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-dim);
-  transition:
-    color var(--dur-1),
-    background var(--dur-1);
+  transition: color var(--dur-1);
 }
 
 .modeBtn:hover {
@@ -359,8 +364,24 @@
 }
 
 .modeOn {
-  color: var(--bg-elev);
-  background: var(--text);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.modeOn::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent);
+}
+
+.modeOn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -3px;
 }
 
 .fieldHead {
@@ -522,10 +543,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 9px 12px;
-  padding: 11px 13px;
-  border-radius: 12px;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .summary div {
@@ -558,9 +578,7 @@
   font-weight: 650;
   color: var(--on-accent);
   background: var(--accent);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 10px 24px -12px color-mix(in srgb, var(--accent) 75%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition:
     background var(--dur-2) var(--ease),
     transform var(--dur-2) var(--ease);
@@ -571,67 +589,92 @@
   transform: translateY(-1px);
 }
 
+/* Not usable yet: still solid, muted; the reason is on the state line under it. */
 .submit:disabled {
   cursor: not-allowed;
   color: var(--text-dim);
-  font-weight: 550;
-  background: var(--bg-elev-2);
-  box-shadow: inset 0 0 0 1px var(--border);
+  background: color-mix(in srgb, var(--accent) 16%, var(--bg-elev-2));
+  box-shadow: none;
 }
 
 .submit:focus-visible,
 .chip:focus-visible,
 .laneChip:focus-visible,
 .laneChipOn:focus-visible,
-.modeBtn:focus-visible,
 .card:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
-/* ---- explainer ------------------------------------------------------------------ */
+.modeBtn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -3px;
+}
 
-.explain,
-.explainCompact {
-  padding: 13px 15px;
-  border-radius: var(--radius);
-  border: 1px dashed var(--border-strong);
-  background: transparent;
-  font-size: 12px;
+/* ---- how to read this: three points between solid rules (the Arena's strip) ------ */
+
+.howto {
+  padding: 16px 0 4px;
+  border-top: 1px solid var(--border);
+}
+
+.howtoTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  margin-bottom: 12px;
+}
+
+.howto ol {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.howto li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 0;
+  font-size: 13px;
   line-height: 1.55;
+  color: var(--text-2);
+}
+
+.howto li + li {
+  border-top: 1px solid var(--border);
+}
+
+.howto li b {
+  padding-top: 2px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+.howtoFine {
+  margin-top: 10px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 
-.explain h3,
-.explainCompact h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--accent-text);
-  margin-bottom: 8px;
-}
+@media (min-width: 900px) {
+  .howto ol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 
-.explain h3::before,
-.explainCompact h3::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 2px;
-  background: var(--accent);
-}
+  .howto li {
+    padding: 14px 20px 14px 0;
+  }
 
-.explain ol,
-.explainCompact ol {
-  padding-left: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 6px;
+  .howto li + li {
+    padding-left: 20px;
+    border-top: none;
+    border-left: 1px solid var(--border);
+  }
 }
 
 /* ---- tablet and up ------------------------------------------------------------- */
@@ -650,21 +693,34 @@
   }
 
   .stats {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
   }
 
   .stat {
-    gap: 5px;
-    padding: 12px 14px;
+    padding: 0 24px;
   }
 
-  .stat small {
-    font-size: 10.5px;
+  .stat:first-child {
+    padding-left: 0;
+  }
+
+  .stat:nth-child(2) {
+    padding-left: 24px;
+  }
+
+  .stat + .stat,
+  .stat + .stat:not(:nth-child(2)) {
+    border-left: 1px solid var(--border);
   }
 
   .stat b {
-    font-size: 20px;
+    font-size: 19px;
+  }
+
+  .stat:first-child b {
+    font-size: 52px;
   }
 }
 
@@ -682,15 +738,16 @@
     top: 0;
   }
 
+  .side {
+    padding-left: 20px;
+    border-left: 1px solid var(--border);
+  }
+
   .stat b {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .stat:first-child b {
-    font-size: 28px;
-  }
-
-  .stat {
-    padding: 14px 16px;
+    font-size: 56px;
   }
 }

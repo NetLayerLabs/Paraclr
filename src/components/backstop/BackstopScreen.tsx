@@ -23,6 +23,7 @@ import { NetworkTag, Notice, TxTray } from "@/components/chain/ChainUi";
 import { TokenSymbol } from "@/components/prod/Token";
 import { MQ_TABLE, useMedia } from "@/components/shell/useMedia";
 import { baseOf, fmtAusd, fmtCompact, fmtSigned, fmtSize } from "@/components/trade/format";
+import { StateLine } from "@/components/trade/TradeButton";
 import styles from "./BackstopScreen.module.css";
 
 type LoadState = "loading" | "ready" | "unsupported" | "error";
@@ -187,9 +188,10 @@ function LiveBackstop({ active }: { active: boolean }) {
             onDone={() => setRefresh((n) => n + 1)}
           />
           <TxTray />
-          <Explainer compact />
         </aside>
       </div>
+
+      <Explainer />
     </div>
   );
 }
@@ -710,18 +712,28 @@ function PoolActions({
         </>
       )}
 
-      <button type="button" className={styles.submit} disabled={busy || reason !== null} onClick={run}>
+      {/* Always labelled with what it does; when it can't run yet it goes muted and the reason sits
+          on the state line under it. */}
+      <button
+        type="button"
+        className={styles.submit}
+        disabled={busy || reason !== null}
+        aria-describedby={reason !== null && !busy ? `backstop-state-${lane}` : undefined}
+        onClick={run}
+      >
         {busy
           ? "Confirming on chain…"
-          : (reason ??
-            (mode === "deposit"
+          : mode === "deposit"
+            ? amount > 0
               ? `Deposit ${fmtAusd(amount)} AUSD to lane ${lane}`
-              : production && (exitStage === "none" || exitStage === "expired")
-                ? `Request withdrawal of ≈${fmtAusd(withdrawAusd)} AUSD`
-                : production
-                  ? `Withdraw ≈${fmtAusd(requestAusd)} AUSD now`
-                  : `Withdraw ≈${fmtAusd(withdrawAusd)} AUSD`))}
+              : `Deposit to lane ${lane}`
+            : production && (exitStage === "none" || exitStage === "expired")
+              ? `Request withdrawal of ≈${fmtAusd(withdrawAusd)} AUSD`
+              : production
+                ? `Withdraw ≈${fmtAusd(requestAusd)} AUSD now`
+                : `Withdraw ≈${fmtAusd(withdrawAusd)} AUSD`}
       </button>
+      <StateLine id={`backstop-state-${lane}`} reason={busy ? null : reason} />
       {production && mode === "withdraw" && (exitStage === "waiting" || exitStage === "ready") && (
         <button type="button" className={styles.chip} disabled={busy} onClick={cancelRequest}>
           Cancel request
@@ -732,7 +744,7 @@ function PoolActions({
   );
 }
 
-function Explainer({ compact = false }: { compact?: boolean }) {
+function Explainer() {
   const params = useAuctionParams();
   const production = useParaclr((s) => !!s.chain.contracts?.production);
   const step = fmtBps(params.stepBps);
@@ -740,28 +752,39 @@ function Explainer({ compact = false }: { compact?: boolean }) {
   const min = mins.every((m) => m === mins[0]) ? fmtBps(mins[0]) : `${fmtBps(Math.min(...mins))}–${fmtBps(Math.max(...mins))}`;
   const max = fmtBps(params.maxDiscountBps);
   return (
-    <section className={compact ? styles.explainCompact : styles.explain}>
-      <h3>How a pool earns - and what it risks</h3>
+    <section className={styles.howto} aria-labelledby="backstop-howto">
+      <h2 id="backstop-howto" className={styles.howtoTitle}>
+        How to read this
+      </h2>
       <ol>
         <li>
-          An account below maintenance margin goes to a per-block Dutch auction. Its discount starts at 0 and rises{" "}
-          {step} per block (max {max}) - the price is set by the block clock, not by gas bidding.
+          <b className="mono">01</b>
+          <span>
+            An account below maintenance margin goes to a per-block Dutch auction. Its discount starts at 0 and rises{" "}
+            {step} per block (max {max}) - the price is set by the block clock, not by gas bidding.
+          </span>
         </li>
         <li>
-          Once the discount reaches the pool&apos;s minimum ({min}), the lane&apos;s pool can take the account - if it
-          can carry it (pool equity must stay ≥ 10% of its exposure). It inherits the positions at the oracle mark and
-          is paid the discount; the trader keeps the rest of their equity.
+          <b className="mono">02</b>
+          <span>
+            Once the discount reaches the pool&apos;s minimum ({min}), the lane&apos;s pool can take the account - if
+            it can carry it (pool equity must stay ≥ 10% of its exposure). It inherits the positions at the oracle mark
+            and is paid the discount; the trader keeps the rest of their equity.
+          </span>
         </li>
         <li>
-          {production
-            ? "Exit value = cash + unrealised losses of inherited positions at the mark; gains count once realised. "
-            : "NAV = cash + unrealised PnL of inherited positions at the mark. "}
-          That exposure is real market risk until it is reduced, so {production ? "the exit value" : "NAV"} can fall as
-          well as rise. Withdrawals are blocked if they would leave the pool below 10%
-          of its exposure, or exceed its cash.
+          <b className="mono">03</b>
+          <span>
+            {production
+              ? "Exit value = cash + unrealised losses of inherited positions at the mark; gains count once realised. "
+              : "NAV = cash + unrealised PnL of inherited positions at the mark. "}
+            That exposure is real market risk until it is reduced, so {production ? "the exit value" : "NAV"} can fall
+            as well as rise. Withdrawals are blocked if they would leave the pool below 10% of its exposure, or exceed
+            its cash.
+          </span>
         </li>
       </ol>
-      <p>Earnings are shown as discount earned since deploy - never as an annualised APY.</p>
+      <p className={styles.howtoFine}>Earnings are shown as discount earned since deploy - never as an annualised APY.</p>
     </section>
   );
 }
