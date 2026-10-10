@@ -148,3 +148,57 @@
   border-left-width: 1px;
   border-top-left-radius: var(--len);
 }
+
+/* Traffic: a short bright pulse runs along each lane and around the bend, every lane on its own
+   clock (the 8 lanes settle independently). The pulse is a copy of the lane's border revealed
+   through a moving mask band; it travels from the flat, faded end into the curve. */
+.lanes i::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: inherit;
+  border-color: #c4b8ff;
+  border-radius: inherit;
+  opacity: 0.9;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 50%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 50%, transparent 100%);
+  -webkit-mask-size: 22% 100%;
+  mask-size: 22% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: pulse-right calc(5.2s + var(--k) * 0.45s) linear infinite;
+  animation-delay: calc(var(--k) * -1.37s);
+  will-change: mask-position;
+}
+
+.left .lanes i::after {
+  animation-name: pulse-left;
+}
+
+@keyframes pulse-right {
+  from {
+    -webkit-mask-position: -30% 0;
+    mask-position: -30% 0;
+  }
+  to {
+    -webkit-mask-position: 130% 0;
+    mask-position: 130% 0;
+  }
+}
+
+@keyframes pulse-left {
+  from {
+    -webkit-mask-position: 130% 0;
+    mask-position: 130% 0;
+  }
+  to {
+    -webkit-mask-position: -30% 0;
+    mask-position: -30% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lanes i::after {
+    display: none;
+  }
+}

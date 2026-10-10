@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { RepoFacts, XrayEvidence } from "./benchResults.server";
 import { HeroVisual } from "./HeroVisual";
 import { CodeIcon } from "./icons";
-import { AUCTION, GITHUB_TREE, GITHUB_URL } from "./content";
+import { AUCTION, GITHUB_TREE, GITHUB_URL, TESTNET_AUCTION_STEP_BPS } from "./content";
 import { RISK_ANCHORS, RISK_PATH } from "./disclosures";
 import { fmtInt } from "./format";
 import b from "./brand/Brand.module.css";
@@ -102,7 +102,7 @@ export function Hero({
           </h1>
           <p className={s.sub}>
             Paraclr is a perps clearinghouse for Monad. An underwater account doesn&rsquo;t go to the fastest bot for a
-            fixed fee: it goes to a Dutch auction whose discount rises {AUCTION.stepBps} bps per block, backed by its
+            fixed fee: it goes to a Dutch auction whose discount rises {testnetLive && !live ? TESTNET_AUCTION_STEP_BPS : AUCTION.stepBps} bps per block, backed by its
             lane&rsquo;s backstop LPs. The trader keeps the equity the taker isn&rsquo;t paid.
           </p>
           <div className={s.ctas}>
