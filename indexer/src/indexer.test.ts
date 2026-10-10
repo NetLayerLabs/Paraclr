@@ -10,11 +10,12 @@ const SOL = "0x71404ecadb92f5a36fa398992a182993209814fdb029f79c89cc01dad48a01f6"
 const C = "ParaclrClearinghouse" as const;
 const CLEARINGHOUSE = "0xbC1fD0165FBfF4EF32337E42D0e2Ad59bF52b203" as const;
 
-const ev = <E extends string, P>(event: E, params: P, block: number) => ({
+const ev = <E extends string, P>(event: E, params: P, block: number, logIndex?: number) => ({
   contract: C,
   event,
   srcAddress: CLEARINGHOUSE,
   params,
+  logIndex,
   // After the config's start_block, or the indexer skips the event.
   block: { number: 69_100_000 + block, timestamp: 1_791_400_000 + block },
   transaction: { hash: `0x${block.toString(16).padStart(64, "0")}` },
@@ -153,5 +154,48 @@ describe("Paraclr indexer", () => {
     t.expect(a!.status).toBe("Cured");
     t.expect((await indexer.Lane.getOrThrow("2")).auctionsCured).toBe(1);
     t.expect((await indexer.Account.getOrThrow(TRADER.toLowerCase())).activeAuction).toBeUndefined();
+  });
+
+  it("keeps both auctions when an account is cured and re-auctioned in one block", async (t) => {
+    const indexer = createTestIndexer();
+    const started = { lane: 4n, account: TRADER, startBlock: 70n, equity: 2_000_000n, notional: 120_000_000n };
+    const taken = {
+      lane: 4n,
+      account: TRADER,
+      taker: POOL_KEEPER,
+      backstop: false,
+      discountBps: 50n,
+      blocksElapsed: 0n,
+      notional: 120_000_000n,
+      traderResidual: 1_400_000n,
+      payment: 600_000n,
+      badDebt: 0n,
+    };
+    await indexer.process({
+      chains: {
+        10143: {
+          simulate: [
+            ev("AuctionStarted", started, 70, 0),
+            ev("AuctionCancelled", { lane: 4n, account: TRADER }, 70, 1),
+            ev("AuctionStarted", started, 70, 2),
+            ev("AuctionTaken", taken, 70, 3),
+          ],
+        },
+      },
+    });
+
+    const auctions = (await indexer.Auction.getAll()).sort((x, y) => x.id.localeCompare(y.id));
+    t.expect(auctions).toHaveLength(2);
+    t.expect(auctions.map((a) => a.status)).toEqual(["Cured", "Taken"]);
+    t.expect(auctions.map((a) => a.id)).toEqual([`${TRADER.toLowerCase()}_69100070_0`, `${TRADER.toLowerCase()}_69100070_2`]);
+
+    const lane = await indexer.Lane.getOrThrow("4");
+    t.expect(lane.auctionsStarted).toBe(2);
+    t.expect(lane.auctionsCured).toBe(1);
+    t.expect(lane.auctionsTaken).toBe(1);
+
+    const account = await indexer.Account.getOrThrow(TRADER.toLowerCase());
+    t.expect(account.auctions).toBe(2);
+    t.expect(account.activeAuction).toBeUndefined();
   });
 });

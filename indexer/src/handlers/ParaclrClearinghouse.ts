@@ -401,7 +401,9 @@ indexer.onEvent(
   async ({ event, context }) => {
     const ts = event.block.timestamp;
     const e = event.params;
-    const id = `${lower(e.account)}_${e.startBlock}`;
+    // Unique per event: an account can be cured and re-auctioned in the same block, so
+    // `${account}_${startBlock}` would overwrite the cured row.
+    const id = `${lower(e.account)}_${event.block.number}_${event.logIndex}`;
     context.Auction.set({
       id,
       lane_id: String(Number(e.lane)),

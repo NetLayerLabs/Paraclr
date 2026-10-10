@@ -10,7 +10,7 @@ GraphQL API for the **order history** on the Trade tab and **activity since depl
 | Entity | One row per | Fields |
 | --- | --- | --- |
 | `Order` | delayed order | commit, then fill / failure / cancel: fill price, realized PnL, trading fee, notional, seconds to fill, both tx hashes |
-| `Auction` | per-block Dutch auction | start equity and notional, outcome (taken / cured / expired), taker, backstop or not, discount, blocks elapsed, payment, equity back to the trader, bad debt |
+| `Auction` | per-block Dutch auction (id `<account>_<block>_<logIndex>` of its `AuctionStarted`) | start equity and notional, outcome (taken / cured / expired), taker, backstop or not, discount, blocks elapsed, payment, equity back to the trader, bad debt |
 | `PositionChange` | `PositionUpdated` event | the position after each order, take or reduction |
 | `CollateralFlow` | trader deposit / withdrawal | amount, lane, tx |
 | `BackstopFlow` | LP deposit, exit request, withdrawal, lane insurance top-up | amount, shares, ready time |
@@ -37,8 +37,8 @@ With Colima instead of Docker Desktop, point Envio at its socket first:
 Then run the app with `NEXT_PUBLIC_ENVIO_GRAPHQL_URL=http://localhost:8080/v1/graphql`.
 
 `pnpm test` runs the handler tests on simulated events (no network): an order from commit to fill, an
-auction taken by a backstop pool, a cured auction. `pnpm codegen` regenerates types after editing
-`config.yaml` or `schema.graphql`.
+auction taken by a backstop pool, a cured auction, an account cured and re-auctioned in one block.
+`pnpm codegen` regenerates types after editing `config.yaml` or `schema.graphql`.
 
 ## Example queries
 
