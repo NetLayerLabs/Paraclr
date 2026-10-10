@@ -90,6 +90,17 @@ export interface PythSourceConfig {
 }
 
 const POLL_MS = 2_000;
+/** Hermes retry cadence while the on-chain fallback is in use. */
+const RETRY_MS = 5_000;
+/** A stored on-chain price older than this is not a usable mark: it is never emitted as a tick. */
+const STORED_MAX_AGE_S = 120;
+
+/**
+ * Age of the newest price the app holds for `symbol`, in ms (null = none yet). Orders refuse to
+ * submit while it exceeds STALE_FOR_ORDERS_MS: the contract fills at Pyth's price, so a limit set
+ * from an old mark only produces "worse than your limit" failures (and costs the execution fee).
+ */
+export const STALE_FOR_ORDERS_MS = 60_000;
 
 /**
  * Production price source: Hermes "latest" via the keeper's proxy (polled; an
@@ -146,6 +157,9 @@ export class PythPriceSource implements PriceSource {
               if (r.status !== "success" || !Array.isArray(r.result)) return;
               const [price, conf, publishTime] = r.result as [bigint, bigint, bigint];
               if (price <= BigInt(0)) return;
+              // Nothing refreshes the stored copy on a timer (push mode on-demand): a days-old
+              // stored price is not the market, so it never becomes a tick.
+              if (Date.now() / 1000 - Number(publishTime) > STORED_MAX_AGE_S) return;
               emitOne(listed[i], priceToNumber(price), priceToNumber(conf), Number(publishTime), Number(b));
             });
           })
@@ -173,9 +187,15 @@ export class PythPriceSource implements PriceSource {
       }
     };
 
-    // Configured Hermes-compatible display feed: polling, giving up to on-chain after failures.
+    // Configured Hermes-compatible display feed: polling. After two failures the on-chain stored
+    // price takes over (when fresh enough) while Hermes keeps being retried every RETRY_MS; the
+    // first success switches back. The fallback is never permanent.
     let poll: ReturnType<typeof setTimeout> | undefined;
     let polling = false;
+    const stopOnchain = () => {
+      offChain?.();
+      offChain = null;
+    };
     const startPolling = () => {
       if (polling) return;
       polling = true;
@@ -189,14 +209,12 @@ export class PythPriceSource implements PriceSource {
           if (!r.ok) throw new Error(String(r.status));
           emit(parsePrices((await r.json()) as RawUpdate));
           failures = 0;
+          stopOnchain();
           setMode("hermes");
         } catch {
-          if (++failures >= 2) {
-            startOnchain();
-            return;
-          }
+          if (++failures >= 2) startOnchain();
         }
-        if (!stopped) poll = setTimeout(run, POLL_MS);
+        if (!stopped) poll = setTimeout(run, offChain ? RETRY_MS : POLL_MS);
       };
       void run();
     };

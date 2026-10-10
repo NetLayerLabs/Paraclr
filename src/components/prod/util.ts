@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParaclr } from "@/lib/store";
+import { STALE_FOR_ORDERS_MS } from "@/lib/chain/prod/pythPrices";
 
 /**
  * Testnet after the Pyth data trial: the clearinghouse reads the keeper-signed
@@ -76,4 +77,19 @@ export function useNow(ms = 500): number {
     return () => clearInterval(id);
   }, [ms]);
   return now;
+}
+
+/**
+ * True while the newest price for a market is older than STALE_FOR_ORDERS_MS (or missing), checked
+ * every second. Used to hold orders and closes until the live feed is back.
+ */
+export function usePriceStale(observedAt: number | null | undefined): boolean {
+  const [stale, setStale] = useState(false);
+  useEffect(() => {
+    const check = () => setStale(!observedAt || Date.now() - observedAt > STALE_FOR_ORDERS_MS);
+    check();
+    const id = setInterval(check, 1_000);
+    return () => clearInterval(id);
+  }, [observedAt]);
+  return stale;
 }

@@ -11,6 +11,7 @@ import { formatEther } from "viem";
 import type { MarketSymbol, Side } from "@/lib/types";
 import { useListedMarkets, useParaclr } from "@/lib/store";
 import { useMarketFeed } from "@/lib/prices/feedStore";
+import { usePriceStale } from "@/components/prod/util";
 import { crossLiquidationPrice } from "@/lib/chain/account";
 import { readableError } from "@/lib/chain/errors";
 import { NETWORK } from "@/lib/chain/config";
@@ -64,6 +65,7 @@ export function ProdOrderPanel({
   const walletError = useParaclr((s) => s.chain.wallet.error);
   const address = useParaclr((s) => s.session?.address ?? null);
   const feed = useMarketFeed(symbol);
+  const priceStale = usePriceStale(feed.observedAt);
   const orders = useOrders();
   const acked = useRiskAcked(address);
   const token = useCollateral();
@@ -175,6 +177,8 @@ export function ProdOrderPanel({
                 ? "Collateral above the beta cap: withdraw down to it before adding margin"
               : !price
                 ? `Waiting for the ${pn}…`
+                : priceStale
+                  ? `Live ${pn} unavailable - reconnecting. Orders wait so the fill limit isn't set from a stale price.`
                 : margin <= 0
                   ? `Enter ${token.symbol} margin`
                   : margin > available + 1e-9

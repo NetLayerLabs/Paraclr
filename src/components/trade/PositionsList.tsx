@@ -4,11 +4,12 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import type { Position } from "@/lib/types";
 import { closePosition, liquidationPrice, unrealizedPnl, useParaclr } from "@/lib/store";
-import { readableError } from "@/lib/chain/errors";
+import { ChainActionError, readableError } from "@/lib/chain/errors";
 import { closePositionOnChain } from "@/lib/chain/trading";
 import { submitReduceOrder } from "@/lib/chain/prod/actions";
 import { isOpen, orderLabelId, useOrders } from "@/lib/chain/prod/orders";
-import { usePriceName, useSlippage } from "@/components/prod/util";
+import { usePriceName, usePriceStale, useSlippage } from "@/components/prod/util";
+import { useMarketFeed } from "@/lib/prices/feedStore";
 import { Notice } from "@/components/chain/ChainUi";
 import { MQ_FINE_POINTER, MQ_TABLE, useMedia } from "@/components/shell/useMedia";
 import { baseOf, fmtAusd, fmtPct, fmtPrice, fmtSigned, fmtSize } from "./format";
@@ -28,6 +29,7 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
   const inAuction = useParaclr((s) => s.chain.status === "ready" && (s.chain.account?.auction?.active ?? false));
   const production = useParaclr((s) => s.chain.status === "ready" && !!s.chain.contracts?.production);
   const pn = usePriceName();
+  const priceStale = usePriceStale(useMarketFeed(p.symbol).observedAt);
   const orders = useOrders();
   const [slip] = useSlippage();
   const [closing, setClosing] = useState(false);
@@ -54,6 +56,11 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     setClosing(true);
     setReduceOpen(false);
     try {
+      if (priceStale) {
+        throw new ChainActionError(
+          `Live ${pn} unavailable right now - reconnecting. The order waits so its fill limit isn't set from a stale price.`,
+        );
+      }
       const o = await submitReduceOrder({ position: p, fraction, mark, slippagePct: slip });
       setNote(
         `${fraction >= 1 ? "Close" : `Reduce ${Math.round(fraction * 100)}%`} order submitted${o.orderId !== null ? ` (${orderLabelId(o)})` : ""} - fills at the next ${pn}. Track it under Orders.`,
