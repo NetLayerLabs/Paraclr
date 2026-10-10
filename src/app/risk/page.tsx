@@ -360,8 +360,8 @@ export default async function RiskPage() {
             transaction, or lose funds to a bug or an exploit, they may be gone for good.
           </p>
           <p>
-            There is no deposit insurance, no government protection scheme, and no promise from{" "}
-            <Placeholder>OPERATOR</Placeholder> or anyone else to make up losses. The lane insurance funds are a protocol
+            There is no deposit insurance, no government protection scheme, and no promise from NetLayer Labs or
+            anyone else to make up losses. The lane insurance funds are a protocol
             mechanism for liquidation shortfalls, not insurance for users. After an incident we may try to help, for
             example by pausing, but we can&rsquo;t promise to recover anything.
           </p>

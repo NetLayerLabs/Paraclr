@@ -64,7 +64,7 @@ export function LegalShell({
             <p>
               <strong>{LEGAL_DRAFT_NOTICE}.</strong> This text is a plain-language working draft. It has not been
               reviewed by a lawyer, is not legal advice, and may change completely before any launch. Bracketed items
-              like <code className={b.code}>[OPERATOR]</code> are placeholders.
+              are open points for that review.
             </p>
           </div>
 

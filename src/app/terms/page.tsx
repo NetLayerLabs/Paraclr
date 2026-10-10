@@ -29,7 +29,7 @@ export default async function TermsPage() {
       body: (
         <>
           <p>
-            These terms are an agreement between you and <Placeholder>OPERATOR LEGAL NAME</Placeholder>, a{" "}
+            These terms are an agreement between you and NetLayer Labs, the builder and operator of Paraclr, a{" "}
             <Placeholder>ENTITY TYPE</Placeholder> organised in <Placeholder>JURISDICTION</Placeholder> (&ldquo;we&rdquo;,
             &ldquo;us&rdquo;). They cover the Paraclr website and app at <Placeholder>DOMAIN</Placeholder> (the
             &ldquo;interface&rdquo;) and the keeper services we run.
