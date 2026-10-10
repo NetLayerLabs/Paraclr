@@ -735,6 +735,7 @@ Every other GET (`/health`, `/sweeper`, `/runs/:id`, `/runs/:id/xray`, `/solvenc
 | `ARENA_TRUST_PROXY` | off | `1`: client IP = first `X-Forwarded-For` hop (only behind your own proxy) |
 | `ARENA_DAILY_MAX` | 40 | cycles per UTC day |
 | `ARENA_MIN_OPERATOR_MON` / `ARENA_MIN_KEEPER_MON` | 1.5 × the last measured cycle (first cycle on Monad: 2.5 / 0.3) | gas guard: below it, "Arena is refuelling" |
+| `ARENA_KEEPER_REFILL_MON` | 0.7 on Monad, 0 elsewhere | after each cycle, lane keepers below it are topped back up to it from the operator (3 blocks apart, Monad's reserve rule); 0 turns it off |
 | `ARENA_PER_LANE`, `ARENA_BPS`, `ARENA_BACKSTOP_CASH`, `ARENA_CURE`, `ARENA_POLL_MS`, `ARENA_STATE_FILE`, `ARENA_REF_GAS_GWEI` | 3, 8000, 500000, 1, 500 (anvil 250), see above, 102 | |
 
 **Cost per cycle**, measured on local anvil (gas limits × 102 gwei, which is what Monad bills): about **2.45 MON** per cycle at 3 accounts per lane. Seeding 48 accounts (both designs) is about 13.6M gas (1.39 MON, operator). The sweeper's 34 txs are about 10.2M gas (1.05 MON across the 8 lane keepers, busiest key about 0.16 MON). Shock, two cure top-ups and recover add about 0.25M gas (0.025 MON). The first cycle also tops up the backstop pools (9 deposits, about 0.6M gas). `GET /arena` reports the live figure as `budget.lastCycleCost` (Monad: at the live gas price). At 40 cycles a day that is about 100 MON a day; `ARENA_PER_LANE=2` cuts seeding by a third.

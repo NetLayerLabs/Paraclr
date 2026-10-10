@@ -65,6 +65,8 @@ export interface ArenaConfig {
   /** Gas guard thresholds (wei); null = derived from the last measured cycle. */
   minOperatorWei: bigint | null;
   minKeeperWei: bigint | null;
+  /** After each cycle, lane keepers below this are topped back up to it from the operator (0 = off). */
+  keeperRefillWei: bigint;
   /** Backstop cash target per lane pool (AUSD 6dp); topped up when a pool falls below half. */
   backstopCash: bigint;
   /** Top up one account per cycle mid-auction so it is cured (operator-funded demo top-up). */
@@ -110,6 +112,7 @@ export function loadArenaConfig(ctx: KeeperContext): ArenaConfig {
     bps,
     minOperatorWei: envMon("ARENA_MIN_OPERATOR_MON"),
     minKeeperWei: envMon("ARENA_MIN_KEEPER_MON"),
+    keeperRefillWei: envMon("ARENA_KEEPER_REFILL_MON") ?? (monad ? parseEther("0.7") : BigInt(0)),
     backstopCash: BigInt(Math.max(1, envInt("ARENA_BACKSTOP_CASH", 500_000))) * BigInt(1e6),
     cure: (envStr("ARENA_CURE") ?? "1") !== "0",
     pollMs: Math.max(100, envInt("ARENA_POLL_MS", monad ? 500 : 250)),
@@ -543,6 +546,37 @@ export class Arena {
     return { hash: sub.hash, block: Number(receipt.blockNumber) };
   }
 
+  /**
+   * Top the lane keepers back up to keeperRefillWei from the operator, so a cycle's sweeper gas
+   * doesn't leave the arena "refuelling" while the operator still has MON. Monad's reserve-balance
+   * rule: below 10 MON a value transfer must be the sender's first tx in 3 blocks, so each transfer
+   * waits 3 blocks after the previous one.
+   */
+  private async refillKeepers(): Promise<void> {
+    const target = this.config.keeperRefillWei;
+    if (target <= BigInt(0)) return;
+    const { client, config } = this.ctx;
+    const op = this.ctx.senders.for(this.ctx.roles.operator);
+    let lastBlock: bigint | null = null;
+    for (let lane = 0; lane < LANE_COUNT; lane++) {
+      const to = keeperForLane(this.ctx.roles, lane).address;
+      const bal = await client.getBalance({ address: to });
+      if (bal >= target) continue;
+      const opBal = await client.getBalance({ address: op.address });
+      const need = target - bal;
+      if (opBal < need + this.thresholds().operator) {
+        this.log(`keeper refill stopped: the operator has ${formatEther(opBal)} MON`);
+        return;
+      }
+      if (lastBlock !== null) while ((await client.getBlockNumber()) < lastBlock + BigInt(3)) await sleep(150);
+      const sub = await op.send({ to, value: need, gas: BigInt(21_000) });
+      const { receipt } = await waitForReceipt(client, sub.hash, { pollMs: Math.max(config.receiptPollMs, 100), timeoutMs: config.receiptTimeoutMs });
+      if (receipt.status !== "success") throw new Error(`keeper refill ${sub.hash} reverted`);
+      lastBlock = receipt.blockNumber;
+      this.log(`refilled lane ${lane} keeper +${formatEther(need)} MON`);
+    }
+  }
+
   /** Reuse the uncrashed book of a previous process, else seed a new one. */
   private async prepareBook(): Promise<void> {
     const p = this.persisted.book;
@@ -958,6 +992,7 @@ export class Arena {
             `(${cost.gasPriceGwei} gwei, billed on limit)${cost.complete ? "" : " (seeding not measured)"}`,
         );
         this.cycle = null;
+        await this.refillKeepers();
         await this.refreshBalances(true).catch(() => undefined);
         await this.seedCycle();
         this.toReady(true);
