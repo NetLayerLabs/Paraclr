@@ -283,7 +283,7 @@ export function ProdWallet() {
           </div>
           <div>
             <dt>Lane</dt>
-            <dd className="mono">{acct ? acct.lane + 1 : "…"}</dd>
+            <dd className="mono">{acct ? `L${acct.lane}` : "…"}</dd>
           </div>
         </dl>
         {feesOwed > BigInt(0) && (
@@ -363,7 +363,7 @@ export function ProdWallet() {
               <dd className="mono">{room.accountRoom === null ? "-" : fmtAusd(room.accountRoom)}</dd>
             </div>
             <div>
-              <dt>Room under lane {acct ? acct.lane + 1 : ""} TVL cap</dt>
+              <dt>Room under lane {acct ? acct.lane : ""} TVL cap</dt>
               <dd className="mono">{room.laneRoom === null ? "-" : fmtAusd(room.laneRoom)}</dd>
             </div>
             <div className={styles.feesTotal}>
@@ -413,7 +413,7 @@ export function ProdWallet() {
         )}
         {tab === "deposit" && !room.holder && laneDebt > 0 && (
           <Notice tone="warn">
-            Lane {acct ? acct.lane + 1 : ""} has {fmtAusd(laneDebt)} AUSD of bad debt, so new deposits into it are refused
+            Lane {acct ? acct.lane : ""} has {fmtAusd(laneDebt)} AUSD of bad debt, so new deposits into it are refused
             until it is repaid. Accounts with open positions can still add margin.
           </Notice>
         )}
@@ -424,7 +424,7 @@ export function ProdWallet() {
         )}
         {tab === "withdraw" && haircutBps > 0 && (
           <Notice tone="warn">
-            Lane {acct ? acct.lane + 1 : ""} has bad debt: withdrawals are cut by {(haircutBps / 100).toFixed(2)}% until
+            Lane {acct ? acct.lane : ""} has bad debt: withdrawals are cut by {(haircutBps / 100).toFixed(2)}% until
             it is repaid
             {preview && preview.amount === amountNum && amountNum > 0 ? (
               <>
@@ -460,7 +460,7 @@ export function ProdWallet() {
         </div>
         <div className={styles.caps}>
           <CapBar label="Your deposits" used={acct ? Math.max(0, acct.collateral) : null} cap={params?.maxDepositPerAccount ?? null} />
-          <CapBar label={`Lane ${acct ? acct.lane + 1 : ""} TVL`} used={prod?.lane?.tvl ?? null} cap={params?.maxTvlPerLane ?? null} />
+          <CapBar label={`Lane ${acct ? acct.lane : ""} TVL`} used={prod?.lane?.tvl ?? null} cap={params?.maxTvlPerLane ?? null} />
         </div>
         <dl className={styles.kv}>
           <div>

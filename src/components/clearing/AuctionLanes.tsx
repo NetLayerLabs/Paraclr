@@ -215,7 +215,7 @@ export function AuctionLanes({
           return (
             <div key={l} className={styles.lane} data-lane={l} data-clock={clockState}>
               <div className={styles.laneLabel}>
-                <span>Lane {l + 1}</span>
+                <span>Lane {l}</span>
                 <small className="mono">{label}</small>
               </div>
               <div className={styles.laneBody}>
@@ -227,7 +227,7 @@ export function AuctionLanes({
                 </div>
                 <div
                   className={styles.discTrack}
-                  title={`Discount clock: 0 → ${fmtBps(params.maxDiscountBps)}; the lane ${l + 1} backstop takes at ≥ ${fmtBps(laneMin)}`}
+                  title={`Discount clock: 0 → ${fmtBps(params.maxDiscountBps)}; the lane ${l} backstop takes at ≥ ${fmtBps(laneMin)}`}
                 >
                   <i className={styles.discFill} style={{ transform: `scaleX(${Math.min(1, clockBps / maxBps)})` }} />
                   <i className={styles.discMin} style={{ left: `${Math.min(1, laneMin / maxBps) * 100}%` }} />

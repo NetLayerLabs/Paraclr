@@ -160,6 +160,29 @@ export interface KeeperHealth {
   paused?: boolean;
   caps?: unknown;
   priceSource?: string;
+  /**
+   * Production keeper funding loop (`/health.funding`): one entry per market
+   * with the keeper's view of the on-chain rate, the rate it would set, when it
+   * last changed it, and why it did or did not send `updateFunding` this tick:
+   * "unchanged" (skipped: under `policy.minChangeBps` or the market is idle),
+   * "rate A → B" (a change is pending) or "rate older than Ns" (refresh due).
+   */
+  funding?: {
+    enabled?: boolean;
+    /** Seconds between keeper checks (the contract's own minimum interval). */
+    interval?: number;
+    policy?: { minChangeBps?: number; maxAgeS?: number; skipIdle?: boolean };
+    markets?: Record<string, KeeperFundingMarket>;
+  };
+}
+
+export interface KeeperFundingMarket {
+  ratePerSec?: string;
+  target?: string;
+  /** Unix seconds of the last on-chain rate change / refresh. */
+  lastUpdate?: number;
+  nextUpdate?: number;
+  reason?: string;
 }
 
 export interface FaucetResult {

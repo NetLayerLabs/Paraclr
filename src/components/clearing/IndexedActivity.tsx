@@ -99,7 +99,7 @@ export function IndexedActivity() {
                 <tbody>
                   {data.auctions.map((a) => (
                     <tr key={a.id}>
-                      <td className="mono">{a.lane.index + 1}</td>
+                      <td className="mono">L{a.lane.index}</td>
                       <td className="mono">{shortAddress(a.account, 6, 4)}</td>
                       <td data-status={a.status} className={styles.outcome}>
                         {outcome(a)}

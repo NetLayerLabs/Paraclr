@@ -209,7 +209,7 @@ export function ThreadVisualizer({
         {LANES.map((l) => (
           <div key={l} className={styles.lane} data-lane={l}>
             <div className={styles.laneLabel}>
-              <span>Lane {l + 1}</span>
+              <span>Lane {l}</span>
               <small className="mono" data-lane-ms={l}>
                 -
               </small>

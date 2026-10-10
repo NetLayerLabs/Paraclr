@@ -234,7 +234,7 @@ function SolvencyBody({ s, error }: { s: SolvencySnapshot; error: string | null 
               <tbody>
                 {lanes.map((l) => (
                   <tr key={l.lane}>
-                    <td>{l.lane + 1}</td>
+                    <td className="mono">L{l.lane}</td>
                     <td className="mono">{compact(l.collateral)}</td>
                     <td className="mono">{compact(l.insurance)}</td>
                     <td className="mono">{compact(l.backstopCash)}</td>
@@ -315,7 +315,7 @@ function LaneSolvencyTable({ lanes, liabilities }: { lanes: LaneSolvency[] | nul
           <tbody>
             {lanes.map((l) => (
               <tr key={l.lane}>
-                <td>{l.lane + 1}</td>
+                <td className="mono">L{l.lane}</td>
                 <td className="mono">{compact(l.held)}</td>
                 <td className="mono">{compact(l.claims)}</td>
                 <td className="mono" data-tone={l.surplus < 0 ? "warn" : undefined}>

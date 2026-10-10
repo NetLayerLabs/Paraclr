@@ -200,7 +200,7 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
         </div>
         <div className={styles.text}>
           <b>
-            Your account is in a liquidation auction · lane {acct.lane + 1} · block +{elapsed}
+            Your account is in a liquidation auction · lane {acct.lane} · block +{elapsed}
           </b>
           <span>
             Discount now <span className="mono">{fmtBps(d)}</span> (rises {fmtBps(p.stepBps)} per block, max{" "}
@@ -288,7 +288,7 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
 
 function Outcome({ r, free, onDismiss }: { r: AuctionRecord; free: number | null; onDismiss: () => void }) {
   const p = useAuctionParams();
-  const lane = r.lane + 1;
+  const lane = r.lane;
   const blocks = r.resolvedBlock !== null ? r.resolvedBlock - r.startBlock : null;
   let title: string;
   let detail: string;

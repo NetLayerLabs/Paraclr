@@ -97,7 +97,7 @@ export function backstopDepositOnChain(lane: number, amount: number): Promise<Fa
     await ensureAllowance(signer, c, units, snap.walletAusdUnits, snap.allowanceUnits);
     const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane), lane) : null;
     const receipt = await sendTx(signer, {
-      label: `Deposit ${fmt(amount)} ${c.token.symbol} into the lane ${lane + 1} backstop`,
+      label: `Deposit ${fmt(amount)} ${c.token.symbol} into the lane ${lane} backstop`,
       to: c.clearinghouse,
       data: q
         ? encodeFunctionData({ abi: prodAbi, functionName: "backstopDeposit", args: [lane, units, q.updateData] })
@@ -121,8 +121,8 @@ export function backstopRequestWithdrawOnChain(lane: number, shares: bigint): Pr
     const receipt = await sendTx(signer, {
       label:
         shares > BigInt(0)
-          ? `Request a lane ${lane + 1} backstop withdrawal`
-          : `Cancel your lane ${lane + 1} backstop withdrawal request`,
+          ? `Request a lane ${lane} backstop withdrawal`
+          : `Cancel your lane ${lane} backstop withdrawal request`,
       to: c.clearinghouse,
       data: encodeFunctionData({ abi: prodAbi, functionName: "backstopRequestWithdraw", args: [lane, shares] }),
     });
@@ -145,7 +145,7 @@ export function backstopWithdrawOnChain(
     if (shares <= BigInt(0)) throw new ChainActionError("No shares to withdraw.");
     const q = c.production ? await priceUpdateFor(c, await poolHasPositions(c, lane), lane) : null;
     const receipt = await sendTx(signer, {
-      label: `Withdraw ≈${fmt(approxAusd)} ${c.token.symbol} from the lane ${lane + 1} backstop`,
+      label: `Withdraw ≈${fmt(approxAusd)} ${c.token.symbol} from the lane ${lane} backstop`,
       to: c.clearinghouse,
       data: q
         ? encodeFunctionData({ abi: prodAbi, functionName: "backstopWithdraw", args: [lane, shares, q.updateData] })

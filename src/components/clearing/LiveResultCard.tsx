@@ -151,7 +151,7 @@ export function LiveResultCard({
             <tbody>
               {rows.slice(0, MAX_ROWS).map((b) => (
                 <tr key={b.txHash}>
-                  <td>{b.lane + 1}</td>
+                  <td className="mono">L{b.lane}</td>
                   <td>{b.kind ? (KIND_LABEL[b.kind] ?? b.kind) : "-"}</td>
                   <td className="mono">{b.accounts}</td>
                   <td>
@@ -192,9 +192,9 @@ function YourOutcome({ r }: { r: AuctionRecord }) {
     r.status === "cured" ? "var(--long-text)" : r.status === "expired" ? "var(--short-text)" : r.status === "backstop" ? "var(--accent-text)" : "var(--link-text)";
   return (
     <div className={styles.userResult} style={{ borderColor: tone }}>
-      <small>Your account · Lane {r.lane + 1}</small>
+      <small>Your account · lane {r.lane}</small>
       <b style={{ color: tone }}>
-        {r.status === "backstop" && `Taken by the lane ${r.lane + 1} backstop at ${fmtBps(r.discountBps ?? 0)}`}
+        {r.status === "backstop" && `Taken by the lane ${r.lane} backstop at ${fmtBps(r.discountBps ?? 0)}`}
         {r.status === "external" &&
           `Taken by ${r.taker && demoTakers.has(r.taker) ? "a keeper-run demo taker bot" : "an external same-lane taker"} at ${fmtBps(r.discountBps ?? 0)}`}
         {r.status === "cured" && "Auction cured - your account is healthy again"}

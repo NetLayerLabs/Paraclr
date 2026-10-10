@@ -225,8 +225,8 @@ function collectContracts(dep: Json): ProdContract[] {
       if (isAddress(v)) add(k, v);
       else if (isObj(v) && isAddress(v.address)) add(k, v.address); // e.g. pyth: { address, feeds }
       else if (Array.isArray(v) && v.length > 0 && v.every(isAddress)) {
-        // backstopOperators[i] is lane i's keeper; lanes are numbered from 1 in the UI.
-        v.forEach((a, i) => add(k, a, norm(k) === "backstopoperators" ? ` · lane ${i + 1}` : ` ${i}`));
+        // backstopOperators[i] is lane i's keeper; lanes are 0-based everywhere (L0-L7, address % 8).
+        v.forEach((a, i) => add(k, a, norm(k) === "backstopoperators" ? ` · L${i}` : ` ${i}`));
       }
     }
   };

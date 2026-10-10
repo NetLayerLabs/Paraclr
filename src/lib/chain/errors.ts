@@ -165,7 +165,7 @@ function customErrorMessage(name: string, args: readonly unknown[] | undefined):
     case "PositionChanged":
       return "Not filled: your position changed after you placed the order (it was taken, closed or replaced). Nothing was traded.";
     case "LaneInDeficit": {
-      const lane = typeof a[0] === "number" || typeof a[0] === "bigint" ? `Lane ${Number(a[0]) + 1}` : "This lane";
+      const lane = typeof a[0] === "number" || typeof a[0] === "bigint" ? `Lane ${Number(a[0])}` : "This lane";
       return `${lane} has bad debt, so new deposits into it are refused until it is repaid. Top-ups to open positions still work.`;
     }
     case "LaneInsolvent":

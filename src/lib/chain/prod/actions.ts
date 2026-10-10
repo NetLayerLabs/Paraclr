@@ -54,7 +54,7 @@ export async function refreshProd(): Promise<void> {
     const lane = st.chain.account?.lane ?? null;
     const account = (st.session?.address as Address | undefined) ?? null;
     const dyn = await readProdDynamic(c, lane, account);
-    setProd({ ...dyn, chainTimeAt: Date.now(), status: "ready", error: null });
+    setProd({ ...dyn, status: "ready", error: null });
   } catch (e) {
     setProd({ status: getState().chain.prod?.status === "ready" ? "ready" : "error", error: (e as Error).message });
   }
@@ -109,7 +109,7 @@ export function depositRefusal(acct: ChainAccountSnapshot | null, amount: number
   if (depositBlockedByPause(acct)) return "Deposits paused by the guardian";
   const holder = acct.positions.length > 0;
   if (holder) return null;
-  if ((p.lane?.solvency?.badDebt ?? 0) > 0) return `Lane ${acct.lane + 1} is in deficit: new deposits are refused`;
+  if ((p.lane?.solvency?.badDebt ?? 0) > 0) return `Lane ${acct.lane} is in deficit: new deposits are refused`;
   const min = p.params.minFirstDeposit ?? 1;
   if (!acct.registered && amount > 0 && amount < min) return `First deposit at least ${fmt(min)} AUSD`;
   const { room } = depositRoom(acct);

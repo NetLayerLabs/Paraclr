@@ -51,7 +51,7 @@ export function ResultCard({ run, user }: Props) {
         </div>
         <div className={styles.speedup}>
           <b className="mono">{speedup.toFixed(1)}×</b> faster · bounded by the slowest lane (Lane{" "}
-          {slowest.thread + 1}, {slowest.accounts} accounts)
+          {slowest.thread}, {slowest.accounts} accounts)
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export function ResultCard({ run, user }: Props) {
 
       {user && (
         <div className={styles.userResult} style={{ borderColor: USER_COPY[user.outcome].tone }}>
-          <small>Your account · Lane {user.thread + 1}</small>
+          <small>Your account · lane {user.thread}</small>
           <b style={{ color: USER_COPY[user.outcome].tone }}>{USER_COPY[user.outcome].label}</b>
           <span className="mono">
             equity at crash mark {user.equity >= 0 ? "" : "−"}

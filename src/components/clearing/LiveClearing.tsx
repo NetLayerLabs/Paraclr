@@ -652,7 +652,7 @@ function TakeList({
   return (
     <section className={styles.takeList} aria-label="Auctions in your lane">
       <header>
-        <b>Auctions in your lane (lane {acct.lane + 1})</b>
+        <b>Auctions in your lane (lane {acct.lane})</b>
         <span>
           Take one to inherit its positions at the mark. You earn up to the current discount × notional, capped at the
           trader&apos;s remaining equity (the lane never pays an external taker). Same-lane only; you must stay above

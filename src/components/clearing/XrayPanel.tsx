@@ -363,7 +363,7 @@ function ConflictGraph({ d, labels }: { d: XrayDesign; labels: Record<string, st
         <g key={`row-${lane ?? "x"}`}>
           <line className={styles.rowLine} x1={gutter - 4} x2={W - 4} y1={TOP + i * ROW_H + ROW_H / 2} y2={TOP + i * ROW_H + ROW_H / 2} />
           <text className={styles.rowLabel} x={gutter - 7} y={TOP + i * ROW_H + ROW_H / 2 + 3} textAnchor="end">
-            {lane === null ? "-" : `L${lane + 1}`}
+            {lane === null ? "-" : `L${lane}`}
           </text>
         </g>
       ))}
@@ -394,7 +394,7 @@ function ConflictGraph({ d, labels }: { d: XrayDesign; labels: Record<string, st
         return (
           <circle key={t.hash} cx={p.x} cy={p.y} r={g.r} className={hit ? styles.nodeHit : styles.node}>
             <title>
-              {`${t.kind} · ${t.lane === null ? "no lane" : `lane ${t.lane + 1}`} · block #${t.block} tx ${t.index}\n${t.reads} slots read · ${t.writes} written\n${t.hash}`}
+              {`${t.kind} · ${t.lane === null ? "no lane" : `lane ${t.lane}`} · block #${t.block} tx ${t.index}\n${t.reads} slots read · ${t.writes} written\n${t.hash}`}
             </title>
           </circle>
         );

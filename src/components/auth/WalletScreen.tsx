@@ -245,7 +245,7 @@ function ChainWallet() {
           <span className={styles.chainDot} data-net={NETWORK.mode} />
           {NETWORK.mode === "anvil" ? "Local anvil - not Monad" : NETWORK.label} ·{" "}
           <span className="mono">{NETWORK.chainId}</span>
-          {acct && <span className="mono"> · lane {acct.lane + 1}</span>}
+          {acct && <span className="mono"> · lane {acct.lane}</span>}
           {explorer && (
             <a className={styles.explorer} href={explorer} target="_blank" rel="noreferrer">
               Explorer ↗

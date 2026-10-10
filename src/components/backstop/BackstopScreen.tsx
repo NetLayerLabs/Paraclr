@@ -268,11 +268,11 @@ function PoolTable({
               key={p.lane}
               data-selected={p.lane === selected ? "" : undefined}
               onClick={() => onSelect(p.lane)}
-              title={`Select lane ${p.lane + 1}`}
+              title={`Select lane ${p.lane}`}
             >
               <td>
                 <span className={styles.laneCell}>
-                  Lane {p.lane + 1}
+                  Lane {p.lane}
                   {p.lane === myLane && <span className={styles.youTag}>your lane</span>}
                 </span>
               </td>
@@ -323,7 +323,7 @@ function PoolCards({
         >
           <span className={styles.cardTop}>
             <b>
-              Lane {p.lane + 1}
+              Lane {p.lane}
               {p.lane === myLane && <span className={styles.youTag}>your lane</span>}
             </b>
             <span className="mono">{fmtAusd(p.equity)} AUSD</span>
@@ -424,7 +424,7 @@ function PoolActions({
         : production && paused
           ? "Deposits paused by the guardian"
         : production && laneRoom !== null && amount > laneRoom + 1e-9
-          ? `Over the lane ${lane + 1} TVL cap (${fmtAusd(laneRoom)} left)`
+          ? `Over the lane ${lane} TVL cap (${fmtAusd(laneRoom)} left)`
         : production && poolDepositRefusal(bp)
           ? poolDepositRefusal(bp)
         : amount <= 0
@@ -461,7 +461,7 @@ function PoolActions({
     try {
       if (mode === "deposit") {
         const r = await backstopDepositOnChain(lane, amount);
-        setMsg({ tone: "ok", text: `Deposited ${fmtAusd(amount)} AUSD into the lane ${lane + 1} backstop (block #${r.block}).` });
+        setMsg({ tone: "ok", text: `Deposited ${fmtAusd(amount)} AUSD into the lane ${lane} backstop (block #${r.block}).` });
       } else if (production && (exitStage === "none" || exitStage === "expired")) {
         await backstopRequestWithdrawOnChain(lane, withdrawShares);
         setMsg({
@@ -473,14 +473,14 @@ function PoolActions({
         const r = await backstopWithdrawOnChain(lane, requestShares, requestAusd);
         setMsg({
           tone: "ok",
-          text: `Withdrew ${fmtAusd(r.amount ?? requestAusd)} AUSD from the lane ${lane + 1} backstop (block #${r.block}).`,
+          text: `Withdrew ${fmtAusd(r.amount ?? requestAusd)} AUSD from the lane ${lane} backstop (block #${r.block}).`,
         });
         refreshBp();
       } else {
         const r = await backstopWithdrawOnChain(lane, withdrawShares, withdrawAusd);
         setMsg({
           tone: "ok",
-          text: `Withdrew ${fmtAusd(r.amount ?? withdrawAusd)} AUSD from the lane ${lane + 1} backstop (block #${r.block}).`,
+          text: `Withdrew ${fmtAusd(r.amount ?? withdrawAusd)} AUSD from the lane ${lane} backstop (block #${r.block}).`,
         });
       }
       onDone();
@@ -554,7 +554,7 @@ function PoolActions({
             onClick={() => onLane(l)}
             title={l === myLane ? "Your trading account's lane" : undefined}
           >
-            {l + 1}
+            L{l}
             {l === myLane && <i aria-hidden />}
           </button>
         ))}
@@ -612,7 +612,7 @@ function PoolActions({
           {production && poolDepositRefusal(bp) && (
             <Notice tone="warn">
               {(bp?.solvency?.badDebt ?? 0) > 0
-                ? `Lane ${lane + 1} has ${fmtAusd(bp?.solvency?.badDebt ?? 0)} AUSD of bad debt, so new pool deposits are refused until it is repaid.`
+                ? `Lane ${lane} has ${fmtAusd(bp?.solvency?.badDebt ?? 0)} AUSD of bad debt, so new pool deposits are refused until it is repaid.`
                 : (bp?.depositStatus?.receivable ?? 0) > 0
                   ? `The lane owes this pool ${fmtAusd(bp?.depositStatus?.receivable ?? 0)} AUSD (pool cash it lent to cover losses). Deposits reopen once it is repaid, so every deposit is priced at the full NAV.`
                   : `The pool's unrealised gain (${fmtAusd(bp?.depositStatus?.unrealizedUncapped ?? 0)} AUSD) is above lane insurance (${fmtAusd(bp?.depositStatus?.insurance ?? 0)} AUSD), so its NAV is capped. Deposits reopen when that clears.`}
@@ -693,7 +693,7 @@ function PoolActions({
           )}
           {production && haircutBps > 0 && (
             <Notice tone="warn">
-              Lane {lane + 1} has bad debt: payouts are cut by {(haircutBps / 100).toFixed(2)}% until it is repaid.
+              Lane {lane} has bad debt: payouts are cut by {(haircutBps / 100).toFixed(2)}% until it is repaid.
             </Notice>
           )}
           {production && exitStage === "expired" && req && (
@@ -715,7 +715,7 @@ function PoolActions({
           ? "Confirming on chain…"
           : (reason ??
             (mode === "deposit"
-              ? `Deposit ${fmtAusd(amount)} AUSD to lane ${lane + 1}`
+              ? `Deposit ${fmtAusd(amount)} AUSD to lane ${lane}`
               : production && (exitStage === "none" || exitStage === "expired")
                 ? `Request withdrawal of ≈${fmtAusd(withdrawAusd)} AUSD`
                 : production
