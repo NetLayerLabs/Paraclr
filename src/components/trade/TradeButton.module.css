@@ -14,9 +14,7 @@
   letter-spacing: -0.005em;
   color: var(--on-fill);
   background: var(--side);
-  box-shadow:
-    0 10px 24px -12px color-mix(in srgb, var(--side) 80%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
   transition:
     filter var(--dur-1),
     transform var(--dur-2) var(--ease),
@@ -31,9 +29,6 @@
 .btn:hover:not(:disabled) {
   filter: brightness(1.06);
   transform: translateY(-1px);
-  box-shadow:
-    0 16px 30px -12px color-mix(in srgb, var(--side) 85%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .btn:active:not(:disabled) {
@@ -42,12 +37,38 @@
 
 /* Focus: the app-wide 2px ring (AppShell.module.css), pill-shaped. */
 
+/* Not usable yet: still a solid control in the side's colour, muted; the reason is on the
+   state line under it. */
 .disabled {
   cursor: not-allowed;
   color: var(--text-dim);
-  font-weight: 550;
-  background: var(--bg-elev-2);
-  box-shadow: inset 0 0 0 1px var(--border);
+  background: color-mix(in srgb, var(--side) 16%, var(--bg-elev-2));
+  box-shadow: none;
+}
+
+/* The state line under a submit: a dot and one sentence. */
+.state {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-top: -2px;
+  padding: 0 4px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.state[data-empty] {
+  display: none;
+}
+
+.state i {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--warn);
+  transform: translateY(-1px);
 }
 
 .disabled:hover {
@@ -62,7 +83,6 @@
 
 .done {
   cursor: default;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--side) 22%, transparent);
 }
 
 .failed {

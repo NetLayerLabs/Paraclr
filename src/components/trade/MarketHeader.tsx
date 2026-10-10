@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { MARKETS, type MarketSymbol } from "@/lib/types";
 import { selectMarket, useListedMarkets, useParaclr } from "@/lib/store";
 import { useMarketFeed } from "@/lib/prices/feedStore";
@@ -210,7 +210,12 @@ function StreamsBadge({ symbol }: { symbol: MarketSymbol }) {
   );
 }
 
-export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
+/**
+ * Ticker: market tabs, pair, the mark (the screen's hero number), price source and stats. Phones get
+ * a compact two-line ticker; the source, stats and `details` (the production risk strip) fold into a
+ * "Market details" disclosure there. From 640px the source and stats sit inline.
+ */
+export function MarketHeader({ symbol, details }: { symbol: MarketSymbol; details?: ReactNode }) {
   const listed = useListedMarkets();
   const feed = useMarketFeed(symbol);
   const tickPrice = useParaclr((s) => s.prices[symbol]?.price ?? null);
@@ -280,49 +285,69 @@ export function MarketHeader({ symbol }: { symbol: MarketSymbol }) {
         )}
       </div>
 
-      <LatencyBadge symbol={symbol} />
-
-      <div className={styles.stats}>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>5m High</span>
-          <span className="mono">{fmtPrice(symbol, hi)}</span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>5m Low</span>
-          <span className="mono">{fmtPrice(symbol, lo)}</span>
-        </div>
-        {isPyth ? (
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>Published</span>
-            <span className="mono">{feed.observedAt ? new Date(feed.observedAt).toISOString().slice(11, 19) : "-"}</span>
-          </div>
-        ) : isOracle ? (
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>Read at block</span>
-            <span className="mono">{feed.block != null ? `#${feed.block}` : "-"}</span>
-          </div>
-        ) : (
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>Delivery</span>
-            <span className="mono">{feed.ticks ? `${feed.latencyMs}ms` : "-"}</span>
-          </div>
-        )}
-        {/* Desktop hides this one: the price-source badge beside it says the same. */}
-        <div className={`${styles.stat} ${styles.statSource}`}>
-          <span className={styles.statLabel}>Oracle</span>
-          <span>
-            {feed.source === "chainlink"
-              ? "Chainlink"
-              : feed.source === "pyth"
-                ? "Pyth"
-                : feed.source === "oracle"
-                ? "On-chain"
-                : feed.source
-                  ? "Simulated"
-                  : "-"}
-          </span>
-        </div>
+      <div className={styles.inline}>
+        <LatencyBadge symbol={symbol} />
+        <MarketStats symbol={symbol} hi={hi} lo={lo} />
       </div>
+
+      <details className={styles.more}>
+        <summary>Market details</summary>
+        <div className={styles.moreBody}>
+          <LatencyBadge symbol={symbol} />
+          <MarketStats symbol={symbol} hi={hi} lo={lo} />
+          {details}
+        </div>
+      </details>
     </header>
+  );
+}
+
+/** 5m high / low, the price's publish time (or block / delivery) and the oracle name. */
+function MarketStats({ symbol, hi, lo }: { symbol: MarketSymbol; hi: number | null; lo: number | null }) {
+  const feed = useMarketFeed(symbol);
+  const isOracle = feed.source === "oracle" || feed.source === "pyth";
+  const isPyth = feed.source === "pyth";
+  return (
+    <div className={styles.stats}>
+      <div className={styles.stat}>
+        <span className={styles.statLabel}>5m High</span>
+        <span className="mono">{fmtPrice(symbol, hi)}</span>
+      </div>
+      <div className={styles.stat}>
+        <span className={styles.statLabel}>5m Low</span>
+        <span className="mono">{fmtPrice(symbol, lo)}</span>
+      </div>
+      {isPyth ? (
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Published</span>
+          <span className="mono">{feed.observedAt ? new Date(feed.observedAt).toISOString().slice(11, 19) : "-"}</span>
+        </div>
+      ) : isOracle ? (
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Read at block</span>
+          <span className="mono">{feed.block != null ? `#${feed.block}` : "-"}</span>
+        </div>
+      ) : (
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Delivery</span>
+          <span className="mono">{feed.ticks ? `${feed.latencyMs}ms` : "-"}</span>
+        </div>
+      )}
+      {/* Desktop hides this one: the price-source badge beside it says the same. */}
+      <div className={`${styles.stat} ${styles.statSource}`}>
+        <span className={styles.statLabel}>Oracle</span>
+        <span>
+          {feed.source === "chainlink"
+            ? "Chainlink"
+            : feed.source === "pyth"
+              ? "Pyth"
+              : feed.source === "oracle"
+              ? "On-chain"
+              : feed.source
+                ? "Simulated"
+                : "-"}
+        </span>
+      </div>
+    </div>
   );
 }

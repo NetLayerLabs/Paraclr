@@ -6,13 +6,11 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px;
-  border-radius: var(--radius);
-  border: 1px solid color-mix(in srgb, var(--tone) 55%, var(--border));
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--tone) 10%, transparent), transparent 70%),
-    var(--bg-elev);
-  box-shadow: var(--shadow-1), var(--card-highlight);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  /* A solid tone rule on the left and a flat tint: an alert row on the surface, not a card. */
+  box-shadow: inset 2px 0 0 var(--tone);
+  background: color-mix(in srgb, var(--tone) 7%, transparent);
   animation: bannerIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 

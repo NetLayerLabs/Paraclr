@@ -33,9 +33,8 @@
 .tableWrap {
   min-height: 0;
   overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg-elev);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .table {
@@ -57,7 +56,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
-  background: var(--bg-subtle);
+  background: var(--bg);
   box-shadow: inset 0 -1px 0 var(--border);
 }
 
@@ -113,26 +112,25 @@
   color: var(--text-dim);
 }
 
+/* Empty: one ledger line on a hairline (as in Positions). */
 .empty {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 22px 12px;
-  border-radius: var(--radius);
-  border: 1px dashed var(--border-strong);
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   color: var(--text-dim);
-  text-align: center;
 }
 
 .empty p {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .empty span {
-  max-width: 46ch;
   font-size: 12.5px;
   line-height: 1.5;
 }
@@ -160,11 +158,8 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--tone);
-  border-radius: var(--radius-sm);
-  background: var(--bg-elev);
+  padding: 4px 0 4px 12px;
+  border-left: 2px solid var(--tone);
   font-size: 12.5px;
 }
 
@@ -193,4 +188,43 @@
 
 .auctionTx {
   margin-left: auto;
+}
+
+/* Desktop: fills the terminal's bottom cell, edge to edge like Positions. */
+@media (min-width: 1024px) {
+  .section {
+    flex: 1;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .head {
+    flex: none;
+    height: 40px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .title {
+    font-size: 13.5px;
+  }
+
+  .section > *:not(.head):not(.tableWrap):not(.empty) {
+    margin: 10px 16px 0;
+  }
+
+  .tableWrap {
+    flex: 1;
+    border: none;
+  }
+
+  .table th:first-child,
+  .table td:first-child {
+    padding-left: 16px;
+  }
+
+  .empty {
+    border: none;
+    padding: 12px 16px;
+  }
 }

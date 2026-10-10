@@ -33,6 +33,7 @@ import { TradeButton } from "@/components/trade/TradeButton";
 import { baseOf, fmtAusd, fmtCompact, fmtPct, fmtPrice, fmtSize } from "@/components/trade/format";
 import ops from "@/components/trade/OrderPanel.module.css";
 import { GasDrip } from "./GasDrip";
+import { TestnetFunds } from "./TestnetFunds";
 import { TokenIcon, TokenSymbol, useCollateral } from "./Token";
 import { fmtDuration, usePriceName, useSlippage, SLIPPAGE_CHOICES } from "./util";
 import styles from "./Prod.module.css";
@@ -150,7 +151,7 @@ export function ProdOrderPanel({
   const fundHint = testnet
     ? NETWORK?.sandbox
       ? `Get ${token.symbol} from the sandbox faucet (Wallet tab) first`
-      : `Get testnet ${token.symbol} on the Wallet tab first`
+      : `No testnet ${token.symbol} yet - claim it above (or on the Wallet tab)`
     : `Send ${token.symbol} to your wallet first`;
   const gasHint = testnet
     ? NETWORK?.sandbox
@@ -427,6 +428,15 @@ export function ProdOrderPanel({
         </Notice>
       )}
 
+      {/* A fresh testnet wallet has neither AUSD nor MON. The fixable step becomes the active control
+          above the (muted) submit: the keeper's gas drip first (it hides itself once funded), then
+          Agora's AUSD faucet (disabled with its own reason until there is MON for gas). */}
+      {acct && (reason === gasHint || reason === fundHint) && (
+        <div className={styles.fix} role="group" aria-label="Before you can trade">
+          <GasDrip address={address} nativeWei={native} />
+          {reason === fundHint && testnet && !NETWORK?.sandbox && <TestnetFunds variant="inline" />}
+        </div>
+      )}
       {clickToTrade ? (
         <TradeButton
           side={side}
@@ -446,8 +456,6 @@ export function ProdOrderPanel({
           onConfirm={confirm}
         />
       )}
-      {/* A fresh testnet wallet has neither AUSD nor MON: offer the keeper's gas drip at either hint (it hides itself once funded). */}
-      {acct && (reason === gasHint || reason === fundHint) && <GasDrip address={address} nativeWei={native} />}
       {error && <Notice tone="error">{error}</Notice>}
       <details className={styles.how}>
         <summary>

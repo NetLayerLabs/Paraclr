@@ -459,16 +459,6 @@ export function PositionsList({ onClosed }: { onClosed: OnClosed }) {
 
       {positions.length === 0 ? (
         <div className={styles.empty}>
-          <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden>
-            <path
-              d="M3 17l5-5 4 4 8-8M14 8h6v6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
           <p>No open positions</p>
           <span>
             {chainLive

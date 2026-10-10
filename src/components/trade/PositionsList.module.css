@@ -22,18 +22,10 @@
   letter-spacing: -0.01em;
 }
 .count {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 7px;
-  border-radius: var(--radius-pill);
-  display: inline-grid;
-  place-items: center;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-line);
-  color: var(--accent-text);
+  color: var(--text-dim);
 }
 .totalWrap {
   display: inline-flex;
@@ -60,37 +52,32 @@
   color: var(--short-text);
 }
 
+/* Phones: positions as ruled ledger entries, not cards. */
 .list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  border-top: 1px solid var(--border);
 }
 
 .card {
-  padding: 13px 14px;
-  border-radius: var(--radius);
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-1), var(--card-highlight);
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 11px;
   animation: enter 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1);
 }
 .cardLiq {
-  border-color: var(--short);
-  box-shadow: 0 0 0 3px var(--short-soft);
-  animation: alarm 1s ease-in-out infinite;
+  margin: 0 -10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: var(--short-soft);
+  box-shadow: inset 2px 0 0 var(--short);
 }
 @keyframes enter {
   from {
     opacity: 0;
     transform: translateY(-8px) scale(0.98);
-  }
-}
-@keyframes alarm {
-  50% {
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--short) 6%, transparent);
   }
 }
 
@@ -105,27 +92,22 @@
   align-items: center;
   gap: 8px;
 }
+/* Side: coloured mono text, not a pill. */
 .badgeLong,
 .badgeShort {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.06em;
-  border: 1px solid transparent;
+  text-transform: uppercase;
 }
 .badgeLong {
   color: var(--long-text);
-  background: var(--long-soft);
-  border-color: var(--long-line);
 }
 .badgeShort {
   color: var(--short-text);
-  background: var(--short-soft);
-  border-color: var(--short-line);
 }
 .sym {
   font-size: 15px;
@@ -229,36 +211,23 @@
   cursor: default;
 }
 
+/* Empty: one ledger line - what's missing, then what to do, on a hairline. */
 .empty {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 22px 12px;
-  border-radius: var(--radius);
-  border: 1px dashed var(--border-strong);
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   color: var(--text-dim);
-  text-align: center;
-}
-/* The icon sits in the landing's icon tile. */
-.empty svg {
-  box-sizing: content-box;
-  width: 22px;
-  height: 22px;
-  padding: 10px;
-  margin-bottom: 6px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--bg-elev-2);
-  color: var(--accent-text);
 }
 .empty p {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
 }
 .empty span {
-  max-width: 46ch;
   font-size: 12.5px;
   line-height: 1.5;
 }
@@ -275,9 +244,8 @@
 .tableWrap {
   min-height: 0;
   overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg-elev);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .table {
@@ -299,13 +267,13 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
-  background: var(--bg-subtle);
+  background: var(--bg);
   box-shadow: inset 0 -1px 0 var(--border);
 }
 
 .table td {
   padding: 0 12px;
-  height: 46px;
+  height: 40px;
   border-top: 1px solid var(--border);
   vertical-align: middle;
 }
@@ -445,6 +413,10 @@
 .rowLiq td {
   background: var(--short-soft);
 }
+.rowLiq td,
+.rowLiq:hover td {
+  background: var(--short-soft);
+}
 .rowLiq td:first-child {
   box-shadow: inset 2px 0 0 var(--short);
 }
@@ -509,7 +481,7 @@
     display: inline;
   }
   .empty {
-    padding: 28px 16px;
+    padding: 14px 0;
   }
 }
 
@@ -520,16 +492,12 @@
     flex: 1;
     min-height: 0;
     gap: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-panel);
-    background: var(--bg-elev);
-    box-shadow: var(--shadow-1), var(--card-highlight);
     overflow: hidden;
   }
   .head {
     flex: none;
-    height: 44px;
-    padding: 0 14px 0 16px;
+    height: 40px;
+    padding: 0 16px;
     border-bottom: 1px solid var(--border);
   }
   .title {
@@ -541,15 +509,15 @@
   .tableWrap {
     flex: 1;
     border: none;
-    border-radius: 0;
+  }
+  .table th:first-child,
+  .table td:first-child {
+    padding-left: 16px;
   }
   .empty {
-    flex: 1;
-    justify-content: center;
     margin: 0;
     border: none;
-    border-radius: 0;
-    padding: 12px;
+    padding: 12px 16px;
   }
   .close:hover:not(:disabled) {
     color: var(--short-text);
@@ -559,8 +527,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card,
-  .cardLiq {
+  .card {
     animation: none;
   }
 }

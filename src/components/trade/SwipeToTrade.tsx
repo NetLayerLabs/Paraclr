@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type PointerEvent,
-} from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import type { Side } from "@/lib/types";
+import { StateLine } from "./TradeButton";
 import styles from "./SwipeToTrade.module.css";
 
 const THUMB = 52;
@@ -134,7 +128,7 @@ export function SwipeToTrade({ side, label, disabledReason, doneLabel, pendingLa
         ? (pendingLabel ?? "Confirming…")
         : status === "failed"
           ? "Order rejected"
-          : (disabledReason ?? label);
+          : label;
 
   const vars = {
     "--x": `${x}px`,
@@ -142,45 +136,62 @@ export function SwipeToTrade({ side, label, disabledReason, doneLabel, pendingLa
   } as CSSProperties;
 
   return (
-    <div
-      ref={trackRef}
-      className={[
-        styles.track,
-        side === "long" ? styles.long : styles.short,
-        disabled ? styles.disabled : "",
-        dragging ? styles.dragging : "",
-        status === "done" || status === "pending" ? styles.done : "",
-        status === "pending" ? styles.pending : "",
-        status === "failed" ? styles.failed : "",
-      ].join(" ")}
-      style={vars}
-    >
-      <div className={styles.fill} />
-      <span className={styles.label} aria-live="polite">
-        <span className={disabled || status !== "idle" ? undefined : styles.shimmer}>{text}</span>
-      </span>
+    <>
       <div
-        className={styles.thumb}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        aria-disabled={disabled}
-        aria-label={disabled ? disabledReason ?? label : `${label}. Press Enter to confirm.`}
-        onPointerDown={onDown}
-        onPointerMove={onMove}
-        onPointerUp={onUp}
-        onPointerCancel={onUp}
-        onKeyDown={onKey}
+        ref={trackRef}
+        className={[
+          styles.track,
+          side === "long" ? styles.long : styles.short,
+          disabled ? styles.disabled : "",
+          dragging ? styles.dragging : "",
+          status === "done" || status === "pending" ? styles.done : "",
+          status === "pending" ? styles.pending : "",
+          status === "failed" ? styles.failed : "",
+        ].join(" ")}
+        style={vars}
       >
-        {status === "done" ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-            <path d="M5 12.5 10 17.5 19 7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        ) : (
-          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-            <path d="M6 6l6 6-6 6M12 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        )}
+        <div className={styles.fill} />
+        <span className={styles.label} aria-live="polite">
+          <span className={disabled || status !== "idle" ? undefined : styles.shimmer}>{text}</span>
+        </span>
+        <div
+          className={styles.thumb}
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          aria-disabled={disabled}
+          aria-label={disabled ? (disabledReason ?? label) : `${label}. Press Enter to confirm.`}
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerCancel={onUp}
+          onKeyDown={onKey}
+        >
+          {status === "done" ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+              <path
+                d="M5 12.5 10 17.5 19 7"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+              <path
+                d="M6 6l6 6-6 6M12 6l6 6-6 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </div>
       </div>
-    </div>
+      <StateLine reason={status === "idle" ? disabledReason : null} />
+    </>
   );
 }

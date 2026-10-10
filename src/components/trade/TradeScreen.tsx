@@ -86,8 +86,13 @@ export function TradeScreen() {
     <div className={styles.screen}>
       <div className={styles.ticker}>
         <AuctionBanner />
-        <MarketHeader symbol={symbol} />
-        {production && <MarketRisk symbol={symbol} />}
+        <MarketHeader symbol={symbol} details={production ? <MarketRisk symbol={symbol} /> : null} />
+        {/* From 640px the risk strip sits inline under the ticker; phones read it under "Market details". */}
+        {production && (
+          <div className={styles.riskInline}>
+            <MarketRisk symbol={symbol} />
+          </div>
+        )}
       </div>
       <div className={styles.chart}>
         <CandleChart symbol={symbol} />

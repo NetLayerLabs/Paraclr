@@ -1,19 +1,82 @@
-/* Market header / desktop ticker bar. Tokens only. */
+/* Market header / desktop ticker bar. Tokens only. One surface: market tabs, pair, the mark as
+   the screen's hero number, then the source and stats as an inline strip with hairline dividers.
+   Phones: a compact two-line ticker; source and stats fold into "Market details". */
 
 .header {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "pills pills"
+    "title price"
+    "more  more";
+  align-items: center;
+  gap: 10px 12px;
 }
 
-/* ---- market pills ---- */
-.pills {
+/* From 640px the source + stats sit inline; on phones they live in the disclosure. */
+.inline {
+  display: none;
+}
+
+.more {
+  grid-area: more;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.more > summary {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  list-style: none;
+}
+
+.more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.more > summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-right: 4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--dur-2) var(--ease);
+}
+
+.more[open] > summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.more > summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.moreBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 2px 0 14px;
+}
+
+/* ---- market tabs ---- */
+.pills {
+  grid-area: pills;
+  display: flex;
+  gap: 2px;
   overflow-x: auto;
   scrollbar-width: none;
   margin: 0 -16px;
-  padding: 0 16px 2px;
+  padding: 0 16px;
 }
 .pills::-webkit-scrollbar {
   display: none;
@@ -24,11 +87,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 34px;
-  padding: 0 14px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 8px;
+  color: var(--text-2);
   font-size: 13px;
   transition:
     background var(--dur-1),
@@ -42,10 +104,12 @@
 .pill :global(.mono) {
   font-size: 11px;
 }
+.pill:hover {
+  background: var(--bg-hover);
+}
 .pillActive {
-  background: var(--accent-soft);
-  border-color: var(--accent-line);
-  box-shadow: inset 0 0 0 1px var(--accent-line);
+  color: var(--text);
+  background: var(--bg-elev-2);
 }
 .pillBase {
   font-weight: 650;
@@ -55,8 +119,10 @@
 .pillOff {
   color: var(--text-dim);
   background: transparent;
-  border-style: dashed;
   cursor: not-allowed;
+}
+.pillOff:hover {
+  background: transparent;
 }
 .pillOff:active {
   transform: none;
@@ -70,12 +136,12 @@
 
 /* ---- title + price ---- */
 .titleRow {
+  grid-area: title;
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 2px 10px;
-  margin-top: 4px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
 }
 .pair {
   display: flex;
@@ -93,31 +159,32 @@
   font-size: 14px;
   color: var(--text-dim);
 }
+/* Fine print, not a pill. */
 .perpTag {
-  align-self: center;
-  padding: 2px 7px;
-  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.08em;
-  color: var(--accent-text);
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-line);
+  color: var(--text-dim);
 }
 .venue {
   font-size: 11.5px;
   color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .priceRow {
+  grid-area: price;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 44px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 .price {
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.1;
@@ -166,18 +233,14 @@
   display: inline-flex;
   align-items: baseline;
   gap: 5px;
-  padding: 4px 9px;
-  border-radius: var(--radius-pill);
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
 }
 .changeUp {
   color: var(--long-text);
-  background: var(--long-soft);
 }
 .changeDown {
   color: var(--short-text);
-  background: var(--short-soft);
 }
 .changeLabel {
   font-family: var(--font-mono);
@@ -191,12 +254,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 32px;
-  padding: 0 12px 0 10px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
+  height: 28px;
   font-size: 12px;
+  color: var(--text-2);
 }
 .badgeOracle .badgeBrand {
   color: var(--accent-text);
@@ -212,7 +272,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: 550;
+  font-weight: 500;
 }
 .badgeSep {
   color: var(--text-dim);
@@ -245,8 +305,6 @@
 }
 .dotLive {
   background: var(--long);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--long) 60%, transparent);
-  animation: pulse 1.4s infinite;
 }
 .dotWarn {
   background: var(--warn);
@@ -256,17 +314,6 @@
 }
 .dotIdle {
   background: var(--text-dim);
-}
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--long) 55%, transparent);
-  }
-  70% {
-    box-shadow: 0 0 0 7px transparent;
-  }
-  100% {
-    box-shadow: 0 0 0 0 transparent;
-  }
 }
 
 /* ---- stats ---- */
@@ -288,11 +335,34 @@
   color: var(--text-dim);
 }
 
-/* ---- tablet: same stack, no edge bleed ------------------------------------ */
+/* ---- tablet: stats inline under the price, no disclosure ------------------- */
 @media (min-width: 640px) {
+  .header {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "pills  pills"
+      "title  price"
+      "inline inline";
+  }
+  .priceRow {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 12px;
+    padding-left: 16px;
+  }
+  .inline {
+    grid-area: inline;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .more {
+    display: none;
+  }
   .pills {
     margin: 0;
-    padding: 0 0 2px;
+    padding: 0;
   }
   .stats {
     font-size: 13px;
@@ -312,11 +382,15 @@
     align-items: center;
     column-gap: 22px;
     row-gap: 10px;
-    padding: 10px 14px;
-    border-radius: var(--radius-panel);
-    background: var(--bg-elev);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-1), var(--card-highlight);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  /* The source and stats join the header's grid areas. */
+  .inline {
+    display: contents;
+  }
+  .priceRow {
+    padding-left: 0;
   }
   .pills {
     grid-area: pills;
@@ -324,11 +398,8 @@
     padding: 0;
   }
   .pill {
-    height: 32px;
-    padding: 0 13px;
-  }
-  .pill:hover:not(.pillActive) {
-    background: var(--bg-hover);
+    height: 30px;
+    padding: 0 11px;
   }
   .titleRow {
     grid-area: title;
@@ -351,7 +422,7 @@
     gap: 10px;
   }
   .price {
-    font-size: 27px;
+    font-size: 28px;
   }
   .stats {
     grid-area: stats;
@@ -376,8 +447,8 @@
   .header {
     grid-template-columns: auto auto auto minmax(0, 1fr) auto;
     grid-template-areas: "pills title price stats badge";
-    min-height: 64px;
-    padding: 8px 14px;
+    min-height: 60px;
+    padding: 8px 16px;
   }
   .titleRow {
     padding-left: 22px;
@@ -387,8 +458,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .flashUp,
-  .flashDown,
-  .dotLive {
+  .flashDown {
     animation: none;
   }
 }

@@ -162,8 +162,8 @@ export function CandleChart({ symbol }: { symbol: MarketSymbol }) {
         >
           <defs>
             <linearGradient id="cc-fade" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0" style={{ stopColor: "var(--bg-elev)", stopOpacity: 1 }} />
-              <stop offset="1" style={{ stopColor: "var(--bg-elev)", stopOpacity: 0 }} />
+              <stop offset="0" style={{ stopColor: "var(--bg)", stopOpacity: 1 }} />
+              <stop offset="1" style={{ stopColor: "var(--bg)", stopOpacity: 0 }} />
             </linearGradient>
           </defs>
 

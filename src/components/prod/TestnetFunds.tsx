@@ -25,8 +25,13 @@ import { useNow } from "./util";
 import styles from "./Prod.module.css";
 
 const whole = (n: number | null) => (n === null ? "-" : n.toLocaleString("en-US", { maximumFractionDigits: 0 }));
+const drip0 = (n: number | null) => (n === null ? "" : whole(n));
 
-export function TestnetFunds() {
+/**
+ * `variant="inline"`: just the claim button, its result and one line of fine print - the order
+ * panel's "next step" when a fresh wallet has no AUSD. The Wallet tab shows the full card.
+ */
+export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline" }) {
   const acct = useParaclr((s) => s.chain.account);
   const wallet = useParaclr((s) => s.chain.wallet);
   const sandboxFaucet = useParaclr((s) => s.chain.faucet);
@@ -75,6 +80,19 @@ export function TestnetFunds() {
       setBusy(false);
     }
   };
+
+  if (variant === "inline") {
+    if (sandbox) return null;
+    return (
+      <div className={styles.drip}>
+        <button type="button" className={styles.btnPrimary} disabled={busy || reason !== null} onClick={claim}>
+          {busy ? "Claiming on chain…" : (reason ?? `Claim ${drip0(faucet?.drip ?? null)} test AUSD`.replace("  ", " "))}
+        </button>
+        {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
+        <p className={styles.fine}>Agora&apos;s testnet AUSD faucet, called from your wallet. Test funds, no real value.</p>
+      </div>
+    );
+  }
 
   const sandboxBusy = sandboxFaucet.status === "requesting" || sandboxFaucet.status === "checking";
   const drip = faucet?.drip ?? null;

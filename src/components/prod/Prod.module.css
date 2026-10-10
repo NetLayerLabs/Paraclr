@@ -344,9 +344,7 @@
 .btnPrimary {
   color: var(--on-accent);
   background: var(--accent);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 10px 24px -12px color-mix(in srgb, var(--accent) 75%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btnPrimary:hover:not(:disabled) {
@@ -392,6 +390,17 @@
 }
 
 /* ---- order panel extras --------------------------------------------------- */
+
+/* The fixable step (gas drip, then the AUSD faucet) above a blocked submit: the active control. */
+.fix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fix:empty {
+  display: none;
+}
 
 .row {
   display: flex;
@@ -453,14 +462,14 @@
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+/* Fees: a short ledger between hairlines, not a box. */
 .fees {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 11px 13px;
-  border-radius: 12px;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   font-size: 12px;
 }
 
@@ -484,8 +493,6 @@
 }
 
 .feesTotal {
-  padding-top: 6px;
-  border-top: 1px solid var(--border);
   font-weight: 600;
 }
 
@@ -591,34 +598,57 @@ details.how[open] summary {
 
 /* ---- market risk strip (funding / OI) --------------------------------------- */
 
+/* One inline stat strip: cells divided by thin rules, no tiles. Phones (inside "Market details")
+   stack them as a two-column ledger. */
 .mstrip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
 }
 
 .mcell {
-  flex: 1 1 120px;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 8px 12px;
-  border-radius: var(--radius-panel);
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-1), var(--card-highlight);
+  gap: 2px;
   font-size: 12.5px;
 }
 
 .mcell small {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 500;
+  font-size: 11px;
   color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+}
+
+@media (min-width: 640px) {
+  .mstrip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 0;
+    padding: 8px 0;
+  }
+
+  .mcell {
+    flex: 1 1 160px;
+    padding: 0 16px;
+  }
+
+  .mcell:first-child {
+    padding-left: 0;
+  }
+
+  .mcell + .mcell {
+    border-left: 1px solid var(--border);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mstrip {
+    padding: 8px 0;
+  }
+
+  .mcell:first-child {
+    padding-left: 16px;
+  }
 }
 
 .mcell[data-tone="long"] b {
@@ -630,13 +660,19 @@ details.how[open] summary {
 }
 
 .mcell b {
-  font-weight: 600;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .mcell em {
   font-style: normal;
   font-size: 11px;
   color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---- pending orders ------------------------------------------------------- */
@@ -645,11 +681,6 @@ details.how[open] summary {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--radius-panel);
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-1), var(--card-highlight);
 }
 
 .ordersHead {
@@ -681,10 +712,8 @@ details.how[open] summary {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  padding: 11px 12px;
-  border-radius: 12px;
-  background: var(--bg-subtle);
-  border: 1px solid color-mix(in srgb, var(--tone) 32%, var(--border));
+  padding: 2px 0 2px 12px;
+  border-left: 2px solid var(--tone);
 }
 
 .order[data-phase="filled"] {
@@ -725,14 +754,10 @@ details.how[open] summary {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 9px;
-  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: 10.5px;
   font-weight: 500;
   color: var(--tone-text);
-  background: color-mix(in srgb, var(--tone) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--tone) 30%, transparent);
 }
 
 .phase i {

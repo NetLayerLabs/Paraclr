@@ -560,7 +560,7 @@
   }
 
   .screen[data-tab="trade"] {
-    padding: 8px;
+    padding: 0;
   }
 }
 
