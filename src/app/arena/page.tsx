@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ArenaPage } from "@/components/arena/ArenaPage";
+import { displayFont } from "@/components/landing/brand/fonts";
 
 export const metadata: Metadata = {
   title: "Arena",
@@ -9,5 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ArenaPage />;
+  return (
+    <div className={displayFont.variable}>
+      <ArenaPage />
+    </div>
+  );
 }

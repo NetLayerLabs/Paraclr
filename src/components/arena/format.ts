@@ -33,3 +33,21 @@ export function fmtSeconds(ms: number | null | undefined): string {
   if (ms === null || ms === undefined || !Number.isFinite(ms)) return "-";
   return ms >= 10_000 ? `${Math.round(ms / 1000)} s` : `${(ms / 1000).toFixed(1)} s`;
 }
+
+/** "just now", "42 s ago", "4 min ago", "2 h ago". */
+export function timeAgo(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000));
+  if (s < 10) return "just now";
+  if (s < 60) return `${s} s ago`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} d ago`;
+}
+
+/** Signed AUSD: "+12.30" / "-4.10" / "0.00". */
+export function fmtSigned(n: number | null, digits = 2): string {
+  if (n === null || !Number.isFinite(n)) return "-";
+  if (Math.abs(n) < 0.5 * 10 ** -digits) return (0).toFixed(digits);
+  return `${n > 0 ? "+" : "-"}${fmtAusd(Math.abs(n), digits)}`;
+}

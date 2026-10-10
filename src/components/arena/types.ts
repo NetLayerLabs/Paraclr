@@ -107,6 +107,14 @@ export interface ArenaView {
   budget: {
     daily: { used: number; max: number; day: string };
     refuelling: boolean;
+    /** Minimum MON the operator / each lane keeper needs before a cycle (decimal strings). */
+    thresholds?: { operatorMon: string; keeperMon: string };
+    balances?: {
+      at: number;
+      operator: { address: `0x${string}`; mon: string };
+      keepers: Array<{ lane: number; address: `0x${string}`; mon: string }>;
+    } | null;
+    lastCycleCost?: { cycle: number; monadEstimateMon: string; timings?: Partial<Record<string, number>> } | null;
   };
   limits: { cooldownS: number; perIpWindowS: number; dailyMax: number };
 }
