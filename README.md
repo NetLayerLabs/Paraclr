@@ -185,7 +185,7 @@ and its outcome (taken by a backstop pool or externally, cured, expired; discoun
 position changes, collateral and backstop flows, plus running totals per account, lane, market, day and protocol.
 
 It runs on **Envio Cloud** (indexer `paraclr-testnet`, deployed from the `envio` branch). Its GraphQL API
-(`NEXT_PUBLIC_ENVIO_GRAPHQL_URL`, currently `https://indexer.dev.hyperindex.xyz/e9de9e4/v1/graphql`) feeds the app's
+(`NEXT_PUBLIC_ENVIO_GRAPHQL_URL`, currently `https://indexer.dev.hyperindex.xyz/b6db2a9/v1/graphql`) feeds the app's
 **order history** (Trade tab, Positions | History) and **activity since deploy** with the latest auctions (Clearing
 tab). Positions, balances and solvency are still read from the contract itself. Its totals were checked against the
 chain: AUSD held = insurance + backstop + deposits, and the executed-order count matches the keeper.
@@ -460,7 +460,7 @@ value. Addresses from [`deployments/10143.json`](deployments/10143.json) (deploy
 Markets: SOL/AUSD and BTC/AUSD (MON isn't listed: the Pyth data access these prices run on doesn't cover it). Caps:
 50 AUSD per account, 500 AUSD per lane, 10x. Auction: **step 5 bps per block** (set through the timelock on
 2026-10-08; the contract default is 25), cap 500 bps, backstop pool minimum 75 bps. Envio indexer (HyperIndex on
-Envio Cloud, `paraclr-testnet`): `https://indexer.dev.hyperindex.xyz/e9de9e4/v1/graphql` (the app's
+Envio Cloud, `paraclr-testnet`): `https://indexer.dev.hyperindex.xyz/b6db2a9/v1/graphql` (the app's
 `NEXT_PUBLIC_ENVIO_GRAPHQL_URL`; each Envio deployment gets its own URL, see [`indexer/README.md`](indexer/README.md)).
 The Pyth prices run on a Hermes trial key that ends ~2026-10-20; the planned switch to a keeper-signed fallback oracle
 through the timelock is [`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14.6.
