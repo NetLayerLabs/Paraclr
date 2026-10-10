@@ -58,7 +58,7 @@ auction taken by a backstop pool, a cured auction, an account cured and re-aucti
 Deployed as `paraclr-testnet` in the `netlayerlabs` organisation on Envio Cloud (free development tier),
 root directory `indexer/`, with `ENVIO_API_TOKEN` set as an indexer env var.
 
-Live deployment (commit `b89d893`, promoted): **https://indexer.dev.hyperindex.xyz/e9de9e4/v1/graphql**.
+Live deployment (commit `cc3f4a1`, promoted): **https://indexer.dev.hyperindex.xyz/b6db2a9/v1/graphql**.
 That is the app's `NEXT_PUBLIC_ENVIO_GRAPHQL_URL`. Each deployment gets its own URL, so update the app's
 setting after promoting a new one.
 
