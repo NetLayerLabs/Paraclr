@@ -94,6 +94,13 @@
   display: none;
 }
 
+/* The Arena link among the tab pills (a page link, not a tab). */
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .status {
   flex: 1;
   min-width: 0;

@@ -366,6 +366,23 @@ a.addr:hover {
   color: var(--pc-ink-3);
 }
 
+/* "Crash it yourself": the live Arena (/arena). */
+.arena {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-top: 24px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--pc-ink-2);
+}
+
+.arena span {
+  flex: 1 1 320px;
+  max-width: 62ch;
+}
+
 .read {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

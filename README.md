@@ -489,6 +489,7 @@ scripts/            dev-chain, deploy, export-abi (npm run abi -> src/lib/chain/
 src/app/            Next.js 16 App Router: landing page (/), the app (/app), /pnl (shared PnL card; its image at
                     /api/pnl-card), /risk and /terms (drafts), manifest.ts (installable web app, no service worker),
                     opengraph-image / twitter-image (the share card)
+                    /arena: public "crash the market" page, driven by an arena-mode keeper (keeper/README.md)
 src/components/     landing/, auth/, trade/, clearing/ (auctions, X-ray), backstop/, solvency/, shell/
 src/lib/            chain clients and ABIs, in-browser simulation, price sources
 docs/               PRODUCTION_PLAN.md, TESTNET_PLAN.md (the testnet production deployment), FAIR_LIQUIDATION_PLAN.md,

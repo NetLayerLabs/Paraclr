@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import Link from "next/link";
 import { MONAD_TESTNET_CHAIN_ID, type XrayDesign, type XrayEvidence } from "./benchResults.server";
 import { bands, MatrixSvg } from "./XrayMatrix";
 import { ArrowUpRight } from "./icons";
@@ -211,6 +212,16 @@ export function XRay({ xray }: { xray: XrayEvidence | null }) {
             <code className={b.code}>bench/xray/10143-*.json</code> is committed.
           </p>
         ) : null}
+
+        <div className={s.arena}>
+          <Link href="/arena" className={`${b.btn} ${b.btnInverse}`}>
+            Crash it yourself
+          </Link>
+          <span>
+            Press one button in the Arena and watch a live -20% crash on the Monad testnet demo stack resolve lane by lane,
+            ending with this X-ray built from that run&rsquo;s transactions. Test funds, no sign-in.
+          </span>
+        </div>
 
         <div className={s.read}>
           <div className={s.readCol}>

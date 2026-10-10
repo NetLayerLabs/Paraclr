@@ -177,6 +177,9 @@ export function AppHeader({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void })
             {t.label}
           </button>
         ))}
+        <Link href="/arena" className={`${styles.navBtn} ${styles.navLink}`} title="Arena: crash the demo market yourself">
+          Arena
+        </Link>
       </nav>
 
       <div className={styles.status}>
