@@ -20,8 +20,9 @@ that collapses to a touch layout with swipe-to-trade on phones, installable as a
 > testnet AUSD and Pyth prices: test funds, no real value (addresses
 > [below](#deployed-contracts-monad-testnet-chain-id-10143)). Its auction step was lowered from the contract default
 > of 25 to **5 bps per block** through the timelock on 2026-10-08; an Envio indexer feeds the app's order history.
-> The measured crash runs in [Results](#results) come from the demo stack on local anvil; the Monad testnet
-> Conflict X-rays from the demo stack deployed on testnet. A
+> The headline crash run in [Results](#results) was measured on **Monad testnet** (demo stack, 2026-10-10): 22
+> auctions resolved in 11 blocks (8.8 s), traders kept 28% more than a fixed 1% liquidation, 0 cross-lane edges vs 18
+> for the shared-state build. The larger local-anvil runs are kept alongside. A
 > **capped, unaudited beta with real Agora AUSD on Monad mainnet** is built as a separate contract set and launches
 > only if its [launch gate](#production-beta-monad-mainnet-gated) passes; until `deployments/143.json` with
 > `"production": true` is committed, nothing of ours is on mainnet. Every number in this repo and in the app is
@@ -376,6 +377,7 @@ same files at build time.
 
 | Network | Shock | Accounts | Went to auction | Backstop / external (demo bots) / cured / expired | Avg discount | Time underwater p50 / max | Equity returned to traders | Taken from traders: auction vs old fixed-fee path | Lane-funded shortfall | Evidence |
 |---|---|---|---|---|---|---|---|---|---|---|
+| **Monad testnet (10143)** | −20% | 232 (100 seeded this run) | 22 | 18 / 4 / 0 / 0 | 103.41 bps | 24 / 32 blocks (9,337 ms) | 1,511.79 AUSD | 1,052.41 vs 1,464.26 AUSD | 59,951.50 AUSD | `bench/results/10143-2026-10-10T22-40-07Z.json` |
 | local anvil (31337), **not Monad** | −20% | 524 | 96 | 80 / 13 / 0 / 3 | 76.61 bps | 4 / 21 blocks (20,988 ms) | 5,101.41 AUSD | 4,642.19 vs 7,082.64 AUSD | 292,780.30 AUSD | `bench/results/31337-2026-10-06T22-53-30Z.json` |
 | local anvil (31337), **not Monad** | −20% | 524 | 96 | 80 / 13 / 0 / 3 | 76.61 bps | 4 / 21 blocks (8,407 ms) | 5,101.41 AUSD | 4,642.19 vs 7,082.64 AUSD | 292,780.30 AUSD | `bench/results/31337-2026-10-06T22-54-24Z.json` |
 | local anvil (31337), **not Monad** | −5% | 524 | 7 | 1 / 6 / 0 / 0 | 64.29 bps | 4 / 4 blocks (4,024 ms) | 5,640.10 AUSD | 2,937.70 vs 4,526.41 AUSD | 0 AUSD | `bench/results/31337-2026-10-06T22-54-58Z.json` |
@@ -386,16 +388,27 @@ traderResidualReturned`, directly comparable with the keeper's counterfactual fo
 lane-funded shortfall is `auctions.badDebt`: what lane insurance (then lane bad debt) paid where a backstop take's
 payment exceeded the account's equity, which happens with deeply underwater accounts after a −20% shock.
 
-There is no Monad testnet row: the two crash runs of the demo stack on testnet (2026-10-08, 100 accounts, −20% and
-−30%) are kept in [`bench/diagnostics/`](bench/diagnostics/README.md) with their caveat. Their keeper ran over the
-15-request/s public RPC and needed ~40 s to take, so every auction in the first run hit the 500 bps cap: they measure
-the keeper's latency, not the auction design. That is why the live deployment's step went to 5 bps and its keeper to a
-dedicated RPC. Their X-rays are valid and are in the table below.
+**The Monad testnet run (2026-10-10).** Demo stack on Monad testnet, auction step 5 bps per block, the same
+100-account book seeded into both designs (`--seed 670643987`; the clearinghouse also held 132 accounts from earlier
+runs, which is why 232 were scanned), −20% shock in block 69946941, auctions driven by the bench's in-process sweeper
+with batched (Multicall3) account checks over the public RPC. Every auction resolved within 11 blocks, 8.8 s from the
+first resolution submit to the last receipt. Traders kept 411.85 AUSD (28%) more than the old fixed 1% path would
+have left them: per account, 3 lost less, 19 lost the same and none lost more. The 19 were nearly bankrupt after the
+shock, so both paths take everything left; the gain comes from the accounts that still had equity. The lane-funded
+shortfall is large because the synthetic book's leverage mix leaves many accounts below zero at −20%; the naive build
+had the same (62,638.87 AUSD).
+
+The two earlier testnet runs (2026-10-08) are kept in [`bench/diagnostics/`](bench/diagnostics/README.md) with their
+caveat: their keeper checked accounts one `eth_call` at a time over the 15-request/s public RPC and needed ~40 s to
+take, so every auction in the first run hit the 500 bps cap. They measured the keeper's latency, which the batched
+sweeper fixed (above). Their X-rays are valid and are in the table below.
 
 ### Conflict X-ray
 
 | Network · method | Design | Txs | Dependency edges | Across lanes | Longest chain | Evidence |
 |---|---|---|---|---|---|---|
+| **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 23 | 2 | **0** | 2 | `bench/xray/10143-run-mv2za35r-mfh66.json` (−20% run, 2026-10-10) |
+| **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 24 | 20 | **18** | 4 | same file |
 | **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 12 | 1 | **0** | 2 | `bench/xray/10143-run-muz0vh3f-wciq2.json` (−30% run) |
 | **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 17 | 6 | **6** | 3 | same file |
 | **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 23 | 1 | **0** | 2 | `bench/xray/10143-run-muyzuvuh-l9hto.json` (−20% run) |

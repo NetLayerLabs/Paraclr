@@ -25,3 +25,10 @@ accounts were also nearly bankrupt after the shock: high bad debt in both runs).
 **What changed because of it.** The live testnet deployment's auction step is 5 bps per block since 2026-10-08
 (through the timelock), and the live keeper runs on a dedicated RPC endpoint. Next: batched account checks
 (multicall) in the sweeper, then a re-run whose economics can be compared with the local-anvil runs.
+
+## Follow-up: Monad testnet, 2026-10-10
+
+The re-run with the batched sweeper is headline evidence and lives in the README's Results:
+`bench/results/10143-2026-10-10T22-40-07Z.json` and `bench/xray/10143-run-mv2za35r-mfh66.json`. Same −20% shock and
+100-account book size, 5 bps step: all 22 auctions resolved within 11 blocks (8.8 s), average discount 103 bps,
+1,511.79 AUSD of equity returned to traders (28% less taken than the fixed 1% path), X-ray 0 cross-lane edges vs 18.
