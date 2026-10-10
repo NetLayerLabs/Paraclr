@@ -141,3 +141,56 @@
   font-size: 12.5px;
   color: var(--short-text);
 }
+
+/* Finished liquidation auctions, above the orders: one card each with the "what you kept" line. */
+.auctions {
+  flex: none;
+  max-height: 50%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auction {
+  --tone: var(--accent);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--tone);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  font-size: 12.5px;
+}
+
+.auction[data-outcome="cured"] {
+  --tone: var(--long);
+}
+
+.auction[data-outcome="expired"] {
+  --tone: var(--warn);
+}
+
+.auctionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.auctionHead > :first-child {
+  color: var(--text-dim);
+}
+
+.auctionHead b {
+  font-weight: 650;
+}
+
+.auctionTx {
+  margin-left: auto;
+}

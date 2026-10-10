@@ -27,6 +27,8 @@ export interface AuctionRecord {
   /** Equity / notional when the auction started (AUSD); null if it started before we watched. */
   equity: number | null;
   notional: number | null;
+  /** Notional at AuctionStarted (AUSD): `notional` becomes the take's notional once taken. */
+  startNotional?: number | null;
   status: AuctionStatus;
   resolvedBlock: number | null;
   /** Discount at take / expiry. */
@@ -126,6 +128,7 @@ function applyLogs(logs: DecodedLog[], records: Map<string, AuctionRecord>) {
           startBlock: Number(a.startBlock ?? BigInt(block)),
           equity: typeof a.equity === "bigint" ? signedAusd(a.equity) : null,
           notional: typeof a.notional === "bigint" ? ausdToNumber(a.notional) : null,
+          startNotional: typeof a.notional === "bigint" ? ausdToNumber(a.notional) : null,
           status: "active",
           resolvedBlock: null,
           discountBps: null,

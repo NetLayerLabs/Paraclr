@@ -1,14 +1,24 @@
 "use client";
 
 // The signed-in account's order history, read from the Envio indexer (indexer/): every delayed
-// order with its fill, realized PnL, fee, time to fill and transaction. Positions stay on the
-// contract read; this is the record of how they got there.
+// order with its fill, realized PnL, fee, time to fill and transaction - and every finished
+// liquidation auction of the account, with what it kept vs a fixed-penalty liquidation. Positions
+// stay on the contract read; this is the record of how they got there.
 
 import { useParaclr } from "@/lib/store";
-import { ausd, fetchAccountOrders, INDEXER_ON, usePolled, wad, type IndexedOrder } from "@/lib/indexer";
+import {
+  ausd,
+  fetchAccountHistory,
+  INDEXER_ON,
+  usePolled,
+  wad,
+  type IndexedAccountAuction,
+  type IndexedOrder,
+} from "@/lib/indexer";
 import { MARKETS, type MarketSymbol } from "@/lib/types";
 import { TxLink } from "@/components/chain/ChainUi";
 import { fmtAusd, fmtPrice, fmtSigned, fmtSize } from "./format";
+import { KeptTile, type KeptOutcome } from "./KeptTile";
 import styles from "./OrderHistory.module.css";
 
 const isMarket = (s: string): s is MarketSymbol => (MARKETS as readonly string[]).includes(s);
@@ -58,10 +68,48 @@ function Row({ o }: { o: IndexedOrder }) {
   );
 }
 
+const OUTCOME: Record<IndexedAccountAuction["status"], KeptOutcome> = { Taken: "taken", Cured: "cured", Expired: "expired" };
+
+function AuctionRow({ a }: { a: IndexedAccountAuction }) {
+  const outcome = OUTCOME[a.status];
+  const label =
+    a.status === "Taken"
+      ? `taken by ${a.byBackstop ? `the lane ${a.lane.index} backstop` : "a same-lane taker"}${a.discountBps !== null ? ` at ${(a.discountBps / 100).toFixed(2)}%` : ""}`
+      : a.status === "Cured"
+        ? "cured"
+        : "expired";
+  return (
+    <li className={styles.auction} data-outcome={outcome}>
+      <div className={styles.auctionHead}>
+        <span className="mono">{when(a.resolvedAt ?? a.startedAt)}</span>
+        <b>Liquidation auction {label}</b>
+        {a.blocksElapsed !== null && <span className={styles.latency}>after {a.blocksElapsed} blocks</span>}
+        {a.status === "Taken" && a.traderResidual !== null && (
+          <span className={styles.latency}>
+            · <span className="mono">{fmtAusd(ausd(a.traderResidual))}</span> AUSD returned to you
+          </span>
+        )}
+        <span className={styles.auctionTx}>
+          <TxLink hash={a.resolvedTx} />
+        </span>
+      </div>
+      <KeptTile
+        outcome={outcome}
+        equityAtStart={ausd(a.equityAtStart)}
+        notional={ausd(a.notional)}
+        traderResidual={a.traderResidual === null ? null : ausd(a.traderResidual)}
+        lane={a.lane.index}
+        compact
+      />
+    </li>
+  );
+}
+
 export function OrderHistory() {
   const address = useParaclr((s) => s.session?.address ?? null);
-  const { data, error } = usePolled(INDEXER_ON && address ? address : null, () => fetchAccountOrders(address!), 5_000);
+  const { data, error } = usePolled(INDEXER_ON && address ? address : null, () => fetchAccountHistory(address!), 5_000);
   const orders = data?.orders ?? [];
+  const auctions = data?.auctions ?? [];
 
   return (
     <section className={styles.section} aria-labelledby="history-title">
@@ -77,6 +125,14 @@ export function OrderHistory() {
       </header>
 
       {error && !data && <p className={styles.error}>Couldn&apos;t reach the indexer: {error}</p>}
+
+      {auctions.length > 0 && (
+        <ul className={styles.auctions} aria-label="Liquidation auctions">
+          {auctions.map((a) => (
+            <AuctionRow key={a.id} a={a} />
+          ))}
+        </ul>
+      )}
 
       {data && orders.length === 0 ? (
         <div className={styles.empty}>

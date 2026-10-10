@@ -8,8 +8,10 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { BRAND } from "@/components/landing/brand/tokens";
 import { LANE_RADII, lanePath } from "@/components/landing/brand/Logo";
+import { fmtPenaltyPct } from "@/lib/kept";
 import {
   fmtPrice,
+  keptStrip,
   fmtSignedAusd,
   fmtSignedPct,
   MOOD_TITLE,
@@ -59,6 +61,10 @@ export async function GET(req: Request): Promise<Response> {
   const mood = moodOf(card.pnlPct);
   const base = card.symbol.replace("/AUSD", "");
   const D = BRAND.dark;
+  // A position that ended in a liquidation auction: the strip below the trade, and a tighter layout.
+  const kept = card.kept;
+  const auctioned = kept !== undefined;
+  const keptUp = auctioned && kept > -0.005;
 
   return new ImageResponse(
     (
@@ -99,7 +105,7 @@ export async function GET(req: Request): Promise<Response> {
           </div>
         </div>
 
-        <div style={{ display: "flex", flex: 1, marginTop: 34 }}>
+        <div style={{ display: "flex", flex: 1, marginTop: auctioned ? 22 : 34 }}>
           {/* left: the trade */}
           <div style={{ display: "flex", flexDirection: "column", width: 640 }}>
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -134,14 +140,24 @@ export async function GET(req: Request): Promise<Response> {
               </div>
             </div>
 
-            <div style={{ display: "flex", fontSize: 148, fontWeight: 800, letterSpacing: -6, lineHeight: 1, marginTop: 26, color: tone }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: auctioned ? 118 : 148,
+                fontWeight: 800,
+                letterSpacing: auctioned ? -5 : -6,
+                lineHeight: 1,
+                marginTop: auctioned ? 18 : 26,
+                color: tone,
+              }}
+            >
               {fmtSignedPct(card.pnlPct)}
             </div>
-            <div style={{ display: "flex", fontSize: 36, fontWeight: 600, marginTop: 14, color: tone }}>
+            <div style={{ display: "flex", fontSize: auctioned ? 30 : 36, fontWeight: 600, marginTop: auctioned ? 10 : 14, color: tone }}>
               {`${fmtSignedAusd(card.pnl)} AUSD`}
             </div>
 
-            <div style={{ display: "flex", marginTop: 34, fontSize: 24, fontWeight: 600, color: D.ink3 }}>
+            <div style={{ display: "flex", marginTop: auctioned ? 22 : 34, fontSize: 24, fontWeight: 600, color: D.ink3 }}>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", fontSize: 17, letterSpacing: 2 }}>ENTRY</div>
                 <div style={{ display: "flex", color: D.ink, marginTop: 6 }}>{fmtPrice(card.entry)}</div>
@@ -177,6 +193,30 @@ export async function GET(req: Request): Promise<Response> {
             </div>
           </div>
         </div>
+
+        {/* liquidation auction: what the trader kept vs the fixed-penalty liquidation */}
+        {auctioned && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              alignSelf: "flex-start",
+              marginBottom: 18,
+              padding: "12px 22px",
+              borderRadius: 14,
+              border: `1px solid ${keptUp ? "rgba(61,220,151,0.4)" : "rgba(255,181,71,0.4)"}`,
+              background: keptUp ? "rgba(61,220,151,0.12)" : "rgba(255,181,71,0.1)",
+              fontSize: 26,
+              fontWeight: 800,
+              color: keptUp ? BRAND.posDark : BRAND.warnDark,
+            }}
+          >
+            <div style={{ display: "flex", fontSize: 17, letterSpacing: 2, marginRight: 16, color: D.ink3 }}>
+              LIQUIDATED BY AUCTION
+            </div>
+            <div style={{ display: "flex" }}>{keptStrip(kept, fmtPenaltyPct())}</div>
+          </div>
+        )}
 
         {/* footer */}
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 19, fontWeight: 600, color: D.ink3 }}>

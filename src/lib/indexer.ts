@@ -66,6 +66,62 @@ export async function fetchAccountOrders(account: string, limit = 30): Promise<{
   return { orders: data.Order, meta: data._meta[0] ?? null };
 }
 
+/** One finished auction of an account, with what the "what you kept" comparison needs. */
+export interface IndexedAccountAuction {
+  id: string;
+  status: "Taken" | "Cured" | "Expired";
+  startBlock: string;
+  startedAt: number;
+  /** Equity and notional at AuctionStarted (AUSD, 6 decimals; equity is signed). */
+  equityAtStart: string;
+  notional: string;
+  byBackstop: boolean | null;
+  taker: string | null;
+  discountBps: number | null;
+  blocksElapsed: number | null;
+  payment: string | null;
+  traderResidual: string | null;
+  badDebt: string | null;
+  resolvedAt: number | null;
+  resolvedTx: string | null;
+  lane: { index: number };
+}
+
+const ACCOUNT_AUCTION_FIELDS = `id status startBlock startedAt equityAtStart notional byBackstop taker discountBps
+  blocksElapsed payment traderResidual badDebt resolvedAt resolvedTx lane { index }`;
+
+/** An account's orders and finished auctions, newest first (one round trip). */
+export async function fetchAccountHistory(
+  account: string,
+  limit = 30,
+): Promise<{ orders: IndexedOrder[]; auctions: IndexedAccountAuction[]; meta: IndexerMeta | null }> {
+  const data = await gql<{ Order: IndexedOrder[]; Auction: IndexedAccountAuction[]; _meta: IndexerMeta[] }>(
+    `query ($a: String!, $n: Int!) {
+      Order(where: { account_id: { _eq: $a } }, order_by: { committedBlock: desc }, limit: $n) {
+        orderId status sizeDelta marginDelta fillPrice realizedPnl tradingFee notional
+        committedAt resolvedAt latency committedTx resolvedTx market { symbol }
+      }
+      Auction(where: { account: { _eq: $a }, status: { _neq: Active } }, order_by: { startBlock: desc }, limit: $n) {
+        ${ACCOUNT_AUCTION_FIELDS}
+      }
+      ${META}
+    }`,
+    { a: account.toLowerCase(), n: limit },
+  );
+  return { orders: data.Order, auctions: data.Auction, meta: data._meta[0] ?? null };
+}
+
+/** The account's finished auction resolved in `tx` (for its start equity / notional), or null. */
+export async function fetchAuctionByTx(account: string, tx: string): Promise<IndexedAccountAuction | null> {
+  const data = await gql<{ Auction: IndexedAccountAuction[] }>(
+    `query ($a: String!, $t: String!) {
+      Auction(where: { account: { _eq: $a }, resolvedTx: { _eq: $t } }, limit: 1) { ${ACCOUNT_AUCTION_FIELDS} }
+    }`,
+    { a: account.toLowerCase(), t: tx.toLowerCase() },
+  );
+  return data.Auction[0] ?? null;
+}
+
 export interface IndexedProtocol {
   accounts: number;
   ordersExecuted: number;

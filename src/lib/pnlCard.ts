@@ -18,6 +18,12 @@ export interface PnlCardData {
   network: CardNetwork;
   /** Close time, unix seconds (also seeds the meme line). */
   at: number;
+  /**
+   * Only when the position ended in a liquidation auction (taken): AUSD the trader kept vs the
+   * fixed-penalty liquidation (src/lib/kept.ts; negative = the auction cost more). Never set for a
+   * voluntary close - no liquidation penalty applies there.
+   */
+  kept?: number;
 }
 
 const SYMBOLS = ["MON/AUSD", "SOL/AUSD", "BTC/AUSD"];
@@ -41,6 +47,7 @@ export function cardQuery(d: PnlCardData): string {
     r: String(round(d.pnlPct, 2)),
     n: d.network,
     t: String(Math.floor(d.at)),
+    ...(d.kept !== undefined && Number.isFinite(d.kept) ? { k: String(round(d.kept, 2)) } : {}),
   }).toString();
 }
 
@@ -56,6 +63,8 @@ export function parseCard(q: URLSearchParams): PnlCardData | null {
   const at = num(q.get("t"), 0, 4e9);
   if (leverage === null || entry === null || exit === null || pnl === null || pnlPct === null || at === null) return null;
   const network = q.get("n") as CardNetwork;
+  // Optional: a malformed kept value drops the strip, not the card.
+  const kept = q.has("k") ? num(q.get("k"), -1e9, 1e9) : null;
   return {
     symbol,
     side: q.get("s") === "s" ? "short" : "long",
@@ -66,6 +75,7 @@ export function parseCard(q: URLSearchParams): PnlCardData | null {
     pnlPct,
     network: NETWORKS.includes(network) ? network : "demo",
     at,
+    ...(kept !== null ? { kept } : {}),
   };
 }
 
@@ -148,6 +158,14 @@ export function fmtPrice(n: number): string {
 export function fmtSignedAusd(n: number): string {
   const s = Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return (n >= 0 ? "+" : "−") + s;
+}
+
+/** The card's auction strip, e.g. "Kept +12.40 AUSD vs a fixed 1% liquidation". */
+export function keptStrip(kept: number, penaltyPct: string): string {
+  const v = Math.abs(kept).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return kept > -0.005
+    ? `Kept +${v} AUSD vs a fixed ${penaltyPct} liquidation`
+    : `Cost ${v} AUSD more than a fixed ${penaltyPct} liquidation`;
 }
 
 export function fmtSignedPct(n: number): string {

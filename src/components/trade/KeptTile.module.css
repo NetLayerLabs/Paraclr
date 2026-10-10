@@ -1,0 +1,52 @@
+/* "What you kept" strip under a finished auction. Tokens only. */
+
+.tile {
+  --tone: var(--accent);
+  --tone-text: var(--accent-text);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--tone) 40%, var(--border));
+  background: color-mix(in srgb, var(--tone) 9%, var(--bg-elev));
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.tile[data-tone="kept"],
+.tile[data-tone="cured"] {
+  --tone: var(--long);
+  --tone-text: var(--long-text);
+}
+
+.tile[data-tone="worse"],
+.tile[data-tone="expired"] {
+  --tone: var(--warn);
+  --tone-text: var(--warn-text);
+}
+
+.tile[data-tone="even"] {
+  --tone: var(--border-strong);
+  --tone-text: var(--text-2);
+}
+
+.tile[data-compact] {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 12px;
+  white-space: normal;
+  color: var(--tone-text);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tone-text);
+}

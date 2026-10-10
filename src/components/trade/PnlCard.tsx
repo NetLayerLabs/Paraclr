@@ -3,12 +3,14 @@
 // The PnL card that pops up when a position closes: the image from /api/pnl-card plus Share on X
 // (a link to /pnl, whose preview is the card), Download and Copy link. Production closes are
 // delayed orders, so the card opens when the keeper fills the close order; the demo and local
-// chain modes open it from the close itself (TradeScreen). Viewers can turn it off.
+// chain modes open it from the close itself (TradeScreen). A one-leg position taken in a liquidation
+// auction opens it too, with what the trader kept (AuctionBanner → auctionCard). Viewers can turn it off.
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { NETWORK } from "@/lib/chain/config";
 import { useOrders } from "@/lib/chain/prod/orders";
-import { cardQuery, fmtSignedPct, narration, newlyFilled, type CardNetwork, type PnlCardData } from "@/lib/pnlCard";
+import { fmtPenaltyPct } from "@/lib/kept";
+import { cardQuery, fmtSignedPct, keptStrip, narration, newlyFilled, type CardNetwork, type PnlCardData } from "@/lib/pnlCard";
 import type { Position } from "@/lib/types";
 import styles from "./PnlCard.module.css";
 
@@ -130,8 +132,9 @@ function CardDialog({ card }: { card: PnlCardData }) {
   const shareUrl = `${window.location.origin}/pnl?${q}`;
   const base = card.symbol.replace("/AUSD", "");
   const line = narration(card);
+  const strip = card.kept !== undefined ? `Liquidated by auction. ${keptStrip(card.kept, fmtPenaltyPct())}.` : null;
   const tweet =
-    `${line}\n\n${fmtSignedPct(card.pnlPct)} on ${base}-PERP ${card.side === "long" ? "long" : "short"} ` +
+    `${line}\n\n${strip ? `${strip}\n` : ""}${fmtSignedPct(card.pnlPct)} on ${base}-PERP ${card.side === "long" ? "long" : "short"} ` +
     `${card.leverage.toLocaleString("en-US", { maximumFractionDigits: 1 })}x with @Paraclr` +
     (card.network === "testnet" ? " (Monad testnet, test funds)" : card.network === "mainnet" ? "" : " (demo)");
 
@@ -174,7 +177,7 @@ function CardDialog({ card }: { card: PnlCardData }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.card} src={image} width={1200} height={630} alt={`${base} ${card.side} closed, ${fmtSignedPct(card.pnlPct)}. ${line}`} />
+        <img className={styles.card} src={image} width={1200} height={630} alt={`${base} ${card.side} closed, ${fmtSignedPct(card.pnlPct)}. ${strip ? `${strip} ` : ""}${line}`} />
         <div className={styles.actions}>
           <a
             className={styles.primary}

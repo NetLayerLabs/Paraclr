@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
-import { cardQuery, fmtSignedPct, narration, parseCard, type PnlCardData } from "@/lib/pnlCard";
+import { fmtPenaltyPct } from "@/lib/kept";
+import { cardQuery, fmtSignedPct, keptStrip, narration, parseCard, type PnlCardData } from "@/lib/pnlCard";
 import styles from "./pnl.module.css";
 
 // A shared PnL card (from the app's "Share on X"): /pnl?<cardQuery>. Its Open Graph / X image is the
@@ -23,7 +24,8 @@ export async function generateMetadata(props: PageProps<"/pnl">): Promise<Metada
   const title = `${fmtSignedPct(card.pnlPct)} on ${base}-PERP ${card.side} ${card.leverage}x`;
   const fullTitle = `${title} · Paraclr`;
   const image = { url: `/api/pnl-card?${cardQuery(card)}`, width: 1200, height: 630, alt: `${title} · Paraclr` };
-  const description = `“${narration(card)}” Fair liquidations, auctioned per block, on Monad.`;
+  const kept = card.kept !== undefined ? ` Liquidated by auction: ${keptStrip(card.kept, fmtPenaltyPct())}.` : "";
+  const description = `“${narration(card)}”${kept} Fair liquidations, auctioned per block, on Monad.`;
   return {
     title,
     description,
@@ -50,7 +52,7 @@ export default async function PnlSharePage(props: PageProps<"/pnl">) {
               src={`/api/pnl-card?${cardQuery(card)}`}
               width={1200}
               height={630}
-              alt={`${card.symbol} ${card.side} closed ${fmtSignedPct(card.pnlPct)}. ${narration(card)}`}
+              alt={`${card.symbol} ${card.side} closed ${fmtSignedPct(card.pnlPct)}.${card.kept !== undefined ? ` Liquidated by auction: ${keptStrip(card.kept, fmtPenaltyPct())}.` : ""} ${narration(card)}`}
             />
             <p className={styles.lede}>
               Closed on Paraclr, the perps clearinghouse where an underwater account goes to a per-block auction

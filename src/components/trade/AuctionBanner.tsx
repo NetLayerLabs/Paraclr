@@ -6,7 +6,10 @@
 //               and "add collateral to cure" (deposit + cancelAuction).
 //   resolved    what happened, from the account's latest auction event:
 //               taken by the lane backstop / an external taker (and what the
-//               trader kept), cured, or expired.
+//               trader got back), cured, or expired - with what the trader kept
+//               vs a fixed-penalty liquidation (KeptTile; src/lib/kept.ts). A
+//               one-leg position taken while we watched also opens the PnL
+//               card with that number (auctionCard).
 // Chain modes only; renders nothing in sim mode or on pre-auction deployments.
 
 import { useEffect, useRef, useState } from "react";
@@ -24,6 +27,11 @@ import { orderLabelId } from "@/lib/chain/prod/orders";
 import { useSlippage } from "@/components/prod/util";
 import type { MarketSymbol } from "@/lib/types";
 import { Notice, TxLink } from "@/components/chain/ChainUi";
+import { ausd, fetchAuctionByTx, INDEXER_ON } from "@/lib/indexer";
+import type { Position } from "@/lib/types";
+import { auctionCard } from "./auctionCard";
+import { KeptTile } from "./KeptTile";
+import { showPnlCard } from "./PnlCard";
 import { fmtAusd } from "./format";
 import styles from "./AuctionBanner.module.css";
 
@@ -37,6 +45,31 @@ function readDismissed(): string | null {
   } catch {
     return null;
   }
+}
+
+type AuctionStart = { equity: number; notional: number };
+
+/** Equity / notional at AuctionStarted: from the event if we read it, else from the indexer. */
+async function loadStart(r: AuctionRecord): Promise<AuctionStart | null> {
+  if (r.equity !== null && r.startNotional != null) return { equity: r.equity, notional: r.startNotional };
+  if (!INDEXER_ON || !r.txHash) return null;
+  const a = await fetchAuctionByTx(r.account, r.txHash);
+  return a ? { equity: ausd(a.equityAtStart), notional: ausd(a.notional) } : null;
+}
+
+function useAuctionStart(r: AuctionRecord): AuctionStart | null {
+  const [start, setStart] = useState<{ tx: string | null; v: AuctionStart | null } | null>(null);
+  useEffect(() => {
+    let live = true;
+    loadStart(r).then(
+      (v) => live && setStart({ tx: r.txHash, v }),
+      () => live && setStart({ tx: r.txHash, v: null }),
+    );
+    return () => {
+      live = false;
+    };
+  }, [r]);
+  return start && start.tx === r.txHash ? start.v : null;
 }
 
 function writeDismissed(id: string) {
@@ -55,6 +88,8 @@ export function AuctionBanner() {
   const [outcome, setOutcome] = useState<AuctionRecord | null>(null);
   const lastStart = useRef<number | null>(null);
   const checked = useRef<string | null>(null);
+  /** The account's legs as last seen while in auction (for the PnL card after a take). */
+  const legs = useRef<readonly Position[]>([]);
 
   const active = acct?.auction?.active ?? false;
   const address = acct?.address ?? null;
@@ -64,6 +99,10 @@ export function AuctionBanner() {
   useEffect(() => {
     if (startBlock !== null) lastStart.current = startBlock;
   }, [startBlock]);
+  const positions = acct?.positions;
+  useEffect(() => {
+    if (active && positions && positions.length > 0) legs.current = positions;
+  }, [active, positions]);
 
   // Look up how the auction ended: once per address on load (recent history),
   // and whenever an auction we watched stops being active. Primitive deps
@@ -77,7 +116,8 @@ export function AuctionBanner() {
     let cancelled = false;
     void (async () => {
       // An auction we watched just ended: never leave an older outcome on screen.
-      if (lastStart.current !== null) setOutcome(null);
+      const watched = lastStart.current !== null;
+      if (watched) setOutcome(null);
       try {
         const head = getLatestBlock() ?? (await publicClient().getBlockNumber());
         const from =
@@ -91,6 +131,11 @@ export function AuctionBanner() {
         if (Number(head) - r.resolvedBlock > OUTCOME_WINDOW) return;
         if (r.txHash && readDismissed() === r.txHash) return;
         setOutcome(r);
+        // Taken while we watched: the PnL card, with what the trader kept (one-leg accounts only).
+        if (watched && (r.status === "backstop" || r.status === "external")) {
+          const card = await auctionCard(r, await loadStart(r).catch(() => null), legs.current).catch(() => null);
+          if (card && !cancelled) showPnlCard(card);
+        }
       } catch {
         // No history available: allow a retry on the next change.
         if (!cancelled) checked.current = null;
@@ -288,6 +333,7 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
 
 function Outcome({ r, free, onDismiss }: { r: AuctionRecord; free: number | null; onDismiss: () => void }) {
   const p = useAuctionParams();
+  const start = useAuctionStart(r);
   const lane = r.lane;
   const blocks = r.resolvedBlock !== null ? r.resolvedBlock - r.startBlock : null;
   let title: string;
@@ -300,7 +346,7 @@ function Outcome({ r, free, onDismiss }: { r: AuctionRecord; free: number | null
         : r.taker && demoTakers.has(r.taker)
           ? `${r.taker.slice(0, 6)}…${r.taker.slice(-4)} (a demo taker bot run by the keeper)`
           : `${r.taker ? `${r.taker.slice(0, 6)}…${r.taker.slice(-4)}` : "an external taker"} (same-lane taker)`;
-    title = `Taken by ${by} at ${fmtBps(r.discountBps ?? 0)} · you kept ${fmtAusd(r.traderResidual ?? 0)} AUSD`;
+    title = `Taken by ${by} at ${fmtBps(r.discountBps ?? 0)} · ${fmtAusd(r.traderResidual ?? 0)} AUSD of your equity returned to you`;
     detail =
       (r.traderResidual ?? 0) > 0
         ? `Your positions moved to the taker at the oracle mark${blocks !== null ? ` after ${blocks} block${blocks === 1 ? "" : "s"}` : ""}; the rest of your equity stayed with you as free collateral.`
@@ -310,9 +356,7 @@ function Outcome({ r, free, onDismiss }: { r: AuctionRecord; free: number | null
     detail = "The auction was cancelled (top-up or price recovery). Your positions are unchanged and the account is unfrozen.";
   } else {
     title = `Auction expired at ${fmtBps(p.maxDiscountBps)} with no taker`;
-    detail = `Your positions were closed at the mark against lane ${lane} through the fallback path (1% penalty, capped at your equity; any negative equity is written off against the lane, not charged to you).${
-      free !== null ? ` Free collateral now: ${fmtAusd(free)} AUSD.` : ""
-    }`;
+    detail = free !== null ? `Free collateral now: ${fmtAusd(free)} AUSD.` : "";
   }
   return (
     <section className={styles.banner} data-tone={tone}>
@@ -332,6 +376,13 @@ function Outcome({ r, free, onDismiss }: { r: AuctionRecord; free: number | null
             {detail} {r.resolvedBlock !== null && <>Block #{r.resolvedBlock} · </>}
             <TxLink hash={r.txHash} />
           </span>
+          <KeptTile
+            outcome={tone}
+            equityAtStart={start?.equity ?? null}
+            notional={start?.notional ?? null}
+            traderResidual={r.traderResidual}
+            lane={lane}
+          />
         </div>
         <button type="button" className={styles.dismiss} onClick={onDismiss} aria-label="Dismiss">
           <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
