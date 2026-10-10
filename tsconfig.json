@@ -38,7 +38,9 @@
     ".next-sandbox/dev/types/**/*.ts",
     "**/*.mts",
     ".next-testnet/types/**/*.ts",
-    ".next-testnet/dev/types/**/*.ts"
+    ".next-testnet/dev/types/**/*.ts",
+    ".next-arena/types/**/*.ts",
+    ".next-arena/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
