@@ -29,6 +29,7 @@ import { Notice, TxTray } from "@/components/chain/ChainUi";
 import { useAuthContext } from "@/components/auth/AuthContext";
 import { PrivySignOutButton } from "@/components/auth/PrivyAuth";
 import { fmtAusd } from "@/components/trade/format";
+import { GasDrip } from "./GasDrip";
 import { TestnetFunds } from "./TestnetFunds";
 import { TokenSymbol, useCollateral } from "./Token";
 import { fmtDuration, useKeeperSigned } from "./util";
@@ -286,6 +287,7 @@ export function ProdWallet() {
             <dd className="mono">{acct ? `L${acct.lane}` : "…"}</dd>
           </div>
         </dl>
+        <GasDrip address={session.address} nativeWei={acct ? acct.nativeUnits : null} />
         {feesOwed > BigInt(0) && (
           <div className={styles.row}>
             <span className={styles.fine}>

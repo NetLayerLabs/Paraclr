@@ -174,6 +174,35 @@ export interface KeeperHealth {
     policy?: { minChangeBps?: number; maxAgeS?: number; skipIdle?: boolean };
     markets?: Record<string, KeeperFundingMarket>;
   };
+  /** Testnet visitor gas drip (`POST /drip`, keeper/src/prod/drip.ts). Amounts are MON decimal strings. */
+  drip?: KeeperDripHealth;
+}
+
+export interface KeeperDripHealth {
+  enabled: boolean;
+  /** Why it is off (no key, mainnet). */
+  reason?: string | null;
+  address?: string | null;
+  amount?: string;
+  /** The drip only funds wallets holding less than this. */
+  minBalance?: string;
+  walletBalance?: string | null;
+  todaySpent?: string;
+  dailyBudget?: string;
+}
+
+export type DripState = "none" | "queued" | "sending" | "sent" | "failed";
+
+export interface DripResult {
+  address: `0x${string}`;
+  status: DripState;
+  amount: string;
+  txHash: `0x${string}` | null;
+  explorer: string | null;
+  block: number | null;
+  /** 1-based place in the keeper's drip queue while queued. */
+  position: number | null;
+  error: string | null;
 }
 
 export interface KeeperFundingMarket {
@@ -195,6 +224,8 @@ export class KeeperError extends Error {
     message: string,
     readonly kind: "unreachable" | "http" | "bad-response",
     readonly status?: number,
+    /** Machine-readable error code from the keeper ({error, code}), e.g. "already_dripped". */
+    readonly code?: string,
   ) {
     super(message);
     this.name = "KeeperError";
@@ -241,7 +272,11 @@ async function call<T>(
         : res.status === 429
           ? "Rate limited - try again in a bit."
           : `HTTP ${res.status}`;
-    throw new KeeperError(`Keeper ${path.split("/")[1] ?? ""}: ${msg}`, "http", res.status);
+    const code =
+      json && typeof json === "object" && typeof (json as { code?: unknown }).code === "string"
+        ? (json as { code: string }).code
+        : undefined;
+    throw new KeeperError(`Keeper ${path.split("/")[1] ?? ""}: ${msg}`, "http", res.status, code);
   }
   if (json === null || typeof json !== "object") {
     throw new KeeperError(`Keeper returned an unexpected response for ${path}`, "bad-response");
@@ -430,6 +465,16 @@ export function normalizeXray(raw: unknown): XrayReport | null {
         : undefined,
     notes: Array.isArray(r.notes) ? r.notes.map(String) : undefined,
   };
+}
+
+/** Ask the keeper's testnet gas drip for test MON (once per address). Errors carry `code`. */
+export function requestDrip(address: string): Promise<DripResult> {
+  return call<DripResult>("/drip", { method: "POST", body: { address }, timeoutMs: 20_000 });
+}
+
+/** Status of this address's drip (poll after requestDrip until "sent" / "failed"). */
+export function dripStatus(address: string): Promise<DripResult> {
+  return call<DripResult>(`/drip/${address}`, { timeoutMs: 6_000 });
 }
 
 export const keeperApi = {

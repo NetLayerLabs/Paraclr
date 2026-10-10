@@ -32,6 +32,7 @@ import { SwipeToTrade } from "@/components/trade/SwipeToTrade";
 import { TradeButton } from "@/components/trade/TradeButton";
 import { baseOf, fmtAusd, fmtCompact, fmtPct, fmtPrice, fmtSize } from "@/components/trade/format";
 import ops from "@/components/trade/OrderPanel.module.css";
+import { GasDrip } from "./GasDrip";
 import { TokenIcon, TokenSymbol, useCollateral } from "./Token";
 import { fmtDuration, usePriceName, useSlippage, SLIPPAGE_CHOICES } from "./util";
 import styles from "./Prod.module.css";
@@ -445,6 +446,8 @@ export function ProdOrderPanel({
           onConfirm={confirm}
         />
       )}
+      {/* A fresh testnet wallet has neither AUSD nor MON: offer the keeper's gas drip at either hint (it hides itself once funded). */}
+      {acct && (reason === gasHint || reason === fundHint) && <GasDrip address={address} nativeWei={native} />}
       {error && <Notice tone="error">{error}</Notice>}
       <details className={styles.how}>
         <summary>

@@ -356,6 +356,20 @@
   cursor: not-allowed;
 }
 
+/* ---- testnet gas drip (GasDrip.tsx) ---------------------------------------- */
+
+.drip {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
+.drip .fine {
+  margin: 0;
+}
+
 /* ---- order panel extras --------------------------------------------------- */
 
 .row {
