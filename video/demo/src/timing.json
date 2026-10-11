@@ -1,0 +1,2229 @@
+{
+ "fps": 30,
+ "totalFrames": 4980,
+ "bpm": 100,
+ "beats": [
+  1,
+  19,
+  37,
+  55,
+  73,
+  91,
+  109,
+  127,
+  145,
+  163,
+  181,
+  199,
+  217,
+  235,
+  253,
+  271,
+  289,
+  307,
+  325,
+  343,
+  361,
+  379,
+  397,
+  415,
+  433,
+  451,
+  469,
+  487,
+  505,
+  523,
+  541,
+  559,
+  577,
+  595,
+  613,
+  631,
+  649,
+  667,
+  685,
+  703,
+  721,
+  739,
+  757,
+  775,
+  793,
+  811,
+  829,
+  847,
+  865,
+  883,
+  901,
+  919,
+  937,
+  955,
+  973,
+  991,
+  1009,
+  1027,
+  1045,
+  1063,
+  1081,
+  1099,
+  1117,
+  1135,
+  1153,
+  1171,
+  1189,
+  1207,
+  1225,
+  1243,
+  1261,
+  1279,
+  1297,
+  1315,
+  1333,
+  1351,
+  1369,
+  1387,
+  1405,
+  1423,
+  1441,
+  1459,
+  1477,
+  1495,
+  1513,
+  1531,
+  1549,
+  1567,
+  1585,
+  1603,
+  1621,
+  1639,
+  1657,
+  1675,
+  1693,
+  1711,
+  1729,
+  1747,
+  1765,
+  1783,
+  1801,
+  1819,
+  1837,
+  1855,
+  1873,
+  1891,
+  1909,
+  1927,
+  1945,
+  1963,
+  1981,
+  1999,
+  2017,
+  2035,
+  2053,
+  2071,
+  2089,
+  2107,
+  2125,
+  2143,
+  2161,
+  2179,
+  2197,
+  2215,
+  2233,
+  2251,
+  2269,
+  2287,
+  2305,
+  2323,
+  2341,
+  2359,
+  2377,
+  2395,
+  2413,
+  2431,
+  2449,
+  2467,
+  2485,
+  2503,
+  2521,
+  2539,
+  2557,
+  2575,
+  2593,
+  2611,
+  2629,
+  2647,
+  2665,
+  2683,
+  2701,
+  2719,
+  2737,
+  2755,
+  2773,
+  2791,
+  2809,
+  2827,
+  2845,
+  2863,
+  2881,
+  2899,
+  2917,
+  2935,
+  2953,
+  2971,
+  2989,
+  3007,
+  3025,
+  3043,
+  3061,
+  3079,
+  3097,
+  3115,
+  3133,
+  3151,
+  3169,
+  3187,
+  3205,
+  3223,
+  3241,
+  3259,
+  3277,
+  3295,
+  3313,
+  3331,
+  3349,
+  3367,
+  3385,
+  3403,
+  3421,
+  3439,
+  3457,
+  3475,
+  3493,
+  3511,
+  3529,
+  3547,
+  3565,
+  3583,
+  3601,
+  3619,
+  3637,
+  3655,
+  3673,
+  3691,
+  3709,
+  3727,
+  3745,
+  3763,
+  3781,
+  3799,
+  3817,
+  3835,
+  3853,
+  3871,
+  3889,
+  3907,
+  3925,
+  3943,
+  3961,
+  3979,
+  3997,
+  4015,
+  4033,
+  4051,
+  4069,
+  4087,
+  4105,
+  4123,
+  4141,
+  4159,
+  4177,
+  4195,
+  4213,
+  4231,
+  4249,
+  4267,
+  4285,
+  4303,
+  4321,
+  4339,
+  4357,
+  4375,
+  4393,
+  4411,
+  4429,
+  4447,
+  4465,
+  4483,
+  4501,
+  4519,
+  4537,
+  4555,
+  4573,
+  4591,
+  4609,
+  4627,
+  4645,
+  4663,
+  4681,
+  4699,
+  4717,
+  4735,
+  4753,
+  4771,
+  4789,
+  4807,
+  4825,
+  4843,
+  4861,
+  4879,
+  4897,
+  4915,
+  4933,
+  4951,
+  4969
+ ],
+ "music": {
+  "file": "audio/music.mp3",
+  "source": "elevenlabs-music"
+ },
+ "scenes": [
+  {
+   "id": "open",
+   "from": 0,
+   "durationInFrames": 417,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "October twenty twenty-five. Crypto's largest liquidation day ever.",
+     "file": "audio/vo/open_0.mp3",
+     "startFrame": 40,
+     "durationFrames": 148,
+     "words": [
+      {
+       "word": "October",
+       "start": 40,
+       "end": 61
+      },
+      {
+       "word": "twenty",
+       "start": 62,
+       "end": 70
+      },
+      {
+       "word": "twenty-five.",
+       "start": 71,
+       "end": 92
+      },
+      {
+       "word": "Crypto's",
+       "start": 100,
+       "end": 116
+      },
+      {
+       "word": "largest",
+       "start": 118,
+       "end": 131
+      },
+      {
+       "word": "liquidation",
+       "start": 132,
+       "end": 149
+      },
+      {
+       "word": "day",
+       "start": 151,
+       "end": 159
+      },
+      {
+       "word": "ever.",
+       "start": 163,
+       "end": 188
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "More than nineteen billion dollars. One point six million traders. In twenty-four hours.",
+     "file": "audio/vo/open_1.mp3",
+     "startFrame": 196,
+     "durationFrames": 214,
+     "words": [
+      {
+       "word": "More",
+       "start": 196,
+       "end": 203
+      },
+      {
+       "word": "than",
+       "start": 204,
+       "end": 209
+      },
+      {
+       "word": "nineteen",
+       "start": 212,
+       "end": 229
+      },
+      {
+       "word": "billion",
+       "start": 233,
+       "end": 248
+      },
+      {
+       "word": "dollars.",
+       "start": 250,
+       "end": 269
+      },
+      {
+       "word": "One",
+       "start": 280,
+       "end": 288
+      },
+      {
+       "word": "point",
+       "start": 289,
+       "end": 298
+      },
+      {
+       "word": "six",
+       "start": 301,
+       "end": 311
+      },
+      {
+       "word": "million",
+       "start": 315,
+       "end": 328
+      },
+      {
+       "word": "traders.",
+       "start": 330,
+       "end": 349
+      },
+      {
+       "word": "In",
+       "start": 356,
+       "end": 361
+      },
+      {
+       "word": "twenty-four",
+       "start": 362,
+       "end": 377
+      },
+      {
+       "word": "hours.",
+       "start": 379,
+       "end": 409
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "problem",
+   "from": 417,
+   "durationInFrames": 422,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Every one of those liquidations was a race. Bots bid gas to land first.",
+     "file": "audio/vo/problem_0.mp3",
+     "startFrame": 425,
+     "durationFrames": 140,
+     "words": [
+      {
+       "word": "Every",
+       "start": 425,
+       "end": 434
+      },
+      {
+       "word": "one",
+       "start": 436,
+       "end": 440
+      },
+      {
+       "word": "of",
+       "start": 440,
+       "end": 442
+      },
+      {
+       "word": "those",
+       "start": 443,
+       "end": 449
+      },
+      {
+       "word": "liquidations",
+       "start": 450,
+       "end": 469
+      },
+      {
+       "word": "was",
+       "start": 470,
+       "end": 474
+      },
+      {
+       "word": "a",
+       "start": 475,
+       "end": 476
+      },
+      {
+       "word": "race.",
+       "start": 478,
+       "end": 492
+      },
+      {
+       "word": "Bots",
+       "start": 499,
+       "end": 510
+      },
+      {
+       "word": "bid",
+       "start": 511,
+       "end": 516
+      },
+      {
+       "word": "gas",
+       "start": 518,
+       "end": 527
+      },
+      {
+       "word": "to",
+       "start": 529,
+       "end": 531
+      },
+      {
+       "word": "land",
+       "start": 533,
+       "end": 541
+      },
+      {
+       "word": "first.",
+       "start": 543,
+       "end": 564
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "The winner takes a penalty that was fixed in advance. And the trader pays it, whatever the market was actually willing to take.",
+     "file": "audio/vo/problem_1.mp3",
+     "startFrame": 572,
+     "durationFrames": 222,
+     "words": [
+      {
+       "word": "The",
+       "start": 572,
+       "end": 577
+      },
+      {
+       "word": "winner",
+       "start": 578,
+       "end": 586
+      },
+      {
+       "word": "takes",
+       "start": 587,
+       "end": 594
+      },
+      {
+       "word": "a",
+       "start": 595,
+       "end": 596
+      },
+      {
+       "word": "penalty",
+       "start": 597,
+       "end": 609
+      },
+      {
+       "word": "that",
+       "start": 611,
+       "end": 614
+      },
+      {
+       "word": "was",
+       "start": 616,
+       "end": 619
+      },
+      {
+       "word": "fixed",
+       "start": 621,
+       "end": 629
+      },
+      {
+       "word": "in",
+       "start": 631,
+       "end": 633
+      },
+      {
+       "word": "advance.",
+       "start": 634,
+       "end": 654
+      },
+      {
+       "word": "And",
+       "start": 660,
+       "end": 667
+      },
+      {
+       "word": "the",
+       "start": 669,
+       "end": 671
+      },
+      {
+       "word": "trader",
+       "start": 673,
+       "end": 682
+      },
+      {
+       "word": "pays",
+       "start": 684,
+       "end": 694
+      },
+      {
+       "word": "it,",
+       "start": 697,
+       "end": 704
+      },
+      {
+       "word": "whatever",
+       "start": 706,
+       "end": 720
+      },
+      {
+       "word": "the",
+       "start": 722,
+       "end": 724
+      },
+      {
+       "word": "market",
+       "start": 726,
+       "end": 734
+      },
+      {
+       "word": "was",
+       "start": 735,
+       "end": 739
+      },
+      {
+       "word": "actually",
+       "start": 740,
+       "end": 754
+      },
+      {
+       "word": "willing",
+       "start": 756,
+       "end": 764
+      },
+      {
+       "word": "to",
+       "start": 765,
+       "end": 767
+      },
+      {
+       "word": "take.",
+       "start": 768,
+       "end": 794
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "turn",
+   "from": 839,
+   "durationInFrames": 300,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Paraclr replaces the race with a clock.",
+     "file": "audio/vo/turn_0.mp3",
+     "startFrame": 869,
+     "durationFrames": 92,
+     "words": [
+      {
+       "word": "Paraclr",
+       "start": 869,
+       "end": 891
+      },
+      {
+       "word": "replaces",
+       "start": 893,
+       "end": 911
+      },
+      {
+       "word": "the",
+       "start": 913,
+       "end": 915
+      },
+      {
+       "word": "race",
+       "start": 918,
+       "end": 925
+      },
+      {
+       "word": "with",
+       "start": 926,
+       "end": 930
+      },
+      {
+       "word": "a",
+       "start": 931,
+       "end": 931
+      },
+      {
+       "word": "clock.",
+       "start": 933,
+       "end": 961
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "Liquidations, auctioned.",
+     "file": "audio/vo/turn_1.mp3",
+     "startFrame": 969,
+     "durationFrames": 67,
+     "words": [
+      {
+       "word": "Liquidations,",
+       "start": 969,
+       "end": 1003
+      },
+      {
+       "word": "auctioned.",
+       "start": 1003,
+       "end": 1036
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "clock",
+   "from": 1139,
+   "durationInFrames": 614,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "When an account goes underwater, it enters a Dutch auction. The discount starts at zero and rises five basis points every block. On Monad, that's a step every third of a second.",
+     "file": "audio/vo/clock_0.mp3",
+     "startFrame": 1147,
+     "durationFrames": 336,
+     "words": [
+      {
+       "word": "When",
+       "start": 1147,
+       "end": 1154
+      },
+      {
+       "word": "an",
+       "start": 1155,
+       "end": 1157
+      },
+      {
+       "word": "account",
+       "start": 1158,
+       "end": 1168
+      },
+      {
+       "word": "goes",
+       "start": 1169,
+       "end": 1175
+      },
+      {
+       "word": "underwater,",
+       "start": 1177,
+       "end": 1195
+      },
+      {
+       "word": "it",
+       "start": 1196,
+       "end": 1200
+      },
+      {
+       "word": "enters",
+       "start": 1202,
+       "end": 1211
+      },
+      {
+       "word": "a",
+       "start": 1213,
+       "end": 1214
+      },
+      {
+       "word": "Dutch",
+       "start": 1215,
+       "end": 1222
+      },
+      {
+       "word": "auction.",
+       "start": 1224,
+       "end": 1241
+      },
+      {
+       "word": "The",
+       "start": 1248,
+       "end": 1252
+      },
+      {
+       "word": "discount",
+       "start": 1254,
+       "end": 1266
+      },
+      {
+       "word": "starts",
+       "start": 1267,
+       "end": 1276
+      },
+      {
+       "word": "at",
+       "start": 1277,
+       "end": 1279
+      },
+      {
+       "word": "zero",
+       "start": 1281,
+       "end": 1292
+      },
+      {
+       "word": "and",
+       "start": 1295,
+       "end": 1299
+      },
+      {
+       "word": "rises",
+       "start": 1301,
+       "end": 1314
+      },
+      {
+       "word": "five",
+       "start": 1316,
+       "end": 1325
+      },
+      {
+       "word": "basis",
+       "start": 1326,
+       "end": 1336
+      },
+      {
+       "word": "points",
+       "start": 1338,
+       "end": 1347
+      },
+      {
+       "word": "every",
+       "start": 1349,
+       "end": 1358
+      },
+      {
+       "word": "block.",
+       "start": 1359,
+       "end": 1375
+      },
+      {
+       "word": "On",
+       "start": 1383,
+       "end": 1389
+      },
+      {
+       "word": "Monad,",
+       "start": 1391,
+       "end": 1406
+      },
+      {
+       "word": "that's",
+       "start": 1407,
+       "end": 1415
+      },
+      {
+       "word": "a",
+       "start": 1416,
+       "end": 1417
+      },
+      {
+       "word": "step",
+       "start": 1420,
+       "end": 1428
+      },
+      {
+       "word": "every",
+       "start": 1431,
+       "end": 1440
+      },
+      {
+       "word": "third",
+       "start": 1442,
+       "end": 1450
+      },
+      {
+       "word": "of",
+       "start": 1451,
+       "end": 1453
+      },
+      {
+       "word": "a",
+       "start": 1454,
+       "end": 1455
+      },
+      {
+       "word": "second.",
+       "start": 1457,
+       "end": 1483
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "The backstop pool can take from seventy-five, about five seconds in. More gas only buys an earlier take, at a smaller discount.",
+     "file": "audio/vo/clock_1.mp3",
+     "startFrame": 1491,
+     "durationFrames": 254,
+     "words": [
+      {
+       "word": "The",
+       "start": 1491,
+       "end": 1496
+      },
+      {
+       "word": "backstop",
+       "start": 1497,
+       "end": 1512
+      },
+      {
+       "word": "pool",
+       "start": 1514,
+       "end": 1522
+      },
+      {
+       "word": "can",
+       "start": 1524,
+       "end": 1528
+      },
+      {
+       "word": "take",
+       "start": 1529,
+       "end": 1536
+      },
+      {
+       "word": "from",
+       "start": 1537,
+       "end": 1542
+      },
+      {
+       "word": "seventy-five,",
+       "start": 1545,
+       "end": 1574
+      },
+      {
+       "word": "about",
+       "start": 1580,
+       "end": 1589
+      },
+      {
+       "word": "five",
+       "start": 1591,
+       "end": 1598
+      },
+      {
+       "word": "seconds",
+       "start": 1599,
+       "end": 1609
+      },
+      {
+       "word": "in.",
+       "start": 1610,
+       "end": 1621
+      },
+      {
+       "word": "More",
+       "start": 1631,
+       "end": 1638
+      },
+      {
+       "word": "gas",
+       "start": 1639,
+       "end": 1647
+      },
+      {
+       "word": "only",
+       "start": 1650,
+       "end": 1658
+      },
+      {
+       "word": "buys",
+       "start": 1659,
+       "end": 1667
+      },
+      {
+       "word": "an",
+       "start": 1669,
+       "end": 1671
+      },
+      {
+       "word": "earlier",
+       "start": 1673,
+       "end": 1685
+      },
+      {
+       "word": "take,",
+       "start": 1686,
+       "end": 1697
+      },
+      {
+       "word": "at",
+       "start": 1698,
+       "end": 1702
+      },
+      {
+       "word": "a",
+       "start": 1703,
+       "end": 1703
+      },
+      {
+       "word": "smaller",
+       "start": 1705,
+       "end": 1715
+      },
+      {
+       "word": "discount.",
+       "start": 1716,
+       "end": 1745
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lanes",
+   "from": 1753,
+   "durationInFrames": 375,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Every account lives in one of eight lanes, each with its own storage. A crash in one lane never touches another. That's exactly the shape Monad's parallel execution rewards.",
+     "file": "audio/vo/lanes_0.mp3",
+     "startFrame": 1761,
+     "durationFrames": 322,
+     "words": [
+      {
+       "word": "Every",
+       "start": 1761,
+       "end": 1771
+      },
+      {
+       "word": "account",
+       "start": 1772,
+       "end": 1782
+      },
+      {
+       "word": "lives",
+       "start": 1784,
+       "end": 1790
+      },
+      {
+       "word": "in",
+       "start": 1792,
+       "end": 1794
+      },
+      {
+       "word": "one",
+       "start": 1796,
+       "end": 1800
+      },
+      {
+       "word": "of",
+       "start": 1801,
+       "end": 1802
+      },
+      {
+       "word": "eight",
+       "start": 1805,
+       "end": 1811
+      },
+      {
+       "word": "lanes,",
+       "start": 1813,
+       "end": 1832
+      },
+      {
+       "word": "each",
+       "start": 1838,
+       "end": 1845
+      },
+      {
+       "word": "with",
+       "start": 1846,
+       "end": 1851
+      },
+      {
+       "word": "its",
+       "start": 1852,
+       "end": 1855
+      },
+      {
+       "word": "own",
+       "start": 1856,
+       "end": 1860
+      },
+      {
+       "word": "storage.",
+       "start": 1862,
+       "end": 1881
+      },
+      {
+       "word": "A",
+       "start": 1888,
+       "end": 1891
+      },
+      {
+       "word": "crash",
+       "start": 1893,
+       "end": 1901
+      },
+      {
+       "word": "in",
+       "start": 1902,
+       "end": 1904
+      },
+      {
+       "word": "one",
+       "start": 1907,
+       "end": 1911
+      },
+      {
+       "word": "lane",
+       "start": 1913,
+       "end": 1920
+      },
+      {
+       "word": "never",
+       "start": 1922,
+       "end": 1927
+      },
+      {
+       "word": "touches",
+       "start": 1929,
+       "end": 1939
+      },
+      {
+       "word": "another.",
+       "start": 1940,
+       "end": 1956
+      },
+      {
+       "word": "That's",
+       "start": 1963,
+       "end": 1971
+      },
+      {
+       "word": "exactly",
+       "start": 1973,
+       "end": 1989
+      },
+      {
+       "word": "the",
+       "start": 1991,
+       "end": 1993
+      },
+      {
+       "word": "shape",
+       "start": 1994,
+       "end": 2002
+      },
+      {
+       "word": "Monad's",
+       "start": 2003,
+       "end": 2017
+      },
+      {
+       "word": "parallel",
+       "start": 2019,
+       "end": 2033
+      },
+      {
+       "word": "execution",
+       "start": 2035,
+       "end": 2053
+      },
+      {
+       "word": "rewards.",
+       "start": 2055,
+       "end": 2083
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "app",
+   "from": 2128,
+   "durationInFrames": 635,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "This is live on Monad testnet. Sign in with Privy, by passkey or email. No seed phrase.",
+     "file": "audio/vo/app_0.mp3",
+     "startFrame": 2136,
+     "durationFrames": 196,
+     "words": [
+      {
+       "word": "This",
+       "start": 2136,
+       "end": 2143
+      },
+      {
+       "word": "is",
+       "start": 2144,
+       "end": 2147
+      },
+      {
+       "word": "live",
+       "start": 2149,
+       "end": 2159
+      },
+      {
+       "word": "on",
+       "start": 2161,
+       "end": 2164
+      },
+      {
+       "word": "Monad",
+       "start": 2166,
+       "end": 2178
+      },
+      {
+       "word": "testnet.",
+       "start": 2179,
+       "end": 2201
+      },
+      {
+       "word": "Sign",
+       "start": 2210,
+       "end": 2219
+      },
+      {
+       "word": "in",
+       "start": 2221,
+       "end": 2223
+      },
+      {
+       "word": "with",
+       "start": 2224,
+       "end": 2229
+      },
+      {
+       "word": "Privy,",
+       "start": 2230,
+       "end": 2242
+      },
+      {
+       "word": "by",
+       "start": 2243,
+       "end": 2249
+      },
+      {
+       "word": "passkey",
+       "start": 2251,
+       "end": 2265
+      },
+      {
+       "word": "or",
+       "start": 2267,
+       "end": 2270
+      },
+      {
+       "word": "email.",
+       "start": 2272,
+       "end": 2290
+      },
+      {
+       "word": "No",
+       "start": 2298,
+       "end": 2303
+      },
+      {
+       "word": "seed",
+       "start": 2305,
+       "end": 2311
+      },
+      {
+       "word": "phrase.",
+       "start": 2312,
+       "end": 2331
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "Get gas from the drip, claim test AUSD from Agora's faucet, and open a long on SOL. The order fills at the first Pyth price after a short delay, so nobody picks their own price.",
+     "file": "audio/vo/app_1.mp3",
+     "startFrame": 2339,
+     "durationFrames": 379,
+     "words": [
+      {
+       "word": "Get",
+       "start": 2339,
+       "end": 2346
+      },
+      {
+       "word": "gas",
+       "start": 2347,
+       "end": 2356
+      },
+      {
+       "word": "from",
+       "start": 2358,
+       "end": 2363
+      },
+      {
+       "word": "the",
+       "start": 2365,
+       "end": 2367
+      },
+      {
+       "word": "drip,",
+       "start": 2368,
+       "end": 2381
+      },
+      {
+       "word": "claim",
+       "start": 2387,
+       "end": 2396
+      },
+      {
+       "word": "test",
+       "start": 2398,
+       "end": 2408
+      },
+      {
+       "word": "AUSD",
+       "start": 2410,
+       "end": 2438
+      },
+      {
+       "word": "from",
+       "start": 2443,
+       "end": 2448
+      },
+      {
+       "word": "Agora's",
+       "start": 2449,
+       "end": 2462
+      },
+      {
+       "word": "faucet,",
+       "start": 2463,
+       "end": 2482
+      },
+      {
+       "word": "and",
+       "start": 2487,
+       "end": 2493
+      },
+      {
+       "word": "open",
+       "start": 2495,
+       "end": 2504
+      },
+      {
+       "word": "a",
+       "start": 2507,
+       "end": 2508
+      },
+      {
+       "word": "long",
+       "start": 2510,
+       "end": 2518
+      },
+      {
+       "word": "on",
+       "start": 2520,
+       "end": 2524
+      },
+      {
+       "word": "SOL.",
+       "start": 2526,
+       "end": 2541
+      },
+      {
+       "word": "The",
+       "start": 2548,
+       "end": 2552
+      },
+      {
+       "word": "order",
+       "start": 2554,
+       "end": 2562
+      },
+      {
+       "word": "fills",
+       "start": 2565,
+       "end": 2574
+      },
+      {
+       "word": "at",
+       "start": 2575,
+       "end": 2578
+      },
+      {
+       "word": "the",
+       "start": 2579,
+       "end": 2581
+      },
+      {
+       "word": "first",
+       "start": 2583,
+       "end": 2592
+      },
+      {
+       "word": "Pyth",
+       "start": 2593,
+       "end": 2601
+      },
+      {
+       "word": "price",
+       "start": 2603,
+       "end": 2612
+      },
+      {
+       "word": "after",
+       "start": 2613,
+       "end": 2620
+      },
+      {
+       "word": "a",
+       "start": 2621,
+       "end": 2622
+      },
+      {
+       "word": "short",
+       "start": 2624,
+       "end": 2632
+      },
+      {
+       "word": "delay,",
+       "start": 2633,
+       "end": 2652
+      },
+      {
+       "word": "so",
+       "start": 2657,
+       "end": 2661
+      },
+      {
+       "word": "nobody",
+       "start": 2663,
+       "end": 2672
+      },
+      {
+       "word": "picks",
+       "start": 2674,
+       "end": 2681
+      },
+      {
+       "word": "their",
+       "start": 2682,
+       "end": 2686
+      },
+      {
+       "word": "own",
+       "start": 2687,
+       "end": 2690
+      },
+      {
+       "word": "price.",
+       "start": 2692,
+       "end": 2718
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "arena",
+   "from": 2763,
+   "durationInFrames": 588,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Now crash the market. Anyone can, in the Arena. One click drops prices twenty percent.",
+     "file": "audio/vo/arena_0.mp3",
+     "startFrame": 2777,
+     "durationFrames": 197,
+     "words": [
+      {
+       "word": "Now",
+       "start": 2777,
+       "end": 2785
+      },
+      {
+       "word": "crash",
+       "start": 2788,
+       "end": 2799
+      },
+      {
+       "word": "the",
+       "start": 2801,
+       "end": 2803
+      },
+      {
+       "word": "market.",
+       "start": 2805,
+       "end": 2822
+      },
+      {
+       "word": "Anyone",
+       "start": 2832,
+       "end": 2847
+      },
+      {
+       "word": "can,",
+       "start": 2848,
+       "end": 2862
+      },
+      {
+       "word": "in",
+       "start": 2864,
+       "end": 2868
+      },
+      {
+       "word": "the",
+       "start": 2870,
+       "end": 2872
+      },
+      {
+       "word": "Arena.",
+       "start": 2873,
+       "end": 2890
+      },
+      {
+       "word": "One",
+       "start": 2899,
+       "end": 2906
+      },
+      {
+       "word": "click",
+       "start": 2907,
+       "end": 2913
+      },
+      {
+       "word": "drops",
+       "start": 2915,
+       "end": 2923
+      },
+      {
+       "word": "prices",
+       "start": 2924,
+       "end": 2937
+      },
+      {
+       "word": "twenty",
+       "start": 2938,
+       "end": 2947
+      },
+      {
+       "word": "percent.",
+       "start": 2948,
+       "end": 2973
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "Each lane runs its own auctions, and the backstops take them, lane by lane, in seconds.",
+     "file": "audio/vo/arena_1.mp3",
+     "startFrame": 2981,
+     "durationFrames": 169,
+     "words": [
+      {
+       "word": "Each",
+       "start": 2981,
+       "end": 2989
+      },
+      {
+       "word": "lane",
+       "start": 2991,
+       "end": 2998
+      },
+      {
+       "word": "runs",
+       "start": 3000,
+       "end": 3007
+      },
+      {
+       "word": "its",
+       "start": 3009,
+       "end": 3012
+      },
+      {
+       "word": "own",
+       "start": 3013,
+       "end": 3017
+      },
+      {
+       "word": "auctions,",
+       "start": 3018,
+       "end": 3033
+      },
+      {
+       "word": "and",
+       "start": 3034,
+       "end": 3037
+      },
+      {
+       "word": "the",
+       "start": 3038,
+       "end": 3041
+      },
+      {
+       "word": "backstops",
+       "start": 3042,
+       "end": 3059
+      },
+      {
+       "word": "take",
+       "start": 3061,
+       "end": 3068
+      },
+      {
+       "word": "them,",
+       "start": 3069,
+       "end": 3076
+      },
+      {
+       "word": "lane",
+       "start": 3080,
+       "end": 3089
+      },
+      {
+       "word": "by",
+       "start": 3090,
+       "end": 3096
+      },
+      {
+       "word": "lane,",
+       "start": 3098,
+       "end": 3111
+      },
+      {
+       "word": "in",
+       "start": 3113,
+       "end": 3117
+      },
+      {
+       "word": "seconds.",
+       "start": 3120,
+       "end": 3150
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "kept",
+   "from": 3351,
+   "durationInFrames": 365,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "We measured a crash on Monad testnet. The auctions took twenty-eight percent less from traders than the fixed fee would have. Whatever the auction doesn't need goes back to the trader.",
+     "file": "audio/vo/kept_0.mp3",
+     "startFrame": 3359,
+     "durationFrames": 313,
+     "words": [
+      {
+       "word": "We",
+       "start": 3359,
+       "end": 3364
+      },
+      {
+       "word": "measured",
+       "start": 3366,
+       "end": 3375
+      },
+      {
+       "word": "a",
+       "start": 3376,
+       "end": 3376
+      },
+      {
+       "word": "crash",
+       "start": 3378,
+       "end": 3389
+      },
+      {
+       "word": "on",
+       "start": 3391,
+       "end": 3394
+      },
+      {
+       "word": "Monad",
+       "start": 3396,
+       "end": 3408
+      },
+      {
+       "word": "testnet.",
+       "start": 3409,
+       "end": 3429
+      },
+      {
+       "word": "The",
+       "start": 3437,
+       "end": 3441
+      },
+      {
+       "word": "auctions",
+       "start": 3442,
+       "end": 3456
+      },
+      {
+       "word": "took",
+       "start": 3458,
+       "end": 3464
+      },
+      {
+       "word": "twenty-eight",
+       "start": 3465,
+       "end": 3484
+      },
+      {
+       "word": "percent",
+       "start": 3485,
+       "end": 3494
+      },
+      {
+       "word": "less",
+       "start": 3497,
+       "end": 3504
+      },
+      {
+       "word": "from",
+       "start": 3505,
+       "end": 3509
+      },
+      {
+       "word": "traders",
+       "start": 3511,
+       "end": 3523
+      },
+      {
+       "word": "than",
+       "start": 3525,
+       "end": 3529
+      },
+      {
+       "word": "the",
+       "start": 3530,
+       "end": 3532
+      },
+      {
+       "word": "fixed",
+       "start": 3534,
+       "end": 3542
+      },
+      {
+       "word": "fee",
+       "start": 3543,
+       "end": 3547
+      },
+      {
+       "word": "would",
+       "start": 3548,
+       "end": 3553
+      },
+      {
+       "word": "have.",
+       "start": 3554,
+       "end": 3564
+      },
+      {
+       "word": "Whatever",
+       "start": 3570,
+       "end": 3582
+      },
+      {
+       "word": "the",
+       "start": 3583,
+       "end": 3585
+      },
+      {
+       "word": "auction",
+       "start": 3587,
+       "end": 3598
+      },
+      {
+       "word": "doesn't",
+       "start": 3601,
+       "end": 3610
+      },
+      {
+       "word": "need",
+       "start": 3612,
+       "end": 3621
+      },
+      {
+       "word": "goes",
+       "start": 3623,
+       "end": 3630
+      },
+      {
+       "word": "back",
+       "start": 3631,
+       "end": 3637
+      },
+      {
+       "word": "to",
+       "start": 3638,
+       "end": 3639
+      },
+      {
+       "word": "the",
+       "start": 3641,
+       "end": 3644
+      },
+      {
+       "word": "trader.",
+       "start": 3645,
+       "end": 3671
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "xray",
+   "from": 3716,
+   "durationInFrames": 481,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Then we traced every transaction. The same crash, on a build that keeps every total in one shared slot, created forty-nine dependencies across lanes.",
+     "file": "audio/vo/xray_0.mp3",
+     "startFrame": 3724,
+     "durationFrames": 296,
+     "words": [
+      {
+       "word": "Then",
+       "start": 3724,
+       "end": 3731
+      },
+      {
+       "word": "we",
+       "start": 3732,
+       "end": 3735
+      },
+      {
+       "word": "traced",
+       "start": 3737,
+       "end": 3747
+      },
+      {
+       "word": "every",
+       "start": 3749,
+       "end": 3758
+      },
+      {
+       "word": "transaction.",
+       "start": 3760,
+       "end": 3787
+      },
+      {
+       "word": "The",
+       "start": 3796,
+       "end": 3800
+      },
+      {
+       "word": "same",
+       "start": 3802,
+       "end": 3810
+      },
+      {
+       "word": "crash,",
+       "start": 3811,
+       "end": 3826
+      },
+      {
+       "word": "on",
+       "start": 3828,
+       "end": 3833
+      },
+      {
+       "word": "a",
+       "start": 3834,
+       "end": 3835
+      },
+      {
+       "word": "build",
+       "start": 3836,
+       "end": 3843
+      },
+      {
+       "word": "that",
+       "start": 3845,
+       "end": 3848
+      },
+      {
+       "word": "keeps",
+       "start": 3849,
+       "end": 3856
+      },
+      {
+       "word": "every",
+       "start": 3858,
+       "end": 3868
+      },
+      {
+       "word": "total",
+       "start": 3870,
+       "end": 3880
+      },
+      {
+       "word": "in",
+       "start": 3882,
+       "end": 3884
+      },
+      {
+       "word": "one",
+       "start": 3887,
+       "end": 3893
+      },
+      {
+       "word": "shared",
+       "start": 3894,
+       "end": 3904
+      },
+      {
+       "word": "slot,",
+       "start": 3905,
+       "end": 3922
+      },
+      {
+       "word": "created",
+       "start": 3930,
+       "end": 3943
+      },
+      {
+       "word": "forty-nine",
+       "start": 3946,
+       "end": 3963
+      },
+      {
+       "word": "dependencies",
+       "start": 3964,
+       "end": 3984
+      },
+      {
+       "word": "across",
+       "start": 3985,
+       "end": 3994
+      },
+      {
+       "word": "lanes.",
+       "start": 3996,
+       "end": 4019
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "Paraclr's lanes: zero. They never wait on each other.",
+     "file": "audio/vo/xray_1.mp3",
+     "startFrame": 4027,
+     "durationFrames": 126,
+     "words": [
+      {
+       "word": "Paraclr's",
+       "start": 4027,
+       "end": 4049
+      },
+      {
+       "word": "lanes:",
+       "start": 4051,
+       "end": 4067
+      },
+      {
+       "word": "zero.",
+       "start": 4074,
+       "end": 4096
+      },
+      {
+       "word": "They",
+       "start": 4103,
+       "end": 4107
+      },
+      {
+       "word": "never",
+       "start": 4109,
+       "end": 4115
+      },
+      {
+       "word": "wait",
+       "start": 4117,
+       "end": 4123
+      },
+      {
+       "word": "on",
+       "start": 4124,
+       "end": 4126
+      },
+      {
+       "word": "each",
+       "start": 4128,
+       "end": 4132
+      },
+      {
+       "word": "other.",
+       "start": 4133,
+       "end": 4152
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "builton",
+   "from": 4197,
+   "durationInFrames": 440,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Built on Monad. Agora AUSD as collateral, Pyth prices, Privy sign-in, Envio indexing every order and auction. Owned by a Safe behind a timelock. Tested hard. Not yet audited.",
+     "file": "audio/vo/builton_0.mp3",
+     "startFrame": 4205,
+     "durationFrames": 424,
+     "words": [
+      {
+       "word": "Built",
+       "start": 4205,
+       "end": 4214
+      },
+      {
+       "word": "on",
+       "start": 4216,
+       "end": 4220
+      },
+      {
+       "word": "Monad.",
+       "start": 4222,
+       "end": 4242
+      },
+      {
+       "word": "Agora",
+       "start": 4248,
+       "end": 4264
+      },
+      {
+       "word": "AUSD",
+       "start": 4266,
+       "end": 4293
+      },
+      {
+       "word": "as",
+       "start": 4298,
+       "end": 4301
+      },
+      {
+       "word": "collateral,",
+       "start": 4303,
+       "end": 4326
+      },
+      {
+       "word": "Pyth",
+       "start": 4330,
+       "end": 4339
+      },
+      {
+       "word": "prices,",
+       "start": 4340,
+       "end": 4358
+      },
+      {
+       "word": "Privy",
+       "start": 4360,
+       "end": 4370
+      },
+      {
+       "word": "sign-in,",
+       "start": 4372,
+       "end": 4389
+      },
+      {
+       "word": "Envio",
+       "start": 4395,
+       "end": 4411
+      },
+      {
+       "word": "indexing",
+       "start": 4413,
+       "end": 4431
+      },
+      {
+       "word": "every",
+       "start": 4434,
+       "end": 4444
+      },
+      {
+       "word": "order",
+       "start": 4446,
+       "end": 4455
+      },
+      {
+       "word": "and",
+       "start": 4457,
+       "end": 4460
+      },
+      {
+       "word": "auction.",
+       "start": 4463,
+       "end": 4481
+      },
+      {
+       "word": "Owned",
+       "start": 4488,
+       "end": 4497
+      },
+      {
+       "word": "by",
+       "start": 4498,
+       "end": 4504
+      },
+      {
+       "word": "a",
+       "start": 4506,
+       "end": 4507
+      },
+      {
+       "word": "Safe",
+       "start": 4510,
+       "end": 4519
+      },
+      {
+       "word": "behind",
+       "start": 4520,
+       "end": 4528
+      },
+      {
+       "word": "a",
+       "start": 4530,
+       "end": 4531
+      },
+      {
+       "word": "timelock.",
+       "start": 4532,
+       "end": 4552
+      },
+      {
+       "word": "Tested",
+       "start": 4557,
+       "end": 4568
+      },
+      {
+       "word": "hard.",
+       "start": 4570,
+       "end": 4583
+      },
+      {
+       "word": "Not",
+       "start": 4589,
+       "end": 4597
+      },
+      {
+       "word": "yet",
+       "start": 4598,
+       "end": 4603
+      },
+      {
+       "word": "audited.",
+       "start": 4605,
+       "end": 4629
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "close",
+   "from": 4637,
+   "durationInFrames": 343,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Paraclr. Fair liquidations for Monad. Crash it yourself, at paraclr dot x y z.",
+     "file": "audio/vo/close_0.mp3",
+     "startFrame": 4645,
+     "durationFrames": 215,
+     "words": [
+      {
+       "word": "Paraclr.",
+       "start": 4645,
+       "end": 4675
+      },
+      {
+       "word": "Fair",
+       "start": 4682,
+       "end": 4691
+      },
+      {
+       "word": "liquidations",
+       "start": 4693,
+       "end": 4717
+      },
+      {
+       "word": "for",
+       "start": 4719,
+       "end": 4724
+      },
+      {
+       "word": "Monad.",
+       "start": 4726,
+       "end": 4746
+      },
+      {
+       "word": "Crash",
+       "start": 4753,
+       "end": 4764
+      },
+      {
+       "word": "it",
+       "start": 4765,
+       "end": 4767
+      },
+      {
+       "word": "yourself,",
+       "start": 4768,
+       "end": 4784
+      },
+      {
+       "word": "at",
+       "start": 4785,
+       "end": 4789
+      },
+      {
+       "word": "paraclr",
+       "start": 4791,
+       "end": 4812
+      },
+      {
+       "word": "dot",
+       "start": 4815,
+       "end": 4822
+      },
+      {
+       "word": "x",
+       "start": 4826,
+       "end": 4832
+      },
+      {
+       "word": "y",
+       "start": 4834,
+       "end": 4838
+      },
+      {
+       "word": "z.",
+       "start": 4841,
+       "end": 4860
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -65,3 +65,10 @@ keeper/.arena/
 # teaser video (video/teaser): dependencies and renders stay local
 video/teaser/node_modules
 video/teaser/out
+
+# demo film (video/demo): dependencies, renders, caches and recorded footage stay local
+video/demo/node_modules/
+video/demo/out/
+video/demo/.cache/
+video/demo/public/footage/
+video/demo/public/stills/

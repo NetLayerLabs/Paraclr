@@ -1,0 +1,41 @@
+{
+  "name": "paraclr-demo-film",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "draft": "remotion render src/index.ts Paraclr out/draft.mp4 --scale 0.5 --crf 28",
+    "render4k": "remotion render src/index.ts Paraclr out/paraclr-demo-4k-raw.mp4 --scale 2 --image-format png --codec h264 --crf 14 --x264-preset slow --pixel-format yuv420p --audio-codec aac --audio-bitrate 320k",
+    "poster": "remotion still src/index.ts Poster out/paraclr-thumbnail.png --image-format png",
+    "typecheck": "tsc --noEmit",
+    "brand": "node scripts/brand.mjs",
+    "voices": "node scripts/voices.mjs",
+    "audition": "node scripts/audition.mjs",
+    "vo": "node scripts/voiceover.mjs",
+    "timing": "node scripts/timing.mjs",
+    "music": "node scripts/music.mjs",
+    "sfx": "node scripts/sfx.mjs",
+    "capture": "node scripts/capture.mjs",
+    "encode": "node scripts/encode.mjs",
+    "stills": "node scripts/stills.mjs",
+    "finish": "node scripts/finish.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.530",
+    "@remotion/google-fonts": "4.0.530",
+    "@remotion/media-utils": "4.0.530",
+    "@remotion/paths": "4.0.530",
+    "@remotion/shapes": "4.0.530",
+    "@remotion/transitions": "4.0.530",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "4.0.530"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "4.0.530",
+    "@remotion/renderer": "4.0.530",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "sharp": "^0.34.4",
+    "typescript": "^5.6.0"
+  }
+}

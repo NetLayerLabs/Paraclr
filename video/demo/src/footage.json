@@ -1,0 +1,205 @@
+{
+ "arena": {
+  "file": "footage/arena.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 2132,
+  "marks": {
+   "arena_press": 109,
+   "arena_auction": 200,
+   "arena_lanes": 309,
+   "arena_take": 429,
+   "arena_cleared": 429,
+   "arena_naive": 1525,
+   "arena_settle": 1879
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/arena",
+  "rects": {
+   "button": {
+    "x": 1040,
+    "y": 231,
+    "w": 420,
+    "h": 64
+   }
+  },
+  "lanesTop": 498,
+  "naiveTop": 1156
+ },
+ "hero": {
+  "file": "footage/hero.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 794,
+  "marks": {},
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz",
+  "rects": {
+   "clock": {
+    "x": 899,
+    "y": 195,
+    "w": 601,
+    "h": 668
+   }
+  }
+ },
+ "drip": {
+  "file": "footage/drip.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 312,
+  "marks": {
+   "drip_click": 94,
+   "drip_done": 214
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/app",
+  "rects": {
+   "panel": {
+    "x": 1217,
+    "y": 218,
+    "w": 383,
+    "h": 898
+   },
+   "button": {
+    "x": 1233,
+    "y": 781,
+    "w": 351,
+    "h": 42
+   }
+  }
+ },
+ "faucet": {
+  "file": "footage/faucet.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 2021,
+  "marks": {
+   "faucet_click": 87,
+   "faucet_done": 1892
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/app",
+  "rects": {
+   "button": {
+    "x": 1233,
+    "y": 847,
+    "w": 351,
+    "h": 42
+   }
+  }
+ },
+ "signin1": {
+  "file": "footage/signin1.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 450,
+  "marks": {
+   "si_modal": 108,
+   "si_type": 202,
+   "si_submit": 305
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/app",
+  "rects": {
+   "email": {
+    "x": 647,
+    "y": 377,
+    "w": 306,
+    "h": 56
+   },
+   "modal": {
+    "x": 0,
+    "y": 900,
+    "w": 1600,
+    "h": 0
+   }
+  }
+ },
+ "signin2": {
+  "file": "footage/signin2.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 506,
+  "marks": {
+   "si_code": 73,
+   "si_in": 376
+  }
+ },
+ "trade": {
+  "file": "footage/trade.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 2864,
+  "marks": {
+   "trade_click": 96,
+   "trade_submit": 673,
+   "trade_accept": 1645
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/app",
+  "rects": {
+   "submit": {
+    "x": 1233,
+    "y": 886,
+    "w": 351,
+    "h": 50
+   },
+   "chart": null
+  }
+ },
+ "arena2": {
+  "file": "footage/arena2.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 800,
+  "marks": {
+   "a2_press": 111,
+   "a2_auction": 183,
+   "a2_lanes": 240,
+   "a2_take": 373,
+   "a2_cleared": 409,
+   "a2_naive": 605
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/arena",
+  "rects": {
+   "button": {
+    "x": 1040,
+    "y": 231,
+    "w": 420,
+    "h": 64
+   }
+  },
+  "lanesTop": 498,
+  "naiveTop": 1092
+ }
+}

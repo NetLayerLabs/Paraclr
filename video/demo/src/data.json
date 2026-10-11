@@ -1,0 +1,362 @@
+{
+ "open": {
+  "source": "CoinGlass, 24h liquidation data",
+  "usdBillions": 19.13,
+  "traders": 1618240
+ },
+ "params": {
+  "file": "deployments/10143.json",
+  "stepBps": 5,
+  "poolMinBps": 75,
+  "capBps": 500,
+  "fixedFeeBps": 100,
+  "execFeeMon": 0.1,
+  "maxDepositAusd": 50,
+  "minExecDelaySeconds": 3,
+  "owner": "0xCC62247E59A3872013e2dB7A52696A3117F2e4c3",
+  "timelock": "0xdD66E8118e0a1096D8eEC5b0A0eE9612890047Ab",
+  "timelockDelaySeconds": 600
+ },
+ "kept": {
+  "file": "bench/results/10143-2026-10-10T22-40-07Z.json",
+  "network": "monad-testnet",
+  "measuredOn": "Monad testnet",
+  "startedAt": "2026-10-10T22:40:07.256Z",
+  "blockMs": 303,
+  "shockBps": 8000,
+  "liquidated": 22,
+  "accounts": 100,
+  "equityAtStart": 2564.200003,
+  "returned": 1511.788004,
+  "taken": 1052.41,
+  "fixed": 1464.26,
+  "pctLess": 28.1,
+  "avgDiscountBps": 103.41
+ },
+ "xray": {
+  "file": "bench/xray/10143-run-mv2ze6l6-xzyi6.json",
+  "runId": "run-mv2ze6l6-xzyi6",
+  "method": "debug_traceTransaction",
+  "network": "monad-testnet",
+  "edgeScope": "same-block",
+  "lanes": {
+   "design": "paraclr-lanes",
+   "contract": "0x5b40ae35d3AD71A80542B7ea45DC7eEeCc7E21c5",
+   "lanes": [
+    0,
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5,
+    6,
+    6,
+    7,
+    7,
+    null
+   ],
+   "edges": [],
+   "summary": {
+    "txs": 18,
+    "edges": 0,
+    "longestChain": 1,
+    "independentTxs": 18,
+    "crossLaneEdges": 0,
+    "sameLaneEdges": 0
+   }
+  },
+  "naive": {
+   "design": "naive-shared",
+   "contract": "0x3A158F70C24661A84C0e597dF23c2bFbC074981c",
+   "lanes": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    6,
+    6,
+    6,
+    7,
+    7,
+    null
+   ],
+   "edges": [
+    [
+     22,
+     7,
+     1
+    ],
+    [
+     22,
+     4,
+     1
+    ],
+    [
+     22,
+     10,
+     1
+    ],
+    [
+     22,
+     0,
+     1
+    ],
+    [
+     22,
+     13,
+     1
+    ],
+    [
+     22,
+     19,
+     1
+    ],
+    [
+     22,
+     16,
+     1
+    ],
+    [
+     7,
+     4,
+     1
+    ],
+    [
+     7,
+     10,
+     1
+    ],
+    [
+     7,
+     0,
+     1
+    ],
+    [
+     7,
+     13,
+     1
+    ],
+    [
+     7,
+     19,
+     1
+    ],
+    [
+     7,
+     16,
+     1
+    ],
+    [
+     4,
+     10,
+     1
+    ],
+    [
+     4,
+     0,
+     1
+    ],
+    [
+     4,
+     13,
+     1
+    ],
+    [
+     4,
+     19,
+     1
+    ],
+    [
+     4,
+     16,
+     1
+    ],
+    [
+     10,
+     0,
+     1
+    ],
+    [
+     10,
+     13,
+     1
+    ],
+    [
+     10,
+     19,
+     1
+    ],
+    [
+     10,
+     16,
+     1
+    ],
+    [
+     0,
+     13,
+     1
+    ],
+    [
+     0,
+     19,
+     1
+    ],
+    [
+     0,
+     16,
+     1
+    ],
+    [
+     13,
+     19,
+     1
+    ],
+    [
+     13,
+     16,
+     1
+    ],
+    [
+     19,
+     16,
+     1
+    ],
+    [
+     8,
+     5,
+     1
+    ],
+    [
+     8,
+     11,
+     1
+    ],
+    [
+     8,
+     14,
+     1
+    ],
+    [
+     8,
+     17,
+     1
+    ],
+    [
+     8,
+     2,
+     1
+    ],
+    [
+     8,
+     20,
+     1
+    ],
+    [
+     5,
+     11,
+     1
+    ],
+    [
+     5,
+     14,
+     1
+    ],
+    [
+     5,
+     17,
+     1
+    ],
+    [
+     5,
+     2,
+     1
+    ],
+    [
+     5,
+     20,
+     1
+    ],
+    [
+     11,
+     14,
+     1
+    ],
+    [
+     11,
+     17,
+     1
+    ],
+    [
+     11,
+     2,
+     1
+    ],
+    [
+     11,
+     20,
+     1
+    ],
+    [
+     14,
+     17,
+     1
+    ],
+    [
+     14,
+     2,
+     1
+    ],
+    [
+     14,
+     20,
+     1
+    ],
+    [
+     17,
+     2,
+     1
+    ],
+    [
+     17,
+     20,
+     1
+    ],
+    [
+     2,
+     20,
+     1
+    ]
+   ],
+   "summary": {
+    "txs": 25,
+    "edges": 49,
+    "longestChain": 8,
+    "independentTxs": 10,
+    "crossLaneEdges": 49,
+    "sameLaneEdges": 0
+   }
+  }
+ }
+}

@@ -1,0 +1,53 @@
+{
+  "title": "Paraclr: Paraclr replaces the liquidation race with a clock",
+  "model": "eleven_multilingual_v2",
+  "voices": {
+    "narrator": {
+      "name": "Sarah",
+      "id": "EXAVITQu4vr4xnSDxMaL",
+      "settings": { "stability": 0.55, "similarity_boost": 0.8, "style": 0.18, "use_speaker_boost": true }
+    }
+  },
+  "scenes": [
+    { "id": "open", "seconds": 13, "lines": [
+      { "voice": "narrator", "text": "October twenty twenty-five. Crypto's largest liquidation day ever." },
+      { "voice": "narrator", "text": "More than nineteen billion dollars. One point six million traders. In twenty-four hours." }
+    ] },
+    { "id": "problem", "seconds": 18, "lines": [
+      { "voice": "narrator", "text": "Every one of those liquidations was a race. Bots bid gas to land first." },
+      { "voice": "narrator", "text": "The winner takes a penalty that was fixed in advance. And the trader pays it, whatever the market was actually willing to take." }
+    ] },
+    { "id": "turn", "seconds": 10, "lines": [
+      { "voice": "narrator", "text": "Paraclr replaces the race with a clock." },
+      { "voice": "narrator", "text": "Liquidations, auctioned." }
+    ] },
+    { "id": "clock", "seconds": 20, "lines": [
+      { "voice": "narrator", "text": "When an account goes underwater, it enters a Dutch auction. The discount starts at zero and rises five basis points every block. On Monad, that's a step every third of a second." },
+      { "voice": "narrator", "text": "The backstop pool can take from seventy-five, about five seconds in. More gas only buys an earlier take, at a smaller discount." }
+    ] },
+    { "id": "lanes", "seconds": 14, "lines": [
+      { "voice": "narrator", "text": "Every account lives in one of eight lanes, each with its own storage. A crash in one lane never touches another. That's exactly the shape Monad's parallel execution rewards." }
+    ] },
+    { "id": "app", "seconds": 22, "lines": [
+      { "voice": "narrator", "text": "This is live on Monad testnet. Sign in with Privy, by passkey or email. No seed phrase." },
+      { "voice": "narrator", "text": "Get gas from the drip, claim test AUSD from Agora's faucet, and open a long on SOL. The order fills at the first Pyth price after a short delay, so nobody picks their own price." }
+    ] },
+    { "id": "arena", "seconds": 20, "lines": [
+      { "voice": "narrator", "text": "Now crash the market. Anyone can, in the Arena. One click drops prices twenty percent." },
+      { "voice": "narrator", "text": "Each lane runs its own auctions, and the backstops take them, lane by lane, in seconds." }
+    ] },
+    { "id": "kept", "seconds": 14, "lines": [
+      { "voice": "narrator", "text": "We measured a crash on Monad testnet. The auctions took twenty-eight percent less from traders than the fixed fee would have. Whatever the auction doesn't need goes back to the trader." }
+    ] },
+    { "id": "xray", "seconds": 18, "lines": [
+      { "voice": "narrator", "text": "Then we traced every transaction. The same crash, on a build that keeps every total in one shared slot, created forty-nine dependencies across lanes." },
+      { "voice": "narrator", "text": "Paraclr's lanes: zero. They never wait on each other." }
+    ] },
+    { "id": "builton", "seconds": 10, "lines": [
+      { "voice": "narrator", "text": "Built on Monad. Agora AUSD as collateral, Pyth prices, Privy sign-in, Envio indexing every order and auction. Owned by a Safe behind a timelock. Tested hard. Not yet audited." }
+    ] },
+    { "id": "close", "seconds": 6, "lines": [
+      { "voice": "narrator", "text": "Paraclr. Fair liquidations for Monad. Crash it yourself, at paraclr dot x y z." }
+    ] }
+  ]
+}
