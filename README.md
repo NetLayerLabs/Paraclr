@@ -2,6 +2,34 @@
 
 **The fair-liquidation clearinghouse for Monad.**
 
+## About
+
+Paraclr is a perpetuals clearinghouse on Monad that fixes one problem: when a position goes underwater, liquidation
+bots race on gas for a penalty fixed in advance, and the trader's remaining equity pays for that race. Paraclr prices
+every liquidation with a **per-lane Dutch auction whose discount rises with the block number**, so gas buys only an
+earlier take at a smaller discount, and the trader keeps whatever equity the auction doesn't use; the risk state is
+split into 8 lanes of lane-local storage, so the lanes' auctions don't touch each other's storage and can run in
+parallel on Monad. It is **live on Monad testnet** (test funds, no real value): [app](https://paraclr.xyz/app),
+[arena](https://paraclr.xyz/arena), [evidence](#results).
+
+### How to try it (judges, about 5 minutes)
+
+1. **Sign in.** Open [paraclr.xyz/app](https://paraclr.xyz/app) and sign in with a **passkey** (or email, a social
+   login or an external wallet, through Privy). Each sign-in gets one embedded wallet; a reload keeps you signed in.
+2. **Gas drip.** Press **"Get 0.3 test MON for gas"**: the keeper sends a fresh wallet 0.3 testnet MON, once per
+   address. That covers gas and the **0.1 MON execution fee** each order pays its executor.
+3. **Claim AUSD.** Press **"Claim test AUSD"**: Agora's testnet faucet contract sends 10,000 test AUSD. Its rate limit
+   is global (one drip per 60 s across all users), so retry after a minute if it says so.
+4. **Deposit.** Deposit up to the testnet cap of **50 AUSD** per account (an exact-amount approve, then the deposit).
+5. **Trade.** Open a SOL/AUSD or BTC/AUSD position (up to 10x, at least 10 AUSD). It is a **delayed order**: the
+   keeper fills it at the first Pyth price published at least 3 s after your commit. History comes from the Envio
+   indexer.
+6. **Watch the arena.** Open [paraclr.xyz/arena](https://paraclr.xyz/arena) and press **"Crash the market"**: a −20%
+   oracle shock on the demo stack on Monad testnet, then 8 lanes of auctions clearing next to the shared-state build,
+   then the measured [Conflict X-ray](#conflict-x-ray). See [Arena](#arena-crash-it-yourself) for its limits.
+
+## Overview
+
 Every block, underwater accounts in each of Paraclr's 8 lanes go to a **per-block Dutch auction** backed by that
 lane's **backstop LPs**, and traders get back the equity the auction doesn't use. The discount is set by the block
 clock, not by gas bidding. For every crash we publish a measured **Conflict X-ray**, the storage-dependency graph of
@@ -17,13 +45,15 @@ email, a social login or an external wallet, through Privy) and AUSD-denominated
 that collapses to a touch layout with swipe-to-trade on phones, installable as a web app. What Monad, Agora AUSD,
 Pyth, Privy and Envio each do in Paraclr, with code paths and addresses, is in [Built on](#built-on).
 
-> **Status (2026-10-10).** The production contracts have run on **Monad testnet** since 2026-10-07 with Agora's
+> **Status (2026-10-11).** The production contracts have run on **Monad testnet** since 2026-10-07 with Agora's
 > testnet AUSD and Pyth prices: test funds, no real value (addresses
 > [below](#deployed-contracts-monad-testnet-chain-id-10143)). Its auction step was lowered from the contract default
 > of 25 to **5 bps per block** through the timelock on 2026-10-08; an Envio indexer feeds the app's order history.
 > The headline crash run in [Results](#results) was measured on **Monad testnet** (demo stack, 2026-10-10): 22
-> auctions resolved in 11 blocks (8.8 s), traders kept 28% more than a fixed 1% liquidation, 0 cross-lane edges vs 18
-> for the shared-state build. The larger local-anvil runs are kept alongside. A
+> auctions, their resolution transactions in 11 blocks (8.8 s), **28% less taken from traders** than a fixed 1%
+> liquidation, 0 cross-lane edges vs 18 for the shared-state build. The public [Arena](#arena-crash-it-yourself) is
+> live on Monad testnet; its first crash measured 0 cross-lane edges vs 49. The larger local-anvil runs are kept
+> alongside. A
 > **capped, unaudited beta with real Agora AUSD on Monad mainnet** is built as a separate contract set and launches
 > only if its [launch gate](#production-beta-monad-mainnet-gated) passes; until `deployments/143.json` with
 > `"production": true` is committed, nothing of ours is on mainnet. Every number in this repo and in the app is
@@ -41,6 +71,21 @@ On a typical on-chain perps venue an underwater account goes to whichever bot la
 penalty fixed in advance. Bots compete on gas and ordering rather than on price, so the penalty never falls when a
 taker would have accepted less, and nothing of that competition flows back to the trader. The trader can pay more
 than a competitive price for the takeover.
+
+### Typical liquidation vs Paraclr
+
+"Typical" is the common first-bot-wins, fixed-penalty pattern, not any one venue. Paraclr's column describes the
+contracts in this repo, which are live on Monad testnet.
+
+| | Typical perp liquidation | Paraclr |
+|---|---|---|
+| Who takes the account | The first bot to land a transaction | The first taker at the current discount, or the lane's backstop pool at its threshold |
+| How the price is set | A fixed fee, set before the crash | A discount set by the block clock: 0, then +5 bps per block on the live testnet (contract default 25). The trader keeps `E − P` |
+| What a higher gas bid buys | Priority for the whole fee | Only an earlier take, at a smaller discount |
+| Where a shortfall lands | Usually a venue-wide insurance fund or pool | Its own lane: lane insurance first, then lane bad debt |
+| State layout | Shared global state: one set of aggregates | 8 lanes with lane-local ledgers, pools and open interest |
+| Parallel execution | "Parallel" as a claim | A measured Conflict X-ray of each crash (dependencies, not re-executions) |
+| Solvency | Up to each venue | `solvency()`: AUSD held vs the 8 lane ledgers, read every block |
 
 ## The auction
 
@@ -100,6 +145,29 @@ pool, solvency ledger, auction counters) to one shared storage key. Identical lo
 
 Reports are written to `bench/xray/<chainId>-<runId>.json` and served by the keeper at `GET /runs/:id/xray`. The landing
 page renders the newest committed X-ray at build time, preferring a Monad testnet one (`10143-*.json`).
+
+## Arena: crash it yourself
+
+[`/arena`](src/app/arena/page.tsx) ([paraclr.xyz/arena](https://paraclr.xyz/arena)) is live on Monad testnet. Anyone
+presses "Crash the market" and every viewer watches the same run on the demo stack
+([`deployments/demo/10143.json`](deployments/demo/10143.json)): a fresh book seeded identically into the lanes build
+and the shared-state build, one −20% oracle shock, the sweeper resolving every auction on both, the Conflict X-ray,
+then a price reset. It is driven by the demo keeper in arena mode ([`keeper/src/arena.ts`](keeper/src/arena.ts),
+[`keeper/README.md`](keeper/README.md#arena-mode---arena)).
+
+- **Live configuration:** 1 account per lane (`ARENA_PER_LANE=1`) and at most 8 crashes per UTC day
+  (`ARENA_DAILY_MAX=8`), with a cooldown after each cycle and one crash per visitor per window (the code defaults are
+  3 and 40).
+- **Keeper auto-refill:** after each cycle the operator tops every lane keeper below `ARENA_KEEPER_REFILL_MON` back up
+  to it (0.7 MON by default on Monad, 3 blocks apart for Monad's reserve rule); below the gas guard the page says
+  "Arena is refuelling" instead of starting a run that can't finish.
+- **Measured:** the first public Arena crash (2026-10-10) had **0 cross-lane dependency edges vs 49** for the
+  shared-state build ([`bench/xray/10143-run-mv2ze6l6-xzyi6.json`](bench/xray/10143-run-mv2ze6l6-xzyi6.json)); the
+  benchmark crash on the same stack had **0 vs 18**
+  ([`bench/xray/10143-run-mv2za35r-mfh66.json`](bench/xray/10143-run-mv2za35r-mfh66.json)) and took **28% less from
+  traders** than the fixed 1% path
+  ([`bench/results/10143-2026-10-10T22-40-07Z.json`](bench/results/10143-2026-10-10T22-40-07Z.json)).
+- Arena accounts are synthetic and keyless; nothing a visitor deposits in the app is touched by a crash.
 
 ## Solvency proof
 
@@ -260,8 +328,9 @@ A pull oracle: signed price updates are fetched off chain (from Hermes) and veri
 - **Verified on chain.** `ParaclrClearinghouseProd` normalises the exponent, rejects non-positive prices, prices with
   `conf / price` above `maxConfBps` (200 = 2% on testnet), supplied updates older than `maxPriceAge` (30 s) and stored
   prices older than `maxStoredPriceAge` (15 s). Per lane and market, prices never move backwards.
-- **Delayed orders.** `commitOrder` escrows margin; `executeOrder` fills at the **first** Pyth update published at or
-  after the commit's delay (`parsePriceFeedUpdatesUnique`), so neither the trader nor the executor picks the price.
+- **Delayed orders.** `commitOrder` escrows margin and the execution fee (0.1 MON per order on testnet);
+  `executeOrder` fills at the **first** Pyth update published at or after the commit's delay (3 s on testnet,
+  `parsePriceFeedUpdatesUnique`), so neither the trader nor the executor picks the price.
   The keeper fetches that update from Hermes ([`keeper/src/prod/hermes.ts`](keeper/src/prod/hermes.ts)) and
   pushes stored prices only when an execution needs them (`PYTH_PUSH_MODE=on-demand`,
   [`keeper/src/prod/pricepush.ts`](keeper/src/prod/pricepush.ts)).
@@ -363,10 +432,11 @@ price pusher, the crash runner, the X-ray and the bench) **stays as it is**: it 
 a **separate contract set** in `contracts/src/prod/`, specified in [`docs/PRODUCTION_PLAN.md`](docs/PRODUCTION_PLAN.md).
 
 **Status (2026-10-10):** not on mainnet. The launch gate below has passed; the launch waits on Pyth price data for
-mainnet (the Hermes trial key the testnet runs on ends ~2026-10-20). The landing page reads `deployments/143.json` at
-build time and shows "Live on Monad mainnet · unaudited beta · capped", with the contract list, only when that file
-exists with `"production": true`. Otherwise it shows "Mainnet beta: pending launch gate". The same
-contract set is what runs on Monad testnet today (`deployments/10143.json`).
+mainnet (the Hermes trial key the testnet runs on ends ~2026-10-20). This section lives only here: the landing page
+no longer has a production-beta section. Its status bar reads `deployments/143.json` at build time and shows "Live on
+Monad mainnet · unaudited beta · capped" (and the Results contract list switches to mainnet) only when that file
+exists with `"production": true`. Until then it shows the testnet deployment with "Mainnet beta: launch pending". The
+same contract set is what runs on Monad testnet today (`deployments/10143.json`).
 
 ### What changes for real money
 
@@ -492,8 +562,14 @@ npm run dev
 ```
 
 Use a dedicated RPC for the keeper; on the public RPC set `KEEPER_RPC_BATCH_SIZE=10` (and `KEEPER_LOG_RANGE=4` on
-QuickNode's free plan). Test funds only: AUSD from Agora's faucet contract (the app's "Get testnet AUSD"), MON from
-faucet.monad.xyz. Monad charges for the gas **limit**, so the keeper keeps limits tight.
+QuickNode's free plan). Test funds only: AUSD from Agora's faucet contract (the app's "Claim test AUSD"), MON from
+the keeper's visitor drip (0.3 MON once per address, `POST /drip`, its own key `DRIP_PRIVATE_KEY`; see
+`keeper/.env.testnet.example`) or faucet.monad.xyz. Monad charges for the gas **limit**, so the keeper keeps limits
+tight.
+
+Tests: `npm run contracts:test` (Foundry), `npm run test:keeper` (keeper unit tests), `cd indexer && pnpm test`
+(indexer handlers). `npm run sandbox` runs the production set on a local fork of Monad testnet
+([`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14.7).
 
 ### 3b. Demo stack on Monad testnet (bench + Conflict X-ray)
 
@@ -542,9 +618,10 @@ payment exceeded the account's equity, which happens with deeply underwater acco
 **The Monad testnet run (2026-10-10).** Demo stack on Monad testnet, auction step 5 bps per block, the same
 100-account book seeded into both designs (`--seed 670643987`; the clearinghouse also held 132 accounts from earlier
 runs, which is why 232 were scanned), −20% shock in block 69946941, auctions driven by the bench's in-process sweeper
-with batched (Multicall3) account checks over the public RPC. Every auction resolved within 11 blocks, 8.8 s from the
-first resolution submit to the last receipt. Traders kept 411.85 AUSD (28%) more than the old fixed 1% path would
-have left them: per account, 3 lost less, 19 lost the same and none lost more. The 19 were nearly bankrupt after the
+with batched (Multicall3) account checks over the public RPC. The resolution transactions landed in 11 blocks, 8.8 s
+from the first resolution submit to the last receipt. The auction took 1,052.41 AUSD from traders where the old fixed 1%
+path would have taken 1,464.26: **411.85 AUSD (28%) less taken from traders**. Per account, 3 lost less, 19 lost the
+same and none lost more. The 19 were nearly bankrupt after the
 shock, so both paths take everything left; the gain comes from the accounts that still had equity. The lane-funded
 shortfall is large because the synthetic book's leverage mix leaves many accounts below zero at −20%; the naive build
 had the same (62,638.87 AUSD).
@@ -577,10 +654,11 @@ edges**. anvil executes sequentially, so these graphs show dependencies, not any
 execution or its re-execution counts.
 
 The Monad testnet X-rays come from the demo stack deployed on Monad testnet (`deployments/demo/10143.json`) and were
-traced live on Monad. Their transactions spread over more blocks than on anvil (6 and 17 blocks), so the naive build
-shows fewer same-block conflicts there; the lanes still show none across lanes. The auction economics of those two
-runs are in [`bench/diagnostics/`](bench/diagnostics/README.md), not in the table above: the keeper that resolved them
-was limited by a 15-request/s public RPC, which measures the keeper more than the design.
+traced live on Monad. In the two 2026-10-08 runs (`muz0vh3f`, `muyzuvuh`) the transactions spread over more blocks
+than on anvil (6 and 17 blocks), so the naive build shows fewer same-block conflicts there; the lanes still show none
+across lanes. The auction economics of those two runs are in [`bench/diagnostics/`](bench/diagnostics/README.md), not
+in the table above: the keeper that resolved them was limited by a 15-request/s public RPC, which measures the keeper
+more than the design.
 
 ### Pre-auction runs (fixed-fee `liquidateBatch`, Oct 4)
 
@@ -624,17 +702,20 @@ value. Addresses from [`deployments/10143.json`](deployments/10143.json) (deploy
 | Agora AUSD faucet (external; `requestFunds(address)`, 10,000 AUSD per call) | `0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C` | `https://testnet.monadexplorer.com/address/0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C` |
 
 Markets: SOL/AUSD and BTC/AUSD (MON isn't listed: the Pyth data access these prices run on doesn't cover it). Caps:
-50 AUSD per account, 500 AUSD per lane, 10x. Auction: **step 5 bps per block** (set through the timelock on
+50 AUSD per account, 500 AUSD per lane, 10x, 10 AUSD minimum position. Fees: trading fee 5 bps of notional,
+execution fee **0.1 MON per order** (`executionFeeWei`), orders fill 3 to 60 s after commit. Auction: **step 5 bps per block** (set through the timelock on
 2026-10-08; the contract default is 25), cap 500 bps, backstop pool minimum 75 bps. Envio indexer (HyperIndex on
 Envio Cloud, `paraclr-testnet`): `https://indexer.dev.hyperindex.xyz/b6db2a9/v1/graphql` (the app's
 `NEXT_PUBLIC_ENVIO_GRAPHQL_URL`; each Envio deployment gets its own URL, see [`indexer/README.md`](indexer/README.md)).
 The Pyth prices run on a Hermes trial key that ends ~2026-10-20; the planned switch to a keeper-signed fallback oracle
 through the timelock is [`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14.6.
 
-The measured crash runs in [Results](#results) come from the demo stack (`ParaclrClearinghouseDemo`,
-`NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`) on local anvil, labelled as such. The same demo stack is deployed
-on Monad testnet from [`deployments/demo/10143.json`](deployments/demo/10143.json) (since 2026-10-08, kept apart from
-the production file): the Monad testnet X-rays were traced there.
+The measured crash runs in [Results](#results) and the [Arena](#arena-crash-it-yourself) use the demo stack
+(`ParaclrClearinghouseDemo`, `NaiveClearinghouseDemo`, `MockOracle`, `MockAUSD`), not the production contracts. It is
+deployed on Monad testnet from [`deployments/demo/10143.json`](deployments/demo/10143.json) (since 2026-10-08, kept
+apart from the production file; clearinghouse `0x5b40ae35d3AD71A80542B7ea45DC7eEeCc7E21c5`, naive build
+`0x3A158F70C24661A84C0e597dF23c2bFbC074981c`): the headline run and every Monad testnet X-ray were measured there. The
+local-anvil runs are labelled as such.
 
 ---
 
@@ -643,20 +724,27 @@ the production file): the Monad testnet X-rays were traced there.
 ```
 contracts/          Foundry: ParaclrClearinghouse(+Demo), NaiveClearinghouseDemo, MockOracle, ChainlinkStreamsOracle,
                     MockAUSD; unit, auction and invariant tests; deploy script
-contracts/src/prod/ the production set for the mainnet beta (Pyth, real AUSD, delayed orders, fees, funding, caps,
-                    timelock + guardian); DeployProd.s.sol writes deployments/143.json
-keeper/             Node keeper: price loop, faucet, per-lane sweeper, crash runner, Conflict X-ray, bench CLI;
-                    keeper/src/prod/: mainnet executor, funding, Hermes client, alerts. Hosting: keeper/HOSTING.md
+contracts/src/prod/ the production set, live on Monad testnet and gated for the mainnet beta (Pyth, AUSD, delayed
+                    orders, fees, funding, caps, timelock + guardian); DeployProd.s.sol writes deployments/<chainId>.json
+contracts/src/testnet/ KeeperSignedPyth, the planned fallback oracle after the Pyth trial (testnet only)
+keeper/             Node keeper: price loop, faucet, per-lane sweeper, crash runner, Conflict X-ray, arena mode,
+                    bench CLI; keeper/src/prod/: order executor, funding, Hermes proxy, visitor gas drip, alerts.
+                    Hosting: keeper/HOSTING.md
 indexer/            Envio HyperIndex: orders, auctions, positions, flows and totals over GraphQL (Envio Cloud)
 bench/results/      RunReport JSON from bench runs, committed as evidence
 bench/xray/         XrayReport JSON (lanes vs naive), committed as evidence
-deployments/        <chainId>.json: deployed addresses + market ids, read by the app
-scripts/            dev-chain, deploy, export-abi (npm run abi -> src/lib/chain/abi/*.ts, generated)
+bench/diagnostics/  the two 2026-10-08 testnet runs and their caveat; bench/rehearsal/: mainnet/testnet fork rehearsals
+deployments/        <chainId>.json: deployed addresses + market ids, read by the app (demo/10143.json: demo stack)
+scripts/            dev-chain, deploy, deploy-mainnet, sandbox, rehearse-*, testnet-oracle, export-abi
+                    (npm run abi -> src/lib/chain/abi/*.ts, generated), brand-assets.mjs (regenerates the logo PNGs)
+public/brand/       Paraclr and NetLayer Labs logo PNGs (mark, header lockup; ink and white) and their source artwork
 src/app/            Next.js 16 App Router: landing page (/), the app (/app), /pnl (shared PnL card; its image at
                     /api/pnl-card), /risk and /terms (drafts), manifest.ts (installable web app, no service worker),
                     opengraph-image / twitter-image (the share card)
                     /arena: public "crash the market" page, driven by an arena-mode keeper (keeper/README.md)
-src/components/     landing/, auth/, trade/, clearing/ (auctions, X-ray), backstop/, solvency/, shell/
+src/components/     landing/ (8 sections: hero, problem, auction, X-ray, results, built on, FAQ, CTA), auth/ (Privy),
+                    prod/ (testnet/mainnet trading), arena/, trade/, clearing/ (auctions, X-ray), backstop/,
+                    solvency/, brand/, shell/
 src/lib/            chain clients and ABIs, in-browser simulation, price sources
 docs/               PRODUCTION_PLAN.md, TESTNET_PLAN.md (the testnet production deployment), FAIR_LIQUIDATION_PLAN.md,
                     ONCHAIN_PLAN.md (build contracts), RUNBOOK.md (operations; section 14 = Monad testnet),
@@ -672,6 +760,12 @@ docs/               PRODUCTION_PLAN.md, TESTNET_PLAN.md (the testnet production 
 - Production set: keepers, the guardian and the ops key are run by one operator; anyone can execute orders and
   auctions, but nobody is obliged to. The owner is a multisig behind a timelock. `/terms` and `/risk` are drafts
   pending legal review.
+- Testnet only. Nothing of ours is on Monad mainnet; the capped mainnet beta is pending (see
+  [Production beta](#production-beta-monad-mainnet-gated)).
+- Testnet prices run on a Pyth Hermes trial key that ends ~2026-10-20. After the planned switch to the keeper-signed
+  fallback oracle, prices are labelled "simulated after the Pyth trial" ([`docs/RUNBOOK.md`](docs/RUNBOOK.md) 14.6).
+- Testnet caps are small on purpose: 50 AUSD per account, 500 AUSD per lane, two markets (SOL/AUSD, BTC/AUSD). The
+  gas drip is 0.3 MON once per address; the Arena allows 8 crashes per UTC day and pauses while it refuels.
 - MEV-resistant pricing, not MEV-free: takers can still compete on ordering within a block.
 - Backstop exposure is reduced by an operator/keeper role (`backstopReduce`), not by a market. LPs carry the price
   risk of inherited positions until then.

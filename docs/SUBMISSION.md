@@ -49,14 +49,14 @@ liquidation writes the same global state can't use a parallel chain: the liquida
 **Solution.**
 
 - **Auction-priced liquidations.** Every block, the sweeper puts newly underwater accounts into a Dutch auction. The
-  discount starts at 0 and rises 25 bps per block (cap 500). A taker inherits the positions at the mark and is paid
+  discount starts at 0 and rises 5 bps per block on the live Monad testnet deployment (contract default 25; cap 500). A taker inherits the positions at the mark and is paid
   `P = discount × notional` (an external taker is capped at the trader's equity, so self-liquidation can't drain the
   lane); the trader keeps `E − P` as free collateral. If equity falls short on a backstop take, lane insurance and
   then lane bad debt cover it; a trader never loses more than their equity. Accounts that recover can be cured. The
   price comes from the block clock, so out-bidding on gas can't buy a bigger discount, only an earlier take at a
   smaller one. That is MEV-resistant pricing, not MEV-free.
-- **Backstop LPs per lane.** Each lane has a pool that takes its auctions at 75 bps by default (block +3, about 1.2 s
-  at 400 ms blocks), so every underwater account resolves within a bounded number of blocks. LPs earn the discount and
+- **Backstop LPs per lane.** Each lane has a pool that takes its auctions at 75 bps by default (block +15, about 5 s
+  at ~0.35 s blocks on the live testnet's 5 bps step; block +3 at the default 25), so every underwater account resolves within a bounded number of blocks. LPs earn the discount and
   carry the inherited exposure; returns are shown as earned since deploy, never as APY.
 - **Lanes as the engine.** Every account lives in one of 8 lanes (`uint160(account) % 8`), and everything resolving
   it writes (insurance, bad debt, open interest, backstop pool, auction state, solvency ledger) exists once per lane.
