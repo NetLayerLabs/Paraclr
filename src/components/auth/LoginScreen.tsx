@@ -5,7 +5,8 @@ import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import Link from "next/link";
 import { useParaclr } from "@/lib/store";
 import { burnerAllowed, startDemoSession } from "@/lib/auth/session";
-import { CHAIN_MODE_ON, MAINNET_MODE, NETWORK, PRODUCTION_MODE } from "@/lib/chain/config";
+import { CHAIN_MODE_ON, MAINNET_MODE, MONAD_TESTNET_FAUCET_URL, NETWORK, PRODUCTION_MODE } from "@/lib/chain/config";
+import { GITHUB_URL, README, README_AT } from "@/components/landing/content";
 import { useAuthContext } from "./AuthContext";
 import { BiometricButton, type BiometricPhase } from "./BiometricButton";
 import { PrivyOtherLogin, PrivyPasskeyLogin } from "./PrivyAuth";
@@ -105,6 +106,79 @@ function venueLine(status: string, production: boolean, agora: boolean): string 
   return NETWORK.mode === "monad"
     ? "Perps margined in test AUSD, settled by the on-chain clearinghouse on Monad testnet."
     : "Perps margined in test AUSD, settled by the clearinghouse on a local anvil chain (not Monad).";
+}
+
+const README_TRY = `${README}#how-to-try-it-judges-about-5-minutes`;
+
+const fmtMon = (wei: bigint) => (Number(wei) / 1e18).toLocaleString("en-US", { maximumFractionDigits: 4 });
+
+/**
+ * Testnet only: what happens after sign-in, so a first-time visitor knows the path before choosing a
+ * method (the same steps as the README's "How to try it"), plus the no-sign-in routes to the Arena and
+ * the evidence. Numbers come from chain and the keeper; while unknown, the step says it without one.
+ */
+function GettingStarted() {
+  const params = useParaclr((s) => s.chain.prod?.params ?? null);
+  const drip = useParaclr((s) => s.chain.keeper.health?.drip ?? null);
+  if (!NETWORK?.isTestnetProd || NETWORK.sandbox) return null;
+  const fee = params?.minExecutionFee != null ? `${fmtMon(params.minExecutionFee)} MON` : null;
+  const dripAmount = drip?.enabled && drip.amount ? `${Number(drip.amount).toLocaleString("en-US")} ` : "";
+  const cap = params?.maxDepositPerAccount != null ? ` up to ${params.maxDepositPerAccount.toLocaleString("en-US")} AUSD` : "";
+  const lev = params?.maxLeverage != null ? `, up to ${params.maxLeverage}x` : "";
+  return (
+    <section className={styles.steps} aria-labelledby="steps-title">
+      <h2 id="steps-title" className={styles.stepsTitle}>
+        After you sign in
+      </h2>
+      <ol className={styles.stepList}>
+        <li>
+          <span className={styles.stepNum}>01</span>
+          <b>Get test MON</b>
+          <span>
+            Press &ldquo;Get {dripAmount}test MON for gas&rdquo; (once per wallet) or use{" "}
+            <a href={MONAD_TESTNET_FAUCET_URL} target="_blank" rel="noreferrer">
+              faucet.monad.xyz ↗
+            </a>
+            . MON pays gas and the {fee ? `${fee} ` : ""}execution fee each order pays its executor.
+          </span>
+        </li>
+        <li>
+          <span className={styles.stepNum}>02</span>
+          <b>Claim test AUSD</b>
+          <span>From Agora&apos;s testnet faucet, in the order panel or on the Wallet tab. One claim a minute across everyone.</span>
+        </li>
+        <li>
+          <span className={styles.stepNum}>03</span>
+          <b>Deposit and trade</b>
+          <span>
+            Deposit{cap}, then long or short SOL or BTC{lev}. An order fills at the first Pyth price after a short delay;
+            close it from Positions.
+          </span>
+        </li>
+        <li>
+          <span className={styles.stepNum}>04</span>
+          <b>Watch a liquidation</b>
+          <span>
+            An underwater account goes to a per-block Dutch auction in its lane, and the trader keeps the equity the
+            taker isn&apos;t paid. See it on the Clearing tab, or with no sign-in in the{" "}
+            <Link href="/arena">Arena</Link>.
+          </span>
+        </li>
+      </ol>
+      <p className={styles.stepsMore}>
+        <Link href="/arena">Arena: crash the market, no sign-in</Link>
+        <a href={README_AT.xray} target="_blank" rel="noreferrer">
+          Conflict X-ray ↗
+        </a>
+        <a href={README_TRY} target="_blank" rel="noreferrer">
+          README ↗
+        </a>
+        <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+          GitHub ↗
+        </a>
+      </p>
+    </section>
+  );
 }
 
 /**
@@ -209,6 +283,8 @@ export function LoginScreen() {
           </p>
         </section>
       </div>
+
+      <GettingStarted />
 
       <footer className={styles.partners}>
         <span className={styles.builtOn}>Built on</span>

@@ -182,6 +182,93 @@
   background: var(--border);
 }
 
+/* ---- after you sign in: a ruled four-step sheet ------------------------------ */
+
+.steps {
+  flex: none;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 0 28px;
+}
+
+.stepsTitle {
+  padding-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.stepList {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--border);
+}
+
+.stepList li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 18px 14px 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.stepList li + li {
+  padding-left: 18px;
+  border-left: 1px solid var(--border);
+}
+
+.stepList b {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stepList a,
+.stepsMore a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.stepNum {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.stepsMore {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .stepList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stepList li,
+  .stepList li + li {
+    padding: 12px 0;
+    border-left: 0;
+  }
+
+  .stepList li + li {
+    border-top: 1px solid var(--border);
+  }
+}
+
 /* ---- the bend: 8 lanes turning round the page's bottom-right corner --------
    Lane k sits k·d in from both edges and turns on a radius R - k·d, so all 8 share one centre
    (the mark's geometry at page scale). Behind the content; fades in from the left and the top. */
