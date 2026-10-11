@@ -1,12 +1,13 @@
 import Link from "next/link";
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { TESTNET_PROD_MODE } from "@/lib/chain/config";
 import type { ProdParams, ProductionStatus } from "./production.server";
 import { PRODUCTION_FILE } from "./production.server";
-import { ArrowRight, ArrowUpRight, Check, Clock, Coin, Cross, Gauge, Lanes, Percent, Pulse } from "./icons";
+import { ArrowRight, Check, Cross } from "./icons";
+import { AddressPager } from "./AddressPager";
 import { GITHUB_BLOB, GITHUB_TREE } from "./content";
 import { AUDIT_STATUS, BETA_LABEL, RISK_ANCHORS, RISK_PATH, TERMS_PATH } from "./disclosures";
-import { fmtDuration, fmtInt, fmtNum, fmtSmall, shortHash } from "./format";
+import { fmtDuration, fmtInt, fmtNum, fmtSmall } from "./format";
 import b from "./brand/Brand.module.css";
 import s from "./Beta.module.css";
 import { NoticeClose } from "@/components/prod/NoticeClose";
@@ -113,10 +114,10 @@ const GATE: { title: string; body: string }[] = [
 
 function LaunchGate({ status }: { status: ProductionStatus }) {
   return (
-    <div className={`${b.card} ${s.gate}`}>
+    <div className={s.gate}>
       <div className={s.cardHead}>
         <p className={s.kicker}>Launch gate</p>
-        <span className={`${b.chip} ${b.chipPos}`}>
+        <span className={s.state}>
           <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
           {status.live ? "deployed" : "passed"}
         </span>
@@ -126,7 +127,7 @@ function LaunchGate({ status }: { status: ProductionStatus }) {
         {GATE.map((g, i) => (
           <li key={g.title}>
             <span className={s.gateNum} aria-hidden="true">
-              {i + 1}
+              {String(i + 1).padStart(2, "0")}
             </span>
             <span>
               <b>{g.title}.</b> {g.body}
@@ -170,7 +171,7 @@ function LaunchGate({ status }: { status: ProductionStatus }) {
 function Contracts({ status }: { status: ProductionStatus }) {
   if (!status.live) {
     return (
-      <div className={`${b.card} ${s.contracts}`}>
+      <div className={s.contracts}>
         <div className={s.cardHead}>
           <p className={s.kicker}>Mainnet contracts · chain 143</p>
         </div>
@@ -180,11 +181,11 @@ function Contracts({ status }: { status: ProductionStatus }) {
           commits it, with a Monadscan link for every address. Until then, Paraclr has no contracts on Monad mainnet:
           anything on mainnet that claims to be Paraclr isn&rsquo;t ours.
         </p>
-        <ul className={s.ghostRows} aria-hidden="true">
+        <ul className={s.ghostRows} aria-label="Mainnet contracts, none deployed yet">
           {["Clearinghouse", "Timelock", "Owner multisig", "Guardian", "AUSD (Agora)", "Pyth"].map((n) => (
             <li key={n}>
               <span>{n}</span>
-              <i />
+              <i>not deployed</i>
             </li>
           ))}
         </ul>
@@ -192,10 +193,10 @@ function Contracts({ status }: { status: ProductionStatus }) {
     );
   }
   return (
-    <div className={`${b.card} ${s.contracts}`}>
+    <div className={s.contracts}>
       <div className={s.cardHead}>
         <p className={s.kicker}>Mainnet contracts · chain 143</p>
-        <span className={`${b.chip} ${b.chipPos}`}>
+        <span className={s.state}>
           <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
           live
         </span>
@@ -211,44 +212,26 @@ function Contracts({ status }: { status: ProductionStatus }) {
   );
 }
 
-/** Contract / role rows with explorer links (the status's own explorer: Monadscan or the testnet explorer). */
+const README_DEPLOYED: Record<ProductionStatus["network"], string> = {
+  testnet: `${GITHUB_BLOB}/README.md#deployed-contracts-monad-testnet-chain-id-10143`,
+  mainnet: `${GITHUB_BLOB}/README.md#deployed-contracts-monad-mainnet-chain-id-143`,
+};
+
+/** Contract / role rows with explorer links (the status's own explorer: Monadscan or the testnet explorer), 4 a page. */
 function ContractTable({ status, label }: { status: ProductionStatus; label: string }) {
   return (
-    <div className={`${b.scrollX} ${s.tableWrap}`} tabIndex={0} role="region" aria-label={label}>
-      <table className={s.table}>
-        <thead>
-          <tr>
-            <th scope="col">Contract / role</th>
-            <th scope="col">Address</th>
-          </tr>
-        </thead>
-        <tbody>
-          {status.contracts.map((c) => (
-            <tr key={`${c.key}-${c.address}`}>
-              <td>
-                <span className={s.cName}>
-                  {c.name}
-                  {c.external ? <span className={s.extTag}>external</span> : null}
-                </span>
-                {c.role ? <span className={s.cRole}>{c.role}</span> : null}
-              </td>
-              <td>
-                <a
-                  className={s.addr}
-                  href={`${status.explorer}/address/${c.address}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  title={c.address}
-                >
-                  {shortHash(c.address, 6, 4)}
-                  <ArrowUpRight className={s.addrIcon} />
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <AddressPager
+        rows={status.contracts.map((c) => ({ name: c.name, role: c.role, address: c.address, external: c.external }))}
+        explorer={status.explorer}
+        label={label}
+      />
+      <p className={s.allLink}>
+        <a className={b.link} href={README_DEPLOYED[status.network]} target="_blank" rel="noreferrer">
+          All {status.contracts.length} addresses in the README
+        </a>
+      </p>
+    </>
   );
 }
 
@@ -286,10 +269,10 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
         </p>
       </div>
       <div className={s.topGrid}>
-        <div className={`${b.card} ${s.gate}`}>
+        <div className={s.gate}>
           <div className={s.cardHead}>
             <p className={s.kicker}>Testnet · chain 10143</p>
-            <span className={`${b.chip} ${b.chipPos}`}>
+            <span className={s.state}>
               <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
               live
             </span>
@@ -298,7 +281,7 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
           <ul className={s.gateList}>
             <li>
               <span className={s.gateNum} aria-hidden="true">
-                1
+                01
               </span>
               <span>
                 <b>Markets: {markets.length ? markets.join(" and ") : "per the deployment file"}.</b>
@@ -309,7 +292,7 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
             </li>
             <li>
               <span className={s.gateNum} aria-hidden="true">
-                2
+                02
               </span>
               <span>
                 <b>Collateral: Agora&rsquo;s testnet AUSD.</b> Claim it in the app from Agora&rsquo;s testnet
@@ -318,7 +301,7 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
             </li>
             <li>
               <span className={s.gateNum} aria-hidden="true">
-                3
+                03
               </span>
               {status.pricesSimulated ? (
                 <span>
@@ -334,7 +317,7 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
             </li>
             <li>
               <span className={s.gateNum} aria-hidden="true">
-                4
+                04
               </span>
               <span>
                 <b>Same rules as the beta.</b> Unaudited, capped, owned by a timelock and a multisig; delayed orders,
@@ -354,7 +337,7 @@ function TestnetDeployment({ status }: { status: ProductionStatus }) {
             Nothing here is on Monad mainnet yet.
           </p>
         </div>
-        <div className={`${b.card} ${s.contracts}`}>
+        <div className={s.contracts}>
           <div className={s.cardHead}>
             <p className={s.kicker}>Testnet contracts · chain 10143</p>
           </div>
@@ -484,7 +467,6 @@ function DelayTimeline({ p }: { p: ProdParams }) {
 }
 
 interface Feature {
-  icon: ComponentType<{ className?: string }>;
   tag: string;
   title: string;
   body: ReactNode;
@@ -494,7 +476,6 @@ interface Feature {
 function features(status: ProductionStatus): Feature[] {
   return [
     {
-      icon: Coin,
       tag: "collateral",
       title: "Real AUSD collateral",
       body: (
@@ -509,7 +490,6 @@ function features(status: ProductionStatus): Feature[] {
       ),
     },
     {
-      icon: Pulse,
       tag: "prices",
       title: "Pyth prices, verified on chain",
       body: (
@@ -521,7 +501,6 @@ function features(status: ProductionStatus): Feature[] {
       ),
     },
     {
-      icon: Clock,
       tag: "orders",
       title: "Delayed orders",
       body: (
@@ -534,7 +513,6 @@ function features(status: ProductionStatus): Feature[] {
       extra: <DelayTimeline p={status.params} />,
     },
     {
-      icon: Percent,
       tag: "fees · funding",
       title: "Fees and funding",
       body: (
@@ -546,7 +524,6 @@ function features(status: ProductionStatus): Feature[] {
       ),
     },
     {
-      icon: Gauge,
       tag: "caps",
       title: "Hard caps",
       body: (
@@ -558,7 +535,6 @@ function features(status: ProductionStatus): Feature[] {
       ),
     },
     {
-      icon: Lanes,
       tag: "liquidation",
       title: "The same fair liquidations",
       body: (
@@ -631,7 +607,7 @@ function Powers({ status }: { status: ProductionStatus }) {
           The admin design from the production plan. The deployed code is the final word; read it before you deposit.
         </p>
       </div>
-      <div className={`${b.card} ${s.powers}`} role="table" aria-label="Roles and their powers">
+      <div className={s.powers} role="table" aria-label="Roles and their powers">
         <div className={s.powerHeadRow} role="row">
           <span role="columnheader">Role</span>
           <span role="columnheader">Can</span>
@@ -721,14 +697,9 @@ export function ProductionBeta({ status, testnet }: { status: ProductionStatus; 
             <h3 className={s.blockTitle}>What changes for real money</h3>
           </div>
           <ul className={s.features}>
-            {features(status).map(({ icon: Icon, tag, title, body, extra }) => (
-              <li key={title} className={`${b.card} ${b.cardPad} ${s.feature}`}>
-                <div className={s.featureHead}>
-                  <span className={b.iconTile}>
-                    <Icon />
-                  </span>
-                  <span className={s.featureTag}>{tag}</span>
-                </div>
+            {features(status).map(({ tag, title, body, extra }) => (
+              <li key={title} className={s.feature}>
+                <span className={s.featureTag}>{tag}</span>
                 <h4 className={b.h3}>{title}</h4>
                 <p className={s.featureBody}>{body}</p>
                 {extra}

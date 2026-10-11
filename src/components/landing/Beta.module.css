@@ -106,15 +106,17 @@
 .topGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 20px;
+  gap: 40px clamp(32px, 4.5vw, 64px);
 }
 
+/* Flat blocks under a strong rule (same language as "Built on"). */
 .gate,
 .contracts {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: clamp(20px, 2.6vw, 32px);
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
 .cardHead {
@@ -127,9 +129,18 @@
 .kicker {
   font-family: var(--pc-font-mono);
   font-size: 11.5px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--pc-ink-3);
+}
+
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--pc-font-mono);
+  font-size: 12px;
+  color: var(--pc-pos-text);
 }
 
 .cardTitle {
@@ -150,16 +161,17 @@
 }
 
 .gateList {
-  display: grid;
-  gap: 12px;
   margin-top: 20px;
   list-style: none;
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .gateList li {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--pc-line);
   font-size: 14.5px;
   line-height: 1.55;
   color: var(--pc-ink-2);
@@ -171,16 +183,9 @@
 }
 
 .gateNum {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--pc-accent-soft);
+  padding-top: 2px;
   font-family: var(--pc-font-mono);
   font-size: 12px;
-  font-weight: 600;
   color: var(--pc-accent-text);
 }
 
@@ -193,65 +198,59 @@
 }
 
 .ghostRows {
-  display: grid;
-  gap: 8px;
   margin-top: 22px;
   list-style: none;
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .ghostRows li {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 14px;
-  border: 1px dashed var(--pc-line-strong);
-  border-radius: 12px;
-  font-size: 13.5px;
-  color: var(--pc-ink-3);
+  padding: 11px 0;
+  border-top: 1px solid var(--pc-line);
+  font-size: 14px;
+  color: var(--pc-ink-2);
 }
 
 .ghostRows i {
-  width: 38%;
-  height: 8px;
-  border-radius: var(--pc-r-pill);
-  background: repeating-linear-gradient(90deg, var(--pc-line) 0 6px, transparent 6px 10px);
-}
-
-.tableWrap {
-  margin-top: 18px;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-md);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.table th {
-  padding: 11px 14px;
-  background: var(--pc-bg-subtle);
   font-family: var(--pc-font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-align: left;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-style: normal;
   color: var(--pc-ink-3);
 }
 
-.table td {
-  padding: 12px 14px;
+/* ---- Address pager ---------------------------------------------------------- */
+
+.pager {
+  margin-top: 18px;
+}
+
+.addrList {
+  list-style: none;
+  border-bottom: 1px solid var(--pc-line);
+}
+
+.addrList li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 20px;
+  align-items: baseline;
+  padding: 12px 0;
   border-top: 1px solid var(--pc-line);
-  vertical-align: top;
+}
+
+.cWho {
+  min-width: 0;
 }
 
 .cName {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--pc-ink);
 }
@@ -260,15 +259,13 @@
   display: block;
   margin-top: 3px;
   font-size: 12.5px;
+  line-height: 1.5;
   color: var(--pc-ink-3);
 }
 
 .extTag {
-  padding: 1px 7px;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-pill);
   font-family: var(--pc-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 400;
   color: var(--pc-ink-3);
 }
@@ -283,9 +280,66 @@
   white-space: nowrap;
 }
 
+.addr:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .addrIcon {
   width: 13px;
   height: 13px;
+}
+
+.pagerNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 0;
+}
+
+.pagerBtn {
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pc-accent-text);
+  cursor: pointer;
+}
+
+.pagerBtn:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pagerBtn:disabled {
+  color: var(--pc-ink-3);
+  opacity: 0.55;
+  cursor: default;
+}
+
+.pagerCount {
+  font-family: var(--pc-font-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--pc-ink-2);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.allLink {
+  margin-top: 6px;
+  font-size: 13.5px;
 }
 
 /* ---- Blocks ---------------------------------------------------------------- */
@@ -321,19 +375,15 @@
 .limitGrid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1px;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-lg);
-  background: var(--pc-line);
-  overflow: hidden;
+  gap: 0 clamp(20px, 2.6vw, 36px);
 }
 
 .limit {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 18px 18px 16px;
-  background: var(--pc-surface);
+  padding: 14px 0 18px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
 .limit dt {
@@ -350,13 +400,10 @@
 }
 
 .limitPending {
-  align-self: flex-start;
   margin-top: 2px;
-  padding: 2px 8px;
-  border: 1px dashed var(--pc-line-strong);
-  border-radius: var(--pc-r-pill);
   font-family: var(--pc-font-mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
+  font-style: italic;
   color: var(--pc-ink-3);
 }
 
@@ -368,26 +415,23 @@
 .features {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  gap: 8px clamp(24px, 3vw, 40px);
   list-style: none;
 }
 
 .feature {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.featureHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  gap: 10px;
+  padding: 16px 0 26px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
 .featureTag {
   font-family: var(--pc-font-mono);
   font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--pc-ink-3);
 }
 
@@ -429,7 +473,8 @@
 /* ---- Powers ---------------------------------------------------------------- */
 
 .powers {
-  overflow: hidden;
+  border-top: 1px solid var(--pc-line-strong);
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .powerHeadRow,
@@ -437,11 +482,12 @@
   display: grid;
   grid-template-columns: minmax(150px, 0.7fr) minmax(0, 1.3fr) minmax(0, 1.1fr);
   gap: 24px;
-  padding: 16px 22px;
+  padding: 16px 0;
 }
 
 .powerHeadRow {
-  background: var(--pc-bg-subtle);
+  padding-top: 12px;
+  padding-bottom: 12px;
   font-family: var(--pc-font-mono);
   font-size: 11px;
   letter-spacing: 0.1em;
@@ -518,10 +564,8 @@
   justify-content: space-between;
   gap: 24px 40px;
   margin-top: clamp(48px, 6vw, 80px);
-  padding: clamp(22px, 3vw, 36px);
-  border: 1px solid var(--pc-warn-line);
-  border-radius: var(--pc-r-xl);
-  background: var(--pc-warn-soft);
+  padding-top: 22px;
+  border-top: 2px solid var(--pc-warn);
 }
 
 .auditCopy {
@@ -551,9 +595,9 @@
   gap: 12px;
 }
 
-/* The testnet block's limits sit under its two cards. */
+/* The testnet block's limits sit under its two columns. */
 .testnetGrid {
-  margin-top: 20px;
+  margin-top: 40px;
 }
 
 @media (max-width: 1099px) {
@@ -561,10 +605,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Five testnet tiles in two columns: the last one spans the row. */
-  .testnetGrid > :last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
 
   .features {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -591,6 +631,10 @@
 }
 
 @media (max-width: 639px) {
+  .addrList li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .features {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -602,4 +646,8 @@
   .auditActions > * {
     flex: 1 1 180px;
   }
+}
+
+.block + .topGrid {
+  margin-top: clamp(48px, 6vw, 80px);
 }
