@@ -6,20 +6,40 @@
 }
 
 .mark {
-  filter: drop-shadow(0 12px 32px rgba(110, 84, 255, 0.35));
+  position: relative;
+  display: block;
 }
 
-.tile {
-  fill: #6e54ff;
-  animation: breathe 2.4s var(--ease, ease-in-out) infinite;
-  transform-origin: 16px 16px;
+/* A soft accent halo so the deep-violet artwork reads on the near-black surface. */
+.mark::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(closest-side, rgba(110, 84, 255, 0.22), transparent);
 }
 
-/* Each lane draws in from the left edge, through the turn, out the top; then clears the same way. */
-.lane {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: lane 2.4s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+.mark img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The artwork at rest, dimmed; a brightened copy shows through a moving band. */
+.base {
+  opacity: 0.85;
+}
+
+.sweep {
+  filter: brightness(2.4) saturate(1.1);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 40%, #000 60%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 40%, #000 60%, transparent 100%);
+  -webkit-mask-size: 45% 100%;
+  mask-size: 45% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: sweep 1.6s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
 .label {
@@ -28,33 +48,22 @@
   color: var(--text-dim);
 }
 
-@keyframes lane {
-  0% {
-    stroke-dashoffset: 100;
+@keyframes sweep {
+  from {
+    -webkit-mask-position: -60% 0;
+    mask-position: -60% 0;
   }
-  45%,
-  70% {
-    stroke-dashoffset: 0;
-  }
-  100% {
-    stroke-dashoffset: -100;
-  }
-}
-
-@keyframes breathe {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.96);
+  to {
+    -webkit-mask-position: 160% 0;
+    mask-position: 160% 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lane,
-  .tile {
-    animation: none;
-    stroke-dashoffset: 0;
+  .base {
+    opacity: 1;
+  }
+  .sweep {
+    display: none;
   }
 }

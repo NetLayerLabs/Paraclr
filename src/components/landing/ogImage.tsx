@@ -7,7 +7,6 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { BRAND } from "./brand/tokens";
-import { LANE_RADII, LANE_STROKE, TILE_RX, lanePath } from "./brand/Logo";
 import { AUCTION, TESTNET_AUCTION_STEP_BPS } from "./content";
 
 const FONT_DIR = join(process.cwd(), "src", "components", "landing", "brand", "fonts");
@@ -21,23 +20,15 @@ function loadFonts(): Promise<[Buffer, Buffer]> {
   return fonts;
 }
 
-function MarkSvg({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id="og-tile">
-          <rect width="32" height="32" rx={TILE_RX} />
-        </clipPath>
-      </defs>
-      <rect width="32" height="32" rx={TILE_RX} fill={BRAND.accent} />
-      <g clipPath="url(#og-tile)" stroke="#FFFFFF" strokeWidth={LANE_STROKE}>
-        {LANE_RADII.map((r) => (
-          <path key={r} d={lanePath(r)} />
-        ))}
-      </g>
-    </svg>
+/** The brand lockup (mark + wordmark, ink) as a data URI: Satori draws <img> from data URIs. */
+let logo: Promise<string> | null = null;
+function loadLogo(): Promise<string> {
+  logo ??= readFile(join(process.cwd(), "public", "brand", "paraclr-header-ink-192.png")).then(
+    (b) => `data:image/png;base64,${b.toString("base64")}`,
   );
+  return logo;
 }
+
 
 const W = 1200;
 const H = 630;
@@ -54,7 +45,7 @@ export async function renderOgImage(
   live = false,
   testnetLive = false,
 ): Promise<ImageResponse> {
-  const [extraBold, semiBold] = await loadFonts();
+  const [[extraBold, semiBold], logoSrc] = await Promise.all([loadFonts(), loadLogo()]);
   const status = live
     ? { text: "Live on Monad mainnet · capped", dot: BRAND.posDark, fg: "#0B4D35", bg: "#E8F7F0", line: "#BCE9D4" }
     : testnetLive
@@ -113,20 +104,9 @@ export async function renderOgImage(
           borderTopRightRadius: R,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <MarkSvg size={54} />
-          <div
-            style={{
-              display: "flex",
-              fontFamily: "Sora",
-              fontWeight: 800,
-              fontSize: 40,
-              letterSpacing: -1.8,
-              color: BRAND.light.ink,
-            }}
-          >
-            Paraclr
-          </div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- Satori renders <img> only */}
+          <img src={logoSrc} height={60} width={Math.round(60 * (680 / 192))} alt="Paraclr" />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", marginTop: 54 }}>

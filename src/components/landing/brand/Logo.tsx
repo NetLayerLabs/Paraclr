@@ -2,7 +2,7 @@
 // rounded tile. Same geometry as the section bends (brand/Bend.tsx): lanes run
 // in from the left, take a quarter turn and leave through the top.
 // Usage rules live in docs/DESIGN.md ("Logo").
-import { useId } from "react";
+import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 
 /** Lane radii on the 32-unit grid, all centred on (LANE_C, LANE_C). Exported for icon/OG generators. */
 export const LANE_C = 9;
@@ -18,55 +18,20 @@ export function lanePath(r: number): string {
 
 type Tone = "brand" | "ink" | "paper";
 
-const TONES: Record<Tone, { tile: string; lane: string }> = {
-  brand: { tile: "#6E54FF", lane: "#FFFFFF" }, // default, on light and on dark
-  ink: { tile: "#0B0A12", lane: "#FFFFFF" }, // one-colour, on light
-  paper: { tile: "#FFFFFF", lane: "#0B0A12" }, // one-colour, on dark or on purple
-};
 
-export function Mark({ className, tone = "brand", title }: { className?: string; tone?: Tone; title?: string }) {
-  const id = useId();
-  const clip = `pc-mark-${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const t = TONES[tone];
+/**
+ * The Paraclr mark: the brand artwork (eight lanes into the gate, six out), public/brand/
+ * paraclr-mark-128.png. The lane geometry above is a separate motif (section bends, glyphs).
+ * `tone` is kept for call sites; the artwork has one colourway.
+ */
+export function Mark({ className, title }: { className?: string; tone?: Tone; title?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      role={title ? "img" : undefined}
-      aria-label={title}
-      aria-hidden={title ? undefined : true}
-    >
-      <defs>
-        <clipPath id={clip}>
-          <rect width="32" height="32" rx={TILE_RX} />
-        </clipPath>
-      </defs>
-      <rect width="32" height="32" rx={TILE_RX} fill={t.tile} />
-      <g clipPath={`url(#${clip})`} stroke={t.lane} strokeWidth={LANE_STROKE}>
-        {LANE_RADII.map((r) => (
-          <path key={r} d={lanePath(r)} />
-        ))}
-      </g>
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element -- static brand artwork
+    <img className={className} src="/brand/paraclr-mark-128.png" alt={title ?? ""} aria-hidden={title ? undefined : true} style={{ objectFit: "contain" }} />
   );
 }
 
-/** Mark + "Paraclr" set in the display face. Size it with font-size on `className`; the mark follows (1.25em). */
-export function Wordmark({
-  className,
-  markClassName,
-  textClassName,
-}: {
-  className?: string;
-  markClassName?: string;
-  textClassName?: string;
-}) {
-  return (
-    <span className={className}>
-      <Mark className={markClassName} />
-      <span className={textClassName}>Paraclr</span>
-    </span>
-  );
+/** The full lockup (mark + wordmark), following the theme. Size it with height on `className`. */
+export function Wordmark({ className }: { className?: string; markClassName?: string; textClassName?: string }) {
+  return <ParaclrLogo tone="auto" height={26} className={className} />;
 }

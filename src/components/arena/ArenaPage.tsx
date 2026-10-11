@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { Mark } from "@/components/landing/brand/Logo";
+import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { XrayPanel } from "@/components/clearing/XrayPanel";
 import { LaneBoard, sumKept, Tally } from "./Lanes";
 import { ausd, fmtAusd, fmtBps, fmtCountdown, fmtSeconds, fmtSigned, shortAddr, timeAgo } from "./format";
@@ -633,8 +633,7 @@ export function ArenaPage() {
       </a>
       <header className={s.bar}>
         <Link href="/" className={s.brand} aria-label="Paraclr home">
-          <Mark className={s.brandMark} />
-          <span className={s.brandWord}>Paraclr</span>
+          <ParaclrLogo tone="white" height={26} />
         </Link>
         <span className={s.barSep} aria-hidden="true" />
         <span className={s.barTitle}>Arena</span>

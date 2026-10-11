@@ -1,14 +1,14 @@
-import { Mark } from "@/components/landing/brand/Logo";
+/* eslint-disable @next/next/no-img-element -- static brand artwork, sized by height; next/image adds nothing here */
 import styles from "./ParaclrLogo.module.css";
 
 /**
- * The Paraclr lockup: the vector mark (landing/brand/Logo.tsx, 8 lanes round one corner) plus
- * "Paraclr" in the display face (Sora 800, --font-pc-display; the route loads it via
- * landing/brand/fonts.ts). Crisp at every density, no raster.
- *
- * `tone` only sets the wordmark's ink: "white" on dark, "ink" on light, "auto" follows the app
- * theme (--text). The mark is always the brand tile. Height is the mark's size in px; the
- * wordmark scales with it.
+ * The Paraclr logo: the brand artwork (eight lanes into the gate, six out), never a redraw.
+ * Files come from public/brand/paraclr-{logo,header}-source.png via `node scripts/brand-assets.mjs`
+ * (transparent, 2x the largest display size):
+ *   header = mark + wordmark lockup: paraclr-header-white-192.png on dark, -ink-192.png on light
+ *   mark   = the mark alone:         paraclr-mark-128.png
+ * `tone` picks the wordmark ink: "white" on dark, "ink" on light, "auto" follows the theme
+ * (dark unless <html data-theme="light">). `height` is the rendered height in px.
  */
 export function ParaclrLogo({
   tone,
@@ -22,19 +22,29 @@ export function ParaclrLogo({
   height?: number;
   className?: string;
 }) {
+  if (variant === "mark") {
+    return (
+      <span className={`${styles.logo} ${className ?? ""}`} style={{ height }}>
+        <img className={styles.img} src="/brand/paraclr-mark-128.png" alt="Paraclr" height={height} width={Math.round(height * 0.984)} />
+      </span>
+    );
+  }
+  const width = Math.round(height * (680 / 192));
   return (
-    <span
-      className={`${styles.logo} ${className ?? ""}`}
-      data-tone={tone}
-      style={{ height, fontSize: Math.round(height * 0.71 * 10) / 10 }}
-    >
-      <Mark className={styles.mark} />
-      {variant === "header" ? (
-        <span className={styles.word} aria-hidden="true">
-          Paraclr
-        </span>
-      ) : null}
-      <span className={styles.sr}>Paraclr</span>
+    <span className={`${styles.logo} ${className ?? ""}`} data-tone={tone} style={{ height }}>
+      {tone !== "ink" && (
+        <img className={`${styles.img} ${styles.white}`} src="/brand/paraclr-header-white-192.png" alt="Paraclr" height={height} width={width} />
+      )}
+      {tone !== "white" && (
+        <img
+          className={`${styles.img} ${styles.ink}`}
+          src="/brand/paraclr-header-ink-192.png"
+          alt={tone === "auto" ? "" : "Paraclr"}
+          aria-hidden={tone === "auto" ? true : undefined}
+          height={height}
+          width={width}
+        />
+      )}
     </span>
   );
 }

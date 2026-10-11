@@ -1,51 +1,27 @@
-/* Vector lockup (docs/DESIGN.md, Logo): mark at the logo's height, wordmark in Sora 800 at
-   ~0.71x, gap 0.5em. The wordmark's ink follows `data-tone`. */
+/* The brand artwork (docs/DESIGN.md, Logo). In "auto" the lockup follows the theme: the white
+   wordmark on the default dark surfaces, the ink one when <html data-theme="light">. */
 
 .logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.52em;
   flex: none;
-  line-height: 1;
+  line-height: 0;
 }
 
-.mark {
+.img {
   display: block;
   height: 100%;
   width: auto;
-  aspect-ratio: 1;
-  flex: none;
 }
 
-.word {
-  font-family: var(--font-pc-display), "Sora", ui-sans-serif, system-ui, sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  white-space: nowrap;
-  /* Optical: Sora's cap height sits a hair high next to the tile. */
-  padding-bottom: 0.04em;
+.logo[data-tone="auto"] .ink {
+  display: none;
 }
 
-.logo[data-tone="auto"] .word {
-  color: var(--text, #f5f4fa);
+:root[data-theme="light"] .logo[data-tone="auto"] .ink {
+  display: block;
 }
 
-.logo[data-tone="white"] .word {
-  color: #f5f4fa;
-}
-
-.logo[data-tone="ink"] .word {
-  color: #0b0a12;
-}
-
-.sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
+:root[data-theme="light"] .logo[data-tone="auto"] .white {
+  display: none;
 }

@@ -28,11 +28,9 @@
 }
 
 .mark {
-  width: 56px;
-  height: 56px;
-  margin-bottom: 28px;
-  border-radius: 15px;
-  box-shadow: 0 18px 50px -12px rgba(110, 84, 255, 0.7);
+  width: 64px;
+  height: 64px;
+  margin-bottom: 24px;
 }
 
 .title {
