@@ -15,7 +15,7 @@ import { CHAIN_MODE_ON, NETWORK } from "@/lib/chain/config";
 import { coalesce, subscribeBlocks } from "@/lib/chain/clients";
 import { readableError } from "@/lib/chain/errors";
 import { useAuctionParams } from "@/lib/chain/auctionParams";
-import { fmtBps, isMissingFunction, readBackstopPools, type BackstopPool } from "@/lib/chain/fair";
+import { isMissingFunction, readBackstopPools, type BackstopPool } from "@/lib/chain/fair";
 import { backstopDepositOnChain, backstopRequestWithdrawOnChain, backstopWithdrawOnChain } from "@/lib/chain/fairActions";
 import { poolDepositRefusal, useBackstopProd } from "@/lib/chain/prod/backstop";
 import { chainNow } from "@/lib/chain/prod/state";
@@ -26,6 +26,7 @@ import { MQ_TABLE, useMedia } from "@/components/shell/useMedia";
 import { baseOf, fmtAusd, fmtCompact, fmtSigned, fmtSize } from "@/components/trade/format";
 import { StateLine } from "@/components/trade/TradeButton";
 import styles from "./BackstopScreen.module.css";
+import { fmtBps, fmtBpsParam } from "@/lib/format";
 
 type LoadState = "loading" | "ready" | "unsupported" | "error";
 
@@ -628,7 +629,7 @@ function PoolActions({
             </div>
             <div>
               <dt>Takes accounts at</dt>
-              <dd className="mono">≥ {fmtBps(params.minDiscountBps[lane] ?? params.minDiscountBps[0])} discount</dd>
+              <dd className="mono">≥ {fmtBpsParam(params.minDiscountBps[lane] ?? params.minDiscountBps[0])} discount</dd>
             </div>
           </dl>
         </>
@@ -696,7 +697,7 @@ function PoolActions({
           )}
           {production && haircutBps > 0 && (
             <Notice tone="warn">
-              L{lane} has bad debt: payouts are cut by {(haircutBps / 100).toFixed(2)}% until it is repaid.
+              L{lane} has bad debt: payouts are cut by {fmtBps(haircutBps)} until it is repaid.
             </Notice>
           )}
           {production && exitStage === "expired" && req && (
@@ -748,10 +749,10 @@ function PoolActions({
 function Explainer() {
   const params = useAuctionParams();
   const production = useParaclr((s) => !!s.chain.contracts?.production);
-  const step = fmtBps(params.stepBps);
+  const step = fmtBpsParam(params.stepBps);
   const mins = params.minDiscountBps;
-  const min = mins.every((m) => m === mins[0]) ? fmtBps(mins[0]) : `${fmtBps(Math.min(...mins))}–${fmtBps(Math.max(...mins))}`;
-  const max = fmtBps(params.maxDiscountBps);
+  const min = mins.every((m) => m === mins[0]) ? fmtBpsParam(mins[0]) : `${fmtBpsParam(Math.min(...mins))}–${fmtBpsParam(Math.max(...mins))}`;
+  const max = fmtBpsParam(params.maxDiscountBps);
   return (
     <section className={styles.howto} aria-labelledby="backstop-howto">
       <h2 id="backstop-howto" className={styles.howtoTitle}>

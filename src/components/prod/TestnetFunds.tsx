@@ -66,7 +66,7 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
                 ? "Need MON for gas: use the sandbox faucet first"
                 : "Need testnet MON for gas first"
               : wait > 0
-                ? `Faucet cooling down · ${wait}s`
+                ? `Faucet cooling down · ${wait} s`
                 : null;
 
   const claim = async () => {
@@ -153,7 +153,7 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
         </div>
         <div>
           <dt>Next claim</dt>
-          <dd className="mono">{faucet ? (wait > 0 ? `in ${wait}s` : "now") : "…"}</dd>
+          <dd className="mono">{faucet ? (wait > 0 ? `in ${wait} s` : "now") : "…"}</dd>
         </div>
       </dl>
       <button type="button" className={sandbox ? styles.btnGhost : styles.btnPrimary} disabled={busy || reason !== null} onClick={claim}>

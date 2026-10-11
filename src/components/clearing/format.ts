@@ -5,9 +5,7 @@ export function fmtCompact(n: number): string {
   return n.toFixed(0);
 }
 
-export function fmtMs(ms: number): string {
-  return ms >= 1000 ? `${(ms / 1000).toFixed(2)} s` : `${ms.toFixed(0)} ms`;
-}
+export { fmtMs } from "@/lib/format";
 
 /** Compact mark price for the clearing screen's marks row. */
 export function fmtMark(p: number): string {

@@ -15,6 +15,7 @@ import { dripStatus, KeeperError, requestDrip, type DripResult } from "@/lib/cha
 import { refreshAccount } from "@/lib/chain/trading";
 import { Notice, TxLink } from "@/components/chain/ChainUi";
 import styles from "./Prod.module.css";
+import { fmtMon } from "@/lib/format";
 
 type Phase =
   | { kind: "idle" }
@@ -44,7 +45,7 @@ function errorText(e: unknown): string {
 
 const monText = (s: string | undefined) => {
   const n = Number(s);
-  return Number.isFinite(n) ? n.toLocaleString("en-US", { maximumFractionDigits: 4 }) : (s ?? "");
+  return Number.isFinite(n) ? fmtMon(n) : (s ?? "");
 };
 
 /**

@@ -13,7 +13,7 @@ import { PositionsList, type ClosedMeta } from "./PositionsList";
 import { OrderHistory } from "./OrderHistory";
 import { cardFromPosition, showPnlCard } from "./PnlCard";
 import { INDEXER_ON } from "@/lib/indexer";
-import { baseOf, fmtPrice, fmtSigned } from "./format";
+import { baseOf, fmtAusd, fmtPrice, fmtSigned } from "./format";
 import { ProdOrderPanel } from "@/components/prod/ProdOrderPanel";
 import { PendingOrders } from "@/components/prod/PendingOrders";
 import { MarketRisk } from "@/components/prod/MarketRisk";
@@ -59,7 +59,7 @@ export function TradeScreen() {
       tone: p.side,
       title: `${p.side === "long" ? "Long" : "Short"} ${p.leverage}x ${baseOf(p.symbol)} opened`,
       detail:
-        `Entry ${fmtPrice(p.symbol, p.entryPrice)} · ${p.margin.toFixed(2)} AUSD margin` +
+        `Entry ${fmtPrice(p.symbol, p.entryPrice)} · ${fmtAusd(p.margin)} AUSD margin` +
         (meta?.block !== undefined ? ` · block #${meta.block}` : ""),
     });
 

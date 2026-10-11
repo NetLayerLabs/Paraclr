@@ -11,10 +11,11 @@ import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from
 import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { XrayPanel } from "@/components/clearing/XrayPanel";
 import { LaneBoard, sumKept, Tally } from "./Lanes";
-import { ausd, fmtAusd, fmtBps, fmtCountdown, fmtSeconds, fmtSigned, shortAddr, timeAgo } from "./format";
+import { ausd, fmtAusd, fmtSeconds, fmtSigned, shortAddr } from "./format";
 import type { ArenaAuctionsSummary, ArenaDesign, ArenaFeedTx, ArenaView, RunReport, SweepTxJson } from "./types";
 import { postCrash, useArena } from "./useArena";
 import s from "./Arena.module.css";
+import { fmtBps, fmtBpsParam, fmtCountdown, fmtMon, MINUS, timeAgo } from "@/lib/format";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
@@ -123,7 +124,7 @@ function GasGauge({ view }: { view: ArenaView }) {
           <i />
         </span>
         <span className="mono">
-          {op.toFixed(2)} / {opMin.toFixed(2)} MON
+          {fmtMon(op)} / {fmtMon(opMin)} MON
         </span>
       </div>
       <div className={s.gaugeRow}>
@@ -138,7 +139,7 @@ function GasGauge({ view }: { view: ArenaView }) {
                 className={s.gaugeBar}
                 style={{ "--x": v === null ? 0 : Math.min(1, v / kMin) } as Vars}
                 data-low={v !== null && v < kMin ? "" : undefined}
-                title={`L${lane} keeper: ${v === null ? "-" : v.toFixed(3)} / ${kMin} MON`}
+                title={`L${lane} keeper: ${v === null ? "-" : fmtMon(v)} / ${fmtMon(kMin)} MON`}
               >
                 <i />
               </span>
@@ -245,7 +246,7 @@ function Control({
     <div className={s.control}>
       <button type="button" className={s.crash} disabled={!enabled} onClick={onCrash} aria-describedby="arena-state">
         <span>Crash the market</span>
-        <span className={`${s.crashShock} mono`}>-{drop}%</span>
+        <span className={`${s.crashShock} mono`}>{MINUS}{drop}%</span>
       </button>
       <div id="arena-state" className={s.state} data-tone={tone} role="status" aria-live="polite">
         <span className={s.stateLead}>{lead}</span>
@@ -465,7 +466,7 @@ function Report({
         ["Expired at the cap", pa ? String(pa.expired) : "-", na ? String(na.expired) : "-"],
         ["Average take discount", pa ? fmtBps(pa.avgDiscountBps) : "-", na ? fmtBps(na.avgDiscountBps) : "-"],
         ["Returned to traders", pa ? fmtAusd(ausd(pa.traderResidualReturned)) : "-", na ? fmtAusd(ausd(na.traderResidualReturned)) : "-"],
-        [`A fixed ${fmtBps(fee)} would take`, pa ? fmtAusd(ausd(pa.legacyCounterfactual.traderLoss)) : "-", na ? fmtAusd(ausd(na.legacyCounterfactual.traderLoss)) : "-"],
+        [`A fixed ${fmtBpsParam(fee)} would take`, pa ? fmtAusd(ausd(pa.legacyCounterfactual.traderLoss)) : "-", na ? fmtAusd(ausd(na.legacyCounterfactual.traderLoss)) : "-"],
         ["Bad debt", pa ? fmtAusd(ausd(pa.badDebt)) : "-", na ? fmtAusd(ausd(na.badDebt)) : "-"],
         [
           "Solvent after",
@@ -504,7 +505,7 @@ function Report({
           }
         />
         <Figure
-          label={`Kept vs a fixed ${fmtBps(fee)} liquidation`}
+          label={`Kept vs a fixed ${fmtBpsParam(fee)} liquidation`}
           value={keptP !== null ? fmtSigned(keptP) : null}
           pending={live}
           unit="AUSD"
@@ -523,7 +524,7 @@ function Report({
       {none ? (
         <p className={s.reportNone}>
           Nobody has crashed this deployment yet. The first crash fills this in: blocks to resolve in each design, accounts by
-          outcome, what traders kept compared with a fixed {fmtBps(fee)} liquidation, bad debt, and the Conflict X-ray of its
+          outcome, what traders kept compared with a fixed {fmtBpsParam(fee)} liquidation, bad debt, and the Conflict X-ray of its
           transactions.
         </p>
       ) : (
@@ -557,7 +558,7 @@ function Report({
             {last.status === "failed" ? ` · finished with an error: ${last.error ?? "unknown"}` : ""} ·{" "}
           </>
         ) : null}
-        From the run&apos;s AuctionStarted / Taken / Cancelled / Expired events. &quot;Kept&quot; = what a fixed {fmtBps(fee)} of notional
+        From the run&apos;s AuctionStarted / Taken / Cancelled / Expired events. &quot;Kept&quot; = what a fixed {fmtBpsParam(fee)} of notional
         would have taken, minus what the auctions took.
       </p>
     </section>
@@ -705,14 +706,14 @@ export function ArenaPage() {
               <b className="mono">02</b>
               <span>
                 Underwater, it enters its lane&apos;s auction and moves right as the discount rises{" "}
-                {paraclr ? fmtBps(paraclr.params.stepBps) : "0.05%"} a block.
+                {paraclr ? fmtBpsParam(paraclr.params.stepBps) : "0.05%"} a block.
               </span>
             </li>
             <li>
               <b className="mono">03</b>
               <span>
-                The lane&apos;s pool takes it at {paraclr ? fmtBps(paraclr.params.minDiscountBps[0] ?? 75) : "0.75%"}. Taken left of the
-                fixed {paraclr ? fmtBps(paraclr.params.feeBps) : "1%"} line, the trader kept more than a classic liquidation leaves.
+                The lane&apos;s pool takes it at {paraclr ? fmtBpsParam(paraclr.params.minDiscountBps[0] ?? 75) : "0.75%"}. Taken left of the
+                fixed {paraclr ? fmtBpsParam(paraclr.params.feeBps) : "1%"} line, the trader kept more than a classic liquidation leaves.
               </span>
             </li>
           </ol>

@@ -7,7 +7,6 @@
 // the contract and shown before submit.
 
 import { useAuctionParams } from "@/lib/chain/auctionParams";
-import { fmtBps } from "@/lib/chain/fair";
 import { useState, type CSSProperties } from "react";
 import { formatEther } from "viem";
 import type { MarketSymbol, Side } from "@/lib/types";
@@ -39,6 +38,7 @@ import { TestnetFunds } from "./TestnetFunds";
 import { TokenIcon, TokenSymbol, useCollateral } from "./Token";
 import { fmtDuration, usePriceName, useSlippage, SLIPPAGE_CHOICES } from "./util";
 import styles from "./Prod.module.css";
+import { fmtBpsParam, fmtMon } from "@/lib/format";
 
 const QUICK = [
   { label: "10%", f: 0.1 },
@@ -47,11 +47,7 @@ const QUICK = [
   { label: "Max", f: 1 },
 ];
 
-const fmtMon = (wei: bigint | null) => {
-  if (wei === null) return "-";
-  const n = Number(formatEther(wei));
-  return n === 0 ? "0" : n < 0.0001 ? n.toExponential(2) : n.toLocaleString("en-US", { maximumFractionDigits: 6 });
-};
+const fmtMonWei = (wei: bigint | null) => (wei === null ? "-" : fmtMon(Number(formatEther(wei))));
 
 export function ProdOrderPanel({
   symbol,
@@ -159,7 +155,7 @@ export function ProdOrderPanel({
   const gasHint = testnet
     ? NETWORK?.sandbox
       ? "Need MON for the execution fee + gas (sandbox faucet, Wallet tab)"
-      : `Need testnet MON for the ${execFee !== null ? `${fmtMon(execFee)} MON ` : ""}execution fee + gas`
+      : `Need testnet MON for the ${execFee !== null ? `${fmtMonWei(execFee)} MON ` : ""}execution fee + gas`
     : `Need ${NETWORK?.nativeSymbol ?? "MON"} for the execution fee + gas`;
 
   const reason = !listed
@@ -376,7 +372,7 @@ export function ProdOrderPanel({
 
       <dl className={styles.fees} aria-label="Fees">
         <div>
-          <dt>Trading fee{feeBps !== null ? ` (${(feeBps / 100).toFixed(2)}%, from margin)` : ""}</dt>
+          <dt>Trading fee{feeBps !== null ? ` (${fmtBpsParam(feeBps)}, from margin)` : ""}</dt>
           <dd className="mono">
             {tradingFee === null ? "-" : fmtAusd(tradingFee, 4)} <small>{token.symbol}</small>
           </dd>
@@ -384,7 +380,7 @@ export function ProdOrderPanel({
         <div>
           <dt>Execution fee (to the keeper)</dt>
           <dd className="mono">
-            {fmtMon(execFee)} <small>{NETWORK?.nativeSymbol ?? "MON"}</small>
+            {fmtMonWei(execFee)} <small>{NETWORK?.nativeSymbol ?? "MON"}</small>
           </dd>
         </div>
         {deposit > 0 && margin <= available + 1e-9 && (
@@ -477,7 +473,7 @@ export function ProdOrderPanel({
         </summary>
         Your account is frozen and goes to a per-block Dutch auction in its lane. A taker (first the lane&apos;s backstop
         pool) inherits your positions at the oracle price and is paid a discount that rises{" "}
-        {fmtBps(auction.stepBps)} per block, up to {fmtBps(auction.maxDiscountBps)}. You keep the equity the taker
+        {fmtBpsParam(auction.stepBps)} per block, up to {fmtBpsParam(auction.maxDiscountBps)}. You keep the equity the taker
         isn&apos;t paid, usually more than a fixed 1% liquidation leaves. Adding collateral during the auction cures it.
       </details>
     </section>

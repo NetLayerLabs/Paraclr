@@ -22,9 +22,10 @@ import { FIXED_PENALTY_BPS } from "@/lib/kept";
 import { LANE_COUNT } from "@/lib/types";
 import { NETWORK } from "@/lib/chain/config";
 import type { AuctionRecord } from "@/lib/chain/auctionFeed";
-import { discountBpsAt, fmtBps, type ChainAuctionParams } from "@/lib/chain/fair";
+import { discountBpsAt, type ChainAuctionParams } from "@/lib/chain/fair";
 import { fmtCompact } from "./format";
 import styles from "./ClearingScreen.module.css";
+import { fmtBps, fmtBpsParam } from "@/lib/format";
 
 const LANES = Array.from({ length: LANE_COUNT }, (_, i) => i);
 /** Dots rendered per lane; the rest are summarized as "+N". */
@@ -229,7 +230,7 @@ export function AuctionLanes({
         <div>
           <h2 className={styles.vizTitle}>{replaying ? "Auction replay" : "Auction lanes"}</h2>
           <p className={styles.vizSub}>
-            Per-block Dutch auctions · discount +{fmtBps(params.stepBps)}/block, max {fmtBps(params.maxDiscountBps)} ·{" "}
+            Per-block Dutch auctions · discount +{fmtBpsParam(params.stepBps)}/block, max {fmtBpsParam(params.maxDiscountBps)} ·{" "}
             {replaying ? "replayed from on-chain events" : "live from on-chain events"} · {NETWORK?.shortLabel ?? "chain"}
           </p>
         </div>
@@ -358,14 +359,14 @@ export function AuctionLanes({
           <span className={styles.rulerLabel} />
           <div className={styles.ruler}>
             <span className={styles.rulerMark} data-k="pool" style={{ "--x": Math.min(1, poolMin / maxBps) } as Vars}>
-              pool takes {uniformMin !== null ? fmtBps(uniformMin) : `≥ ${fmtBps(poolMin)}`}
+              pool takes {uniformMin !== null ? fmtBpsParam(uniformMin) : `≥ ${fmtBpsParam(poolMin)}`}
             </span>
             <span
               className={styles.rulerMark}
               data-k="fee"
               style={{ "--x": Math.min(1, FIXED_PENALTY_BPS / maxBps) } as Vars}
             >
-              fixed {fmtBps(FIXED_PENALTY_BPS)} liquidation
+              fixed {fmtBpsParam(FIXED_PENALTY_BPS)} liquidation
             </span>
           </div>
           <span className={styles.rulerOut} />

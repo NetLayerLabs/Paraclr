@@ -1,6 +1,8 @@
 // "What you kept": an auction liquidation compared with the fixed-penalty liquidation it replaces.
 // Pure (no React, no chain), so the app, the PnL card, the Arena and tests can share one formula.
 
+import { fmtBpsParam } from "./format";
+
 /**
  * The fixed penalty of the baseline liquidation: `LIQUIDATION_FEE_BPS = 100` (1% of notional,
  * capped at the remaining equity), the old `liquidateBatch` / expiry close-out in
@@ -132,5 +134,5 @@ export function keptVsFixed(i: KeptInput): KeptResult | null {
 
 /** "1%" for 100 bps, "0.5%" for 50. */
 export function fmtPenaltyPct(feeBps: number = FIXED_PENALTY_BPS): string {
-  return `${(feeBps / 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;
+  return fmtBpsParam(feeBps);
 }

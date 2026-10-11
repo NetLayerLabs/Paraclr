@@ -9,8 +9,9 @@
 import type { CSSProperties, ReactNode } from "react";
 import { keptVsFixedRaw } from "@/lib/kept";
 import type { AccountState, ArenaAccount, ArenaDesign } from "./types";
-import { ausd, fmtAusd, fmtBps, fmtSigned, shortAddr } from "./format";
+import { ausd, fmtAusd, fmtSigned, shortAddr } from "./format";
 import s from "./Arena.module.css";
+import { fmtBps, fmtBpsParam } from "@/lib/format";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
@@ -68,7 +69,7 @@ function markerTitle(a: ArenaAccount, feeBps: number): string {
   if (a.startBlock !== null && a.resolvedBlock !== null) parts.push(`${a.resolvedBlock - a.startBlock} blocks in auction`);
   if (a.residual !== null && a.residual !== "0") parts.push(`returned ${fmtAusd(ausd(a.residual))} AUSD`);
   const k = accountKept(a, feeBps);
-  if (k !== null) parts.push(`${fmtSigned(Number(k) / 1e6)} AUSD vs a fixed ${fmtBps(feeBps)}`);
+  if (k !== null) parts.push(`${fmtSigned(Number(k) / 1e6)} AUSD vs a fixed ${fmtBpsParam(feeBps)}`);
   if (a.badDebt !== null && a.badDebt !== "0") parts.push(`shortfall ${fmtAusd(ausd(a.badDebt))} AUSD`);
   if (a.profile === "cure") parts.push("gets a demo top-up mid-auction");
   return parts.join(" · ");
@@ -190,10 +191,10 @@ function Ruler({ maxBps, minBps, feeBps, edge }: { maxBps: number; minBps: numbe
         ) : (
           <>
             <span className={s.mark} data-k="pool" style={{ "--x": minBps / maxBps } as Vars}>
-              pool takes {fmtBps(minBps)}
+              pool takes {fmtBpsParam(minBps)}
             </span>
             <span className={s.mark} data-k="fee" style={{ "--x": feeBps / maxBps } as Vars}>
-              fixed {fmtBps(feeBps)} liquidation
+              fixed {fmtBpsParam(feeBps)} liquidation
             </span>
           </>
         )}

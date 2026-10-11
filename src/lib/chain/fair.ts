@@ -34,8 +34,6 @@ export function blocksUntil(bps: number, startBlock: number, block: number, p: A
   return Math.max(0, at - block);
 }
 
-export const fmtBps = (bps: number) => `${(bps / 100).toFixed(2)}%`;
-
 export interface ChainAuctionParams extends AuctionParams {
   /** Per-lane backstop pool minimum discount (bps). */
   minDiscountBps: number[];

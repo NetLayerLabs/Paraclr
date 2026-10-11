@@ -107,7 +107,7 @@ function OracleBadge({ symbol }: { symbol: MarketSymbol }) {
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
         <span className="mono">
-          {age == null ? "-" : age < 60_000 ? `${Math.floor(age / 1000)}s` : "stale"}
+          {age == null ? "-" : age < 60_000 ? `${Math.floor(age / 1000)} s` : "stale"}
         </span>
       </span>
     </div>
@@ -162,7 +162,7 @@ function PythBadge({ symbol }: { symbol: MarketSymbol }) {
       </span>
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
-        <span className="mono">{age == null ? "-" : age < 60_000 ? `${Math.floor(age / 1000)}s` : "stale"}</span>
+        <span className="mono">{age == null ? "-" : age < 60_000 ? `${Math.floor(age / 1000)} s` : "stale"}</span>
       </span>
     </div>
   );
@@ -204,7 +204,7 @@ function StreamsBadge({ symbol }: { symbol: MarketSymbol }) {
       )}
       <span className={styles.badgeAge}>
         <span className={`${styles.dot} ${tone}`} />
-        <span className="mono">{age == null ? "-" : age < 10_000 ? `${age}ms` : "stale"}</span>
+        <span className="mono">{age == null ? "-" : age < 10_000 ? `${age} ms` : "stale"}</span>
       </span>
     </div>
   );
@@ -330,7 +330,7 @@ function MarketStats({ symbol, hi, lo }: { symbol: MarketSymbol; hi: number | nu
       ) : (
         <div className={styles.stat}>
           <span className={styles.statLabel}>Delivery</span>
-          <span className="mono">{feed.ticks ? `${feed.latencyMs}ms` : "-"}</span>
+          <span className="mono">{feed.ticks ? `${feed.latencyMs} ms` : "-"}</span>
         </div>
       )}
       {/* Desktop hides this one: the price-source badge beside it says the same. */}

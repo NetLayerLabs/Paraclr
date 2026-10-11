@@ -9,6 +9,7 @@ import { TxLink } from "@/components/chain/ChainUi";
 import { shortAddress } from "@/lib/auth/demo";
 import { fmtAusd, fmtCompact } from "@/components/trade/format";
 import styles from "./IndexedActivity.module.css";
+import { fmtBps } from "@/lib/format";
 
 const OUTCOME: Record<IndexedAuction["status"], string> = {
   Active: "In auction",
@@ -20,7 +21,7 @@ const OUTCOME: Record<IndexedAuction["status"], string> = {
 function outcome(a: IndexedAuction): string {
   if (a.status !== "Taken") return OUTCOME[a.status];
   const by = a.byBackstop ? "by the backstop" : "externally";
-  return `Taken ${by} · ${((a.discountBps ?? 0) / 100).toFixed(2)}% after ${a.blocksElapsed ?? 0} blocks`;
+  return `Taken ${by} · ${fmtBps(a.discountBps ?? 0)} after ${a.blocksElapsed ?? 0} blocks`;
 }
 
 export function IndexedActivity() {

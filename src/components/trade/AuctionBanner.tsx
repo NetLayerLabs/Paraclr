@@ -20,7 +20,7 @@ import { demoTakers } from "@/lib/chain/keeper";
 import { getLatestBlock, publicClient } from "@/lib/chain/clients";
 import { readableError } from "@/lib/chain/errors";
 import { useAuctionParams } from "@/lib/chain/auctionParams";
-import { blocksUntil, discountBpsAt, fmtBps } from "@/lib/chain/fair";
+import { blocksUntil, discountBpsAt } from "@/lib/chain/fair";
 import { cureAuctionOnChain } from "@/lib/chain/fairActions";
 import { submitReduceOrder } from "@/lib/chain/prod/actions";
 import { orderLabelId } from "@/lib/chain/prod/orders";
@@ -34,6 +34,7 @@ import { KeptTile } from "./KeptTile";
 import { showPnlCard } from "./PnlCard";
 import { fmtAusd } from "./format";
 import styles from "./AuctionBanner.module.css";
+import { fmtBps, fmtBpsParam } from "@/lib/format";
 
 /** Show a resolved outcome if it happened within this many blocks (≈4 min on Monad, 10 min on anvil). */
 const OUTCOME_WINDOW = 600;
@@ -248,14 +249,14 @@ function InAuction({ startBlock, block }: { startBlock: number; block: number })
             Your account is in a liquidation auction · L{acct.lane} · block +{elapsed}
           </b>
           <span>
-            Discount now <span className="mono">{fmtBps(d)}</span> (rises {fmtBps(p.stepBps)} per block, max{" "}
-            {fmtBps(p.maxDiscountBps)}) · if taken now you keep ≈{" "}
+            Discount now <span className="mono">{fmtBps(d)}</span> (rises {fmtBpsParam(p.stepBps)} per block, max{" "}
+            {fmtBpsParam(p.maxDiscountBps)}) · if taken now you keep ≈{" "}
             <span className="mono">{fmtAusd(keep)}</span> of your <span className="mono">{fmtAusd(equity)}</span> AUSD
             equity ·{" "}
             {toBackstop > 0 ? (
               <>
                 the lane backstop can take it in ≈{toBackstop} block{toBackstop === 1 ? "" : "s"} (at{" "}
-                {fmtBps(minBps)})
+                {fmtBpsParam(minBps)})
               </>
             ) : toMax > 0 ? (
               <>the lane backstop can take it now</>
@@ -355,7 +356,7 @@ function Outcome({ r, free, onDismiss }: { r: AuctionRecord; free: number | null
     title = "Auction cured: your account is healthy again";
     detail = "The auction was cancelled (top-up or price recovery). Your positions are unchanged and the account is unfrozen.";
   } else {
-    title = `Auction expired at ${fmtBps(p.maxDiscountBps)} with no taker`;
+    title = `Auction expired at ${fmtBpsParam(p.maxDiscountBps)} with no taker`;
     detail = free !== null ? `Free collateral now: ${fmtAusd(free)} AUSD.` : "";
   }
   return (

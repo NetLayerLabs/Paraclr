@@ -17,6 +17,7 @@ import { mockAUSDAbi, mockOracleAbi, paraclrClearinghouseAbi } from "./abi";
 import { NETWORK } from "./config";
 import { agoraFaucetAbi, prodAbi, pythAbi } from "./prod/abi";
 import { ausdToNumber, priceToNumber } from "./units";
+import { fmtAusd as ausdText } from "@/lib/format";
 
 // Dedupe by signature: the same error can appear in several ABIs.
 const ERROR_ABI = Object.values(
@@ -41,7 +42,7 @@ export class ChainActionError extends Error {
 }
 
 const fmtAusd = (v: unknown) =>
-  typeof v === "bigint" ? `${ausdToNumber(v < BigInt(0) ? -v : v).toFixed(2)} AUSD` : "?";
+  typeof v === "bigint" ? `${ausdText(ausdToNumber(v < BigInt(0) ? -v : v))} AUSD` : "?";
 
 function customErrorMessage(name: string, args: readonly unknown[] | undefined): string {
   const a = args ?? [];

@@ -124,7 +124,7 @@ export function CandleChart({ symbol }: { symbol: MarketSymbol }) {
     <section className={styles.card}>
       <div className={styles.head}>
         <div className={styles.tf}>
-          <span className={styles.tfActive}>5s</span>
+          <span className={styles.tfActive}>5 s</span>
           <span className={styles.live}>
             <span className={styles.liveDot} />
             LIVE

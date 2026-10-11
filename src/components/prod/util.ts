@@ -59,15 +59,8 @@ export function useSlippage(): [number, (v: number) => void] {
   return [slip, writeSlip];
 }
 
-/** "45s", "2m 05s", "1h 20m". */
-export function fmtDuration(seconds: number): string {
-  const s = Math.max(0, Math.round(seconds));
-  if (s < 60) return `${s}s`;
-  if (s < 3600) return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`;
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  return `${h}h ${String(m).padStart(2, "0")}m`;
-}
+/** "45 s", "2 min 05 s", "1 h 20 min" (src/lib/format.ts). */
+export { fmtDuration } from "@/lib/format";
 
 /** Re-render every `ms` (countdowns). */
 export function useNow(ms = 500): number {

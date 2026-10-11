@@ -14,6 +14,7 @@ import type { LiveContracts } from "./runtime";
 import { getSigner, type ChainSigner } from "./signer";
 import { sendTx, serialized, trackExternalTx } from "./txs";
 import { ausdToNumber, ausdToUnits, priceToNumber, sizeToNumber } from "./units";
+import { fmtAusd } from "@/lib/format";
 
 function requireLive(): { signer: ChainSigner; c: LiveContracts } {
   const s = getState();
@@ -79,7 +80,7 @@ export function openPositionOnChain(args: {
       const shortfall = marginUnits > free ? marginUnits - free : BigInt(0);
       if (shortfall > snap.walletAusdUnits) {
         throw new ChainActionError(
-          `Not enough AUSD: need ${ausdToNumber(shortfall).toFixed(2)} more than your ${ausdToNumber(free).toFixed(2)} free collateral, wallet has ${snap.walletAusd.toFixed(2)}. Request test funds on the Wallet tab.`,
+          `Not enough AUSD: need ${fmtAusd(ausdToNumber(shortfall))} more than your ${fmtAusd(ausdToNumber(free))} free collateral, wallet has ${fmtAusd(snap.walletAusd)}. Request test funds on the Wallet tab.`,
         );
       }
       need = snap.walletAusdUnits; // buffer doesn't fit; deposit what we have
@@ -94,7 +95,7 @@ export function openPositionOnChain(args: {
         });
       }
       await sendTx(signer, {
-        label: `Deposit ${ausdToNumber(need).toFixed(2)} AUSD`,
+        label: `Deposit ${fmtAusd(ausdToNumber(need))} AUSD`,
         to: c.clearinghouse,
         data: encodeFunctionData({ abi: paraclrClearinghouseAbi, functionName: "deposit", args: [need] }),
       });
@@ -158,7 +159,7 @@ export function withdrawFreeCollateral(): Promise<number> {
     const snap = await readAccountSnapshot(signer.address, c);
     if (snap.freeCollateralUnits === BigInt(0)) throw new ChainActionError("No free collateral to withdraw.");
     await sendTx(signer, {
-      label: `Withdraw ${ausdToNumber(snap.freeCollateralUnits).toFixed(2)} AUSD`,
+      label: `Withdraw ${fmtAusd(ausdToNumber(snap.freeCollateralUnits))} AUSD`,
       to: c.clearinghouse,
       data: encodeFunctionData({ abi: paraclrClearinghouseAbi, functionName: "withdraw", args: [snap.freeCollateralUnits] }),
     });

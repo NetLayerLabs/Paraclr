@@ -144,7 +144,7 @@ export function ThreadVisualizer({
         setBar(laneBars[l], laneChecked[l] / Math.max(1, lanes[l].accounts));
         if (!laneFinished[l] && t >= lanes[l].finishedAt) {
           laneFinished[l] = true;
-          setText(laneMs[l], `${lanes[l].finishedAt.toFixed(0)}ms`);
+          setText(laneMs[l], `${lanes[l].finishedAt.toFixed(0)} ms`);
           laneRows[l]?.setAttribute("data-done", "");
         }
       }

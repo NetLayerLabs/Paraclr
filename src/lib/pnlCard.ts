@@ -2,6 +2,8 @@
 // (/api/pnl-card) and the share page (/pnl) read, and the meme line for the outcome.
 // Shared by the app (client), the image route and the share page (server).
 
+import { MINUS } from "./format";
+
 export type CardNetwork = "testnet" | "mainnet" | "local" | "demo";
 
 export interface PnlCardData {
@@ -165,7 +167,7 @@ export function fmtPrice(n: number): string {
 
 export function fmtSignedAusd(n: number): string {
   const s = Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (n >= 0 ? "+" : "−") + s;
+  return (n >= 0 ? "+" : MINUS) + s;
 }
 
 /** The card's auction strip, e.g. "Kept +12.40 AUSD vs a fixed 1% liquidation". */
@@ -177,7 +179,7 @@ export function keptStrip(kept: number, penaltyPct: string): string {
 }
 
 export function fmtSignedPct(n: number): string {
-  return (n >= 0 ? "+" : "−") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + "%";
+  return (n >= 0 ? "+" : MINUS) + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + "%";
 }
 
 /**

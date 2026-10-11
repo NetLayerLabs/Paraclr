@@ -12,6 +12,7 @@ import { BiometricButton, type BiometricPhase } from "./BiometricButton";
 import { PrivyOtherLogin, PrivyPasskeyLogin } from "./PrivyAuth";
 import { ThemeToggle } from "@/components/shell/theme";
 import styles from "./LoginScreen.module.css";
+import { fmtMon } from "@/lib/format";
 
 // Official marks (public/partners/): Monad, Agora and Envio from their published SVGs (Envio's symbol
 // without its black tile), Pyth and Privy recoloured white from their official icons. The brand
@@ -110,7 +111,7 @@ function venueLine(status: string, production: boolean, agora: boolean): string 
 
 const README_TRY = `${README}#how-to-try-it-judges-about-5-minutes`;
 
-const fmtMon = (wei: bigint) => (Number(wei) / 1e18).toLocaleString("en-US", { maximumFractionDigits: 4 });
+const fmtMonWei = (wei: bigint) => fmtMon(Number(wei) / 1e18);
 
 /**
  * Testnet only: what happens after sign-in, so a first-time visitor knows the path before choosing a
@@ -121,7 +122,7 @@ function GettingStarted() {
   const params = useParaclr((s) => s.chain.prod?.params ?? null);
   const drip = useParaclr((s) => s.chain.keeper.health?.drip ?? null);
   if (!NETWORK?.isTestnetProd || NETWORK.sandbox) return null;
-  const fee = params?.minExecutionFee != null ? `${fmtMon(params.minExecutionFee)} MON` : null;
+  const fee = params?.minExecutionFee != null ? `${fmtMonWei(params.minExecutionFee)} MON` : null;
   const dripAmount = drip?.enabled && drip.amount ? `${Number(drip.amount).toLocaleString("en-US")} ` : "";
   const cap = params?.maxDepositPerAccount != null ? ` up to ${params.maxDepositPerAccount.toLocaleString("en-US")} AUSD` : "";
   const lev = params?.maxLeverage != null ? `, up to ${params.maxLeverage}x` : "";

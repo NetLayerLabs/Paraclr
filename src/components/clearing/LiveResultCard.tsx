@@ -6,13 +6,13 @@
 
 import { demoTakers, type RunReport } from "@/lib/chain/keeper";
 import type { AuctionRecord } from "@/lib/chain/auctionFeed";
-import { fmtBps } from "@/lib/chain/fair";
 import { blockUrl } from "@/lib/chain/config";
 import { fmtGas, parseAusdString, parseBigIntString, shortHash } from "@/lib/chain/units";
 import { TxLink } from "@/components/chain/ChainUi";
 import { fmtAusd, fmtCompact as fmtAusdCompact } from "@/components/trade/format";
 import { fmtMs } from "./format";
 import styles from "./ClearingScreen.module.css";
+import { fmtBps } from "@/lib/format";
 
 function BlockRef({ block }: { block: number | null }) {
   if (block === null) return <span className="mono">-</span>;

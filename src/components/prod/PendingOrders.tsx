@@ -23,6 +23,7 @@ import { Notice, TxLink } from "@/components/chain/ChainUi";
 import { fmtAusd, fmtPrice, fmtSigned } from "@/components/trade/format";
 import { fmtDuration, useNow, usePriceName } from "./util";
 import styles from "./Prod.module.css";
+import { fmtMon } from "@/lib/format";
 
 const PHASE_LABEL: Record<TrackedOrder["phase"], string> = {
   signing: "Submitting",
@@ -235,7 +236,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
         )}
         {o.executionFee > BigInt(0) && (
           <span>
-            execution fee <span className="mono">{Number(formatEther(o.executionFee)).toLocaleString("en-US", { maximumFractionDigits: 6 })}</span>{" "}
+            execution fee <span className="mono">{fmtMon(Number(formatEther(o.executionFee)))}</span>{" "}
             {NETWORK?.nativeSymbol ?? "MON"}
           </span>
         )}

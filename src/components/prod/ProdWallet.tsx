@@ -36,11 +36,9 @@ import { fmtDuration, useKeeperSigned } from "./util";
 import { isPrivyMethod, METHOD_LABEL } from "@/lib/types";
 import { StateLine } from "@/components/trade/TradeButton";
 import styles from "./Prod.module.css";
+import { fmtBps, fmtBpsParam, fmtMon } from "@/lib/format";
 
-const fmtMon = (wei: bigint | null | undefined, max = 6) =>
-  wei === null || wei === undefined
-    ? "-"
-    : Number(formatEther(wei)).toLocaleString("en-US", { maximumFractionDigits: max });
+const fmtMonWei = (wei: bigint | null | undefined) => (wei === null || wei === undefined ? "-" : fmtMon(Number(formatEther(wei))));
 
 function clean(raw: string): string {
   const c = raw.replace(/,/g, ".").replace(/[^\d.]/g, "");
@@ -267,7 +265,7 @@ export function ProdWallet() {
           <div>
             <dt>{NETWORK.nativeSymbol} for fees</dt>
             <dd className="mono" data-low={acct && acct.native < 0.05 ? "" : undefined}>
-              {acct ? fmtMon(acct.nativeUnits, 4) : "…"}
+              {acct ? fmtMonWei(acct.nativeUnits) : "…"}
             </dd>
           </div>
           <div>
@@ -291,7 +289,7 @@ export function ProdWallet() {
         {feesOwed > BigInt(0) && (
           <div className={styles.row}>
             <span className={styles.fine}>
-              Claimable execution fees / refunds: <span className="mono">{fmtMon(feesOwed)}</span> {NETWORK.nativeSymbol}
+              Claimable execution fees / refunds: <span className="mono">{fmtMonWei(feesOwed)}</span> {NETWORK.nativeSymbol}
             </span>
             <button type="button" className={styles.btnGhost} disabled={claiming} onClick={claim}>
               {claiming ? "Claiming…" : "Claim"}
@@ -384,7 +382,7 @@ export function ProdWallet() {
                     ? keeperSigned
                       ? "fresh keeper-signed update"
                       : "fresh signed Pyth update (via the keeper)"
-                    : `${keeperSigned ? "Price" : "Pyth price"} stored on chain${priced.oldestAge !== null ? ` (${Math.round(priced.oldestAge)}s old)` : ""}`}
+                    : `${keeperSigned ? "Price" : "Pyth price"} stored on chain${priced.oldestAge !== null ? ` (${Math.round(priced.oldestAge)} s old)` : ""}`}
               </dd>
             </div>
             <div>
@@ -396,7 +394,7 @@ export function ProdWallet() {
               <dd className="mono">
                 {quote.q?.source === "fresh" ? (
                   <>
-                    {fmtMon(quote.q.fee, 9)} <small>{NETWORK.nativeSymbol}</small>
+                    {fmtMonWei(quote.q.fee)} <small>{NETWORK.nativeSymbol}</small>
                   </>
                 ) : priced.needed && quote.error ? (
                   "update unavailable"
@@ -426,7 +424,7 @@ export function ProdWallet() {
         )}
         {tab === "withdraw" && haircutBps > 0 && (
           <Notice tone="warn">
-            L{acct ? acct.lane : ""} has bad debt: withdrawals are cut by {(haircutBps / 100).toFixed(2)}% until
+            L{acct ? acct.lane : ""} has bad debt: withdrawals are cut by {fmtBps(haircutBps)} until
             it is repaid
             {preview && preview.amount === amountNum && amountNum > 0 ? (
               <>
@@ -491,12 +489,12 @@ export function ProdWallet() {
           </div>
           <div>
             <dt>Trading fee</dt>
-            <dd className="mono">{params?.tradingFeeBps != null ? `${(params.tradingFeeBps / 100).toFixed(2)}%` : "-"}</dd>
+            <dd className="mono">{params?.tradingFeeBps != null ? fmtBpsParam(params.tradingFeeBps) : "-"}</dd>
           </div>
           <div>
             <dt>Execution fee</dt>
             <dd className="mono">
-              {fmtMon(params?.minExecutionFee)} {NETWORK.nativeSymbol}
+              {fmtMonWei(params?.minExecutionFee)} {NETWORK.nativeSymbol}
             </dd>
           </div>
           <div>

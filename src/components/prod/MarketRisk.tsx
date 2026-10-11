@@ -9,13 +9,14 @@ import { useParaclr } from "@/lib/store";
 import { chainNow, fundingPctPerHour } from "@/lib/chain/prod/state";
 import { fmtCompact } from "@/components/trade/format";
 import { fmtDuration, useNow } from "./util";
+import { MINUS } from "@/lib/format";
 import styles from "./Prod.module.css";
 
-/** "fresh" under the contract's stored-price window, else "last pushed 45s ago" / "last pushed 64h 52m ago". */
+/** "fresh" under the contract's stored-price window, else "last pushed 45 s ago" / "last pushed 64 h 52 min ago". */
 function fmtPushed(age: number | null, freshUnder: number): string {
   if (age === null) return "-";
   if (age < freshUnder) return "fresh";
-  return `last pushed ${age < 120 ? `${Math.round(age)}s` : fmtDuration(age)} ago`;
+  return `last pushed ${age < 120 ? `${Math.round(age)} s` : fmtDuration(age)} ago`;
 }
 
 /** The keeper's funding policy skips `updateFunding` while the rate change is under its threshold and the market is idle. */
@@ -63,7 +64,7 @@ export function MarketRisk({ symbol }: { symbol: MarketSymbol }) {
         title="Funding from the global long/short skew (sum of all 8 lanes). Positive: longs pay shorts."
       >
         <small>Funding / 1h</small>
-        <b className="mono">{pct === null ? "-" : `${pct > 0 ? "+" : pct < 0 ? "−" : ""}${Math.abs(pct).toFixed(4)}%`}</b>
+        <b className="mono">{pct === null ? "-" : `${pct > 0 ? "+" : pct < 0 ? MINUS : ""}${Math.abs(pct).toFixed(4)}%`}</b>
         <em>{pct === null ? "not readable" : pct > 0 ? "longs pay shorts" : pct < 0 ? "shorts pay longs" : "balanced"}</em>
       </div>
       <div

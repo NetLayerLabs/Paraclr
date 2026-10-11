@@ -22,7 +22,7 @@ import { keeperApi, type RunReport, type XrayReport } from "@/lib/chain/keeper";
 import { readLaneAccounts, readLanes, readLiquidatable, type LaneStat } from "@/lib/chain/lanes";
 import { clearResolvedAuctions, useAuctionFeed, type AuctionRecord } from "@/lib/chain/auctionFeed";
 import { useAuctionParams } from "@/lib/chain/auctionParams";
-import { discountBpsAt, fmtBps, signedAusd, type ChainAuctionParams } from "@/lib/chain/fair";
+import { discountBpsAt, signedAusd, type ChainAuctionParams } from "@/lib/chain/fair";
 import { fairAbi } from "@/lib/chain/fairAbi";
 import { ausdToNumber } from "@/lib/chain/units";
 import { takeOnChain } from "@/lib/chain/fairActions";
@@ -39,6 +39,7 @@ import { LiveResultCard } from "./LiveResultCard";
 import { XrayPanel, type XraySource } from "./XrayPanel";
 import { fmtCompact, fmtMark } from "./format";
 import styles from "./ClearingScreen.module.css";
+import { fmtBps, fmtBpsParam } from "@/lib/format";
 
 type Phase = "idle" | "submitting" | "running" | "done" | "failed";
 type XrayState = "idle" | "pending" | "ready" | "none" | "error";
@@ -436,7 +437,7 @@ export function LiveClearing({
               <span>Flash crash on {netName}</span>
               <small>
                 Keeper shocks the oracle −20% in one tx · underwater accounts go to per-block auctions in their lane ·
-                lane backstops take them at ≥ {fmtBps(Math.min(...params.minDiscountBps))}
+                lane backstops take them at ≥ {fmtBpsParam(Math.min(...params.minDiscountBps))}
               </small>
             </button>
           )
@@ -535,8 +536,8 @@ export function LiveClearing({
         <p className={styles.note}>
           {lanes ? `${totalAccounts} accounts` : "Accounts"} on the clearinghouse on {NETWORK.label}, each in lane{" "}
           <span className="mono">address % 8</span>. An account below maintenance margin is frozen and put into a
-          per-block Dutch auction in its lane: the discount starts at 0 and rises {fmtBps(params.stepBps)} per block (max{" "}
-          {fmtBps(params.maxDiscountBps)}), so the price is set by the block clock, not by
+          per-block Dutch auction in its lane: the discount starts at 0 and rises {fmtBpsParam(params.stepBps)} per block (max{" "}
+          {fmtBpsParam(params.maxDiscountBps)}), so the price is set by the block clock, not by
           gas bidding. The lane&apos;s backstop pool takes the account once the discount reaches its minimum and the
           trader keeps the rest of their equity; a top-up cures it; with no taker at the max it expires and closes at
           mark. The keeper&apos;s sweeper drives all {LANE_COUNT} lanes concurrently from {LANE_COUNT} keeper wallets,

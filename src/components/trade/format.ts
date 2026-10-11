@@ -1,19 +1,10 @@
 import type { MarketSymbol } from "@/lib/types";
 import { MARKET_META } from "@/lib/prices/markets";
+import { fmtNumber, fmtSigned } from "@/lib/format";
 
-const nf = (min: number, max = min) =>
-  new Intl.NumberFormat("en-US", { minimumFractionDigits: min, maximumFractionDigits: max });
+// The rules (grouping, minus sign, units) are the app-wide ones in src/lib/format.ts.
 
-const cache = new Map<string, Intl.NumberFormat>();
-function fmt(n: number, min: number, max = min): string {
-  const key = `${min}:${max}`;
-  let f = cache.get(key);
-  if (!f) {
-    f = nf(min, max);
-    cache.set(key, f);
-  }
-  return f.format(n);
-}
+const fmt = (n: number, min: number, max = min): string => fmtNumber(n, min, max);
 
 export function fmtPrice(symbol: MarketSymbol, p: number | null | undefined): string {
   if (p == null || !Number.isFinite(p)) return "-";
@@ -25,12 +16,8 @@ export function fmtAusd(n: number, d = 2): string {
   return fmt(n, d);
 }
 
-/** Signed with a real minus sign, e.g. "+12.30" / "−4.05". */
-export function fmtSigned(n: number, d = 2): string {
-  const s = fmt(Math.abs(n), d);
-  if (Math.abs(n) < 0.5 * 10 ** -d) return s;
-  return (n > 0 ? "+" : "−") + s;
-}
+/** Signed with a real minus sign, e.g. "+12.30" / "−4.05" (src/lib/format.ts). */
+export { fmtSigned };
 
 export function fmtPct(n: number, d = 2): string {
   return fmtSigned(n, d) + "%";

@@ -14,19 +14,20 @@ import type { SolvencySnapshot } from "@/lib/chain/fair";
 import { useLaneSolvencies } from "@/lib/chain/prod/backstop";
 import type { LaneSolvency } from "@/lib/chain/prod/state";
 import styles from "./Solvency.module.css";
+import { fmtBps, MINUS } from "@/lib/format";
 
 const full = (n: number) =>
   n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function compact(n: number): string {
   const a = Math.abs(n);
-  const sign = n < 0 ? "−" : "";
+  const sign = n < 0 ? MINUS : "";
   if (a >= 1e6) return `${sign}${(a / 1e6).toFixed(2)}M`;
   if (a >= 1e4) return `${sign}${(a / 1e3).toFixed(1)}K`;
   return `${sign}${a.toFixed(2)}`;
 }
 
-const signed = (n: number) => (n > 0 ? "+" : n < 0 ? "−" : "") + full(Math.abs(n));
+const signed = (n: number) => (n > 0 ? "+" : n < 0 ? MINUS : "") + full(Math.abs(n));
 
 function ShieldIcon({ ok }: { ok: boolean }) {
   return (
@@ -326,7 +327,7 @@ function LaneSolvencyTable({ lanes, liabilities }: { lanes: LaneSolvency[] | nul
                   {l.badDebt > 0 ? `−${compact(l.badDebt)}` : "0.00"}
                 </td>
                 <td className="mono" data-tone={l.haircutBps > 0 ? "warn" : undefined}>
-                  {l.haircutBps > 0 ? `${(l.haircutBps / 100).toFixed(2)}%` : "-"}
+                  {l.haircutBps > 0 ? fmtBps(l.haircutBps) : "-"}
                 </td>
               </tr>
             ))}

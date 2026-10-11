@@ -15,9 +15,10 @@ import { ProdWallet } from "@/components/prod/ProdWallet";
 import { TokenIcon, TokenSymbol } from "@/components/prod/Token";
 import { isPrivyMethod, METHOD_LABEL } from "@/lib/types";
 import styles from "./WalletScreen.module.css";
+import { fmtAusd, fmtMon, fmtSigned } from "@/lib/format";
 
-const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtNative = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 4 });
+const fmt = (n: number) => fmtAusd(n);
+const fmtNative = (n: number) => fmtMon(n);
 
 function useCopy(text: string) {
   const [copied, setCopied] = useState(false);
@@ -114,8 +115,7 @@ function SimWallet() {
         <div className={`${styles.equity} mono`}>{fmt(equity)}</div>
         {positions.length > 0 && (
           <div className={`${styles.pnl} mono`} data-sign={pnl >= 0 ? "pos" : "neg"}>
-            {pnl >= 0 ? "+" : ""}
-            {fmt(pnl)} unrealized
+            {fmtSigned(pnl)} unrealized
           </div>
         )}
 
@@ -266,8 +266,7 @@ function ChainWallet() {
         {acct?.healthError && <p className={styles.note}>{acct.healthError}</p>}
         {positions.length > 0 && (
           <div className={`${styles.pnl} mono`} data-sign={pnl >= 0 ? "pos" : "neg"}>
-            {pnl >= 0 ? "+" : ""}
-            {fmt(pnl)} unrealized
+            {fmtSigned(pnl)} unrealized
           </div>
         )}
 

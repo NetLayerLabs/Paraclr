@@ -20,6 +20,7 @@ import { TxLink } from "@/components/chain/ChainUi";
 import { fmtAusd, fmtPrice, fmtSigned, fmtSize } from "./format";
 import { KeptTile, type KeptOutcome } from "./KeptTile";
 import styles from "./OrderHistory.module.css";
+import { fmtBps } from "@/lib/format";
 
 const isMarket = (s: string): s is MarketSymbol => (MARKETS as readonly string[]).includes(s);
 
@@ -59,7 +60,7 @@ function Row({ o }: { o: IndexedOrder }) {
         <span className={styles.status} data-status={o.status}>
           {STATUS[o.status]}
         </span>
-        {o.latency !== null && filled && <span className={styles.latency}> in {o.latency}s</span>}
+        {o.latency !== null && filled && <span className={styles.latency}> in {o.latency} s</span>}
       </td>
       <td>
         <TxLink hash={o.resolvedTx ?? o.committedTx} />
@@ -74,7 +75,7 @@ function AuctionRow({ a }: { a: IndexedAccountAuction }) {
   const outcome = OUTCOME[a.status];
   const label =
     a.status === "Taken"
-      ? `taken by ${a.byBackstop ? `the L${a.lane.index} backstop pool` : "a same-lane taker"}${a.discountBps !== null ? ` at ${(a.discountBps / 100).toFixed(2)}%` : ""}`
+      ? `taken by ${a.byBackstop ? `the L${a.lane.index} backstop pool` : "a same-lane taker"}${a.discountBps !== null ? ` at ${fmtBps(a.discountBps)}` : ""}`
       : a.status === "Cured"
         ? "cured"
         : "expired";

@@ -7,11 +7,11 @@
 // shown next to the keeper's legacy counterfactual even when it is larger.
 
 import type { RunReport } from "@/lib/chain/keeper";
-import { fmtBps } from "@/lib/chain/fair";
 import { parseAusdString } from "@/lib/chain/units";
 import { fmtCompact as fmtAusdCompact } from "@/components/trade/format";
 import { fmtMs } from "./format";
 import styles from "./ClearingScreen.module.css";
+import { fmtBps, fmtBpsParam } from "@/lib/format";
 
 /** Tight AUSD for side-by-side figures: no cents from 1,000 up. */
 function fmtPair(n: number): string {
@@ -40,7 +40,7 @@ export function AuctionMetrics({ report, laneBadDebt }: { report: RunReport; lan
   const resolved = a ? a.takenByBackstop + a.takenExternal + a.cured + a.expired : 0;
   const takes = a ? a.takenByBackstop + a.takenExternal : 0;
   const bots = a?.externalTakers?.demo ? a.externalTakers : null;
-  const botRange = bots?.reservationBps ? `${fmtBps(bots.reservationBps[0])}–${fmtBps(bots.reservationBps[1])}` : null;
+  const botRange = bots?.reservationBps ? `${fmtBpsParam(bots.reservationBps[0])}–${fmtBpsParam(bots.reservationBps[1])}` : null;
 
   return (
     <section className={styles.metrics} aria-label="Run metrics" data-net={report.network === "monad-testnet" ? "monad" : "anvil"}>

@@ -244,7 +244,7 @@ export function TxTray({ max = 4 }: { max?: number }) {
                   {t.sentAt && t.confirmedAt ? (
                     <span className="mono" title="Sent → receipt seen, measured in this browser">
                       {" "}
-                      · {t.confirmedAt - t.sentAt}ms
+                      · {t.confirmedAt - t.sentAt} ms
                     </span>
                   ) : null}
                 </>

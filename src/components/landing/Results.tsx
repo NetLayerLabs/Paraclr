@@ -6,6 +6,7 @@ import { GITHUB_BLOB, README_AT } from "./content";
 import { fmtAusd, fmtInt } from "./format";
 import b from "./brand/Brand.module.css";
 import s from "./Results.module.css";
+import { MINUS } from "@/lib/format";
 
 /** The runs the headline figures cite (README "Results"). Each figure is read from its file at build time. */
 const AUCTION_RUN = "10143-2026-10-10T22-40-07Z.json";
@@ -19,7 +20,7 @@ interface Figure {
 }
 
 function shock(run: BenchRun): string {
-  return run.shockBps !== null && run.shockBps < 10_000 ? `-${(10_000 - run.shockBps) / 100}% shock` : "price shock";
+  return run.shockBps !== null && run.shockBps < 10_000 ? `${MINUS}${(10_000 - run.shockBps) / 100}% shock` : "price shock";
 }
 
 function figures(run: BenchRun | null, xray: XrayEvidence | null): Figure[] {
