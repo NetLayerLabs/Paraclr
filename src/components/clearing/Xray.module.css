@@ -364,6 +364,16 @@
   color: var(--text-dim);
 }
 
+.foot a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.foot a:hover {
+  color: var(--text);
+}
+
 .exclusions summary {
   cursor: pointer;
   color: var(--text-dim);

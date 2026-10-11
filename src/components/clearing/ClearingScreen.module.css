@@ -732,6 +732,12 @@
   margin-top: 0;
 }
 
+.note a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ---- live / simulated toggle ---------------------------------------------- */
 
 /* Live / Simulated: the segmented pill; the current view is the inverse pill. */

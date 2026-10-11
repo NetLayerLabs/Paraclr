@@ -29,12 +29,17 @@ export async function readLatestXray(preferChainId: number | null): Promise<Reco
   } catch {
     return null; // no X-ray recorded yet
   }
+  // Newest by the report's own `generatedAt` (file mtimes are all the checkout time on a fresh clone or
+  // deploy; the mtime is only the fallback for a report without one). Only the chosen file is parsed in full.
   const files = await Promise.all(
     names.map(async (file) => {
       try {
-        const s = await stat(join(dir, file));
+        const path = join(dir, file);
+        const [st, raw] = await Promise.all([stat(path), readFile(path, "utf8")]);
+        const gen = /"generatedAt"\s*:\s*"([^"]+)"/.exec(raw)?.[1];
+        const genMs = gen ? Date.parse(gen) : NaN;
         const chainId = Number(file.split("-")[0]);
-        return { file, mtime: s.mtimeMs, chainId: Number.isFinite(chainId) ? chainId : null };
+        return { file, raw, at: Number.isFinite(genMs) ? genMs : st.mtimeMs, chainId: Number.isFinite(chainId) ? chainId : null };
       } catch {
         return null;
       }
@@ -43,11 +48,11 @@ export async function readLatestXray(preferChainId: number | null): Promise<Reco
   const rank = (c: number | null) => (c !== null && c === preferChainId ? 0 : c === MONAD_TESTNET ? 1 : 2);
   const ordered = files
     .filter((f): f is NonNullable<typeof f> => f !== null)
-    .sort((a, b) => rank(a.chainId) - rank(b.chainId) || b.mtime - a.mtime);
+    .sort((a, b) => rank(a.chainId) - rank(b.chainId) || b.at - a.at);
   for (const f of ordered) {
     try {
-      const report = normalizeXray(JSON.parse(await readFile(join(dir, f.file), "utf8")));
-      if (report) return { report, file: f.file, savedAt: new Date(f.mtime).toISOString().slice(0, 10) };
+      const report = normalizeXray(JSON.parse(f.raw));
+      if (report) return { report, file: f.file, savedAt: new Date(f.at).toISOString().slice(0, 10) };
     } catch {
       /* skip malformed */
     }

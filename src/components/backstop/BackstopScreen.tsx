@@ -6,6 +6,7 @@
 // (backstopNav / backstopStats / backstopPositions / backstopSharesOf).
 // Returns are "earned since deploy" - never annualised.
 
+import { README_AT } from "@/components/landing/content";
 import { useEffect, useMemo, useState } from "react";
 import type { Address } from "viem";
 import { useParaclr } from "@/lib/store";
@@ -127,7 +128,7 @@ function LiveBackstop({ active }: { active: boolean }) {
         <Header />
         <Notice tone="warn">
           The clearinghouse deployed on {NETWORK?.label} predates backstop pools (it has no{" "}
-          <span className="mono">backstopNav</span>). Redeploy the contracts - e.g.{" "}
+          <span className="mono">backstopNav</span>). Redeploy the contracts, e.g.{" "}
           <span className="mono">npm run dev:chain -- --redeploy</span> on anvil.
         </Notice>
         <Explainer />
@@ -255,7 +256,7 @@ function PoolTable({
             <th className={styles.num} title={production ? "Exit value per share" : "NAV per share"}>
               Share price
             </th>
-            <th className={styles.num} title="Auction discounts received since deploy - not annualised">
+            <th className={styles.num} title="Auction discounts received since deploy, not annualised">
               Earned since deploy
             </th>
             <th className={styles.num}>Taken</th>
@@ -270,11 +271,11 @@ function PoolTable({
               key={p.lane}
               data-selected={p.lane === selected ? "" : undefined}
               onClick={() => onSelect(p.lane)}
-              title={`Select lane ${p.lane}`}
+              title={`Select L${p.lane}`}
             >
               <td>
                 <span className={styles.laneCell}>
-                  Lane {p.lane}
+                  L{p.lane}
                   {p.lane === myLane && <span className={styles.youTag}>your lane</span>}
                 </span>
               </td>
@@ -325,7 +326,7 @@ function PoolCards({
         >
           <span className={styles.cardTop}>
             <b>
-              Lane {p.lane}
+              L{p.lane}
               {p.lane === myLane && <span className={styles.youTag}>your lane</span>}
             </b>
             <span className="mono">{fmtAusd(p.equity)} AUSD</span>
@@ -426,7 +427,7 @@ function PoolActions({
         : production && paused
           ? "Deposits paused by the guardian"
         : production && laneRoom !== null && amount > laneRoom + 1e-9
-          ? `Over the lane ${lane} TVL cap (${fmtAusd(laneRoom)} left)`
+          ? `Over the L${lane} TVL cap (${fmtAusd(laneRoom)} left)`
         : production && poolDepositRefusal(bp)
           ? poolDepositRefusal(bp)
         : amount <= 0
@@ -463,7 +464,7 @@ function PoolActions({
     try {
       if (mode === "deposit") {
         const r = await backstopDepositOnChain(lane, amount);
-        setMsg({ tone: "ok", text: `Deposited ${fmtAusd(amount)} AUSD into the lane ${lane} backstop (block #${r.block}).` });
+        setMsg({ tone: "ok", text: `Deposited ${fmtAusd(amount)} AUSD into the L${lane} backstop pool (block #${r.block}).` });
       } else if (production && (exitStage === "none" || exitStage === "expired")) {
         await backstopRequestWithdrawOnChain(lane, withdrawShares);
         setMsg({
@@ -475,14 +476,14 @@ function PoolActions({
         const r = await backstopWithdrawOnChain(lane, requestShares, requestAusd);
         setMsg({
           tone: "ok",
-          text: `Withdrew ${fmtAusd(r.amount ?? requestAusd)} AUSD from the lane ${lane} backstop (block #${r.block}).`,
+          text: `Withdrew ${fmtAusd(r.amount ?? requestAusd)} AUSD from the L${lane} backstop pool (block #${r.block}).`,
         });
         refreshBp();
       } else {
         const r = await backstopWithdrawOnChain(lane, withdrawShares, withdrawAusd);
         setMsg({
           tone: "ok",
-          text: `Withdrew ${fmtAusd(r.amount ?? withdrawAusd)} AUSD from the lane ${lane} backstop (block #${r.block}).`,
+          text: `Withdrew ${fmtAusd(r.amount ?? withdrawAusd)} AUSD from the L${lane} backstop pool (block #${r.block}).`,
         });
       }
       onDone();
@@ -614,7 +615,7 @@ function PoolActions({
           {production && poolDepositRefusal(bp) && (
             <Notice tone="warn">
               {(bp?.solvency?.badDebt ?? 0) > 0
-                ? `Lane ${lane} has ${fmtAusd(bp?.solvency?.badDebt ?? 0)} AUSD of bad debt, so new pool deposits are refused until it is repaid.`
+                ? `L${lane} has ${fmtAusd(bp?.solvency?.badDebt ?? 0)} AUSD of bad debt, so new pool deposits are refused until it is repaid.`
                 : (bp?.depositStatus?.receivable ?? 0) > 0
                   ? `The lane owes this pool ${fmtAusd(bp?.depositStatus?.receivable ?? 0)} AUSD (pool cash it lent to cover losses). Deposits reopen once it is repaid, so every deposit is priced at the full NAV.`
                   : `The pool's unrealised gain (${fmtAusd(bp?.depositStatus?.unrealizedUncapped ?? 0)} AUSD) is above lane insurance (${fmtAusd(bp?.depositStatus?.insurance ?? 0)} AUSD), so its NAV is capped. Deposits reopen when that clears.`}
@@ -695,7 +696,7 @@ function PoolActions({
           )}
           {production && haircutBps > 0 && (
             <Notice tone="warn">
-              Lane {lane} has bad debt: payouts are cut by {(haircutBps / 100).toFixed(2)}% until it is repaid.
+              L{lane} has bad debt: payouts are cut by {(haircutBps / 100).toFixed(2)}% until it is repaid.
             </Notice>
           )}
           {production && exitStage === "expired" && req && (
@@ -725,8 +726,8 @@ function PoolActions({
           ? "Confirming on chain…"
           : mode === "deposit"
             ? amount > 0
-              ? `Deposit ${fmtAusd(amount)} AUSD to lane ${lane}`
-              : `Deposit to lane ${lane}`
+              ? `Deposit ${fmtAusd(amount)} AUSD to L${lane}`
+              : `Deposit to L${lane}`
             : production && (exitStage === "none" || exitStage === "expired")
               ? `Request withdrawal of ≈${fmtAusd(withdrawAusd)} AUSD`
               : production
@@ -761,13 +762,13 @@ function Explainer() {
           <b className="mono">01</b>
           <span>
             An account below maintenance margin goes to a per-block Dutch auction. Its discount starts at 0 and rises{" "}
-            {step} per block (max {max}) - the price is set by the block clock, not by gas bidding.
+            {step} per block (max {max}), so the price is set by the block clock, not by gas bidding.
           </span>
         </li>
         <li>
           <b className="mono">02</b>
           <span>
-            Once the discount reaches the pool&apos;s minimum ({min}), the lane&apos;s pool can take the account - if
+            Once the discount reaches the pool&apos;s minimum ({min}), the lane&apos;s pool can take the account if
             it can carry it (pool equity must stay ≥ 10% of its exposure). It inherits the positions at the oracle mark
             and is paid the discount; the trader keeps the rest of their equity.
           </span>
@@ -784,7 +785,13 @@ function Explainer() {
           </span>
         </li>
       </ol>
-      <p className={styles.howtoFine}>Earnings are shown as discount earned since deploy - never as an annualised APY.</p>
+      <p className={styles.howtoFine}>
+        Earnings are shown as discount earned since deploy, never as an annualised APY. Details:{" "}
+        <a href={README_AT.backstop} target="_blank" rel="noreferrer">
+          Backstop LPs in the README ↗
+        </a>
+        .
+      </p>
     </section>
   );
 }

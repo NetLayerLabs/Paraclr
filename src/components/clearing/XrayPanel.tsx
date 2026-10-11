@@ -10,6 +10,7 @@
 // NOT a measured re-execution count. Data: keeper `GET /runs/:id/xray` or a
 // recorded bench/xray/*.json file.
 
+import { GITHUB_TREE, README_AT } from "@/components/landing/content";
 import { useMemo } from "react";
 import type { XrayDesign, XrayReport } from "@/lib/chain/keeper";
 import { shortHash } from "@/lib/chain/units";
@@ -76,7 +77,7 @@ export function XrayPanel({
               {methodLabel(xray)}
             </span>
             <span className={styles.tag} data-k={xray.network === "monad-testnet" ? "monad" : "anvil"}>
-              {xray.network === "monad-testnet" ? "Monad testnet" : "Local anvil - not Monad"}
+              {xray.network === "monad-testnet" ? "Monad testnet" : "Local anvil, not Monad"}
             </span>
           </div>
         )}
@@ -86,11 +87,11 @@ export function XrayPanel({
         <p className={styles.explain} data-recorded="">
           <b>Recorded evidence, not this deployment.</b> This X-ray was measured on{" "}
           {xray.network === "monad-testnet" ? "Monad testnet" : "a local anvil chain (not Monad)"} during a benchmark
-          crash run of the demo contracts. Nothing is crashed on mainnet to produce it.
+          crash run of the demo contracts. Nothing is crashed on this deployment to produce it.
         </p>
       )}
       <p className={styles.explain}>
-        An edge <b>i → j</b> means tx <i>j</i> read or wrote a storage slot that an earlier tx <i>i</i> wrote - the
+        An edge <b>i → j</b> means tx <i>j</i> read or wrote a storage slot that an earlier tx <i>i</i> wrote: the
         condition under which Monad&apos;s optimistic executor re-executes <i>j</i>. Edges are storage dependencies,
         not measured re-executions. The lane design&apos;s claim is <b>zero edges across lanes</b>; txs within one lane
         (its pool take, a taker&apos;s take and close) can still depend on that lane&apos;s own storage.
@@ -136,14 +137,18 @@ export function XrayPanel({
               </span>
             )}
             {xray.edgeScope === "same-block" && <span>Edges are only drawn between txs of the same block.</span>}
-            <span>Rows = lanes (L1–L8), columns = block order. Hover for tx / slot details.</span>
+            <span>Rows are lanes (L0–L7), columns are block order. Hover for tx and slot details.</span>
           </div>
           <footer className={styles.foot}>
             <span>
               {source?.kind === "file" ? (
                 <>
                   Recorded bench run <span className="mono">{xray.runId || source.file}</span>
-                  {source.savedAt ? <> · {source.savedAt}</> : null} · <span className="mono">bench/xray/{source.file}</span>
+                  {source.savedAt ? <> · {source.savedAt}</> : null} ·{" "}
+                  <a className="mono" href={`${GITHUB_TREE}/bench/xray/${source.file}`} target="_blank" rel="noreferrer">
+                    bench/xray/{source.file} ↗
+                  </a>{" "}
+                  · <a href={README_AT.xray} target="_blank" rel="noreferrer">How the X-ray works ↗</a>
                 </>
               ) : (
                 <>
@@ -394,7 +399,7 @@ function ConflictGraph({ d, labels }: { d: XrayDesign; labels: Record<string, st
         return (
           <circle key={t.hash} cx={p.x} cy={p.y} r={g.r} className={hit ? styles.nodeHit : styles.node}>
             <title>
-              {`${t.kind} · ${t.lane === null ? "no lane" : `lane ${t.lane}`} · block #${t.block} tx ${t.index}\n${t.reads} slots read · ${t.writes} written\n${t.hash}`}
+              {`${t.kind} · ${t.lane === null ? "no lane" : `L${t.lane}`} · block #${t.block} tx ${t.index}\n${t.reads} slots read · ${t.writes} written\n${t.hash}`}
             </title>
           </circle>
         );

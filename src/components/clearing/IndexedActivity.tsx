@@ -3,6 +3,7 @@
 // Clearinghouse activity since deploy and the latest auctions, read from the Envio indexer
 // (indexer/). The live lanes above come from the contract; this is their history.
 
+import Link from "next/link";
 import { ausd, fetchActivity, INDEXER_ON, usePolled, type IndexedAuction } from "@/lib/indexer";
 import { TxLink } from "@/components/chain/ChainUi";
 import { shortAddress } from "@/lib/auth/demo";
@@ -80,7 +81,8 @@ export function IndexedActivity() {
           {data.auctions.length === 0 ? (
             <p className={styles.empty}>
               None yet. An account goes to auction when it falls below maintenance margin; on real prices that takes a
-              large market move against a leveraged position.
+              large market move against a leveraged position. To watch auctions clear now, crash the demo market in the{" "}
+              <Link href="/arena">Arena</Link>.
             </p>
           ) : (
             <div className={styles.tableWrap}>

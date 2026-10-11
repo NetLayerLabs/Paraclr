@@ -1301,7 +1301,8 @@ a.hash:hover {
 
 .footLinks {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 8px 20px;
   font-size: 13px;
 }
 

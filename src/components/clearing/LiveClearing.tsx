@@ -9,6 +9,8 @@
 //     its RunReport gives the measured metrics (time underwater, equity
 //     returned, bad debt) and its Conflict X-ray (`GET /runs/:id/xray`).
 
+import { README_AT } from "@/components/landing/content";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Address } from "viem";
 import { useListedMarkets, useParaclr } from "@/lib/store";
@@ -401,7 +403,7 @@ export function LiveClearing({
         <Notice tone="warn">
           The clearinghouse on {NETWORK.label} predates auction liquidations (no{" "}
           <span className="mono">getAuctionAccounts</span>), so there is no auction lifecycle to show. Redeploy the
-          contracts - e.g. <span className="mono">npm run dev:chain -- --redeploy</span> on anvil.
+          contracts, e.g. <span className="mono">npm run dev:chain -- --redeploy</span> on anvil.
         </Notice>
       )}
       {feed.status === "error" && feed.error && <Notice tone="warn">Couldn&apos;t read auction events: {feed.error}</Notice>}
@@ -537,8 +539,22 @@ export function LiveClearing({
           {fmtBps(params.maxDiscountBps)}), so the price is set by the block clock, not by
           gas bidding. The lane&apos;s backstop pool takes the account once the discount reaches its minimum and the
           trader keeps the rest of their equity; a top-up cures it; with no taker at the max it expires and closes at
-          mark. The keeper&apos;s sweeper drives all {LANE_COUNT} lanes concurrently from {LANE_COUNT} keeper wallets -
+          mark. The keeper&apos;s sweeper drives all {LANE_COUNT} lanes concurrently from {LANE_COUNT} keeper wallets,
           and anyone may call the same functions.
+        </p>
+      )}
+      {phase === "idle" && production && (
+        <p className={styles.note}>
+          The crash evidence comes from the demo stack, not this deployment: crash it yourself in the{" "}
+          <Link href="/arena">Arena</Link> (no sign-in), or read the{" "}
+          <a href={README_AT.xray} target="_blank" rel="noreferrer">
+            Conflict X-ray ↗
+          </a>{" "}
+          and the{" "}
+          <a href={README_AT.results} target="_blank" rel="noreferrer">
+            bench results ↗
+          </a>{" "}
+          in the README.
         </p>
       )}
     </div>
@@ -652,7 +668,7 @@ function TakeList({
   return (
     <section className={styles.takeList} aria-label="Auctions in your lane">
       <header>
-        <b>Auctions in your lane (lane {acct.lane})</b>
+        <b>Auctions in your lane (L{acct.lane})</b>
         <span>
           Take one to inherit its positions at the mark. You earn up to the current discount × notional, capped at the
           trader&apos;s remaining equity (the lane never pays an external taker). Same-lane only; you must stay above

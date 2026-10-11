@@ -5,6 +5,7 @@
 // next to a naive build where every lane shares one set of storage, ending with a settlement report
 // and the Conflict X-ray of the actual transactions. Talks only to the arena keeper (useArena.ts).
 
+import { README, README_AT } from "@/components/landing/content";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
@@ -20,7 +21,7 @@ type Vars = CSSProperties & Record<`--${string}`, string | number>;
 const LIVE = new Set(["crashing", "resolving", "xray"]);
 
 const KIND_LABEL: Record<string, string> = {
-  shockPrices: "oracle shock -20%",
+  shockPrices: "oracle shock −20%",
   startAuctions: "start auctions",
   backstopTakeBatch: "pool take",
   expireBatch: "expire at cap",
@@ -137,7 +138,7 @@ function GasGauge({ view }: { view: ArenaView }) {
                 className={s.gaugeBar}
                 style={{ "--x": v === null ? 0 : Math.min(1, v / kMin) } as Vars}
                 data-low={v !== null && v < kMin ? "" : undefined}
-                title={`Lane ${lane} keeper: ${v === null ? "-" : v.toFixed(3)} / ${kMin} MON`}
+                title={`L${lane} keeper: ${v === null ? "-" : v.toFixed(3)} / ${kMin} MON`}
               >
                 <i />
               </span>
@@ -789,6 +790,12 @@ export function ArenaPage() {
             <Link href="/#xray" className={s.link}>
               How the X-ray works
             </Link>
+            <a href={`${README}#arena-crash-it-yourself`} className={s.link} target="_blank" rel="noreferrer">
+              Arena limits in the README ↗
+            </a>
+            <a href={README_AT.results} className={s.link} target="_blank" rel="noreferrer">
+              Bench results ↗
+            </a>
             <Link href="/app" className={s.link}>
               Open the app
             </Link>
