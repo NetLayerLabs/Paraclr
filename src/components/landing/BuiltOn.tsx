@@ -1,144 +1,211 @@
 import type { RepoFacts } from "./benchResults.server";
+import { GITHUB_BLOB, MONAD_EXPLORER } from "./content";
 import { fmtInt } from "./format";
 import b from "./brand/Brand.module.css";
 import s from "./BuiltOn.module.css";
 
 type Tone = "accent" | "pos" | "warn" | "neutral";
 
-interface Item {
+interface Partner {
   name: string;
+  site: string;
   logo: string;
-  /** Box width for marks wider than tall (default: a square box). */
-  logoW?: number;
-  body: string;
-  chip: string;
+  /** Anchor of the partner's subsection under "Built on" in README.md. */
+  readme: string;
+  /** What it does in Paraclr. */
+  use: string;
+  /** One concrete, checkable fact (an address, a parameter or a measured number) and its source. */
+  fact: string;
+  factHref?: string;
+  status: string;
   tone: Tone;
 }
 
+interface Support {
+  name: string;
+  site: string;
+  logo: string;
+  /** Box width for marks wider than tall (default: a square box). */
+  logoW?: number;
+  use: string;
+}
+
+const README = `${GITHUB_BLOB}/README.md`;
+const AUSD_TESTNET = "0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC";
+const AUSD_MAINNET = "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a";
+const SAFE = "0xCC62247E59A3872013e2dB7A52696A3117F2e4c3";
+/** bench/xray/10143-run-mv2ze6l6-xzyi6.json: Paraclr lanes vs the naive shared-state build. */
+const ARENA_XRAY = "bench/xray/10143-run-mv2ze6l6-xzyi6.json";
+
+const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+
 /**
- * Each card leads with the project's official mark (public/partners/, from its own site, brand kit or repo), in
- * its light or colour variant since the section is dark. Chips say what each one is used for, and where.
+ * The five projects Paraclr is built on, each with what it does here and one fact a judge can check, then the
+ * supporting tools as a compact row. Marks come from public/partners/ (each project's own site, brand kit or repo),
+ * in their light or colour variant since the section is dark. Full detail: README.md "Built on".
  */
-function items(repo: RepoFacts, live: boolean, testnet: boolean, testnetLive: boolean): Item[] {
+function partners(live: boolean, testnet: boolean, testnetLive: boolean): Partner[] {
   return [
     {
       name: "Monad",
+      site: "https://www.monad.xyz",
       logo: "/partners/monad.svg",
-      body: "The chain Paraclr is built for. 8 lanes of disjoint storage give its optimistic parallel executor no reason to re-execute one lane's work because of another's.",
-      chip: live
+      readme: "monad",
+      use: "The chain. Each of the 8 lanes keeps its auction state in its own storage, so in a crash Monad's parallel executor has no reason to re-execute one lane's resolution because of another's. Discounts are timed in blocks, not seconds.",
+      fact: "0 vs 49 cross-lane dependency edges against a shared-state build, first public Arena crash on Monad testnet",
+      factHref: `${GITHUB_BLOB}/${ARENA_XRAY}`,
+      status: live
         ? "Mainnet beta · chain 143"
         : testnetLive
-          ? "Live on testnet · mainnet pending"
+          ? "Live on testnet · chain 10143"
           : testnet
-            ? "Testnet demo · mainnet pending"
+            ? "Testnet demo · chain 10143"
             : "Mainnet beta pending",
       tone: live || testnetLive ? "pos" : "warn",
     },
     {
-      name: "Pyth",
-      logo: "/partners/pyth-white.png",
-      body: testnetLive
-        ? "Pull-oracle prices for the production contracts, verified on chain: staleness, confidence and a positive price. Used on Monad testnet now, during a Pyth data trial. The measured demo runs use a simulated feed."
-        : "Pull-oracle prices for the production contracts, verified on chain: staleness, confidence and a positive price. The demo uses a simulated feed.",
-      chip: live ? "Used for prices" : testnetLive ? "Prices · testnet, data trial" : "Prices · beta contracts",
-      tone: "accent",
+      name: "Agora AUSD",
+      site: "https://www.agora.finance",
+      logo: "/partners/agora.svg",
+      readme: "agora-ausd",
+      use: live
+        ? "The single collateral and quote asset: margin, PnL, fees, lane insurance and backstop deposits, 6 decimals. Approvals are for the exact amount, never unlimited."
+        : testnetLive
+          ? "The single collateral and quote asset: margin, PnL, fees, lane insurance and backstop deposits, 6 decimals. Claim test AUSD calls Agora's faucet contract from your own wallet."
+          : "The single collateral and quote asset of the production contracts. The demo runs use MockAUSD, a 6-decimal stand-in with no value.",
+      fact: live ? `AUSD ${short(AUSD_MAINNET)} on Monad mainnet` : `Testnet AUSD ${short(AUSD_TESTNET)} · real AUSD ${short(AUSD_MAINNET)} for the beta`,
+      factHref: live ? undefined : `${MONAD_EXPLORER}/address/${AUSD_TESTNET}`,
+      status: live ? "Collateral · mainnet" : testnetLive ? "Collateral · testnet AUSD" : "Collateral · mainnet beta",
+      tone: live || testnetLive ? "pos" : "accent",
     },
     {
-      name: "Agora AUSD",
-      logo: "/partners/agora.svg",
-      body: testnetLive
-        ? "The single quote and margin asset. Agora's testnet AUSD on Monad testnet (test funds, no value), real AUSD on the mainnet beta; the measured demo runs use MockAUSD, a 6-decimal stand-in."
-        : "The single quote and margin asset. Real AUSD on the mainnet beta; the demo uses MockAUSD, a 6-decimal stand-in with no value.",
-      chip: testnetLive ? "Collateral · testnet AUSD now" : "Collateral (mainnet beta)",
+      name: "Pyth",
+      site: "https://www.pyth.network",
+      logo: "/partners/pyth-white.png",
+      readme: "pyth",
+      use: "Every order and auction carries a signed Pyth update the contract verifies for age, confidence and a positive price. An order fills at the first Pyth price after its delay, so neither the trader nor the executor picks it.",
+      fact: testnetLive
+        ? "SOL/USD and BTC/USD · stored price ≤ 15 s old · confidence ≤ 2% · Hermes data trial until ~Oct 20"
+        : "SOL/USD and BTC/USD feeds · staleness and confidence bounds checked on chain",
+      status: live ? "Prices · mainnet" : testnetLive ? "Prices · testnet, data trial" : "Prices · beta contracts",
       tone: "accent",
     },
     {
       name: "Privy",
+      site: "https://www.privy.io",
       logo: "/partners/privy-white.png",
-      body: "Sign-in with a passkey, email, a social account or your own wallet, and an embedded wallet for everyone else, through the public SDK.",
-      chip: "Login + wallet",
+      readme: "privy",
+      use: "Sign in with a passkey, email, Google, X, Discord, GitHub or your own wallet. Everyone without a wallet gets one embedded wallet, which signs their trades; a reload keeps the session.",
+      fact: "No seed phrase · the demo burner key is never offered on mainnet",
+      status: "Sign-in + wallet",
       tone: "neutral",
     },
     {
       name: "Envio",
+      site: "https://envio.dev",
       logo: "/partners/envio.svg",
-      body: testnetLive
-        ? "HyperIndex reads the clearinghouse through HyperSync: every order, fill, auction and backstop flow. The app's order history and activity since deploy come from its GraphQL API, hosted on Envio Cloud."
-        : "HyperIndex indexes the clearinghouse's orders, fills, auctions and backstop flows for the app's order history and activity since deploy.",
-      chip: testnetLive ? "Indexer · live on testnet" : "Indexer",
+      readme: "envio",
+      use: "HyperIndex reads the clearinghouse through HyperSync: every order, fill, auction and backstop flow. Order history, your past auctions and activity since deploy come from its GraphQL API on Envio Cloud.",
+      fact: "21 contract events into 11 entities · indexer paraclr-testnet",
+      factHref: `${GITHUB_BLOB}/indexer/schema.graphql`,
+      status: testnetLive ? "Indexer · live on testnet" : "Indexer",
       tone: testnetLive ? "pos" : "neutral",
-    },
-    {
-      name: "Safe",
-      logo: "/partners/safe.svg",
-      body: "The owner multisig behind the timelock: a Safe on Monad testnet proposes and executes every change, after the delay.",
-      chip: "Owner multisig · live on testnet",
-      tone: "pos",
-    },
-    {
-      name: "OpenZeppelin",
-      logo: "/partners/openzeppelin.svg",
-      body: "TimelockController owns the production contracts, so every parameter change waits out its delay. ERC-20 and math utilities.",
-      chip: "Timelock + token utils",
-      tone: "neutral",
-    },
-    {
-      name: "Foundry",
-      logo: "/partners/foundry.png",
-      body: [
-        repo.foundryTests ? `${fmtInt(repo.foundryTests)} tests including fuzzing` : "Tests including fuzzing",
-        repo.invariantTests ? `${fmtInt(repo.invariantTests)} invariant tests` : null,
-        "storage-access checks. anvil runs the local demo chain.",
-      ]
-        .filter(Boolean)
-        .join(", "),
-      chip: "Tests · demo chain",
-      tone: "neutral",
-    },
-    {
-      name: "viem",
-      logo: "/partners/viem.svg",
-      body: "Chain reads and user transactions in the app; the keeper's signing, receipts and the storage traces behind the X-ray.",
-      chip: "App + keeper client",
-      tone: "neutral",
-    },
-    {
-      name: "Slither",
-      logo: "/partners/slither.png",
-      logoW: 32,
-      body: "Static analysis on the production contracts, part of the launch gate.",
-      chip: "Static analysis · not an audit",
-      tone: "warn",
-    },
-    {
-      name: "Next.js",
-      logo: "/partners/nextjs.svg",
-      body: "This site and the trading app: App Router with CSS Modules. No charting or UI kit.",
-      chip: "Site + app",
-      tone: "neutral",
     },
   ];
 }
 
-const TONE: Record<Tone, string> = {
-  accent: b.chipAccent,
-  pos: b.chipPos,
-  warn: b.chipWarn,
-  neutral: "",
+function support(repo: RepoFacts): Support[] {
+  return [
+    {
+      name: "Safe",
+      site: "https://safe.global",
+      logo: "/partners/safe.svg",
+      use: `Owner multisig ${short(SAFE)}: proposes and executes every change through the timelock.`,
+    },
+    {
+      name: "OpenZeppelin",
+      site: "https://www.openzeppelin.com",
+      logo: "/partners/openzeppelin.svg",
+      use: "TimelockController owns the contracts (600 s on testnet); SafeERC20, SafeCast, Ownable.",
+    },
+    {
+      name: "Foundry",
+      site: "https://getfoundry.sh",
+      logo: "/partners/foundry.png",
+      use: [
+        repo.foundryTests ? `${fmtInt(repo.foundryTests)} tests` : "Tests",
+        repo.invariantTests ? `${fmtInt(repo.invariantTests)} invariant tests` : null,
+        "storage-access checks; anvil for the local chain.",
+      ]
+        .filter(Boolean)
+        .join(", "),
+    },
+    {
+      name: "viem",
+      site: "https://viem.sh",
+      logo: "/partners/viem.svg",
+      use: "App reads and transactions; the keeper's signing, Multicall3 batching and X-ray traces.",
+    },
+    {
+      name: "Slither",
+      site: "https://github.com/crytic/slither",
+      logo: "/partners/slither.png",
+      logoW: 30,
+      use: "Static analysis of the production contracts, part of the launch gate. Not an audit.",
+    },
+    {
+      name: "Next.js",
+      site: "https://nextjs.org",
+      logo: "/partners/nextjs.svg",
+      use: "This site, the trading app and /arena: App Router with CSS Modules.",
+    },
+  ];
+}
+
+const DOT: Record<Tone, string> = {
+  accent: "",
+  pos: b.dotPos,
+  warn: b.dotWarn,
+  neutral: s.dotNeutral,
 };
 
 const LOGO = 22;
 
-function Card({ item }: { item: Item }) {
+function Logo({ src, w = LOGO, h = LOGO }: { src: string; w?: number; h?: number }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img className={s.logo} src={src} width={w} height={h} alt="" />;
+}
+
+function Row({ p }: { p: Partner }) {
   return (
-    <li className={s.card}>
-      <span className={s.name}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={s.logo} src={item.logo} width={item.logoW ?? LOGO} height={LOGO} alt="" />
-        {item.name}
-      </span>
-      <p className={s.body}>{item.body}</p>
-      <span className={`${b.chip} ${TONE[item.tone]} ${s.chip}`}>{item.chip}</span>
+    <li className={s.row}>
+      <div className={s.who}>
+        <a className={s.name} href={p.site} target="_blank" rel="noopener noreferrer">
+          <Logo src={p.logo} />
+          {p.name}
+        </a>
+        <span className={s.status}>
+          <span className={`${b.dot} ${DOT[p.tone]}`} aria-hidden="true" />
+          {p.status}
+        </span>
+      </div>
+      <p className={s.use}>{p.use}</p>
+      <div className={s.side}>
+        <p className={s.fact}>
+          {p.factHref ? (
+            <a href={p.factHref} target="_blank" rel="noopener noreferrer">
+              {p.fact}
+            </a>
+          ) : (
+            p.fact
+          )}
+        </p>
+        <p className={s.links}>
+          <a className={b.link} href={`${README}#${p.readme}`} target="_blank" rel="noopener noreferrer">
+            How Paraclr uses {p.name}
+          </a>
+        </p>
+      </div>
     </li>
   );
 }
@@ -154,7 +221,6 @@ export function BuiltOn({
   testnet: boolean;
   testnetLive?: boolean;
 }) {
-  const list = items(repo, live, testnet, testnetLive);
   return (
     <section className={`${b.dark} ${b.surface} ${b.section} ${s.section}`} aria-labelledby="built-title">
       <div className={b.container}>
@@ -164,29 +230,35 @@ export function BuiltOn({
             Public infrastructure, <em>used as published.</em>
           </h2>
           <p className={b.lede}>
-            Paraclr is contracts, a keeper and an app on top of these tools. Each card says what it&rsquo;s used for,
-            and whether that&rsquo;s the beta, the demo or both.
+            Paraclr is contracts, a keeper and an app on top of five projects. Each row says what it does here and one
+            fact you can check; the README has the code paths and addresses.
           </p>
         </div>
-      </div>
 
-      <div className={s.marquee}>
-        <ul className={s.track} aria-label="Infrastructure Paraclr uses">
-          {list.map((item) => (
-            <Card key={item.name} item={item} />
+        <ul className={s.list} aria-label="Projects Paraclr is built on">
+          {partners(live, testnet, testnetLive).map((p) => (
+            <Row key={p.name} p={p} />
           ))}
         </ul>
-        <ul className={`${s.track} ${s.clone}`} aria-hidden="true">
-          {list.map((item) => (
-            <Card key={item.name} item={item} />
+
+        <p className={s.alsoHead}>Also used</p>
+        <ul className={s.also} aria-label="Supporting tools">
+          {support(repo).map((t) => (
+            <li key={t.name} className={s.tool}>
+              <a className={s.toolName} href={t.site} target="_blank" rel="noopener noreferrer">
+                <Logo src={t.logo} w={t.logoW ?? 18} h={18} />
+                {t.name}
+              </a>
+              <span className={s.toolUse}>{t.use}</span>
+            </li>
           ))}
         </ul>
-      </div>
 
-      <p className={`${b.container} ${s.disclaimer}`}>
-        Built for the Monad Metropolis hackathon. Not affiliated with or endorsed by Monad, Agora, Pyth, Privy, Envio, Safe or
-        OpenZeppelin.
-      </p>
+        <p className={s.disclaimer}>
+          Built for the Monad Metropolis hackathon. Not affiliated with or endorsed by Monad, Agora, Pyth, Privy, Envio,
+          Safe or OpenZeppelin.
+        </p>
+      </div>
     </section>
   );
 }
