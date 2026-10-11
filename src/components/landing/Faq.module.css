@@ -80,6 +80,25 @@
   font-weight: 600;
 }
 
+/* Smooth open/close where the browser supports animating <details>; instant otherwise or with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .item {
+    interpolate-size: allow-keywords;
+  }
+
+  .item::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height var(--pc-dur-2) var(--pc-ease),
+      content-visibility var(--pc-dur-2) allow-discrete;
+  }
+
+  .item[open]::details-content {
+    height: auto;
+  }
+}
+
 @media (max-width: 639px) {
   .q {
     grid-template-columns: 28px minmax(0, 1fr) 20px;

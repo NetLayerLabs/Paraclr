@@ -222,7 +222,8 @@ export function Faq({
         </div>
         <div className={s.list}>
           {items.map((it, i) => (
-            <details key={it.q} className={s.item}>
+            // One shared name: the browser keeps one answer open at a time (exclusive accordion, no JS).
+            <details key={it.q} name="faq" className={s.item}>
               <summary className={s.q}>
                 <span className={s.n} aria-hidden="true">
                   {String(i + 1).padStart(2, "0")}
