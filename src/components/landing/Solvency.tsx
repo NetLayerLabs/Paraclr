@@ -1,5 +1,4 @@
 import type { RepoFacts } from "./benchResults.server";
-import { Check } from "./icons";
 import { fmtInt } from "./format";
 import b from "./brand/Brand.module.css";
 import s from "./Solvency.module.css";
@@ -33,91 +32,78 @@ export function Solvency({ repo }: { repo: RepoFacts }) {
             </p>
             <ul className={s.checks}>
               <li>
-                <Check className={s.tick} />
-                <span>
-                  Read live from the contract, not computed by the app: <code className={b.code}>solvency()</code> and{" "}
-                  <code className={b.code}>laneLedger(lane)</code>.
-                </span>
+                Read live from the contract, not computed by the app: <code className={b.code}>solvency()</code> and{" "}
+                <code className={b.code}>laneLedger(lane)</code>.
               </li>
               <li>
-                <Check className={s.tick} />
-                <span>
-                  {repo.invariantTests ? (
-                    <>
-                      Covered by {fmtInt(repo.invariantTests)} Foundry invariant test
-                      {repo.invariantTests === 1 ? "" : "s"}, which re-check the books after every randomized call.
-                    </>
-                  ) : (
-                    <>Asserted in Foundry tests after every crash scenario.</>
-                  )}
-                </span>
+                {repo.invariantTests ? (
+                  <>
+                    Covered by {fmtInt(repo.invariantTests)} Foundry invariant test
+                    {repo.invariantTests === 1 ? "" : "s"}, which re-check the books after every randomized call.
+                  </>
+                ) : (
+                  <>Asserted in Foundry tests after every crash scenario.</>
+                )}
               </li>
-              <li>
-                <Check className={s.tick} />
-                <span>Bad debt is explicit: it appears in the identity instead of hiding inside a balance.</span>
-              </li>
+              <li>Bad debt is explicit: it appears in the identity instead of hiding inside a balance.</li>
             </ul>
             <p className={s.preview}>
-              <span>In the app header, every block</span>
-              <span className={`${b.chip} ${b.chipPos}`}>
+              In the app header, every block:{" "}
+              <span className={s.badge}>
                 <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
                 Solvent · surplus ≥ 0
               </span>
-              <span>If the identity ever breaks, the badge says so.</span>
+              . If the identity ever breaks, the badge says so.
             </p>
           </div>
 
-          <figure className={`${b.card} ${s.identity}`}>
-            <div className={s.bar}>
-              <span className={b.chrome} aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </span>
-              <span className={s.barTitle}>the identity</span>
-            </div>
+          <figure className={s.identity}>
+            <figcaption className={s.idHead}>
+              <span className={s.kicker}>The identity</span>
+              <span className={s.idNote}>solvent while this holds</span>
+            </figcaption>
 
-            <div className={s.body}>
-              <div className={s.lhs}>
-                <code>
-                  AUSD.balanceOf(
-                  <wbr />
-                  clearinghouse)
-                </code>
-                <span>what the contract holds</span>
-              </div>
-              <div className={s.equals} aria-label="equals">
-                ==
-              </div>
-              <div className={s.rhs}>
-                <span className={s.sigma}>
-                  Σ<sub>8 lanes</sub>
-                </span>
-                <ul className={s.terms}>
-                  {TERMS.map((t) => (
-                    <li key={t.name}>
-                      <span className={t.sign === "−" ? s.minus : s.sign}>{t.sign}</span>
+            <table className={s.terms}>
+              <caption className={b.srOnly}>
+                Solvent while the AUSD held by the clearinghouse is at least the sum over the 8 lanes of collateral,
+                insurance, backstop cash and keeper rewards owed, minus bad debt
+              </caption>
+              <tbody>
+                <tr className={s.lhs}>
+                  <td aria-hidden="true" />
+                  <th scope="row">
+                    <code>AUSD.balanceOf(clearinghouse)</code>
+                  </th>
+                  <td>what the contract holds</td>
+                </tr>
+                <tr className={s.sumRow}>
+                  <td className={s.op}>≥</td>
+                  <td colSpan={2}>
+                    <span className={s.sigma}>Σ</span> over the 8 lane ledgers, L0 to L7, of
+                  </td>
+                </tr>
+                {TERMS.map((t) => (
+                  <tr key={t.name}>
+                    <td className={t.sign === "−" ? `${s.op} ${s.minus}` : s.op}>{t.sign}</td>
+                    <th scope="row">
                       <code>{t.name}</code>
-                      <small>{t.hint}</small>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className={s.lanes} aria-label="8 lane ledgers summed by solvency()">
-              {Array.from({ length: 8 }, (_, k) => (
-                <span key={k}>L{k}</span>
-              ))}
-              <span className={s.sum}>→ solvency()</span>
-            </div>
+                    </th>
+                    <td>{t.hint}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
             <pre className={s.sig}>
               <code>
-                <span className={s.kw}>function</span> solvency() <span className={s.kw}>view returns</span>
-                {"\n"} (uint256 ausdHeld, uint256 liabilities, int256 surplus, bool solvent)
+                <span className={s.kw}>function</span> solvency() <span className={s.kw}>external view returns</span> (
+                {"\n"}  uint256 ausdHeld,
+                {"\n"}  uint256 liabilities,
+                {"\n"}  int256 surplus,
+                {"\n"}  bool solvent
+                {"\n"});
                 {"\n"}
-                <span className={s.cm}>{"// surplus = ausdHeld − liabilities; solvent = surplus ≥ 0"}</span>
+                <span className={s.cm}>{"// surplus = ausdHeld - liabilities; solvent = surplus >= 0"}</span>
               </code>
             </pre>
           </figure>

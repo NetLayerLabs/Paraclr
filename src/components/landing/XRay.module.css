@@ -2,98 +2,87 @@
   padding-top: clamp(40px, 6vw, 88px);
 }
 
-/* ---- Meta strip ---------------------------------------------------------- */
+/* ---- Provenance: plain mono text on one ruled line ----------------------- */
 
 .meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 18px;
-  margin-bottom: 24px;
-  font-size: 13px;
+  gap: 8px clamp(20px, 3vw, 40px);
+  margin-bottom: 28px;
+  padding: 12px 0;
+  border-top: 1px solid var(--pc-line);
+  border-bottom: 1px solid var(--pc-line);
+  font-family: var(--pc-font-mono);
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--pc-ink-2);
 }
 
-.metaItem {
-  display: inline-flex;
-  align-items: baseline;
+.meta div {
+  display: flex;
   gap: 8px;
+  min-width: 0;
+}
+
+.meta dt {
+  flex: none;
+  color: var(--pc-ink-3);
+}
+
+.meta dd {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.metaItem > span {
-  font-family: var(--pc-font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--pc-ink-3);
-}
-
-.metaItem code {
-  font-family: var(--pc-font-mono);
-  font-size: 12px;
-}
-
-.metaLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  font-family: var(--pc-font-mono);
-  font-size: 12px;
+.meta a {
   color: var(--pc-accent-text);
-  overflow-wrap: anywhere;
-}
-
-.metaLink:hover {
   text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--pc-accent-text) 35%, transparent);
   text-underline-offset: 3px;
 }
 
-.metaIcon {
-  width: 14px;
-  height: 14px;
-  flex: none;
+.meta a:hover {
+  text-decoration-color: currentColor;
+}
+
+.metaWarn {
+  color: var(--pc-warn-text);
 }
 
 .metaPending {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding: 16px 18px;
-  border: 1px solid var(--pc-warn-line);
-  border-radius: var(--pc-r-md);
-  background: var(--pc-warn-soft);
+  margin-bottom: 28px;
+  padding: 14px 0;
+  border-top: 2px solid var(--pc-warn);
+  border-bottom: 1px solid var(--pc-line);
   font-size: 14px;
   line-height: 1.6;
   color: var(--pc-ink-2);
 }
 
 .metaPending > span:first-child {
-  margin-top: 7px;
+  display: none;
 }
 
-/* ---- Panels -------------------------------------------------------------- */
+/* ---- Panels: two columns split by a rule --------------------------------- */
 
 .panels {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
   min-width: 0;
-  padding: clamp(18px, 2.2vw, 28px);
+  padding: 4px clamp(20px, 3vw, 44px) 28px 0;
 }
 
-.panelGood {
-  border-color: var(--pc-accent-line);
-  background: radial-gradient(120% 60% at 50% 0%, rgba(110, 84, 255, 0.1), transparent 60%), var(--pc-surface);
+.panel + .panel {
+  padding-right: 0;
+  padding-left: clamp(20px, 3vw, 44px);
+  border-left: 1px solid var(--pc-line);
 }
 
 .panelHead {
@@ -194,7 +183,6 @@ a.addr:hover {
   width: 100%;
   height: auto;
   aspect-ratio: 1;
-  border-radius: 10px;
 }
 
 .mBg {
@@ -229,9 +217,7 @@ a.addr:hover {
 
 .ghost {
   aspect-ratio: 1;
-  border: 1px dashed var(--pc-line-strong);
-  border-radius: 10px;
-  background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 8px, transparent 8px 16px);
+  border: 1px solid var(--pc-line);
 }
 
 .ghostLabel {
@@ -247,16 +233,12 @@ a.addr:hover {
 .stats {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1px;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-md);
-  background: var(--pc-line);
-  overflow: hidden;
+  gap: 0 16px;
 }
 
 .stats div {
-  padding: 12px 12px;
-  background: var(--pc-surface);
+  padding: 10px 0 0;
+  border-top: 1px solid var(--pc-line);
 }
 
 .stats dt {
@@ -336,9 +318,8 @@ a.addr:hover {
 }
 
 .legend i {
-  width: 11px;
-  height: 11px;
-  border-radius: 3px;
+  width: 10px;
+  height: 10px;
 }
 
 .keySame {
@@ -357,6 +338,12 @@ a.addr:hover {
   margin-left: auto;
   font-family: var(--pc-font-mono);
   font-size: 11.5px;
+  color: var(--pc-ink-3);
+}
+
+.laneNote {
+  margin-top: 10px;
+  font-size: 13px;
   color: var(--pc-ink-3);
 }
 
@@ -434,6 +421,17 @@ a.addr:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .panel {
+    padding-right: 0;
+  }
+
+  .panel + .panel {
+    padding-top: 28px;
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--pc-line);
+  }
+
   .read {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -448,7 +446,6 @@ a.addr:hover {
     grid-column: span 2;
   }
 
-  .metaLink,
   .legendNote {
     margin-left: 0;
   }

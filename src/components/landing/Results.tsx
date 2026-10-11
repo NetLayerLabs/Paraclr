@@ -103,7 +103,7 @@ function LaneOutcomes({ run }: { run: BenchRun }) {
   const max = Math.max(1, ...totals);
   const demo = run.auctions?.externalTakersDemo;
   return (
-    <figure className={`${b.card} ${s.chart}`}>
+    <figure className={s.chart}>
       <figcaption className={s.chartHead}>
         <span className={s.chartTitle}>Auction outcomes per lane</span>
         <span className={s.chartSub}>every underwater account, by how it resolved</span>
@@ -141,7 +141,7 @@ function LaneOutcomes({ run }: { run: BenchRun }) {
 function LaneBars({ run, net }: { run: BenchRun; net: Net }) {
   const max = Math.max(1, ...run.lanes.map((l) => l.liquidated));
   return (
-    <figure className={`${b.card} ${s.chart}`}>
+    <figure className={s.chart}>
       <figcaption className={s.chartHead}>
         <span className={s.chartTitle}>Liquidations per lane batch</span>
         <span className={s.chartSub}>one liquidateBatch per lane, 8 keeper wallets</span>
@@ -237,7 +237,7 @@ function AuctionMetrics({ run }: { run: BenchRun }) {
       </dl>
       <dl className={s.money}>
         {money.map((m) => (
-          <div key={m.k} className={`${b.card} ${s.moneyTile}`}>
+          <div key={m.k} className={s.moneyTile}>
             <dt>{m.k}</dt>
             <dd className={m.tone === "good" ? s.good : m.tone === "bad" ? s.bad : s.moneyValue}>
               {m.v === null ? "–" : fmtAusd(m.v)}
@@ -317,8 +317,7 @@ function MonadPending() {
   return (
     <div className={s.pending}>
       <div className={s.pendingCopy}>
-        <span className={b.chip}>
-          <span className={`${b.dot} ${s.dotIdle}`} aria-hidden="true" />
+        <span className={s.bannerNet}>
           Monad testnet · chain 10143
         </span>
         <h3 className={s.pendingTitle}>Monad testnet: live on real prices</h3>
@@ -361,10 +360,7 @@ export function Results({ evidence }: { evidence: LandingEvidence }) {
         {monad ? (
           <div className={s.block}>
             <div className={`${s.banner} ${s.bannerMonad}`}>
-              <span className={`${b.chip} ${b.chipPos}`}>
-                <span className={`${b.dot} ${b.dotPos}`} aria-hidden="true" />
-                Monad testnet · chain 10143
-              </span>
+              <span className={s.bannerNet}>Monad testnet · chain 10143</span>
               <p>
                 {fmtRunDate(monad.startedAt)} · <span className={b.mono}>{monad.file}</span> · tx links open the Monad
                 testnet explorer
@@ -388,10 +384,7 @@ export function Results({ evidence }: { evidence: LandingEvidence }) {
         {anvil ? (
           <div className={s.block}>
             <div className={`${s.banner} ${s.bannerAnvil}`} role="note">
-              <span className={`${b.chip} ${b.chipWarn}`}>
-                <span className={`${b.dot} ${b.dotWarn}`} aria-hidden="true" />
-                local anvil - not Monad
-              </span>
+              <span className={`${s.bannerNet} ${s.bannerNetWarn}`}>local anvil - not Monad</span>
               <p>
                 <b>Measured on local anvil, not Monad.</b>{" "}
                 {monad

@@ -6,199 +6,149 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(32px, 5vw, 80px);
-  align-items: center;
+  align-items: start;
   padding-top: clamp(64px, 8vw, 112px);
   border-top: 1px solid var(--pc-line);
 }
 
+.copy {
+  min-width: 0;
+}
+
 .checks {
-  display: grid;
-  gap: 14px;
   margin-top: 30px;
   list-style: none;
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .checks li {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--pc-line);
   font-size: 15px;
   line-height: 1.6;
   color: var(--pc-ink-2);
 }
 
-.tick {
-  width: 20px;
-  height: 20px;
-  flex: none;
-  margin-top: 2px;
-  padding: 3px;
-  border-radius: 50%;
-  background: var(--pc-pos-soft);
-  color: var(--pc-pos-text);
-}
-
-/* ---- Identity card ------------------------------------------------------- */
-
-.identity {
-  min-width: 0;
-  overflow: hidden;
-}
-
-.bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 14px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--pc-line);
-}
-
-.barTitle {
-  font-family: var(--pc-font-mono);
-  font-size: 12px;
-  color: var(--pc-ink-3);
-}
-
 .preview {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-  margin-top: 28px;
-  padding-top: 22px;
-  border-top: 1px solid var(--pc-line);
-  font-size: 13.5px;
+  margin-top: 18px;
+  font-size: 14px;
+  line-height: 1.7;
   color: var(--pc-ink-3);
 }
 
-.body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.3fr);
+.badge {
+  display: inline-flex;
   align-items: center;
-  gap: 18px;
-  padding: clamp(20px, 3vw, 32px);
-}
-
-.lhs {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-.lhs code {
-  padding: 10px 12px;
-  border: 1px solid var(--pc-accent-line);
-  border-radius: 10px;
-  background: var(--pc-accent-soft);
+  gap: 7px;
   font-family: var(--pc-font-mono);
-  font-size: 13px;
-  color: var(--pc-ink);
-}
-
-.lhs span {
   font-size: 12.5px;
-  color: var(--pc-ink-3);
-}
-
-.equals {
-  font-family: var(--pc-font-display);
-  font-size: 30px;
-  font-weight: 800;
-  color: var(--pc-accent-text);
-}
-
-.rhs {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  min-width: 0;
-}
-
-.sigma {
-  font-family: var(--pc-font-display);
-  font-size: 34px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--pc-ink);
-}
-
-.sigma sub {
-  display: block;
-  margin-top: 4px;
-  font-family: var(--pc-font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--pc-ink-3);
+  color: var(--pc-pos-text);
   white-space: nowrap;
 }
 
-.terms {
-  display: grid;
-  gap: 7px;
-  list-style: none;
+/* ---- The identity: a ruled table, then the signature -------------------- */
+
+.identity {
   min-width: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
-.terms li {
-  display: grid;
-  grid-template-columns: 14px auto;
+.idHead {
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  column-gap: 6px;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 14px;
+}
+
+.kicker {
+  font-family: var(--pc-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pc-ink-3);
+}
+
+.idNote {
+  font-size: 13px;
+  color: var(--pc-ink-3);
+}
+
+.terms {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.terms th,
+.terms td {
+  padding: 10px 0;
+  border-top: 1px solid var(--pc-line);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.terms tr:last-child th,
+.terms tr:last-child td {
+  border-bottom: 1px solid var(--pc-line);
+}
+
+.terms th {
+  padding-right: 20px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.terms td:last-child {
+  color: var(--pc-ink-3);
 }
 
 .terms code {
   font-family: var(--pc-font-mono);
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--pc-ink);
 }
 
-.terms small {
-  grid-column: 2;
-  font-size: 11.5px;
-  color: var(--pc-ink-3);
-}
-
-.sign,
-.minus {
+.op {
+  width: 28px;
   font-family: var(--pc-font-mono);
-  font-size: 13px;
-  color: var(--pc-pos-text);
+  font-size: 15px;
+  color: var(--pc-ink-3);
 }
 
 .minus {
   color: var(--pc-neg-text);
 }
 
-.lanes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 clamp(20px, 3vw, 32px) 20px;
+.lhs th code {
+  font-weight: 600;
 }
 
-.lanes span {
-  padding: 5px 9px;
-  border: 1px solid var(--pc-line);
-  border-radius: 8px;
+.sumRow td {
+  font-size: 13px;
+  color: var(--pc-ink-2) !important;
+}
+
+.sumRow td.op {
+  color: var(--pc-accent-text) !important;
+  font-weight: 600;
+}
+
+.sigma {
   font-family: var(--pc-font-mono);
-  font-size: 11.5px;
-  color: var(--pc-ink-2);
-}
-
-.lanes .sum {
-  border-color: var(--pc-accent-line);
-  color: var(--pc-accent-text);
+  font-size: 15px;
+  color: var(--pc-ink);
 }
 
 .sig {
-  margin: 0;
-  padding: 16px clamp(20px, 3vw, 32px);
-  border-top: 1px solid var(--pc-line);
-  background: var(--pc-bg-subtle);
+  margin-top: 22px;
+  padding: 0 0 0 16px;
+  border-left: 1px solid var(--pc-line-strong);
   font-family: var(--pc-font-mono);
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.7;
   color: var(--pc-ink-2);
   white-space: pre-wrap;
@@ -213,19 +163,40 @@
   color: var(--pc-ink-3);
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 959px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-@media (max-width: 639px) {
-  .body {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+@media (max-width: 479px) {
+  .terms th {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding-right: 12px;
   }
 
-  .equals {
-    font-size: 24px;
+  .terms tr {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    border-top: 1px solid var(--pc-line);
+  }
+
+  .terms th,
+  .terms td {
+    border: 0 !important;
+  }
+
+  .terms td:last-child {
+    grid-column: 2;
+    padding-top: 0;
+  }
+
+  .sumRow td:last-child {
+    padding-top: 10px !important;
+  }
+
+  .terms tr:last-child {
+    border-bottom: 1px solid var(--pc-line);
   }
 }

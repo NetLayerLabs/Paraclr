@@ -2,7 +2,6 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { MONAD_TESTNET_CHAIN_ID, type XrayDesign, type XrayEvidence } from "./benchResults.server";
 import { bands, MatrixSvg } from "./XrayMatrix";
-import { ArrowUpRight } from "./icons";
 import { GITHUB_BLOB, GITHUB_TREE, MONAD_EXPLORER } from "./content";
 import { fmtInt, shortHash } from "./format";
 import b from "./brand/Brand.module.css";
@@ -20,12 +19,24 @@ function methodLabel(x: XrayEvidence): string {
   return x.method;
 }
 
+/** Lanes are L0-L7 everywhere on the page; say which ones this run has no transactions in. */
+function laneNote(x: XrayEvidence): string {
+  const seen = new Set<number>();
+  for (const d of [x.lanes, x.naive]) d?.txs.forEach((t) => t.lane !== null && seen.add(t.lane));
+  const empty = Array.from({ length: 8 }, (_, i) => i).filter((i) => !seen.has(i));
+  const base = "Lanes are numbered L0 to L7, as in the contract and the solvency ledgers.";
+  if (empty.length === 0) return base;
+  const names = empty.map((i) => `L${i}`);
+  const list = names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+  return `${base} ${list} had no transactions in this run, so ${empty.length === 1 ? "it has" : "they have"} no band.`;
+}
+
 function Panel({ design, good, chainId }: { design: XrayDesign; good: boolean; chainId: number }) {
   const n = design.txs.length;
   const sum = design.summary;
   const label = `${good ? "Paraclr lanes" : "Naive shared state"}: ${n} transactions, ${sum.edges} dependency edges, ${design.crossLaneEdges} across lanes`;
   return (
-    <figure className={`${b.card} ${s.panel} ${good ? s.panelGood : ""}`}>
+    <figure className={s.panel}>
       <figcaption className={s.panelHead}>
         <span className={s.panelTitle}>{good ? "Paraclr lanes" : "Naive shared state"}</span>
         <span className={s.panelSub}>
@@ -123,7 +134,7 @@ function Panel({ design, good, chainId }: { design: XrayDesign; good: boolean; c
 
 function PendingPanel({ good }: { good: boolean }) {
   return (
-    <figure className={`${b.card} ${s.panel}`}>
+    <figure className={s.panel}>
       <figcaption className={s.panelHead}>
         <span className={s.panelTitle}>{good ? "Paraclr lanes" : "Naive shared state"}</span>
         <span className={s.panelSub}>{good ? "per-lane storage keys" : "same code · every aggregate on one key"}</span>
@@ -154,22 +165,30 @@ export function XRay({ xray }: { xray: XrayEvidence | null }) {
         </div>
 
         {xray ? (
-          <div className={s.meta}>
-            <span className={`${b.chip} ${monad ? b.chipPos : b.chipWarn}`}>
-              <span className={`${b.dot} ${monad ? b.dotPos : b.dotWarn}`} aria-hidden="true" />
-              {monad ? "Monad testnet · chain 10143" : `local anvil - not Monad · chain ${xray.chainId}`}
-            </span>
-            <span className={s.metaItem}>
-              <span>method</span> {methodLabel(xray)}
-            </span>
-            <span className={s.metaItem}>
-              <span>run</span> <code>{xray.runId}</code>
-            </span>
-            <a className={s.metaLink} href={`${GITHUB_TREE}/bench/xray/${xray.file}`} target="_blank" rel="noreferrer">
-              bench/xray/{xray.file}
-              <ArrowUpRight className={s.metaIcon} />
-            </a>
-          </div>
+          <dl className={s.meta} aria-label="Where this X-ray comes from">
+            <div>
+              <dt>Network</dt>
+              <dd className={monad ? undefined : s.metaWarn}>
+                {monad ? `Monad testnet, chain ${xray.chainId}` : `local anvil, not Monad, chain ${xray.chainId}`}
+              </dd>
+            </div>
+            <div>
+              <dt>Method</dt>
+              <dd>{methodLabel(xray)}</dd>
+            </div>
+            <div>
+              <dt>Run</dt>
+              <dd>{xray.runId}</dd>
+            </div>
+            <div>
+              <dt>Data</dt>
+              <dd>
+                <a href={`${GITHUB_TREE}/bench/xray/${xray.file}`} target="_blank" rel="noreferrer">
+                  bench/xray/{xray.file}
+                </a>
+              </dd>
+            </div>
+          </dl>
         ) : (
           <div className={s.metaPending}>
             <span className={`${b.dot} ${b.dotWarn}`} aria-hidden="true" />
@@ -205,6 +224,7 @@ export function XRay({ xray }: { xray: XrayEvidence | null }) {
             row = earlier tx that wrote a slot · column = later tx that read or wrote it
           </span>
         </div>
+        {xray ? <p className={s.laneNote}>{laneNote(xray)}</p> : null}
 
         {xray && !monad ? (
           <p className={s.next}>

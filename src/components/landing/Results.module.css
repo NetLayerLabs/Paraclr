@@ -13,8 +13,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px 16px;
-  padding: 16px 20px;
-  border-radius: var(--pc-r-lg);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--pc-line);
   font-size: 14px;
   line-height: 1.55;
   color: var(--pc-ink-2);
@@ -31,13 +31,23 @@
 }
 
 .bannerAnvil {
-  border: 1px solid var(--pc-warn-line);
-  background: var(--pc-warn-soft);
+  border-top: 2px solid var(--pc-warn);
 }
 
 .bannerMonad {
-  border: 1px solid var(--pc-pos-line);
-  background: var(--pc-pos-soft);
+  border-top: 2px solid var(--pc-pos);
+}
+
+.bannerNet {
+  font-family: var(--pc-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pc-pos-text);
+  white-space: nowrap;
+}
+
+.bannerNetWarn {
+  color: var(--pc-warn-text);
 }
 
 .bannerChain {
@@ -57,25 +67,23 @@
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 20px;
+  gap: 32px clamp(32px, 4.5vw, 64px);
+  margin-top: 28px;
 }
 
 .tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-lg);
-  background: var(--pc-line);
-  overflow: hidden;
+  gap: 0 clamp(20px, 3vw, 40px);
+  align-content: start;
 }
 
 .tile {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: clamp(18px, 2vw, 26px);
-  background: var(--pc-surface);
+  padding: 16px 0 24px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
 .tile dt {
@@ -112,7 +120,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: clamp(18px, 2vw, 26px);
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
 .chartHead {
@@ -154,7 +163,6 @@
 
 .barTrack {
   height: 14px;
-  border-radius: 5px;
   background: var(--pc-bg-subtle);
   overflow: hidden;
 }
@@ -163,7 +171,6 @@
   display: flex;
   width: var(--w);
   height: 100%;
-  border-radius: 5px;
   overflow: hidden;
 }
 
@@ -213,7 +220,6 @@
 .segLegend i {
   width: 10px;
   height: 10px;
-  border-radius: 3px;
 }
 
 .chartFoot {
@@ -240,17 +246,12 @@
 .counts {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-lg);
-  overflow: hidden;
+  gap: 0 clamp(16px, 2.4vw, 32px);
 }
 
 .counts div {
-  padding: 14px 18px;
-}
-
-.counts div + div {
-  border-left: 1px solid var(--pc-line);
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--pc-line);
 }
 
 .counts dt {
@@ -269,15 +270,16 @@
 .money {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
-  margin-top: 14px;
+  gap: 0 clamp(16px, 2.4vw, 32px);
+  margin-top: 8px;
 }
 
 .moneyTile {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 18px;
+  padding: 12px 0 18px;
+  border-top: 1px solid var(--pc-line);
 }
 
 .moneyTile dt {
@@ -324,9 +326,9 @@
 }
 
 .tableWrap {
-  margin-top: 14px;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-lg);
+  margin-top: 24px;
+  border-top: 1px solid var(--pc-ink);
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .table {
@@ -338,8 +340,7 @@
 }
 
 .table thead th {
-  padding: 12px 14px;
-  background: var(--pc-bg-subtle);
+  padding: 12px 14px 12px 0;
   font-family: var(--pc-font-mono);
   font-size: 10.5px;
   font-weight: 500;
@@ -352,7 +353,7 @@
 
 .table td,
 .table tbody th {
-  padding: 12px 14px;
+  padding: 12px 14px 12px 0;
   border-top: 1px solid var(--pc-line);
   text-align: left;
   font-weight: 400;
@@ -380,18 +381,14 @@
 
 .mechAuction,
 .mechFixed {
-  padding: 2px 8px;
-  border-radius: var(--pc-r-pill);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .mechAuction {
-  background: var(--pc-accent-soft);
   color: var(--pc-accent-text);
 }
 
 .mechFixed {
-  background: var(--pc-bg-subtle);
   color: var(--pc-ink-3);
 }
 
@@ -429,9 +426,8 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: 24px 40px;
   align-items: center;
-  padding: clamp(22px, 3vw, 34px);
-  border: 1px dashed var(--pc-line-strong);
-  border-radius: var(--pc-r-xl);
+  padding-top: 20px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
 .pendingCopy {
@@ -471,22 +467,6 @@
   .counts {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
-  .counts div + div {
-    border-left: 0;
-  }
-
-  .counts div {
-    border-top: 1px solid var(--pc-line);
-  }
-
-  .counts div:nth-child(-n + 3) {
-    border-top: 0;
-  }
-
-  .counts div:not(:nth-child(3n + 1)) {
-    border-left: 1px solid var(--pc-line);
-  }
 }
 
 @media (max-width: 639px) {
@@ -498,20 +478,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .counts div:nth-child(3) {
-    border-top: 1px solid var(--pc-line);
-  }
-
-  .counts div:not(:nth-child(3n + 1)) {
-    border-left: 0;
-  }
-
-  .counts div:nth-child(2n) {
-    border-left: 1px solid var(--pc-line);
-  }
-
-  .counts div:last-child {
+  .counts div:last-child:nth-child(odd) {
     grid-column: span 2;
   }
-
 }
