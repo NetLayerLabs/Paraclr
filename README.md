@@ -14,7 +14,8 @@ fair, fast liquidation you can check.
 
 Built for **Monad Metropolis** (Onchain Finance & Trading track). You trade on it in the browser with a passkey (or
 email, a social login or an external wallet, through Privy) and AUSD-denominated margin: a desktop trading terminal
-that collapses to a touch layout with swipe-to-trade on phones, installable as a web app.
+that collapses to a touch layout with swipe-to-trade on phones, installable as a web app. What Monad, Agora AUSD,
+Pyth, Privy and Envio each do in Paraclr, with code paths and addresses, is in [Built on](#built-on).
 
 > **Status (2026-10-10).** The production contracts have run on **Monad testnet** since 2026-10-07 with Agora's
 > testnet AUSD and Pyth prices: test funds, no real value (addresses
@@ -177,20 +178,165 @@ not configured, never on the live testnet with Privy set and never on mainnet (`
   +---------------------------------------------------------------------------------------------+
 ```
 
-## Indexer: Envio
+## Built on
 
-[`indexer/`](indexer/README.md) is an [Envio HyperIndex](https://docs.envio.dev) indexer for the production
-clearinghouse on Monad testnet. It reads the chain through Envio's **HyperSync** from the deploy block and records
-every order (commit, fill, failure, cancel: fill price, realized PnL, fee, seconds to fill), every per-lane auction
-and its outcome (taken by a backstop pool or externally, cured, expired; discount, payment, equity returned),
-position changes, collateral and backstop flows, plus running totals per account, lane, market, day and protocol.
+Paraclr is contracts, a keeper and an app built on five projects. This section says exactly what each one does here,
+where the code is and which addresses it uses. Addresses on Monad testnet are from
+[`deployments/10143.json`](deployments/10143.json) unless noted; the full list is in
+[Deployed contracts](#deployed-contracts-monad-testnet-chain-id-10143).
 
-It runs on **Envio Cloud** (indexer `paraclr-testnet`, deployed from the `envio` branch). Its GraphQL API
-(`NEXT_PUBLIC_ENVIO_GRAPHQL_URL`, currently `https://indexer.dev.hyperindex.xyz/b6db2a9/v1/graphql`) feeds the app's
-**order history** (Trade tab, Positions | History) and **activity since deploy** with the latest auctions (Clearing
-tab). Positions, balances and solvency are still read from the contract itself. Its totals were checked against the
-chain: AUSD held = insurance + backstop + deposits, and the executed-order count matches the keeper.
-`cd indexer && pnpm test` runs the handler tests on simulated events.
+### [Monad](https://www.monad.xyz)
+
+An EVM-compatible Layer 1 that executes the transactions in a block optimistically in parallel and re-executes any
+transaction whose inputs an earlier one in the same block changed.
+
+**How Paraclr uses it**
+
+- **Chain.** The production contract set runs on Monad testnet (chain id 10143) since deploy block 69,041,758:
+  `ParaclrClearinghouseProd` at `0xbC1fD0165FBfF4EF32337E42D0e2Ad59bF52b203`. The demo stack used for crash runs and
+  X-rays is deployed separately ([`deployments/demo/10143.json`](deployments/demo/10143.json)). Mainnet (chain id
+  143) is [gated](#production-beta-monad-mainnet-gated).
+- **Storage laid out for parallel execution.** Everything an auction writes is keyed by lane (`uint160(account) % 8`):
+  `Lane[8] _lanes`, `LaneLedger[8] _ledgers`, `AuctionCounters[8]`, `_laneOI`, `_lanePrice`, `_auctionList` and
+  `_pools` in [`contracts/src/prod/ParaclrClearinghouseProd.sol`](contracts/src/prod/ParaclrClearinghouseProd.sol),
+  whose header lists the only writers of every global slot. The reentrancy lock is EIP-1153 transient storage. See
+  [Lanes: the engine](#lanes-the-engine).
+- **Measured on Monad testnet.** The [Conflict X-ray](#conflict-x-ray) traces every resolution transaction with
+  `debug_traceTransaction` ([`keeper/src/xray.ts`](keeper/src/xray.ts), [`keeper/src/xray-run.ts`](keeper/src/xray-run.ts))
+  and compares it with a shared-state build of the same contract: **0 vs 18** cross-lane dependency edges in the
+  2026-10-10 benchmark crash ([`bench/xray/10143-run-mv2za35r-mfh66.json`](bench/xray/10143-run-mv2za35r-mfh66.json)),
+  **0 vs 49** in the first public Arena crash
+  ([`bench/xray/10143-run-mv2ze6l6-xzyi6.json`](bench/xray/10143-run-mv2ze6l6-xzyi6.json)).
+- **Auctions timed in blocks.** The discount rises per block, not per second; at the testnet's 5 bps step and ~0.35 s
+  blocks the backstop minimum is reached at block 15 (≈ 5 s) and the 500 bps cap at block 100 (≈ 35 s)
+  ([`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14). The public [`/arena`](src/app/arena/page.tsx) page runs the crash
+  on Monad testnet for anyone, lanes next to the shared-state build ([`keeper/src/arena.ts`](keeper/src/arena.ts)).
+- **Monad specifics the keeper handles.** Gas is billed on the gas **limit**, so every limit is `estimateGas` plus a
+  small margin ([`keeper/src/sender.ts`](keeper/src/sender.ts), [`keeper/src/prod/budget.ts`](keeper/src/prod/budget.ts));
+  the reserve-balance rule (below 10 MON a value-carrying transaction must be the sender's first in 3 blocks) is
+  enforced per key ([`keeper/src/prod/reserve.ts`](keeper/src/prod/reserve.ts), [`keeper/src/takers.ts`](keeper/src/takers.ts));
+  account checks are batched through Multicall3 and JSON-RPC batches ([`keeper/src/network.ts`](keeper/src/network.ts));
+  the public RPC's per-second caps (`-32007`) are retried with backoff ([`keeper/src/rpc-retry.ts`](keeper/src/rpc-retry.ts)).
+  The production contract is larger than EIP-170's 24,576 bytes and relies on Monad's 128 KB code-size limit
+  ([`contracts/foundry.toml`](contracts/foundry.toml)).
+
+**Why it matters for fair liquidations.** In a crash every lane's auctions resolve in the same blocks; because their
+write sets are disjoint, Monad has no reason to re-execute one lane's resolution because of another's, and the X-ray
+publishes that claim as a measured graph rather than an assertion.
+
+### [Agora AUSD](https://www.agora.finance)
+
+AUSD is a US-dollar stablecoin issued by Agora.
+
+**How Paraclr uses it**
+
+- **The single collateral and quote asset.** Margin, PnL, trading fees, lane insurance and backstop LP deposits are
+  all AUSD, 6 decimals, at an immutable token address set at deploy.
+- **Testnet.** Agora's testnet AUSD `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC`. The app's "Claim test AUSD" calls
+  Agora's faucet contract `0xd236c18D274E54FAccC3dd9DDA4b27965a73ee6C` (`requestFunds(address)`, 10,000 test AUSD per
+  call) from the user's wallet; limits are read from the contract
+  ([`src/lib/chain/prod/agoraFaucet.ts`](src/lib/chain/prod/agoraFaucet.ts)).
+- **Mainnet beta.** Agora AUSD `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` with 6 decimals
+  ([`keeper/src/prod/config.ts`](keeper/src/prod/config.ts)); `DeployProd.s.sol` re-verifies the token and its
+  decimals on chain before deploying.
+- **Exact-amount approvals.** Every deposit asks for `approve` of the exact amount, never unlimited
+  ([`src/lib/chain/prod/actions.ts`](src/lib/chain/prod/actions.ts)).
+- **Disclosed risk.** The [risk disclosure](src/app/risk/page.tsx) (`/risk`) states that AUSD can lose its peg and may
+  carry issuer controls such as freezing addresses, and that Paraclr does not issue, back or redeem it.
+
+**Why it matters for fair liquidations.** A single collateral asset keeps the solvency identity exact
+(`AUSD.balanceOf(clearinghouse)` equals the sum of the lanes' ledgers, see [Solvency proof](#solvency-proof)), so an
+auction moves internal AUSD balances only and never needs an ERC-20 transfer on the hot path.
+
+### [Pyth](https://www.pyth.network)
+
+A pull oracle: signed price updates are fetched off chain (from Hermes) and verified on chain by the Pyth contract.
+
+**How Paraclr uses it**
+
+- **Contract and feeds.** Pyth `0x2880aB155794e7179c9eE2e38200202908C17B43` on Monad testnet (the same address on
+  mainnet). Feeds: SOL/USD `0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d` and BTC/USD
+  `0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43` for the SOL/AUSD and BTC/AUSD markets.
+- **Verified on chain.** `ParaclrClearinghouseProd` normalises the exponent, rejects non-positive prices, prices with
+  `conf / price` above `maxConfBps` (200 = 2% on testnet), supplied updates older than `maxPriceAge` (30 s) and stored
+  prices older than `maxStoredPriceAge` (15 s). Per lane and market, prices never move backwards.
+- **Delayed orders.** `commitOrder` escrows margin; `executeOrder` fills at the **first** Pyth update published at or
+  after the commit's delay (`parsePriceFeedUpdatesUnique`), so neither the trader nor the executor picks the price.
+  The keeper fetches that update from Hermes ([`keeper/src/prod/hermes.ts`](keeper/src/prod/hermes.ts)) and
+  pushes stored prices only when an execution needs them (`PYTH_PUSH_MODE=on-demand`,
+  [`keeper/src/prod/pricepush.ts`](keeper/src/prod/pricepush.ts)).
+- **Auctions and user calls.** The sweeper attaches a fresh update to every auction transaction. The app gets updates
+  through the keeper's `/hermes` proxy, which holds the API key server-side
+  ([`src/lib/chain/prod/priceUpdate.ts`](src/lib/chain/prod/priceUpdate.ts) for transactions,
+  [`src/lib/chain/prod/pythPrices.ts`](src/lib/chain/prod/pythPrices.ts) for display); the proxy cannot alter a price,
+  only withhold one.
+- **Trial-end fallback.** The testnet runs on a Hermes trial key that ends ~2026-10-20. The planned switch, through the
+  timelock, is `KeeperSignedPyth` ([`contracts/src/testnet/KeeperSignedPyth.sol`](contracts/src/testnet/KeeperSignedPyth.sol),
+  testnet only, not deployed yet), with prices labelled "simulated after the Pyth trial"
+  ([`docs/RUNBOOK.md`](docs/RUNBOOK.md) section 14.6).
+
+**Why it matters for fair liquidations.** An auction's discount is only fair if the mark it is measured against is
+current and verifiable; every auction transaction carries a signed Pyth update that the contract checks for age and
+confidence before any equity is computed.
+
+### [Privy](https://www.privy.io)
+
+Authentication and embedded wallets for web apps.
+
+**How Paraclr uses it**
+
+- **Sign-in.** Passkey (the primary button), email, Google, X, Discord, GitHub or an external wallet
+  (`loginMethods` in [`src/components/auth/AuthProvider.tsx`](src/components/auth/AuthProvider.tsx); a method also has
+  to be enabled in the Privy dashboard).
+- **Embedded wallets.** `createOnLogin: "users-without-wallets"`: every non-wallet sign-in gets one embedded wallet on
+  the app's chain, and the app waits for it rather than creating a second
+  ([`src/components/auth/PrivyAuth.tsx`](src/components/auth/PrivyAuth.tsx)).
+- **Transaction signer.** `PrivyWalletBridge` registers the signed-in wallet's EIP-1193 provider as the app's signer
+  ([`src/lib/chain/signer.ts`](src/lib/chain/signer.ts)); transactions go to the app's own RPC. Embedded-wallet
+  confirmation popups are on for mainnet only; an external wallet confirms every transaction itself.
+- **Session restore.** `PrivySessionRestore` restores the app session after a reload while Privy still holds one.
+- **No burner where it counts.** The demo burner key is offered only where Privy is not configured, never on the live
+  testnet with Privy set and never on mainnet ([`src/lib/auth/session.ts`](src/lib/auth/session.ts)).
+
+**Why it matters for fair liquidations.** A trader who can top up from a phone in seconds can cure an auction
+(`cancelAuction` once healthy) before a taker does; a passkey wallet removes the seed-phrase step from that path.
+
+### [Envio](https://envio.dev)
+
+HyperIndex is Envio's indexing framework; HyperSync is its chain-data API, which HyperIndex reads from.
+
+**How Paraclr uses it**
+
+- **Indexer.** [`indexer/`](indexer/README.md) is a HyperIndex project (`envio` 3.14.0) on the production
+  clearinghouse from its deploy block, read through HyperSync with the public RPC as fallback
+  ([`indexer/config.yaml`](indexer/config.yaml), 21 events).
+- **Entities.** `Order`, `Auction`, `PositionChange`, `CollateralFlow`, `BackstopFlow`, plus running totals in
+  `Account`, `Lane`, `Market`, `DailyStat` and `Protocol`, and `GuardianAction`
+  ([`indexer/schema.graphql`](indexer/schema.graphql), handlers in
+  [`indexer/src/handlers/ParaclrClearinghouse.ts`](indexer/src/handlers/ParaclrClearinghouse.ts)). Orders record fill
+  price, realized PnL, fee and seconds to fill; auctions record taker, discount, payment and equity returned.
+- **Hosting.** Envio Cloud, indexer `paraclr-testnet` (deployed from the `envio` branch). GraphQL:
+  `https://indexer.dev.hyperindex.xyz/b6db2a9/v1/graphql`, the app's `NEXT_PUBLIC_ENVIO_GRAPHQL_URL`; each deployment
+  gets its own URL ([`indexer/README.md`](indexer/README.md)).
+- **What the app reads from it** ([`src/lib/indexer.ts`](src/lib/indexer.ts)): order history (Trade tab, Positions |
+  History), each account's finished auctions for the "what you kept" comparison, and activity since deploy with the latest auctions (Clearing tab).
+  Positions, balances and solvency are still read from the contract.
+- **Checked against the chain.** AUSD held = insurance + backstop + deposits, and the executed-order count matches the
+  keeper. `cd indexer && pnpm test` runs the handler tests on simulated events.
+
+**Why it matters for fair liquidations.** Every auction's outcome (who took it, at what discount, how much equity went
+back to the trader) is queryable after the fact, so the auction's fairness can be audited from history, not only
+watched live.
+
+### Supporting stack
+
+| Project | Used for | Where |
+|---|---|---|
+| [Safe](https://safe.global) + [OpenZeppelin TimelockController](https://docs.openzeppelin.com/contracts/5.x/api/governance#TimelockController) | Owner of the production contracts: the Safe `0xCC62247E59A3872013e2dB7A52696A3117F2e4c3` proposes and executes every change through the timelock `0xdD66E8118e0a1096D8eEC5b0A0eE9612890047Ab` (600 s delay on testnet); the keeper never holds the owner key and only writes Safe Transaction Builder files | [`keeper/src/prod/timelock.ts`](keeper/src/prod/timelock.ts), [`docs/RUNBOOK.md`](docs/RUNBOOK.md) |
+| [OpenZeppelin Contracts](https://www.openzeppelin.com/solidity-contracts) 5.6.1 | `Ownable`, `SafeERC20`, `SafeCast`, ECDSA in the fallback oracle, `TimelockController` in the deploy script (vendored, not edited) | [`contracts/lib/openzeppelin-contracts/`](contracts/lib/openzeppelin-contracts/VENDORED.md) |
+| [Foundry](https://getfoundry.sh) | 256 tests across 53 test files plus 23 invariant tests (solvency identities; 256 runs × depth 100), fuzzing at 1,024 runs, and storage-access checks (`test_ParallelSafety_*`, `vm.record`); `anvil` for the local demo chain and mainnet-fork rehearsals | [`contracts/test/`](contracts/test/), [`contracts/foundry.toml`](contracts/foundry.toml) |
+| [viem](https://viem.sh) | Chain reads and user transactions in the app; the keeper's signing, receipts, Multicall3 batching and the storage traces behind the X-ray | [`src/lib/chain/`](src/lib/chain/), [`keeper/src/`](keeper/src/) |
+| [Next.js](https://nextjs.org) 16 | The landing page, the trading app, `/arena`, `/pnl`, `/risk` and `/terms` (App Router, CSS Modules) | [`src/app/`](src/app/) |
 
 ## What's on-chain and what's simulated (demo stack)
 
@@ -407,6 +553,8 @@ sweeper fixed (above). Their X-rays are valid and are in the table below.
 
 | Network · method | Design | Txs | Dependency edges | Across lanes | Longest chain | Evidence |
 |---|---|---|---|---|---|---|
+| **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 18 | 0 | **0** | 1 | `bench/xray/10143-run-mv2ze6l6-xzyi6.json` (first public Arena crash, −20%, 2026-10-10) |
+| **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 25 | 49 | **49** | 8 | same file |
 | **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 23 | 2 | **0** | 2 | `bench/xray/10143-run-mv2za35r-mfh66.json` (−20% run, 2026-10-10) |
 | **Monad testnet** · live `debug_traceTransaction` | Naive shared state | 24 | 20 | **18** | 4 | same file |
 | **Monad testnet** · live `debug_traceTransaction` | Paraclr lanes | 12 | 1 | **0** | 2 | `bench/xray/10143-run-muz0vh3f-wciq2.json` (−30% run) |
