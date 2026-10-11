@@ -152,7 +152,7 @@ export function SwipeToTrade({ side, label, disabledReason, doneLabel, pendingLa
       >
         <div className={styles.fill} />
         <span className={styles.label} aria-live="polite">
-          <span className={disabled || status !== "idle" ? undefined : styles.shimmer}>{text}</span>
+          {text}
         </span>
         <div
           className={styles.thumb}

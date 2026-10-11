@@ -2,18 +2,13 @@
   position: sticky;
   top: 0;
   z-index: 60;
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: saturate(160%) blur(16px);
-  -webkit-backdrop-filter: saturate(160%) blur(16px);
+  background: var(--pc-bg);
   border-bottom: 1px solid transparent;
-  transition:
-    border-color var(--pc-dur-2) var(--pc-ease),
-    box-shadow var(--pc-dur-2) var(--pc-ease);
+  transition: border-color var(--pc-dur-2) var(--pc-ease);
 }
 
 .nav[data-scrolled] {
   border-bottom-color: var(--pc-line);
-  box-shadow: 0 10px 30px -24px rgba(26, 18, 74, 0.35);
 }
 
 .inner {

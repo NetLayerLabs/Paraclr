@@ -406,17 +406,12 @@ body:has(.root) {
 .btnPrimary {
   background: var(--pc-accent);
   color: var(--pc-on-accent);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 10px 24px -12px rgba(110, 84, 255, 0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btnPrimary:hover {
   background: var(--pc-accent-strong);
   transform: translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 16px 30px -12px rgba(110, 84, 255, 0.8);
 }
 
 .btnOutline {

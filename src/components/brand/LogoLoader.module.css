@@ -10,14 +10,6 @@
   display: block;
 }
 
-/* A soft accent halo so the deep-violet artwork reads on the near-black surface. */
-.mark::before {
-  content: "";
-  position: absolute;
-  inset: -30%;
-  background: radial-gradient(closest-side, rgba(110, 84, 255, 0.22), transparent);
-}
-
 .mark img {
   position: absolute;
   inset: 0;

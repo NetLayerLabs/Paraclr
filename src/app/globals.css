@@ -55,8 +55,9 @@
 
   /* ---- depth ---- */
   --shadow-1: 0 0 #0000;
-  --shadow-2: 0 24px 48px -24px rgba(0, 0, 0, 0.8);
-  --shadow-pop: 0 30px 80px -10px rgba(0, 0, 0, 0.7);
+  /* Ruled sheet: floating surfaces (toasts, dialogs) separate by border and scrim, not by a blur. */
+  --shadow-2: 0 0 #0000;
+  --shadow-pop: 0 0 #0000;
   --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim: rgba(4, 3, 8, 0.7);
   --chart-grid: rgba(255, 255, 255, 0.07);
@@ -133,8 +134,8 @@
   --link-text: #2f4fc0;
 
   --shadow-1: 0 1px 2px rgba(18, 14, 48, 0.05), 0 1px 1px rgba(18, 14, 48, 0.03);
-  --shadow-2: 0 16px 36px -16px rgba(26, 18, 74, 0.18), 0 2px 6px -2px rgba(26, 18, 74, 0.06);
-  --shadow-pop: 0 48px 90px -30px rgba(26, 18, 74, 0.34), 0 16px 32px -16px rgba(26, 18, 74, 0.16);
+  --shadow-2: 0 0 #0000;
+  --shadow-pop: 0 0 #0000;
   --card-highlight: 0 0 #0000;
   --scrim: rgba(11, 10, 18, 0.4);
   --chart-grid: #eeedf3;

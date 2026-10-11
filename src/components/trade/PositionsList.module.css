@@ -542,8 +542,6 @@
   place-items: center;
   padding: 16px;
   background: var(--scrim);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 .confirm {

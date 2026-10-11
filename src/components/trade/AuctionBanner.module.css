@@ -47,15 +47,10 @@
   font-family: var(--font-mono);
   font-size: 12.5px;
   font-weight: 800;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--tone) 40%, transparent);
 }
 
 .banner[data-tone="taken"] .icon {
   color: var(--on-accent);
-}
-
-.banner[data-tone="auction"] .icon {
-  animation: tick 1s ease-in-out infinite;
 }
 
 .icon[data-tone] {
@@ -106,7 +101,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 50%, transparent), var(--warn));
+  background: var(--warn);
   transition: width 0.35s ease-out;
 }
 
@@ -164,9 +159,7 @@
   font-weight: 700;
   color: var(--on-fill);
   background: var(--long);
-  box-shadow:
-    0 8px 20px -10px color-mix(in srgb, var(--long) 80%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
   white-space: nowrap;
 }
 
@@ -238,15 +231,8 @@
   }
 }
 
-@keyframes tick {
-  50% {
-    box-shadow: 0 6px 26px color-mix(in srgb, var(--tone) 70%, transparent);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .banner,
-  .icon {
+  .banner {
     animation: none !important;
   }
 }

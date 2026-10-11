@@ -117,9 +117,6 @@
 .bodyLive {
   fill: var(--c);
 }
-.bodyLive {
-  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--c) 70%, transparent));
-}
 
 /* position levels */
 .lvLong {

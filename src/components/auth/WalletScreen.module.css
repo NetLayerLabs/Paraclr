@@ -254,29 +254,6 @@
   color: var(--text-dim);
 }
 
-.sessionKey {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.keyIcon {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--bg-elev-2);
-  border: 1px solid var(--border);
-}
-
-.keyIcon svg {
-  width: 20px;
-  height: 20px;
-  stroke: var(--accent-text);
-}
-
 .keyTitle {
   font-size: 14px;
   font-weight: 600;

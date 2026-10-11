@@ -43,12 +43,11 @@
   --tone-text: var(--text);
 }
 
-/* Insolvent: the one status that may shout - red word, tinted, pulsing. */
+/* Insolvent: the one status that may shout - red word on a red tint. */
 .badge[data-tone="alert"] {
   --tone: var(--short);
   --tone-text: var(--short-text);
   background: var(--short-soft);
-  animation: alertPulse 1.4s ease-in-out infinite;
 }
 
 /* Desktop: a dot in place of the shield, so the group reads as one row of dots. */
@@ -100,7 +99,6 @@
 
 .dialog::backdrop {
   background: var(--scrim);
-  backdrop-filter: blur(4px);
 }
 
 .dialog[open] {
@@ -453,14 +451,7 @@
   }
 }
 
-@keyframes alertPulse {
-  50% {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--short) 22%, transparent);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .badge,
   .dialog[open] {
     animation: none !important;
   }

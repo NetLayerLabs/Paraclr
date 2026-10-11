@@ -6,38 +6,33 @@
   border-radius: var(--radius-pill);
   background: var(--bg-elev-2);
   border: 1px solid var(--border);
-  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--on-fill) 12%, transparent);
   overflow: hidden;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s;
 }
 .long {
   --side: var(--long);
   --side-text: var(--long-text);
   --side-soft: color-mix(in srgb, var(--long) 22%, transparent);
-  --side-glow: color-mix(in srgb, var(--long) 45%, transparent);
 }
 .short {
   --side: var(--short);
   --side-text: var(--short-text);
   --side-soft: color-mix(in srgb, var(--short) 22%, transparent);
-  --side-glow: color-mix(in srgb, var(--short) 45%, transparent);
 }
 .track:not(.disabled) {
   border-color: color-mix(in srgb, var(--side) 35%, var(--border));
 }
 
-/* progress fill trails the thumb */
+/* progress fill trails the thumb: one flat tint */
 .fill {
   position: absolute;
   inset: 0 auto 0 0;
   width: calc(var(--x) + var(--thumb) + var(--inset) * 2);
-  background: linear-gradient(90deg, transparent, var(--side-soft));
+  background: var(--side-soft);
   border-radius: 999px;
   transition: width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
@@ -71,29 +66,6 @@
   color: var(--warn-text);
 }
 
-.shimmer {
-  background: linear-gradient(
-    100deg,
-    var(--text-dim) 0%,
-    var(--text-dim) 35%,
-    var(--text) 50%,
-    var(--text-dim) 65%,
-    var(--text-dim) 100%
-  );
-  background-size: 250% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 2.2s linear infinite;
-}
-@keyframes shimmer {
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: -150% 0;
-  }
-}
 
 .thumb {
   position: absolute;
@@ -106,12 +78,10 @@
   place-items: center;
   color: var(--on-fill);
   background: var(--side);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transform: translateX(var(--x));
   transition:
     transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2),
-    background 0.2s,
-    box-shadow 0.2s;
+    background 0.2s;
   cursor: grab;
   touch-action: none;
   outline: none;
@@ -129,7 +99,6 @@
 .dragging .thumb {
   cursor: grabbing;
   transition: none;
-  box-shadow: 0 6px 22px var(--side-glow);
 }
 .dragging .fill {
   transition: none;
@@ -142,7 +111,6 @@
 
 .done {
   border-color: var(--side);
-  box-shadow: 0 0 0 4px var(--side-soft);
 }
 .done .fill {
   background: var(--side-soft);
@@ -157,7 +125,6 @@
 .disabled .thumb {
   background: var(--border-strong);
   color: var(--text-dim);
-  box-shadow: none;
   cursor: not-allowed;
 }
 .disabled .label {
@@ -196,13 +163,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shimmer,
   .thumb svg {
     animation: none;
   }
 }
 
-/* On-chain confirm in flight: thumb parked at the end, track breathes. */
+/* On-chain confirm in flight: thumb parked at the end, the fill dims and returns (the only pending cue). */
 .pending .fill {
   animation: pendingPulse 1.1s ease-in-out infinite;
 }

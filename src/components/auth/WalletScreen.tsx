@@ -148,12 +148,6 @@ function SimWallet() {
       </section>
 
       <section className={styles.sessionKey}>
-        <div className={styles.keyIcon} aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round">
-            <circle cx="8" cy="15" r="4" />
-            <path d="M10.8 12.2 20 3M16 7l3 3M14 9l2 2" />
-          </svg>
-        </div>
         <div>
           <p className={styles.keyTitle}>{isPasskey ? "Privy embedded wallet" : "Demo mode: nothing is signed"}</p>
           <p className={styles.note}>
@@ -375,12 +369,6 @@ function ChainWallet() {
       </div>
 
       <section className={styles.sessionKey}>
-        <div className={styles.keyIcon} aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round">
-            <circle cx="8" cy="15" r="4" />
-            <path d="M10.8 12.2 20 3M16 7l3 3M14 9l2 2" />
-          </svg>
-        </div>
         <div>
           <p className={styles.keyTitle}>
             {session.method === "wallet" ? "Your wallet, through Privy" : isPasskey ? "Privy embedded wallet" : "Demo burner wallet"}

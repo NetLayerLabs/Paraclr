@@ -422,18 +422,12 @@
   overflow: visible;
 }
 
-.glyph[data-phase="scanning"] .brackets {
-  animation: breathe 0.9s ease-in-out infinite;
-  transform-origin: center;
-}
-
 .glyph[data-phase="scanning"] .face {
   opacity: 0.55;
 }
 
 .beam {
   fill: currentColor;
-  filter: drop-shadow(0 0 4px #fff);
   animation: scan 0.9s ease-in-out infinite alternate;
 }
 
@@ -527,12 +521,6 @@
 
 /* ---- keyframes ----------------------------------------------------------- */
 
-@keyframes breathe {
-  50% {
-    transform: scale(0.9);
-  }
-}
-
 @keyframes scan {
   from {
     transform: translateY(0);
@@ -549,8 +537,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .beam,
-  .glyph .brackets {
+  .beam {
     animation: none !important;
   }
 

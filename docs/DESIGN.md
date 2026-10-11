@@ -138,7 +138,7 @@ information only through motion.
 
 ## 6. Components
 
-**Buttons** (`.btn` + one of): `.btnPrimary` (purple pill, white text, soft purple glow) for the one main action
+**Buttons** (`.btn` + one of): `.btnPrimary` (purple pill, white text, flat: no glow) for the one main action
 per view; `.btnOutline` (1.5 px purple border, purple text) for the secondary; `.btnInverse` (white pill) as the
 primary on black; `.btnQuiet` (hairline border) as the secondary on black or for low-stakes links. Sizes: `.btnSm`
 38 px, default 48 px, `.btnLg` 56 px. Icons 17 px; trailing arrows get `.btnIconMove`. Phones: CTAs go full width.
