@@ -190,7 +190,7 @@ export function ProdWallet() {
           : amount > free + 1e-9
             ? "More than your free collateral"
             : priced.needed && quote.error
-              ? "Prices are refreshing - retry in a few seconds"
+              ? "Prices are refreshing; retry in a few seconds"
               : acct.native <= 0
                 ? `Need ${NETWORK.nativeSymbol} for gas`
                 : null;
@@ -248,7 +248,7 @@ export function ProdWallet() {
         {testnet ? (
           <p className={styles.fine}>
             Fund it with {token.testnet ? "Agora's testnet AUSD" : `the test ${token.symbol}`} and some
-            {NETWORK.sandbox ? "" : " testnet"} {NETWORK.nativeSymbol} for gas and fees - test funds, no real value.
+            {NETWORK.sandbox ? "" : " testnet"} {NETWORK.nativeSymbol} for gas and fees. Test funds, no real value.
           </p>
         ) : (
           <p className={styles.fine}>
@@ -365,7 +365,7 @@ export function ProdWallet() {
               <dd className="mono">{room.accountRoom === null ? "-" : fmtAusd(room.accountRoom)}</dd>
             </div>
             <div>
-              <dt>Room under lane {acct ? acct.lane : ""} TVL cap</dt>
+              <dt>Room under L{acct ? acct.lane : ""} TVL cap</dt>
               <dd className="mono">{room.laneRoom === null ? "-" : fmtAusd(room.laneRoom)}</dd>
             </div>
             <div className={styles.feesTotal}>
@@ -415,7 +415,7 @@ export function ProdWallet() {
         )}
         {tab === "deposit" && !room.holder && laneDebt > 0 && (
           <Notice tone="warn">
-            Lane {acct ? acct.lane : ""} has {fmtAusd(laneDebt)} AUSD of bad debt, so new deposits into it are refused
+            L{acct ? acct.lane : ""} has {fmtAusd(laneDebt)} AUSD of bad debt, so new deposits into it are refused
             until it is repaid. Accounts with open positions can still add margin.
           </Notice>
         )}
@@ -426,7 +426,7 @@ export function ProdWallet() {
         )}
         {tab === "withdraw" && haircutBps > 0 && (
           <Notice tone="warn">
-            Lane {acct ? acct.lane : ""} has bad debt: withdrawals are cut by {(haircutBps / 100).toFixed(2)}% until
+            L{acct ? acct.lane : ""} has bad debt: withdrawals are cut by {(haircutBps / 100).toFixed(2)}% until
             it is repaid
             {preview && preview.amount === amountNum && amountNum > 0 ? (
               <>
@@ -478,7 +478,7 @@ export function ProdWallet() {
         </div>
         <div className={styles.caps}>
           <CapBar label="Your deposits" used={acct ? Math.max(0, acct.collateral) : null} cap={params?.maxDepositPerAccount ?? null} />
-          <CapBar label={`Lane ${acct ? acct.lane : ""} TVL`} used={prod?.lane?.tvl ?? null} cap={params?.maxTvlPerLane ?? null} />
+          <CapBar label={`L${acct ? acct.lane : ""} TVL`} used={prod?.lane?.tvl ?? null} cap={params?.maxTvlPerLane ?? null} />
         </div>
         <dl className={styles.kv}>
           <div>

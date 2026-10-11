@@ -42,7 +42,7 @@ function UnlistedPill({ symbol }: { symbol: MarketSymbol }) {
       type="button"
       className={`${styles.pill} ${styles.pillOff}`}
       disabled
-      title={`${symbol} isn't listed on this deployment - no orders, prices or reads for it.`}
+      title={`${symbol} isn't listed on this deployment: no orders, prices or reads for it.`}
     >
       <span className={styles.pillBase}>{meta.base}</span>
       <span className={styles.pillNote}>not listed</span>

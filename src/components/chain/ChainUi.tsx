@@ -51,7 +51,7 @@ export function TxLink({ hash, label }: { hash: string | null | undefined; label
       {text} ↗
     </a>
   ) : (
-    <span className="mono" title={`${hash} (local anvil - no explorer)`}>
+    <span className="mono" title={`${hash} (local anvil, no explorer)`}>
       {text}
     </span>
   );
@@ -69,7 +69,7 @@ export function NetworkPill() {
 
   if (!CHAIN_MODE_ON || !NETWORK) {
     return (
-      <span className={styles.pill} data-net="sim" title="Fully in-browser simulation - no chain">
+      <span className={styles.pill} data-net="sim" title="Fully in-browser simulation, no chain">
         <i className={styles.pillDot} />
         <b>Simulation</b>
       </span>
@@ -98,7 +98,7 @@ export function NetworkPill() {
       );
     }
     return (
-      <span className={styles.pill} data-net="fallback" title={`${NETWORK.label} unavailable - running the simulation`}>
+      <span className={styles.pill} data-net="fallback" title={`${NETWORK.label} unavailable, running the simulation`}>
         <i className={styles.pillDot} />
         <b>Simulation</b>
         <span className={styles.pillMeta}>chain unavailable</span>
@@ -118,7 +118,7 @@ export function NetworkPill() {
         <b>{NETWORK.shortLabel}</b>
       ) : (
         <>
-          <b data-part="net-full">Local anvil - not Monad</b>
+          <b data-part="net-full">Local anvil, not Monad</b>
           <b data-part="net-short">Anvil · not Monad</b>
         </>
       )}
@@ -177,7 +177,7 @@ export function ChainStatusStrip() {
       <div className={styles.strip} data-tone="warn" data-expanded="">
         <span className={styles.stripDot} />
         <span className={styles.stripText}>
-          <b>On-chain mode unavailable - running the simulation.</b> {reason}
+          <b>On-chain mode unavailable, running the simulation.</b> {reason}
         </span>
         <button className={styles.stripBtn} onClick={retryChainConnect}>
           Retry

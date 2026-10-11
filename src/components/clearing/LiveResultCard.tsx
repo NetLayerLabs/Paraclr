@@ -46,7 +46,7 @@ export function LiveResultCard({
   me: string | null;
 }) {
   const isMonad = report.network === "monad-testnet";
-  const where = isMonad ? "Monad testnet" : "local anvil - not Monad";
+  const where = isMonad ? "Monad testnet" : "local anvil, not Monad";
   const { totals, shock, auctions, underwater } = report;
   const blocks = totals.blocks.length
     ? totals.blocks
@@ -179,9 +179,9 @@ export function LiveResultCard({
       <p className={styles.note}>
         Measured by the keeper on {where}. Time underwater runs from the first block an account was liquidatable to
         the block its auction resolved; the milliseconds are the keeper&apos;s clock (submit → receipt seen), so they
-        include RPC round-trips and block inclusion - not EVM execution time. Auction prices come from the block
+        include RPC round-trips and block inclusion, not EVM execution time. Auction prices come from the block
         clock, not from gas bidding.
-        {!isMonad && " Anvil executes sequentially - these numbers say nothing about Monad's parallel execution."}
+        {!isMonad && " Anvil executes sequentially, so these numbers say nothing about Monad's parallel execution."}
       </p>
     </section>
   );
@@ -192,13 +192,13 @@ function YourOutcome({ r }: { r: AuctionRecord }) {
     r.status === "cured" ? "var(--long-text)" : r.status === "expired" ? "var(--short-text)" : r.status === "backstop" ? "var(--accent-text)" : "var(--link-text)";
   return (
     <div className={styles.userResult} style={{ borderColor: tone }}>
-      <small>Your account · lane {r.lane}</small>
+      <small>Your account · L{r.lane}</small>
       <b style={{ color: tone }}>
-        {r.status === "backstop" && `Taken by the lane ${r.lane} backstop at ${fmtBps(r.discountBps ?? 0)}`}
+        {r.status === "backstop" && `Taken by the L${r.lane} backstop pool at ${fmtBps(r.discountBps ?? 0)}`}
         {r.status === "external" &&
           `Taken by ${r.taker && demoTakers.has(r.taker) ? "a keeper-run demo taker bot" : "an external same-lane taker"} at ${fmtBps(r.discountBps ?? 0)}`}
-        {r.status === "cured" && "Auction cured - your account is healthy again"}
-        {r.status === "expired" && "Auction expired with no taker - closed at mark against the lane"}
+        {r.status === "cured" && "Auction cured: your account is healthy again"}
+        {r.status === "expired" && "Auction expired with no taker: closed at mark against the lane"}
       </b>
       <span className="mono">
         {r.traderResidual !== null && <>you kept {fmtAusd(r.traderResidual)} AUSD · </>}

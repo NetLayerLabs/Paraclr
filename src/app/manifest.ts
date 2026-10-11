@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Paraclr",
     short_name: "Paraclr",
     description:
-      "Fair-liquidation perps clearinghouse on Monad: per-block auctions, per-lane backstops, live solvency proof.",
+      "Fair-liquidation perps clearinghouse, live on Monad testnet (test funds): per-block auctions, per-lane backstops, live solvency proof.",
     start_url: "/app",
     scope: "/",
     display: "standalone",

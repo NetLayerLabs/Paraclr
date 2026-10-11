@@ -102,11 +102,11 @@ export function OrderPanel({
       : !acct
         ? "Reading account from chain…"
         : acct.auction?.active
-          ? "In liquidation auction - cure it first"
+          ? "In liquidation auction: cure it first"
           : existing
           ? `Close your ${base} position first`
           : acct.native <= 0
-            ? "No gas - get test funds on the Wallet tab"
+            ? "No gas: get test funds on the Wallet tab"
             : null;
 
   const disabledReason =
@@ -314,7 +314,7 @@ export function OrderPanel({
           {clickToTrade ? "Placing this order" : "Swiping"} first deposits{" "}
           <span className="mono">{fmtAusd(deposit)}</span> AUSD from your wallet
           {acct && acct.allowanceUnits === BigInt(0) ? " (one-time approve + deposit)" : ""}, then opens the
-          position - each step is an on-chain transaction.
+          position: each step is an on-chain transaction.
         </Notice>
       )}
 
@@ -342,8 +342,8 @@ export function OrderPanel({
         {chainLive
           ? "Margined & settled in test AUSD (MockAUSD) · Marked by the on-chain oracle the clearinghouse settles against"
           : feedSource === "chainlink"
-            ? "Margined & settled in Agora AUSD · Priced by Chainlink Data Streams"
-            : "Margined & settled in Agora AUSD · Simulated prices"}
+            ? "Simulated trades in AUSD · Priced by Chainlink Data Streams"
+            : "Simulated: no chain, no real AUSD · Simulated prices"}
       </p>
     </section>
   );

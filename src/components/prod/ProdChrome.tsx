@@ -273,7 +273,7 @@ function RiskAckDialog({ address }: { address: string }) {
               Not now
             </button>
             <button type="button" className={rs.primary} disabled={!all} onClick={acceptRiskAck} aria-describedby="risk-hint">
-              I understand - continue
+              I understand, continue
             </button>
           </div>
           <p id="risk-hint" className={rs.hint} aria-live="polite">

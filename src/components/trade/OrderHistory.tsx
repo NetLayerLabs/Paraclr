@@ -74,7 +74,7 @@ function AuctionRow({ a }: { a: IndexedAccountAuction }) {
   const outcome = OUTCOME[a.status];
   const label =
     a.status === "Taken"
-      ? `taken by ${a.byBackstop ? `the lane ${a.lane.index} backstop` : "a same-lane taker"}${a.discountBps !== null ? ` at ${(a.discountBps / 100).toFixed(2)}%` : ""}`
+      ? `taken by ${a.byBackstop ? `the L${a.lane.index} backstop pool` : "a same-lane taker"}${a.discountBps !== null ? ` at ${(a.discountBps / 100).toFixed(2)}%` : ""}`
       : a.status === "Cured"
         ? "cured"
         : "expired";

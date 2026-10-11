@@ -130,7 +130,7 @@ function monadMainnetNetwork(): NetworkInfo {
     chainId: monad.id, // 143
     rpcUrl,
     explorerUrl: local ? null : monad.blockExplorers.default.url, // https://monadscan.com
-    label: local ? "Monad mainnet fork - local rehearsal, not Monad" : "Monad mainnet",
+    label: local ? "Monad mainnet fork, local rehearsal, not Monad" : "Monad mainnet",
     shortLabel: local ? "Mainnet fork (local)" : "Monad mainnet",
     isMonad: !local,
     isMainnet: true,
@@ -191,7 +191,7 @@ function anvilNetwork(): NetworkInfo {
     chainId: ANVIL_CHAIN_ID,
     rpcUrl,
     explorerUrl: null,
-    label: "local anvil - not Monad",
+    label: "local anvil, not Monad",
     shortLabel: "Local anvil",
     isMonad: false,
     isMainnet: false,
@@ -221,7 +221,7 @@ export const NETWORK: NetworkInfo | null =
 /** "Monad testnet" / "Local anvil - not Monad" / "Monad mainnet" / the sandbox label for pills and tags. */
 export function networkName(net: NetworkInfo | null = NETWORK): string {
   if (!net) return "Simulation";
-  if (net.mode === "anvil") return "Local anvil - not Monad";
+  if (net.mode === "anvil") return "Local anvil, not Monad";
   return net.label;
 }
 

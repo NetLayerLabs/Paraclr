@@ -23,13 +23,13 @@ export interface KeptTileProps {
 /** The tile's sentence, or null when it can't be stated from real inputs. */
 export function keptLine(p: KeptTileProps): { tone: "kept" | "even" | "worse" | "cured" | "expired"; text: string } | null {
   const pct = fmtPenaltyPct(FIXED_PENALTY_BPS);
-  if (p.outcome === "cured") return { tone: "cured", text: "Cured - the auction cost you nothing." };
+  if (p.outcome === "cured") return { tone: "cured", text: "Cured: the auction cost you nothing." };
   if (p.outcome === "expired") {
     return {
       tone: "expired",
       text:
-        `Expired - nobody took the auction in time, so your positions were closed at the mark against ` +
-        `${p.lane !== undefined ? `lane ${p.lane}` : "the lane"} with the fixed ${pct} penalty, capped at your equity ` +
+        `Expired: nobody took the auction in time, so your positions were closed at the mark against ` +
+        `${p.lane !== undefined ? `L${p.lane}` : "the lane"} with the fixed ${pct} penalty, capped at your equity ` +
         "(any negative equity is written off against the lane, not charged to you). " +
         "That is the fixed-penalty path itself, so there is no saving to compare.",
     };

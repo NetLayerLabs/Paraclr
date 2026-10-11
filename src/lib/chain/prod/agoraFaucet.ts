@@ -128,7 +128,7 @@ export function claimTestAusd(): Promise<number> {
     if (s.chain.status !== "ready" || !c) throw new ChainActionError("Chain not connected.");
     if (!agoraFaucetAvailable(c)) throw new ChainActionError("Agora's AUSD faucet is only on Monad testnet.");
     const signer = getSigner();
-    if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet - try again in a moment.");
+    if (!signer || !s.chain.wallet.ready) throw new ChainActionError("Wallet not ready yet; try again in a moment.");
     const f = await readAgoraFaucet(c);
     if (!f.tokenMatches) {
       throw new ChainActionError("Agora's faucet pays out a different token than this deployment's collateral.");

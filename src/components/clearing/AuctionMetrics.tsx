@@ -21,7 +21,7 @@ function fmtPair(n: number): string {
 export function AuctionMetrics({ report, laneBadDebt }: { report: RunReport; laneBadDebt: number | null }) {
   const a = report.auctions;
   const u = report.underwater;
-  const where = report.network === "monad-testnet" ? "Monad testnet" : "local anvil - not Monad";
+  const where = report.network === "monad-testnet" ? "Monad testnet" : "local anvil, not Monad";
   if (!a && !u) {
     return (
       <p className={styles.note}>

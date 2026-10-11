@@ -80,7 +80,7 @@ export function MarketRisk({ symbol }: { symbol: MarketSymbol }) {
         className={styles.mcell}
         title="Open interest of your lane in this market vs its per-side cap: min(market cap, (lane insurance + backstop cash) × multiplier)."
       >
-        <small>Lane {lane !== null ? lane : "-"} OI</small>
+        <small>L{lane !== null ? lane : "-"} OI</small>
         <b className="mono">
           {oi ? `${fmtCompact(oi.long)} L · ${fmtCompact(oi.short)} S` : "-"}
         </b>

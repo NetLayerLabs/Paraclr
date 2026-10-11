@@ -10,10 +10,10 @@ interface Props {
 }
 
 const USER_COPY: Record<AccountResult["outcome"], { label: string; tone: string }> = {
-  healthy: { label: "Survived - healthy", tone: "var(--long-text)" },
-  warning: { label: "Survived - near maintenance", tone: "var(--warn-text)" },
+  healthy: { label: "Survived, healthy", tone: "var(--long-text)" },
+  warning: { label: "Survived, near maintenance", tone: "var(--warn-text)" },
   liquidated: { label: "Liquidated", tone: "var(--short-text)" },
-  settled: { label: "Liquidated - bad debt covered by insurance", tone: "var(--short-text)" },
+  settled: { label: "Liquidated, bad debt covered by insurance", tone: "var(--short-text)" },
 };
 
 export function ResultCard({ run, user }: Props) {
@@ -50,8 +50,7 @@ export function ResultCard({ run, user }: Props) {
           <b className="mono">~{fmtMs(sequentialMs)}</b>
         </div>
         <div className={styles.speedup}>
-          <b className="mono">{speedup.toFixed(1)}×</b> faster · bounded by the slowest lane (Lane{" "}
-          {slowest.thread}, {slowest.accounts} accounts)
+          <b className="mono">{speedup.toFixed(1)}×</b> faster · bounded by the slowest lane (L{slowest.thread}, {slowest.accounts} accounts)
         </div>
       </div>
 
@@ -81,7 +80,7 @@ export function ResultCard({ run, user }: Props) {
 
       {user && (
         <div className={styles.userResult} style={{ borderColor: USER_COPY[user.outcome].tone }}>
-          <small>Your account · lane {user.thread}</small>
+          <small>Your account · L{user.thread}</small>
           <b style={{ color: USER_COPY[user.outcome].tone }}>{USER_COPY[user.outcome].label}</b>
           <span className="mono">
             equity at crash mark {user.equity >= 0 ? "" : "−"}

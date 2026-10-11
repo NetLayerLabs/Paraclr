@@ -173,7 +173,7 @@ export function ThreadVisualizer({
     <section className={styles.viz} ref={rootRef}>
       <header className={styles.vizHead}>
         <div>
-          <div className={styles.vizTitle}>Parallel Lane Visualizer</div>
+          <div className={styles.vizTitle}>Parallel lanes</div>
           <div className={styles.vizSub}>{THREAD_COUNT} conflict-free lanes · simulated timings</div>
         </div>
         <div className={styles.clock}>
@@ -209,7 +209,7 @@ export function ThreadVisualizer({
         {LANES.map((l) => (
           <div key={l} className={styles.lane} data-lane={l}>
             <div className={styles.laneLabel}>
-              <span>Lane {l}</span>
+              <span>L{l}</span>
               <small className="mono" data-lane-ms={l}>
                 -
               </small>

@@ -62,7 +62,7 @@ export function sumKept(accts: ArenaAccount[], feeBps: number): { kept: number; 
 }
 
 function markerTitle(a: ArenaAccount, feeBps: number): string {
-  const parts = [`${shortAddr(a.account)} · lane ${a.lane}`, STATE_LABEL[a.state]];
+  const parts = [`${shortAddr(a.account)} · L${a.lane}`, STATE_LABEL[a.state]];
   if (a.state === "auction") parts.push(`discount ${fmtBps(a.discountBps)}`);
   if ((a.state === "backstop" || a.state === "external") && a.discountBps !== null) parts.push(`at ${fmtBps(a.discountBps)}`);
   if (a.startBlock !== null && a.resolvedBlock !== null) parts.push(`${a.resolvedBlock - a.startBlock} blocks in auction`);
