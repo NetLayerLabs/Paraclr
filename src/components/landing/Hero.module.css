@@ -92,11 +92,9 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 40px;
-  border: 1px solid var(--pc-line);
-  border-radius: 18px;
-  background: var(--pc-surface-2);
+  border-top: 1px solid var(--pc-line-strong);
+  border-bottom: 1px solid var(--pc-line);
   list-style: none;
-  overflow: hidden;
 }
 
 .trust li {
@@ -114,6 +112,10 @@
   height: 100%;
   padding: 14px 10px 14px 14px;
   transition: background-color var(--pc-dur-1);
+}
+
+.trust li:first-child .badge {
+  padding-left: 0;
 }
 
 .trust .badge:focus-visible {
@@ -177,6 +179,10 @@
 @media (max-width: 639px) {
   .trust {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trust li:nth-child(3) .badge {
+    padding-left: 0;
   }
 
   .trust li:nth-child(3) {

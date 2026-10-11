@@ -1,179 +1,84 @@
-import type { CSSProperties, ReactNode } from "react";
-import { LaneCheck } from "@/components/brand/Glyph";
 import { MONAD_TESTNET_CHAIN_ID, type XrayDesign, type XrayEvidence } from "./benchResults.server";
+import { AuctionReadout } from "./AuctionReadout";
 import { MatrixSvg } from "./XrayMatrix";
-import { Lanes } from "./icons";
-import { AUCTION } from "./content";
+import { AUCTION, aboutSeconds, MONAD_BLOCK_S } from "./content";
 import { fmtInt } from "./format";
-import b from "./brand/Brand.module.css";
 import s from "./HeroVisual.module.css";
 
-type Vars = CSSProperties & Record<`--${string}`, string | number>;
-type Row = "take3" | "take2" | "cured" | "healthy";
-
-/** Schematic board: which lanes have an auction, and how each one resolves. */
-const ROWS: Row[] = ["take3", "healthy", "take2", "take3", "cured", "take3", "healthy", "take3"];
-const TICKS = AUCTION.backstopMinBps / AUCTION.stepBps; // 3 blocks to the pool threshold
-
-const STATUS: Record<Row, [string, ReactNode]> = {
-  take3: [
-    "auction",
-    <>
-      backstop <LaneCheck key="c" />
-    </>,
-  ],
-  take2: ["auction", `taken · ${2 * AUCTION.stepBps}`],
-  cured: ["auction", "cured"],
-  healthy: ["healthy", "healthy"],
-};
-
-function networkLabel(x: XrayEvidence): string {
-  return x.chainId === MONAD_TESTNET_CHAIN_ID ? "Monad testnet" : "local anvil - not Monad";
-}
-
-function MiniMatrix({ design, good }: { design: XrayDesign | null; good: boolean }) {
+function XrayCell({ design, good }: { design: XrayDesign | null; good: boolean }) {
+  const name = good ? "Paraclr lanes" : "Naive shared state";
   return (
-    <figure className={s.mx}>
-      <div className={s.mxFrame}>
+    <div className={s.xrCell}>
+      <div className={s.xrMatrix}>
         {design ? (
           <MatrixSvg
             design={design}
-            label={`${good ? "Paraclr lanes" : "Naive shared state"}: ${design.summary.edges} dependency edges, ${design.crossLaneEdges} across lanes`}
-            classes={{
-              svg: s.mxSvg,
-              bg: s.mBg,
-              band: s.mBand,
-              sep: s.mSep,
-              diag: s.mDiag,
-              same: s.mSame,
-              cross: s.mCross,
-            }}
+            label={`${name}: ${design.summary.edges} dependency edges, ${design.crossLaneEdges} across lanes`}
+            classes={{ svg: s.mxSvg, bg: s.mBg, band: s.mBand, sep: s.mSep, diag: s.mDiag, same: s.mSame, cross: s.mCross }}
           />
-        ) : (
-          <span className={s.mxPending}>pending</span>
-        )}
+        ) : null}
       </div>
-      <figcaption className={s.mxCap}>
-        <span className={s.mxName}>{good ? "Paraclr lanes" : "Naive shared state"}</span>
-        <span className={s.mxStat}>
-          <b className={design ? (design.crossLaneEdges === 0 ? s.good : s.bad) : undefined}>
-            {design ? fmtInt(design.crossLaneEdges) : "–"}
-          </b>
+      <p className={s.xrFig}>
+        <b className={design ? (design.crossLaneEdges === 0 ? s.good : s.bad) : undefined}>
+          {design ? fmtInt(design.crossLaneEdges) : "–"}
+        </b>
+        <span>
+          {name}
+          <br />
           cross-lane edges
         </span>
-      </figcaption>
-    </figure>
+      </p>
+    </div>
   );
 }
 
 /**
- * Hero visual: a light "auction board" (schematic, animated) behind a dark
- * Conflict X-ray card whose two matrices are drawn from the committed X-ray.
- * Reduced motion shows the board's settled state.
+ * Hero instrument: one flat panel. Top, a schematic auction readout running across the 8 lanes at the step the page
+ * quotes (client loop, see AuctionReadout). Bottom, the measured Conflict X-ray from the committed bench/xray JSON.
  */
-export function HeroVisual({ xray }: { xray: XrayEvidence | null }) {
-  const txs = xray?.lanes?.summary.txs ?? xray?.naive?.summary.txs ?? null;
-  const blocks = xray?.lanes?.blocks.length ?? null;
+export function HeroVisual({ xray, step }: { xray: XrayEvidence | null; step: number }) {
+  const take = Math.ceil(AUCTION.backstopMinBps / step);
+  const monad = xray?.chainId === MONAD_TESTNET_CHAIN_ID;
   return (
     <figure className={s.wrap}>
-      <div className={s.stage}>
-        {/* Back: auction board (light) */}
-        <div className={s.board} aria-hidden="true">
-          <div className={s.boardBar}>
-            <span className={b.chrome}>
-              <i />
-              <i />
-              <i />
-            </span>
-            <span className={s.boardTitle}>Auction board</span>
-            <span className={s.boardTag}>8 lanes</span>
-          </div>
-          <div className={s.clock}>
-            <span className={s.clockKey}>block</span>
-            <span className={s.ticker}>
-              {Array.from({ length: TICKS + 1 }, (_, k) => (
-                <i key={k} style={{ "--k": k } as Vars}>
-                  +{k}
-                </i>
-              ))}
-            </span>
-            <span className={s.clockKey}>discount</span>
-            <span className={`${s.ticker} ${s.tickerBps}`}>
-              {Array.from({ length: TICKS + 1 }, (_, k) => (
-                <i key={k} style={{ "--k": k } as Vars}>
-                  {k * AUCTION.stepBps}
-                </i>
-              ))}
-            </span>
-            <span className={s.clockUnit}>bps</span>
-          </div>
-          <ol className={s.rows}>
-            {ROWS.map((row, lane) => (
-              <li key={lane} className={s[row]}>
-                <span className={s.lane}>L{lane}</span>
-                <span className={s.track}>
-                  <span className={s.fill} />
-                </span>
-                <span className={s.status}>
-                  <i>{STATUS[row][0]}</i>
-                  <i>{STATUS[row][1]}</i>
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
+      <div className={s.panel}>
+        <header className={s.head}>
+          <span className={s.kicker}>Auction clock</span>
+          <span className={s.headNote}>
+            +{step} bps per block · pool takes at {AUCTION.backstopMinBps} bps, block +{take}
+          </span>
+        </header>
 
-        {/* Front: Conflict X-ray (dark), real data */}
-        <div className={s.xray}>
-          <div className={s.xrBar}>
-            <span className={s.xrIcon} aria-hidden="true">
-              <Lanes />
+        <AuctionReadout step={step} minBps={AUCTION.backstopMinBps} />
+
+        <p className={s.equity}>
+          At a take the taker is paid <i>P</i> = <i>d</i> × notional; the trader keeps <i>E</i> − <i>P</i>.
+        </p>
+
+        <div className={s.xr}>
+          <header className={s.head}>
+            <span className={s.kicker}>Conflict X-ray</span>
+            <span className={s.headNote}>
+              {xray ? (monad ? "measured on Monad testnet" : "measured on local anvil") : "pending"}
+              {xray?.lanes ? ` · ${fmtInt(xray.lanes.summary.txs)} txs` : ""}
             </span>
-            <span className={s.xrTitle}>Conflict X-ray</span>
-            <span className={s.xrNet}>
-              {xray ? (xray.chainId === MONAD_TESTNET_CHAIN_ID ? "testnet" : "anvil") : "pending"}
-            </span>
-          </div>
-          <p className={s.xrSub}>Same crash, two builds of the same contract</p>
+          </header>
           <div className={s.xrGrid}>
-            <MiniMatrix design={xray?.lanes ?? null} good />
-            <MiniMatrix design={xray?.naive ?? null} good={false} />
-          </div>
-          <div className={s.xrLegend} aria-hidden="true">
-            <span>
-              <i className={s.keySame} /> same lane
-            </span>
-            <span>
-              <i className={s.keyCross} /> across lanes
-            </span>
-            {txs !== null ? (
-              <span className={s.xrCount}>
-                {fmtInt(txs)} txs{blocks ? ` · ${fmtInt(blocks)} blocks` : ""}
-              </span>
-            ) : null}
+            <XrayCell design={xray?.lanes ?? null} good />
+            <XrayCell design={xray?.naive ?? null} good={false} />
           </div>
         </div>
-
-        <span className={`${s.float} ${s.floatKeep}`} aria-hidden="true">
-          <span className={`${b.dot} ${b.dotPos}`} />
-          trader keeps <b>E − P</b>
-        </span>
-        <span className={`${s.float} ${s.floatClock}`} aria-hidden="true">
-          +{AUCTION.stepBps} bps / block
-        </span>
       </div>
       <figcaption className={s.caption}>
-        <span className={b.tagIllustration}>Illustration</span>
-        <span>
-          Auction board is schematic.{" "}
-          {xray ? (
-            <>
-              X-ray matrices are measured: <code>bench/xray/{xray.file}</code>, {networkLabel(xray)}.
-            </>
-          ) : (
-            <>X-ray matrices fill in from the first committed bench/xray run.</>
-          )}
-        </span>
+        The auction readout is a schematic, slowed down (a real block is ~{MONAD_BLOCK_S} s, so
+        block +{take} comes {aboutSeconds(take)} in).{" "}
+        {xray ? (
+          <>
+            The X-ray figures are measured: <code>bench/xray/{xray.file}</code>.
+          </>
+        ) : (
+          <>The X-ray fills in from the first committed bench/xray run.</>
+        )}
       </figcaption>
     </figure>
   );
