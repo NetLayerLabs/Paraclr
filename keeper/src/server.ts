@@ -295,6 +295,7 @@ export function startServer(deps: Deps): Server {
       return send(res, 500, { error: msg }, cors);
     }
   });
-  server.listen(ctx.config.port);
+  // KEEPER_BIND=127.0.0.1 behind a reverse proxy; unset = all interfaces, as before.
+  server.listen(ctx.config.port, process.env.KEEPER_BIND || undefined);
   return server;
 }

@@ -733,6 +733,7 @@ Every other GET (`/health`, `/sweeper`, `/runs/:id`, `/runs/:id/xray`, `/solvenc
 | `ARENA_COOLDOWN_S` | 180 | after each cycle is back to ready |
 | `ARENA_IP_WINDOW_S` | 600 | one crash per IP per window |
 | `ARENA_TRUST_PROXY` | off | `1`: client IP = first `X-Forwarded-For` hop (only behind your own proxy) |
+| `KEEPER_BIND` | all interfaces | `127.0.0.1` behind a reverse proxy on the same host |
 | `ARENA_DAILY_MAX` | 40 | cycles per UTC day |
 | `ARENA_MIN_OPERATOR_MON` / `ARENA_MIN_KEEPER_MON` | 1.5 × the last measured cycle (first cycle on Monad: 2.5 / 0.3) | gas guard: below it, "Arena is refuelling" |
 | `ARENA_KEEPER_REFILL_MON` | 0.7 on Monad, 0 elsewhere | after each cycle, lane keepers below it are topped back up to it from the operator (3 blocks apart, Monad's reserve rule); 0 turns it off |
