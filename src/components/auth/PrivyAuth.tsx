@@ -23,27 +23,49 @@ import { privySigner, setSigner } from "@/lib/chain/signer";
 import { BiometricButton, type BiometricPhase } from "./BiometricButton";
 import styles from "./LoginScreen.module.css";
 
+/** The user's Privy embedded wallet: Privy's primary wallet when it is the embedded one, else the first. */
+function embeddedAddress(user: User): string | undefined {
+  if (user.wallet?.walletClientType === "privy") return user.wallet.address;
+  const w = user.linkedAccounts.find((a) => a.type === "wallet" && a.walletClientType === "privy");
+  return w?.type === "wallet" ? w.address : undefined;
+}
+
 /**
  * Finishes any Privy login: the wallet is the user's own for a wallet login, otherwise the
  * embedded wallet (created here if Privy hasn't made one yet). Returns an error message or null.
  */
 function useCompleteLogin() {
   const { createWallet } = useCreateWallet();
+  const { user: liveUser } = usePrivy();
+  const latest = useRef<User | null>(null);
+  useEffect(() => {
+    if (liveUser) latest.current = liveUser;
+  }, [liveUser]);
   const done = useRef(false);
   return useCallback(
     async (user: User, method: Exclude<SignInMethod, "demo">): Promise<string | null> => {
       if (done.current) return null;
-      const embedded = user.linkedAccounts.find((a) => a.type === "wallet" && a.walletClientType === "privy");
-      let address = method === "wallet" ? user.wallet?.address : embedded?.type === "wallet" ? embedded.address : user.wallet?.address;
+      let address = method === "wallet" ? user.wallet?.address : embeddedAddress(user);
       if (!address && method !== "wallet") {
-        try {
-          address = (await createWallet()).address;
-        } catch {
-          return "Signed in, but the embedded wallet could not be created.";
+        // Privy creates the embedded wallet itself right after a first sign-in (createOnLogin):
+        // wait for it instead of racing it with a second wallet, which left new accounts with two
+        // addresses and the app showing either one.
+        for (let i = 0; i < 40 && !address; i++) {
+          await new Promise((r) => setTimeout(r, 200));
+          address = embeddedAddress(latest.current ?? user);
+        }
+        if (!address) {
+          try {
+            address = (await createWallet()).address;
+          } catch {
+            address = embeddedAddress(latest.current ?? user);
+            if (!address) return "Signed in, but the embedded wallet could not be created.";
+          }
         }
       }
       if (!address) return "Signed in, but no wallet is connected.";
       done.current = true;
+      rememberMethod(method);
       const signedIn = address;
       const account =
         method === "email"
@@ -64,6 +86,53 @@ function useCompleteLogin() {
     },
     [createWallet],
   );
+}
+
+// The app's session lives in memory, Privy's survives a reload. The method of the last sign-in
+// is kept so a reload can restore the same session (the address is re-read from Privy's user).
+const METHOD_KEY = "paraclr.privy.method";
+
+function rememberMethod(method: Exclude<SignInMethod, "demo">) {
+  try {
+    window.localStorage.setItem(METHOD_KEY, method);
+  } catch {
+    /* storage blocked: a reload infers the method from the Privy user */
+  }
+}
+
+/** How this Privy user signed in last: the remembered method, else inferred from the linked accounts. */
+function lastMethod(user: User): Exclude<SignInMethod, "demo"> {
+  let saved: string | null = null;
+  try {
+    saved = window.localStorage.getItem(METHOD_KEY);
+  } catch {
+    saved = null;
+  }
+  if (saved && saved !== "demo" && isPrivyMethod(saved as SignInMethod)) return saved as Exclude<SignInMethod, "demo">;
+  const types = new Set(user.linkedAccounts.map((a) => a.type));
+  if (types.has("passkey")) return "passkey";
+  if (types.has("email")) return "email";
+  if (types.has("google_oauth")) return "google";
+  if (types.has("twitter_oauth")) return "twitter";
+  if (types.has("discord_oauth")) return "discord";
+  if (types.has("github_oauth")) return "github";
+  return "wallet";
+}
+
+/**
+ * Restores the app session after a reload while Privy still holds one: without it the sign-in
+ * page came back, and Privy's login() ignores calls from a user it considers logged in, so the
+ * sign-in buttons appeared to do nothing until site data was cleared.
+ */
+export function PrivySessionRestore() {
+  const { ready, authenticated, user } = usePrivy();
+  const session = useParaclr((s) => s.session);
+  const complete = useCompleteLogin();
+  useEffect(() => {
+    if (!ready || !authenticated || !user || session) return;
+    void complete(user, lastMethod(user));
+  }, [ready, authenticated, user, session, complete]);
+  return null;
 }
 
 /** What went wrong, from Privy's error code: cancelling and an unknown passkey need different advice. */
@@ -177,7 +246,7 @@ function enabledSocials(): Promise<Social[]> {
 
 /** Email (one-time code), a social account or the user's own wallet, through Privy's modal. */
 export function PrivyOtherLogin({ disabled = false }: { disabled?: boolean }) {
-  const { ready } = usePrivy();
+  const { ready, authenticated, user } = usePrivy();
   const complete = useCompleteLogin();
   const [error, setError] = useState<string | null>(null);
   const [socials, setSocials] = useState<Social[]>([]);
@@ -189,8 +258,11 @@ export function PrivyOtherLogin({ disabled = false }: { disabled?: boolean }) {
     };
   }, []);
   const { login } = useLogin({
-    onComplete: async ({ user, loginMethod }) => {
-      setError(await complete(user, PRIVY_LOGIN_METHOD[String(loginMethod)] ?? "email"));
+    onComplete: async ({ user, loginMethod, wasAlreadyAuthenticated }) => {
+      // Privy also calls this on page load for a session it restored, without a login method:
+      // keep the method of the original sign-in.
+      const method = wasAlreadyAuthenticated ? lastMethod(user) : (PRIVY_LOGIN_METHOD[String(loginMethod)] ?? lastMethod(user));
+      setError(await complete(user, method));
     },
     onError: (code) => {
       if (code !== "exited_auth_flow") setError("Sign-in didn't complete. Try again.");
@@ -202,8 +274,13 @@ export function PrivyOtherLogin({ disabled = false }: { disabled?: boolean }) {
         type="button"
         className={styles.demoBtn}
         disabled={!ready || disabled}
-        onClick={() => {
+        onClick={async () => {
           setError(null);
+          // Already signed in with Privy (login() would do nothing): finish that session instead.
+          if (authenticated && user) {
+            setError(await complete(user, lastMethod(user)));
+            return;
+          }
           login({ loginMethods: ["email", ...socials, "wallet"] });
         }}
       >

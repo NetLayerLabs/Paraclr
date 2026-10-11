@@ -11,7 +11,7 @@ import { WalletScreen } from "@/components/auth/WalletScreen";
 import { BackstopScreen } from "@/components/backstop/BackstopScreen";
 import { PriceFeedProvider } from "@/components/trade/PriceFeedProvider";
 import { useAuthContext } from "@/components/auth/AuthContext";
-import { PrivyWalletBridge } from "@/components/auth/PrivyAuth";
+import { PrivySessionRestore, PrivyWalletBridge } from "@/components/auth/PrivyAuth";
 import { ChainSync } from "@/components/chain/ChainSync";
 import { ChainStatusStrip } from "@/components/chain/ChainUi";
 import { BetaBanner, MainnetUnavailable, PausedBanner, RiskAckModal } from "@/components/prod/ProdChrome";
@@ -39,6 +39,7 @@ export function AppShell({ recordedXray = null }: { recordedXray?: RecordedXray 
       <PriceFeedProvider />
       <ChainSync />
       {privyEnabled && <PrivyWalletBridge />}
+      {privyEnabled && <PrivySessionRestore />}
       <RiskAckModal />
       {productionDown ? (
         <>
