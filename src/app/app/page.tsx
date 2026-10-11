@@ -11,8 +11,16 @@ import { readLatestXray } from "@/lib/chain/xray.server";
 import { displayFont } from "@/components/landing/brand/fonts";
 import { ThemeScript } from "@/components/shell/theme";
 
+const APP_TITLE = "Trading terminal";
+const APP_DESCRIPTION =
+  "Trade SOL and BTC perps on Paraclr's production contracts on Monad testnet: sign in with a passkey, get test MON " +
+  "from the gas drip and test AUSD from Agora's faucet, deposit and trade. Test funds, no real value.";
+
 export const metadata: Metadata = {
-  title: "Trading terminal",
+  title: APP_TITLE,
+  description: APP_DESCRIPTION,
+  openGraph: { type: "website", siteName: "Paraclr", title: `${APP_TITLE} · Paraclr`, description: APP_DESCRIPTION },
+  twitter: { card: "summary_large_image", title: `${APP_TITLE} · Paraclr`, description: APP_DESCRIPTION },
 };
 
 // Browser chrome and the installed app's status bar match the header, which

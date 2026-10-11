@@ -35,7 +35,17 @@ function cardFrom(sp: Search): PnlCardData | null {
 
 export async function generateMetadata(props: PageProps<"/pnl">): Promise<Metadata> {
   const card = cardFrom(await props.searchParams);
-  if (!card) return { title: "Paraclr PnL card" };
+  if (!card) {
+    const description =
+      "Share a closed Paraclr trade as a card: entry, exit, PnL and, after a liquidation auction, what the trader kept. " +
+      "Monad testnet, test funds.";
+    return {
+      title: "PnL card",
+      description,
+      openGraph: { title: "PnL card · Paraclr", description },
+      twitter: { card: "summary_large_image", title: "PnL card · Paraclr", description },
+    };
+  }
   const base = card.symbol.replace("/AUSD", "");
   // The layout's title template appends "· Paraclr"; the share previews carry it explicitly.
   const title = `${fmtSignedPct(card.pnlPct)} on ${base}-PERP ${card.side} ${card.leverage}x`;
