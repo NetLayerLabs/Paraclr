@@ -364,8 +364,8 @@ a **separate contract set** in `contracts/src/prod/`, specified in [`docs/PRODUC
 
 **Status (2026-10-10):** not on mainnet. The launch gate below has passed; the launch waits on Pyth price data for
 mainnet (the Hermes trial key the testnet runs on ends ~2026-10-20). The landing page reads `deployments/143.json` at
-build time and shows "Live on Monad mainnet · unaudited beta · capped", with the contract table and beta limits, only
-when that file exists with `"production": true`. Otherwise it shows "Mainnet beta: pending launch gate". The same
+build time and shows "Live on Monad mainnet · unaudited beta · capped", with the contract list, only when that file
+exists with `"production": true`. Otherwise it shows "Mainnet beta: pending launch gate". The same
 contract set is what runs on Monad testnet today (`deployments/10143.json`).
 
 ### What changes for real money
@@ -408,6 +408,11 @@ Mainnet launch with real AUSD happens only if **all** of these pass:
 3. An adversarial internal review, with every critical finding fixed.
 4. A full rehearsal on an anvil fork of Monad mainnet against the real AUSD and Pyth contracts.
 5. Caps set to the beta values.
+
+All five passed on the v5 contract (sha256 `1643014507ea…`): the review is in
+[`contracts/REVIEW.md`](contracts/REVIEW.md), the Slither results and accepted risks in
+[`contracts/SECURITY_NOTES.md`](contracts/SECURITY_NOTES.md), and the 43/43 mainnet-fork rehearsal in
+[`bench/rehearsal/`](bench/rehearsal/).
 
 Otherwise the hackathon submission stays on testnet with no real value, and production ships only after an external
 audit. **Not audited: internal review and Slither only.**
