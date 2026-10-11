@@ -1,7 +1,7 @@
 // Monad testnet chain definition. We re-export viem's canonical definition
 // (viem@2.56 `viem/chains` → monadTestnet: id 10143, RPC
 // https://testnet-rpc.monad.xyz, explorer https://testnet.monadexplorer.com,
-// 400ms block time) so the chain id / RPC never drift from upstream.
+// blocks measured at ~0.35 s: MONAD_BLOCK_S in landing/content.ts) so the chain id / RPC never drift from upstream.
 
 import { createPublicClient, http, type Address, type Hash } from "viem";
 import { monadTestnet } from "viem/chains";
