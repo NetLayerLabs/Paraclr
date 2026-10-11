@@ -780,3 +780,7 @@ docs/               PRODUCTION_PLAN.md, TESTNET_PLAN.md (the testnet production 
 We are entering the Monad Metropolis hackathon. Sponsor tools are used through their public SDKs and services (Privy,
 Envio HyperIndex, HyperSync and Envio Cloud) and public contracts (Agora's AUSD, Pyth). We have no partnership with or
 endorsement from Monad, Agora, Pyth, Privy, Envio, Chainlink or any other sponsor.
+
+## License
+
+[MIT](LICENSE) © 2026 NetLayer Labs. Vendored libraries under `contracts/lib/` keep their own licenses.
