@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { displayFont } from "@/components/landing/brand/fonts";
 import { fmtPenaltyPct } from "@/lib/kept";
-import { cardQuery, fmtSignedPct, keptStrip, narration, parseCard, type PnlCardData } from "@/lib/pnlCard";
+import { cardQuery, fmtSignedPct, gateCardNetwork, keptStrip, narration, parseCard, type PnlCardData } from "@/lib/pnlCard";
+import { loadProductionStatus } from "@/components/landing/production.server";
 import styles from "./pnl.module.css";
 
 // A shared PnL card (from the app's "Share on X"): /pnl?<cardQuery>. Its Open Graph / X image is the
@@ -27,14 +28,15 @@ const SAMPLE: PnlCardData = {
   at: 1_760_000_000,
 };
 
-function cardFrom(sp: Search): PnlCardData | null {
+async function cardFrom(sp: Search): Promise<PnlCardData | null> {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(sp)) if (typeof v === "string") q.set(k, v);
-  return parseCard(q);
+  const card = parseCard(q);
+  return card ? gateCardNetwork(card, (await loadProductionStatus()).live) : null;
 }
 
 export async function generateMetadata(props: PageProps<"/pnl">): Promise<Metadata> {
-  const card = cardFrom(await props.searchParams);
+  const card = await cardFrom(await props.searchParams);
   if (!card) {
     const description =
       "Share a closed Paraclr trade as a card: entry, exit, PnL and, after a liquidation auction, what the trader kept. " +
@@ -62,7 +64,7 @@ export async function generateMetadata(props: PageProps<"/pnl">): Promise<Metada
 }
 
 export default async function PnlSharePage(props: PageProps<"/pnl">) {
-  const card = cardFrom(await props.searchParams);
+  const card = await cardFrom(await props.searchParams);
   return (
     <div className={`${styles.page} ${displayFont.variable}`}>
       <header className={styles.top}>

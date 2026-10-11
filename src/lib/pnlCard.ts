@@ -130,8 +130,8 @@ const LINES: Record<Mood, string[]> = {
     "That wasn’t a dip. That was a cliff dive.",
     "Leverage giveth. Leverage taketh.",
     "Wrote a poem for my margin. It was short.",
-    "Rekt, but the liquidation was priced fairly. Growth.",
-    "Into the auction we go. At least the block clock was honest.",
+    "Rekt. Lesson priced in. Growth.",
+    "Back to the drawing board. At least the block clock was honest.",
   ],
 };
 
@@ -141,6 +141,14 @@ export function narration(d: PnlCardData): string {
   let h = Math.floor(d.at) ^ Math.round(d.pnl * 100);
   for (const ch of d.symbol) h = (h * 31 + ch.charCodeAt(0)) | 0;
   return lines[Math.abs(h) % lines.length]!;
+}
+
+/**
+ * A card URL is editable, so "mainnet" is only shown while the mainnet deployment is live
+ * (deployments/143.json, read on the server); otherwise the card says it is a demo.
+ */
+export function gateCardNetwork(d: PnlCardData, mainnetLive: boolean): PnlCardData {
+  return d.network === "mainnet" && !mainnetLive ? { ...d, network: "demo" } : d;
 }
 
 export const NETWORK_TAG: Record<CardNetwork, string> = {

@@ -17,9 +17,11 @@ import {
   MOOD_TITLE,
   moodOf,
   narration,
+  gateCardNetwork,
   NETWORK_TAG,
   parseCard,
 } from "@/lib/pnlCard";
+import { loadProductionStatus } from "@/components/landing/production.server";
 
 const FONT_DIR = join(process.cwd(), "src", "components", "landing", "brand", "fonts");
 const LOGO = join(process.cwd(), "public", "brand", "paraclr-header-white-96.png");
@@ -52,8 +54,9 @@ function Lanes({ color }: { color: string }) {
 }
 
 export async function GET(req: Request): Promise<Response> {
-  const card = parseCard(new URL(req.url).searchParams);
-  if (!card) return new Response("Not a PnL card", { status: 400 });
+  const parsed = parseCard(new URL(req.url).searchParams);
+  if (!parsed) return new Response("Not a PnL card", { status: 400 });
+  const card = gateCardNetwork(parsed, (await loadProductionStatus()).live);
   const { extraBold, semiBold, logo } = await loadAssets();
 
   const up = card.pnl >= 0;
