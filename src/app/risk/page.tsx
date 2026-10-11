@@ -4,29 +4,39 @@ import { AUCTION } from "@/components/landing/content";
 import { fmtDuration, fmtNum } from "@/components/landing/format";
 import { Callout, LegalShell, Placeholder, type LegalSection } from "@/components/landing/LegalShell";
 import { AUDIT_STATUS, RISK_ANCHORS as A, TERMS_PATH } from "@/components/landing/disclosures";
-import { loadProductionStatus, MONADSCAN, PRODUCTION_FILE } from "@/components/landing/production.server";
+import {
+  loadProductionStatus,
+  loadTestnetProductionStatus,
+  MONADSCAN,
+  PRODUCTION_FILE,
+} from "@/components/landing/production.server";
 
 // Light page, so the browser chrome matches it (the app keeps its dark theme colour).
 export const viewport: Viewport = { themeColor: "#ffffff" };
 
+const DESCRIPTION =
+  "Plain-language risks of Paraclr, live on Monad testnet with test funds and gated for a mainnet beta: " +
+  "smart-contract, oracle, liquidation, funding, caps, keeper liveness, stablecoin and regulatory risk. Draft, " +
+  "pending legal review.";
+
 export const metadata: Metadata = {
   title: "Risk disclosure (draft)",
-  description:
-    "Plain-language risks of the Paraclr mainnet beta: smart-contract, oracle, liquidation, funding, caps, keeper " +
-    "liveness, stablecoin and regulatory risk. Draft, pending legal review.",
+  description: DESCRIPTION,
+  openGraph: { type: "website", siteName: "Paraclr", title: "Risk disclosure (draft) · Paraclr", description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: "Risk disclosure (draft) · Paraclr", description: DESCRIPTION },
 };
 
 const UPDATED = "Oct 7, 2026";
 
-/** " (currently 24 h)" when the deployment file has it, else " (set at launch)". */
-function cur(text: string | null): string {
-  return text ? ` (currently ${text})` : " (set at launch)";
-}
-
-// Prerendered at build time; reads deployments/143.json for the live values.
+// Prerendered at build time; reads deployments/143.json for the live values, and deployments/10143.json for the
+// testnet values while only the testnet deployment is live.
 export default async function RiskPage() {
-  const status = await loadProductionStatus();
-  const p = status.params;
+  const [status, testnet] = await Promise.all([loadProductionStatus(), loadTestnetProductionStatus()]);
+  const testnetOnly = !status.live && testnet.live;
+  const p = testnetOnly ? testnet.params : status.params;
+  /** " (currently 24 h)" from the live deployment file, " (24 h on testnet)" from the testnet one, else " (set at launch)". */
+  const cur = (text: string | null): string =>
+    text ? (testnetOnly ? ` (${text} on testnet)` : ` (currently ${text})`) : " (set at launch)";
   const ausd = (n: number | null) => (n === null ? null : `${fmtNum(n)} AUSD`);
   const caps = [
     p.maxLeverage !== null ? `${fmtNum(p.maxLeverage)}x max leverage` : null,
@@ -178,7 +188,9 @@ export default async function RiskPage() {
           <p>
             The beta is capped on purpose: max leverage, a deposit cap per account, a TVL cap per lane, an
             open-interest cap per lane and market, and a minimum position size.{" "}
-            {caps.length ? `Current values: ${caps.join(", ")}.` : "The values are set at launch and shown in the app."}{" "}
+            {caps.length
+              ? `${testnetOnly ? "Values on Monad testnet" : "Current values"}: ${caps.join(", ")}.`
+              : "The values are set at launch and shown in the app."}{" "}
             A cap can stop you from depositing more or growing a position.{" "}
             <strong>A deposit cap can also stop you from adding collateral to rescue a position near liquidation.</strong>
           </p>
@@ -288,7 +300,7 @@ export default async function RiskPage() {
         <>
           <ul>
             <li>
-              Monad mainnet is a young network. Outages, congestion, reorganisations, RPC failures and gas spikes can
+              Monad is a young network. Outages, congestion, reorganisations, RPC failures and gas spikes can
               delay or block your transactions, including the one that would have saved a position. You need MON for
               gas and execution fees.
             </li>
@@ -300,6 +312,13 @@ export default async function RiskPage() {
                   the list on our landing page (from <code>{PRODUCTION_FILE}</code>) and{" "}
                   <a href={MONADSCAN} target="_blank" rel="noreferrer">
                     Monadscan
+                  </a>
+                </>
+              ) : testnetOnly ? (
+                <>
+                  the testnet list on our landing page (from <code>{testnet.file}</code>) and the{" "}
+                  <a href={testnet.explorer} target="_blank" rel="noreferrer">
+                    Monad testnet explorer
                   </a>
                 </>
               ) : (
@@ -388,8 +407,10 @@ export default async function RiskPage() {
               </>
             ) : (
               <>
-                Its mainnet beta, when and if it launches, uses <strong>real AUSD</strong>, unaudited and capped. Until
-                then only the demo runs, on Monad testnet or a local chain, with a test token that has no value.
+                Its mainnet beta, when and if it launches, uses <strong>real AUSD</strong>, unaudited and capped.{" "}
+                {testnetOnly
+                  ? "Until then the same production contracts run on Monad testnet with Agora's testnet AUSD, which has no value; the values quoted below are the testnet deployment's."
+                  : "Until then only the demo runs, on Monad testnet or a local chain, with a test token that has no value."}
               </>
             )}{" "}
             Read this page before you deposit. It isn&rsquo;t a complete list; new kinds of failure happen.

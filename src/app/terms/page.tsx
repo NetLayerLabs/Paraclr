@@ -4,22 +4,27 @@ import { GITHUB_URL } from "@/components/landing/content";
 import { fmtDuration } from "@/components/landing/format";
 import { Callout, LegalShell, Placeholder, type LegalSection } from "@/components/landing/LegalShell";
 import { AUDIT_STATUS, RISK_PATH } from "@/components/landing/disclosures";
-import { loadProductionStatus } from "@/components/landing/production.server";
+import { loadProductionStatus, loadTestnetProductionStatus } from "@/components/landing/production.server";
 
 // Light page, so the browser chrome matches it (the app keeps its dark theme colour).
 export const viewport: Viewport = { themeColor: "#ffffff" };
 
+const DESCRIPTION =
+  "Draft terms of use for the Paraclr interface, live on Monad testnet with test funds, and its capped, unaudited " +
+  "mainnet beta. Not legal advice; pending legal review.";
+
 export const metadata: Metadata = {
   title: "Terms of use (draft)",
-  description:
-    "Draft terms of use for the Paraclr interface and its capped, unaudited mainnet beta. Not legal advice; pending legal review.",
+  description: DESCRIPTION,
+  openGraph: { type: "website", siteName: "Paraclr", title: "Terms of use (draft) · Paraclr", description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: "Terms of use (draft) · Paraclr", description: DESCRIPTION },
 };
 
 const UPDATED = "Oct 7, 2026";
 
 // Prerendered at build time; reads deployments/143.json for the beta status.
 export default async function TermsPage() {
-  const status = await loadProductionStatus();
+  const [status, testnet] = await Promise.all([loadProductionStatus(), loadTestnetProductionStatus()]);
   const delay = status.params.timelockDelaySeconds;
 
   const sections: LegalSection[] = [
@@ -78,7 +83,9 @@ export default async function TermsPage() {
           <p>
             {status.live
               ? "The Paraclr mainnet beta is live on Monad mainnet with real AUSD."
-              : "A Paraclr mainnet beta with real AUSD launches only if its launch gate passes; until then only the demo runs, on Monad testnet or a local chain, and its test tokens have no value."}{" "}
+              : testnet.live
+                ? "A Paraclr mainnet beta with real AUSD launches only if its launch gate passes; until then the production contracts run on Monad testnet with Agora's testnet AUSD, and test tokens have no value."
+                : "A Paraclr mainnet beta with real AUSD launches only if its launch gate passes; until then only the demo runs, on Monad testnet or a local chain, and its test tokens have no value."}{" "}
             The beta is experimental. <strong>{AUDIT_STATUS}.</strong> Deposits, positions and open interest are capped,
             and the guardian can pause deposits and new positions. Features, caps and fees can change through the
             timelock{delay !== null ? ` (currently ${fmtDuration(delay)})` : ""}, and the beta can be wound down. We
