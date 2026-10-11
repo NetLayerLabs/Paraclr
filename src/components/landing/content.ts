@@ -33,3 +33,20 @@ export const AUCTION = {
  * ~7 s, quicker than a keeper on a shared public RPC reacts.
  */
 export const TESTNET_AUCTION_STEP_BPS = 5;
+
+/** Monad testnet block time used for "about N s" figures (docs/RUNBOOK.md, auction step change of 2026-10-08). */
+export const MONAD_BLOCK_S = 0.35;
+
+/**
+ * The auction step the page should quote: the testnet deployment's while only testnet production is live,
+ * otherwise the contract default. Same rule as the hero and the share image.
+ */
+export function auctionStepBps(live: boolean, testnetLive: boolean): number {
+  return testnetLive && !live ? TESTNET_AUCTION_STEP_BPS : AUCTION.stepBps;
+}
+
+/** "about 5 s" for a number of blocks at MONAD_BLOCK_S. */
+export function aboutSeconds(blocks: number): string {
+  const t = blocks * MONAD_BLOCK_S;
+  return `about ${t < 1.5 ? t.toFixed(1).replace(/\.0$/, "") : Math.round(t)} s`;
+}

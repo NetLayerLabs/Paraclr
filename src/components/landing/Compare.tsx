@@ -1,10 +1,11 @@
 import { Check, Minus } from "./icons";
-import { AUCTION } from "./content";
+import { AUCTION, auctionStepBps } from "./content";
 import b from "./brand/Brand.module.css";
 import s from "./Compare.module.css";
 
 /** Only claims the contracts support. "Typical" = the first-bot-wins, fixed-penalty pattern, not one venue. */
-const ROWS: { feature: string; typical: string; paraclr: string }[] = [
+function rows(step: number): { feature: string; typical: string; paraclr: string }[] {
+  return [
   {
     feature: "Who takes the account",
     typical: "The first bot to land a transaction",
@@ -13,7 +14,7 @@ const ROWS: { feature: string; typical: string; paraclr: string }[] = [
   {
     feature: "How the price is set",
     typical: "A fixed fee, set before the crash",
-    paraclr: `A discount set by the block clock: 0, then +${AUCTION.stepBps} bps per block. The trader keeps E − P`,
+    paraclr: `A discount set by the block clock: 0, then +${step} bps per block${step === AUCTION.stepBps ? "" : ` on testnet (contract default ${AUCTION.stepBps})`}. The trader keeps E − P`,
   },
   {
     feature: "What a higher gas bid buys",
@@ -40,9 +41,10 @@ const ROWS: { feature: string; typical: string; paraclr: string }[] = [
     typical: "Up to each venue",
     paraclr: "solvency(): AUSD held vs. the 8 lane ledgers, read every block",
   },
-];
+  ];
+}
 
-export function Compare({ live }: { live: boolean }) {
+export function Compare({ live, testnetLive = false }: { live: boolean; testnetLive?: boolean }) {
   return (
     <section className={`${b.light} ${b.surface} ${b.section} ${s.section}`} aria-labelledby="compare-title">
       <div className={b.container}>
@@ -68,7 +70,7 @@ export function Compare({ live }: { live: boolean }) {
               </tr>
             </thead>
             <tbody>
-              {ROWS.map((r) => (
+              {rows(auctionStepBps(live, testnetLive)).map((r) => (
                 <tr key={r.feature}>
                   <th scope="row">{r.feature}</th>
                   <td data-label="Typical">

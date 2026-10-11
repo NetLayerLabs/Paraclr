@@ -52,9 +52,9 @@ export default async function Home() {
       <main id="main">
         <Hero live={live} testnetLive={testnetLive} repo={evidence.repo} xray={evidence.xray} />
         <Bend into="dark" corner="right" />
-        <Problem />
+        <Problem live={live} testnetLive={testnetLive} />
         <Bend into="light" corner="left" />
-        <Auction />
+        <Auction live={live} testnetLive={testnetLive} />
         <Bend into="dark" corner="right" />
         <XRay xray={evidence.xray} />
         <Solvency repo={evidence.repo} />
@@ -64,7 +64,7 @@ export default async function Home() {
         <Bend into="dark" corner="left" />
         <BuiltOn repo={evidence.repo} live={live} testnet={testnet} testnetLive={testnetLive} />
         <Bend into="light" corner="right" />
-        <Compare live={live} />
+        <Compare live={live} testnetLive={testnetLive} />
         <Bend into="dark" corner="left" />
         <Faq monadDeployed={testnet} production={production} testnetProd={testnetProd} />
         <FinalCta live={live} testnetLive={testnetLive} />

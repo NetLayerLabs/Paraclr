@@ -5,54 +5,62 @@
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 20px;
-  align-items: stretch;
+  gap: 40px clamp(32px, 4.5vw, 64px);
+  align-items: start;
 }
 
-.cardHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 6px 12px;
+/* Figure heads: a strong rule, a title, a plain sentence under it. */
+.head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 22px;
 }
 
-.cardTitle {
+.title {
   font-family: var(--pc-font-display);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
+  line-height: 1.3;
   letter-spacing: -0.025em;
   color: var(--pc-ink);
 }
 
-.cardSub {
-  font-family: var(--pc-font-mono);
-  font-size: 11.5px;
+.sub {
+  max-width: 620px;
+  font-size: 13.5px;
+  line-height: 1.55;
   color: var(--pc-ink-3);
+  text-wrap: pretty;
+}
+
+.sub b {
+  font-family: var(--pc-font-mono);
+  font-weight: 600;
+  color: var(--pc-ink);
 }
 
 /* ---- Discount chart ---------------------------------------------------- */
 
 .chart {
-  display: flex;
-  flex-direction: column;
   min-width: 0;
-  padding: clamp(18px, 2.2vw, 28px);
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-line-strong);
+  color: var(--pc-ink-2);
 }
 
 .plot {
-  --plot-h: 250px;
+  --plot-h: 260px;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr);
   grid-template-rows: var(--plot-h) auto auto;
   column-gap: 10px;
-  margin-top: 34px;
+  margin-top: 40px;
 }
 
 .yAxis {
   position: relative;
   font-family: var(--pc-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--pc-ink-3);
 }
 
@@ -61,14 +69,12 @@
   right: 0;
   bottom: calc(var(--y) * 100%);
   transform: translateY(50%);
-  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .area {
   position: relative;
-  grid-column: 2;
-  border-left: 1px solid var(--pc-line-strong);
-  border-bottom: 1px solid var(--pc-line-strong);
+  border-bottom: 1px solid var(--pc-ink-3);
 }
 
 .gridLine {
@@ -80,246 +86,162 @@
   background: var(--pc-line);
 }
 
-.threshold {
-  position: absolute;
-  z-index: 2;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--y) * 100%);
-  height: 0;
-  border-top: 1.5px dashed var(--pc-accent);
-  pointer-events: none;
-}
-
-.yAxis .yTake {
-  padding: 1px 5px;
-  border-radius: 5px;
-  background: var(--pc-accent);
-  font-weight: 600;
-  color: #fff;
-}
-
 .bars {
   position: absolute;
-  inset: 0 4px;
-  display: grid;
-  grid-template-columns: repeat(21, minmax(0, 1fr));
-  gap: 3px;
-  align-items: end;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(1px, calc(60px / var(--n)), 4px);
   list-style: none;
 }
 
-.col {
-  position: relative;
+.bars li {
   display: flex;
   align-items: flex-end;
+  flex: 1 1 0;
+  min-width: 0;
   height: 100%;
 }
 
-.barLive,
-.barTake,
-.barIdle,
-.barCap {
-  position: relative;
+.bar,
+.barTake {
   display: block;
   width: 100%;
   height: calc(var(--h) * 100%);
-  min-height: 2px;
-  border-radius: 4px 4px 0 0;
-}
-
-.barLive {
-  background: #c9bfff;
+  background: color-mix(in srgb, var(--pc-ink) 14%, transparent);
 }
 
 .barTake {
   background: var(--pc-accent);
-  box-shadow: 0 8px 20px -6px rgba(110, 84, 255, 0.6);
 }
 
-.barIdle {
-  background: repeating-linear-gradient(180deg, #e4e2ec 0 3px, #f4f3f8 3px 6px);
+/* The pool's minimum discount: a thin solid rule over the bars. */
+.threshold {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--y) * 100%);
+  height: 1px;
+  background: var(--pc-accent-text);
+  opacity: 0.7;
 }
 
-.barCap {
-  background: repeating-linear-gradient(180deg, #f6c4c6 0 3px, #fdeded 3px 6px);
-  box-shadow: inset 0 0 0 1px var(--pc-neg-line);
-}
-
-.mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  flex: none;
-  border-radius: 50%;
+.thresholdLabel {
+  position: absolute;
+  left: -44px;
+  bottom: calc(var(--y) * 100%);
+  transform: translateY(50%);
+  width: 34px;
+  padding: 1px 0;
+  background: var(--pc-bg);
   font-family: var(--pc-font-mono);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1;
+  text-align: right;
+  color: var(--pc-accent-text);
 }
 
-.bars .mark {
+/* Direct labels on the plot. */
+.takeLeader {
   position: absolute;
-  left: 50%;
-  bottom: calc(100% + 6px);
-  transform: translateX(-50%);
+  left: calc(var(--x) * 100%);
+  bottom: calc(var(--y) * 100%);
+  height: calc(66% - var(--y) * 100%);
+  width: 1px;
+  background: var(--pc-accent-text);
 }
 
-.markExternal {
-  color: #fff;
-  background: var(--pc-pos);
+.takeLabel,
+.capLabel {
+  position: absolute;
+  display: grid;
+  gap: 1px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--pc-ink-3);
+  white-space: nowrap;
 }
 
-.markTake {
-  color: #fff;
-  background: var(--pc-accent);
+.takeLabel b,
+.capLabel b {
+  font-weight: 600;
+  color: var(--pc-ink);
 }
 
-.markCap {
-  color: #fff;
-  background: var(--pc-neg);
+.takeLabel {
+  left: calc(var(--x) * 100% + 8px);
+  bottom: 66%;
+  transform: translateY(50%);
+}
+
+.takeLabel b {
+  color: var(--pc-accent-text);
+}
+
+.capLabel {
+  right: 0;
+  bottom: calc(100% + 8px);
+  text-align: right;
 }
 
 .xAxis {
-  position: relative;
   grid-column: 2;
+  position: relative;
   height: 22px;
-  margin: 0 4px;
   font-family: var(--pc-font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--pc-ink-3);
 }
 
 .xAxis span {
   position: absolute;
-  top: 6px;
+  top: 7px;
   left: calc(var(--x) * 100%);
   transform: translateX(-50%);
-}
-
-.xAxis .xTake {
-  color: var(--pc-accent-text);
-  font-weight: 600;
+  line-height: 1;
 }
 
 .xLabel {
   grid-column: 2;
   margin-top: 4px;
-  font-family: var(--pc-font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--pc-ink-3);
-  text-align: center;
 }
 
+/* Legend as a plain ruled definition list. */
 .keys {
-  display: grid;
-  gap: 10px;
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1px solid var(--pc-line);
-  list-style: none;
+  margin-top: 26px;
+  border-bottom: 1px solid var(--pc-line);
 }
 
-.keys li {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--pc-ink-2);
-}
-
-.keys b {
-  color: var(--pc-ink);
-  font-weight: 600;
-}
-
-/* ---- Side: split + MEV --------------------------------------------------- */
-
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-width: 0;
-}
-
-.split {
-  padding: clamp(18px, 2.2vw, 28px);
-}
-
-.eq {
-  margin-top: 22px;
-  font-family: var(--pc-font-mono);
-  font-size: 13px;
-  color: var(--pc-ink-2);
-}
-
-.eq b {
-  color: var(--pc-ink);
-}
-
-.splitBar {
-  display: flex;
-  height: 52px;
-  margin-top: 12px;
-  border-radius: 14px;
-  overflow: hidden;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.splitBar span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 14px;
-  white-space: nowrap;
-}
-
-.splitBar b {
-  font-family: var(--pc-font-mono);
-}
-
-.splitTaker {
-  flex: 0 0 30%;
-  background: var(--pc-accent);
-  color: #fff;
-}
-
-.splitTrader {
-  flex: 1;
-  background: var(--pc-pos-soft);
-  box-shadow: inset 0 0 0 1px var(--pc-pos-line);
-  border-radius: 0 14px 14px 0;
-  color: var(--pc-pos-text);
-}
-
-.splitRows {
-  display: grid;
-  gap: 0;
-  margin-top: 18px;
-}
-
+.keys div,
 .splitRows div {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 16px;
   padding: 11px 0;
   border-top: 1px solid var(--pc-line);
   font-size: 14px;
   line-height: 1.55;
 }
 
+.keys dt,
 .splitRows dt {
-  font-family: var(--pc-font-mono);
-  font-size: 12px;
-  color: var(--pc-ink-3);
-  padding-top: 2px;
+  font-weight: 600;
+  color: var(--pc-ink);
 }
 
+.keys dd,
 .splitRows dd {
   color: var(--pc-ink-2);
+}
+
+.splitRows dt {
+  font-family: var(--pc-font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding-top: 1px;
 }
 
 .splitRows b {
@@ -329,95 +251,117 @@
   color: var(--pc-ink);
 }
 
-.mev {
+/* ---- Equity split + MEV note ------------------------------------------- */
+
+.side {
   display: grid;
-  gap: 12px;
-  justify-items: start;
-  padding: 20px 22px;
-  border: 1px dashed var(--pc-line-strong);
-  border-radius: var(--pc-r-lg);
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--pc-ink-2);
-}
-
-/* ---- Steps --------------------------------------------------------------- */
-
-.steps {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-  margin-top: clamp(48px, 6vw, 80px);
-  list-style: none;
-}
-
-/* The rail the step nodes sit on. */
-.steps::before {
-  content: "";
-  position: absolute;
-  top: 21px;
-  left: 22px;
-  right: 22px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--pc-accent) 0%, var(--pc-accent-line) 100%);
-}
-
-.step {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  gap: 36px;
   min-width: 0;
 }
 
-.stepNode {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--pc-bg);
-  box-shadow:
-    0 0 0 2px var(--pc-accent),
-    0 0 0 7px var(--pc-bg);
+.split {
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-line-strong);
+}
+
+.splitBar {
+  display: flex;
+  height: 30px;
+  margin-bottom: 18px;
   font-family: var(--pc-font-mono);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: var(--pc-accent-text);
+  line-height: 30px;
 }
 
-.step:first-child .stepNode {
+.splitTaker {
+  flex: 0 0 30%;
+  padding: 0 10px;
   background: var(--pc-accent);
-  color: #fff;
+  color: var(--pc-on-accent);
 }
 
-.stepCard {
+.splitTrader {
+  flex: 1 1 auto;
+  padding: 0 10px;
+  background: var(--pc-pos-soft);
+  border-bottom: 2px solid var(--pc-pos);
+  color: var(--pc-pos-text);
+}
+
+.splitRows {
+  border-bottom: 1px solid var(--pc-line);
+}
+
+.splitRows div {
+  grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.mev {
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-line-strong);
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: var(--pc-ink-2);
+  text-wrap: pretty;
+}
+
+.mev b {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--pc-font-display);
+  font-size: 17px;
+  letter-spacing: -0.025em;
+  color: var(--pc-ink);
+}
+
+/* ---- Lifecycle: four ruled columns -------------------------------------- */
+
+.stepsHead {
+  margin: clamp(64px, 8vw, 104px) 0 20px;
+  font-family: var(--pc-font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pc-ink-3);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 clamp(24px, 3vw, 40px);
+  list-style: none;
+}
+
+.step {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  padding: 22px;
+  gap: 10px;
+  min-width: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--pc-ink);
+}
+
+.stepNum {
+  font-family: var(--pc-font-mono);
+  font-size: 12px;
+  color: var(--pc-accent-text);
 }
 
 .stepCode {
-  align-self: flex-start;
-  max-width: 100%;
-  padding: 5px 9px;
-  border-radius: 8px;
-  background: var(--pc-bg-subtle);
-  border: 1px solid var(--pc-line);
   font-family: var(--pc-font-mono);
-  font-size: 11.5px;
-  color: var(--pc-accent-text);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--pc-ink-3);
   overflow-wrap: anywhere;
 }
 
 .stepBody {
   font-size: 14.5px;
-  line-height: 1.6;
+  line-height: 1.62;
   color: var(--pc-ink-2);
+  text-wrap: pretty;
 }
 
 .stepBody b {
@@ -430,7 +374,7 @@
 /* ---- Backstop pools ------------------------------------------------------ */
 
 .pool {
-  margin-top: clamp(56px, 7vw, 88px);
+  margin-top: clamp(64px, 8vw, 104px);
   padding-top: clamp(44px, 5vw, 64px);
   border-top: 1px solid var(--pc-line);
   scroll-margin-top: 72px;
@@ -438,7 +382,7 @@
 
 .poolHead {
   max-width: 720px;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .poolTitle {
@@ -456,110 +400,61 @@
   color: var(--pc-display-2);
 }
 
-.poolCards {
+.poolRows {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 clamp(24px, 3vw, 40px);
   list-style: none;
 }
 
-.poolCard {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.poolRows li {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 16px 0 24px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
-.poolCard > span:first-child {
-  margin-bottom: 6px;
-}
-
-.noApy {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  margin-top: 20px;
-  padding: 18px 20px;
-  border-radius: var(--pc-r-lg);
-  background: var(--pc-bg-subtle);
+.poolRows .body {
   font-size: 14.5px;
-  line-height: 1.6;
-  color: var(--pc-ink-2);
 }
 
-.noApy strong {
-  color: var(--pc-ink);
-  font-weight: 600;
-}
-
-/* ---- Responsive ---------------------------------------------------------- */
-
-@media (max-width: 1023px) {
+@media (max-width: 1099px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .steps {
+  .steps,
+  .poolRows {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .steps::before {
-    display: none;
-  }
-
-  .poolCards {
-    grid-template-columns: minmax(0, 1fr);
+    gap: 28px clamp(24px, 3vw, 40px);
   }
 }
 
 @media (max-width: 639px) {
-  /* "100" would collide with the 75 bps threshold pill on a short plot. */
-  .yAxis span:nth-child(2) {
-    visibility: hidden;
-  }
-
   .plot {
-    --plot-h: 200px;
+    --plot-h: 210px;
     grid-template-columns: 28px minmax(0, 1fr);
     column-gap: 6px;
   }
 
-  .bars {
-    gap: 2px;
-    inset: 0 2px;
+  .thresholdLabel {
+    left: -34px;
+    width: 28px;
   }
 
-  .steps {
+  .keys div {
     grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
   }
 
-  .step {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 14px;
-  }
-
-  .stepNode {
-    flex: none;
-    width: 38px;
-    height: 38px;
-    font-size: 12px;
-  }
-
-  .noApy {
-    flex-direction: column;
+  .steps,
+  .poolRows {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
   }
 
   .splitTaker {
     flex-basis: 26%;
   }
-}
-
-/* The deployment's own step, under the defaults chart. */
-.deployNote {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--pc-line);
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--pc-ink-2);
 }

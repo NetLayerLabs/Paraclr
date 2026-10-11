@@ -5,11 +5,8 @@
 .wrap {
   max-width: 1000px;
   margin: 0 auto;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-r-xl);
-  background: var(--pc-surface);
-  box-shadow: var(--pc-shadow-2);
-  overflow: hidden;
+  border-top: 1px solid var(--pc-ink);
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .table {
@@ -19,9 +16,8 @@
 }
 
 .table thead th {
-  padding: 18px 24px;
-  background: var(--pc-bg-subtle);
-  border-bottom: 1px solid var(--pc-line);
+  padding: 14px 24px 14px 0;
+  border-bottom: 1px solid var(--pc-line-strong);
   font-family: var(--pc-font-mono);
   font-size: 11.5px;
   font-weight: 500;
@@ -42,7 +38,7 @@
 
 .table tbody th,
 .table td {
-  padding: 18px 24px;
+  padding: 18px 24px 18px 0;
   border-top: 1px solid var(--pc-line);
   text-align: left;
   vertical-align: top;
@@ -83,9 +79,6 @@
   overflow: hidden;
 }
 
-.us {
-  background: rgba(110, 84, 255, 0.045);
-}
 
 td.us {
   color: var(--pc-ink);
@@ -93,11 +86,8 @@ td.us {
 }
 
 .iconYes {
-  padding: 2px;
-  border-radius: 50%;
-  background: var(--pc-accent);
-  color: #fff;
-  stroke-width: 2.4;
+  color: var(--pc-accent-text);
+  stroke-width: 2.2;
 }
 
 .iconNo {
@@ -114,7 +104,7 @@ td.us {
   color: var(--pc-ink-3);
 }
 
-/* Phones: each row becomes a small card. */
+/* Phones: each row becomes a ruled block. */
 @media (max-width: 639px) {
   .table,
   .table tbody,
@@ -134,7 +124,7 @@ td.us {
   }
 
   .table tbody th {
-    padding: 18px 18px 8px;
+    padding: 18px 0 8px;
     border: 0;
     font-family: var(--pc-font-display);
     font-size: 16px;
@@ -142,7 +132,7 @@ td.us {
   }
 
   .table td {
-    padding: 8px 18px;
+    padding: 6px 0;
     border: 0;
     font-size: 14.5px;
   }
@@ -159,10 +149,7 @@ td.us {
   }
 
   .table td.us {
-    margin-bottom: 14px;
-    padding-top: 10px;
-    padding-bottom: 12px;
-    background: rgba(110, 84, 255, 0.05);
+    padding-bottom: 18px;
   }
 
   .table td.us::before {

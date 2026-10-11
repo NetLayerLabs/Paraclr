@@ -1,24 +1,20 @@
-import { ArrowDown, EyeOff, Flame, Lock } from "./icons";
-import { AUCTION } from "./content";
+import { AUCTION, auctionStepBps } from "./content";
 import b from "./brand/Brand.module.css";
 import s from "./Problem.module.css";
 
 const ISSUES = [
   {
-    icon: Lock,
-    tag: "fixed penalty",
+    tag: "Fixed penalty",
     title: "The price is set before the crash",
     body: "The liquidation fee is a constant: the same in a calm market and in a cascade. A taker who would accept less has no way to offer less.",
   },
   {
-    icon: Flame,
-    tag: "gas bidding",
+    tag: "Gas bidding",
     title: "Bots compete on gas, not on price",
     body: "Whoever lands first collects the whole fee, so liquidators bid for priority and ordering. None of that competition flows back to the trader.",
   },
   {
-    icon: EyeOff,
-    tag: "no discovery",
+    tag: "No discovery",
     title: "Nobody learns what the takeover was worth",
     body: "One winner, one fixed price. The trader pays it whether a taker would have stepped in for a fraction of it or not.",
   },
@@ -30,7 +26,9 @@ const BOTS = [
   { name: "bot C", bid: 58, wins: false },
 ] as const;
 
-export function Problem() {
+export function Problem({ live = false, testnetLive = false }: { live?: boolean; testnetLive?: boolean }) {
+  const step = auctionStepBps(live, testnetLive);
+  const onTestnet = step !== AUCTION.stepBps;
   return (
     <section className={`${b.dark} ${b.surface} ${b.section} ${s.section}`} aria-labelledby="problem-title">
       <div className={`${b.container} ${s.grid}`}>
@@ -46,10 +44,11 @@ export function Problem() {
             <strong>more than a competitive price for the takeover</strong>.
           </p>
 
-          <figure className={`${b.card} ${s.race}`}>
+          <figure className={s.race}>
             <figcaption className={s.raceHead}>
+              <span className={s.kicker}>Today</span>
               <span className={s.raceTitle}>First bot wins</span>
-              <span className={b.tagIllustration}>Schematic</span>
+              <span className={s.raceNote}>schematic</span>
             </figcaption>
             <ol
               className={s.bots}
@@ -65,37 +64,39 @@ export function Problem() {
                 </li>
               ))}
             </ol>
-            <p className={s.raceFoot}>
-              <span>priority fee bid →</span>
+            <p className={s.raceAxis}>
+              <span>priority fee bid</span>
               <span>
-                winner takes the <b>fixed penalty</b>, in full
+                the winner takes the <b>fixed penalty</b>, in full
+              </span>
+            </p>
+
+            <p className={s.turn}>
+              <span className={s.kicker}>Paraclr</span>
+              <span>
+                A clock instead of a race. The discount starts at 0 and rises {step} bps per block
+                {onTestnet ? <> on the testnet deployment ({AUCTION.stepBps} is the contract default)</> : null}, so a
+                higher gas bid buys an earlier take at a smaller discount, never a bigger one.{" "}
+                <a className={b.link} href="#auction">
+                  How the auction works
+                </a>
               </span>
             </p>
           </figure>
-
-          <a href="#auction" className={s.turn}>
-            <span className={s.turnTag}>Paraclr</span>
-            <span>
-              Replace the race with a clock: the discount starts at 0 and rises {AUCTION.stepBps} bps per block.
-            </span>
-            <ArrowDown className={s.turnIcon} />
-          </a>
         </div>
 
-        <ul className={s.issues}>
-          {ISSUES.map(({ icon: Icon, tag, title, body }) => (
-            <li key={tag} className={`${b.card} ${b.cardPad} ${s.issue}`}>
-              <div className={s.issueHead}>
-                <span className={b.iconTile}>
-                  <Icon />
-                </span>
-                <code className={s.issueTag}>{tag}</code>
+        <ol className={s.issues} aria-label="What the race costs the trader">
+          {ISSUES.map(({ tag, title, body }, i) => (
+            <li key={tag} className={s.issue}>
+              <span className={s.issueNum}>{String(i + 1).padStart(2, "0")}</span>
+              <div>
+                <p className={s.kicker}>{tag}</p>
+                <h3 className={b.h3}>{title}</h3>
+                <p className={b.body}>{body}</p>
               </div>
-              <h3 className={b.h3}>{title}</h3>
-              <p className={b.body}>{body}</p>
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
     </section>
   );

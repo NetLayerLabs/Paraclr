@@ -9,32 +9,48 @@
   align-items: start;
 }
 
-/* ---- Race schematic ---------------------------------------------------- */
+/* Small caps-style label, same as BuiltOn's "Also used". */
+.kicker {
+  font-family: var(--pc-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pc-ink-3);
+}
+
+/* ---- Race: today vs Paraclr, one ruled block ---------------------------- */
 
 .race {
-  margin-top: 36px;
-  padding: 20px 22px 18px;
-  max-width: 540px;
+  max-width: 560px;
+  margin-top: 40px;
+  border-top: 1px solid var(--pc-line-strong);
 }
 
 .raceHead {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  align-items: baseline;
+  gap: 14px;
+  padding: 16px 0 18px;
 }
 
 .raceTitle {
   font-family: var(--pc-font-display);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.02em;
+  color: var(--pc-ink);
+}
+
+.raceNote {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--pc-ink-3);
 }
 
 .bots {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   list-style: none;
 }
 
@@ -42,24 +58,22 @@
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr) 82px;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   font-family: var(--pc-font-mono);
   font-size: 12px;
   color: var(--pc-ink-3);
 }
 
 .botTrack {
-  height: 8px;
-  border-radius: var(--pc-r-pill);
-  background: rgba(255, 255, 255, 0.05);
-  overflow: hidden;
+  height: 6px;
+  background: var(--pc-line);
 }
 
 .botBar {
   display: block;
   height: 100%;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--pc-ink-3);
+  opacity: 0.55;
 }
 
 .botWin {
@@ -68,6 +82,7 @@
 
 .botWin .botBar {
   background: var(--pc-neg);
+  opacity: 1;
 }
 
 .botWin .botOut {
@@ -78,100 +93,88 @@
   text-align: right;
 }
 
-.raceFoot {
+.raceAxis {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 6px 16px;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--pc-line);
+  gap: 4px 16px;
+  margin-top: 14px;
+  padding-left: 62px;
   font-size: 13px;
   color: var(--pc-ink-3);
 }
 
-.raceFoot b {
+.raceAxis b {
   color: var(--pc-ink);
   font-weight: 600;
 }
-
-/* ---- Turn ---------------------------------------------------------------- */
 
 .turn {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 14px;
-  max-width: 540px;
-  margin-top: 16px;
-  padding: 14px 18px;
-  border: 1px solid var(--pc-accent-line);
-  border-radius: 16px;
-  background: var(--pc-accent-soft);
-  font-size: 14.5px;
-  line-height: 1.5;
+  align-items: baseline;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--pc-line);
+  font-size: 15.5px;
+  line-height: 1.6;
   color: var(--pc-ink);
-  transition: border-color var(--pc-dur-2);
+  text-wrap: pretty;
 }
 
-.turn:hover {
-  border-color: var(--pc-accent-text);
-}
-
-.turnTag {
-  flex: none;
-  padding: 4px 10px;
-  border-radius: var(--pc-r-pill);
-  background: var(--pc-accent);
-  font-family: var(--pc-font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.turnIcon {
-  width: 18px;
-  height: 18px;
-  flex: none;
-  margin-left: auto;
+.turn .kicker {
   color: var(--pc-accent-text);
 }
 
-/* ---- Issue cards --------------------------------------------------------- */
+/* ---- Issues: a ruled numbered list -------------------------------------- */
 
 .issues {
-  display: grid;
-  gap: 16px;
   list-style: none;
+  border-bottom: 1px solid var(--pc-line);
 }
 
 .issue {
   display: grid;
-  gap: 12px;
-  transition:
-    border-color var(--pc-dur-2),
-    transform var(--pc-dur-2) var(--pc-ease);
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 16px;
+  padding: 26px 0;
+  border-top: 1px solid var(--pc-line);
 }
 
-.issue:hover {
-  border-color: var(--pc-line-strong);
+.issue .kicker {
+  margin-bottom: 8px;
 }
 
-.issueHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+.issue h3 {
+  margin-bottom: 8px;
 }
 
-.issueTag {
+.issueNum {
+  padding-top: 1px;
   font-family: var(--pc-font-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.04em;
+  font-size: 12px;
   color: var(--pc-ink-3);
 }
 
 @media (max-width: 959px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 479px) {
+  .bots li {
+    grid-template-columns: 40px minmax(0, 1fr) 74px;
+    gap: 10px;
+  }
+
+  .raceAxis {
+    padding-left: 0;
+  }
+
+  .turn {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
   }
 }
