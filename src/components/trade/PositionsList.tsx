@@ -58,7 +58,7 @@ function usePositionModel(p: Position, onClosed: OnClosed) {
     try {
       if (priceStale) {
         throw new ChainActionError(
-          `Live ${pn} unavailable right now - reconnecting. The order waits so its fill limit isn't set from a stale price.`,
+          `Live ${pn} unavailable right now, reconnecting. The order waits so its fill limit isn't set from a stale price.`,
         );
       }
       const o = await submitReduceOrder({ position: p, fraction, mark, slippagePct: slip });
@@ -161,6 +161,7 @@ function closeConfirmOff(): boolean {
 
 /** "Close your SOL long?" with No (focused) / Yes and a don't-ask-again option. */
 function CloseConfirm({ p, m }: { p: Position; m: PositionModel }) {
+  const execFee = useParaclr((s) => s.chain.prod?.params.minExecutionFee ?? null);
   const [dontAsk, setDontAsk] = useState(false);
   const noBtn = useRef<HTMLButtonElement | null>(null);
   const { setConfirming } = m;
@@ -202,7 +203,9 @@ function CloseConfirm({ p, m }: { p: Position; m: PositionModel }) {
           {fmtSize(p.symbol, p.size)} {base} at about <span className="mono">{fmtPrice(p.symbol, m.mark)}</span>.
           Unrealized PnL{" "}
           <b className={`mono ${m.up ? styles.up : styles.down}`}>{fmtSigned(m.pnl)} AUSD</b>.
-          {m.production ? ` It sends a close order, filled at the next ${m.pn} within your slippage.` : ""}
+          {m.production
+            ? ` It sends a close order${execFee !== null ? ` (execution fee ${Number(execFee) / 1e18} MON)` : ""}, filled at the next ${m.pn} within your slippage.`
+            : ""}
         </p>
         <div className={styles.confirmActions}>
           <button ref={noBtn} type="button" className={styles.confirmNo} onClick={() => setConfirming(false)}>
@@ -307,7 +310,7 @@ function PositionCard({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
           onClick={m.requestClose}
           title={
             m.inAuction && !m.production
-              ? "Frozen during the liquidation auction - cure it from the banner above"
+              ? "Frozen during the liquidation auction: cure it from the banner above"
               : m.production
                 ? m.inAuction
                   ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"
@@ -390,7 +393,7 @@ function PositionRow({ p, onClosed }: { p: Position; onClosed: OnClosed }) {
             onClick={m.requestClose}
             title={
               m.inAuction && !m.production
-                ? "Frozen during the liquidation auction - cure it from the banner above"
+                ? "Frozen during the liquidation auction: cure it from the banner above"
                 : m.production
                   ? m.inAuction
                     ? "Reduce-only order: fills only if it leaves the account at or above maintenance (ends the auction)"

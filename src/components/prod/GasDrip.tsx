@@ -47,8 +47,19 @@ const monText = (s: string | undefined) => {
   return Number.isFinite(n) ? n.toLocaleString("en-US", { maximumFractionDigits: 4 }) : (s ?? "");
 };
 
-/** "Get 0.3 test MON for gas". `nativeWei` = the wallet's MON balance (null while unknown). */
-export function GasDrip({ address, nativeWei }: { address: string | null; nativeWei: bigint | null }) {
+/**
+ * "Get 0.3 test MON for gas". `nativeWei` = the wallet's MON balance (null while unknown). With
+ * `faucetFallback` (the caller is blocked on gas), a wallet the drip can't serve still gets the faucet link.
+ */
+export function GasDrip({
+  address,
+  nativeWei,
+  faucetFallback = false,
+}: {
+  address: string | null;
+  nativeWei: bigint | null;
+  faucetFallback?: boolean;
+}) {
   const drip = useParaclr((s) => s.chain.keeper.health?.drip ?? null);
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const alive = useRef(true);
@@ -100,7 +111,16 @@ export function GasDrip({ address, nativeWei }: { address: string | null; native
     }
   }
 
-  if (!NETWORK?.isTestnetProd || NETWORK.sandbox || !drip?.enabled || !address) return null;
+  if (!NETWORK?.isTestnetProd || NETWORK.sandbox || !address) return null;
+  const faucetOnly = faucetFallback ? (
+    <p className={styles.fine}>
+      Get testnet MON at{" "}
+      <a href={MONAD_TESTNET_FAUCET_URL} target="_blank" rel="noreferrer">
+        faucet.monad.xyz ↗
+      </a>
+    </p>
+  ) : null;
+  if (!drip?.enabled) return faucetOnly;
   let min: bigint;
   try {
     min = parseEther(drip.minBalance ?? "0.05");
@@ -108,9 +128,9 @@ export function GasDrip({ address, nativeWei }: { address: string | null; native
     min = parseEther("0.05");
   }
   // Only for wallets that need it; once a drip is under way, keep showing its progress.
-  if (phase.kind === "idle" && (nativeWei === null || nativeWei >= min)) return null;
+  if (phase.kind === "idle" && (nativeWei === null || nativeWei >= min)) return faucetOnly;
   // Don't offer a drip the keeper can't pay (its wallet is below one drip): the faucet hint stays.
-  if (phase.kind === "idle" && !dripFunded(drip.walletBalance, drip.amount)) return null;
+  if (phase.kind === "idle" && !dripFunded(drip.walletBalance, drip.amount)) return faucetOnly;
 
   const amount = monText(drip.amount ?? "0.3");
   const request = async () => {
@@ -133,18 +153,18 @@ export function GasDrip({ address, nativeWei }: { address: string | null; native
           {phase.kind === "requesting"
             ? "Requesting…"
             : phase.kind === "queued"
-              ? `Queued${phase.position ? ` (#${phase.position})` : ""} - sending soon…`
+              ? `Queued${phase.position ? ` (#${phase.position})` : ""}, sending soon…`
               : `Get ${amount} test MON for gas`}
         </button>
       )}
       {phase.kind === "sending" && (
         <Notice tone="ok">
-          Sent - arrives in a few seconds. <TxLink hash={phase.tx} label="View transfer" />
+          Sent. It arrives in a few seconds. <TxLink hash={phase.tx} label="View transfer" />
         </Notice>
       )}
       {phase.kind === "arrived" && (
         <Notice tone="ok">
-          {amount} test MON arrived{nativeWei !== null ? ` - balance ${monText(formatEther(nativeWei))} MON` : ""}.{" "}
+          {amount} test MON arrived{nativeWei !== null ? `: balance ${monText(formatEther(nativeWei))} MON` : ""}.{" "}
           {phase.tx && <TxLink hash={phase.tx} label="View transfer" />}
         </Notice>
       )}

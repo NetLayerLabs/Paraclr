@@ -36,6 +36,7 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
   const wallet = useParaclr((s) => s.chain.wallet);
   const sandboxFaucet = useParaclr((s) => s.chain.faucet);
   const testnetToken = useParaclr((s) => s.chain.contracts?.token.testnet ?? false);
+  const depositCap = useParaclr((s) => s.chain.prod?.params.maxDepositPerAccount ?? null);
   const faucet = useAgoraFaucet(true);
   const now = useNow(1_000);
   const [busy, setBusy] = useState(false);
@@ -73,7 +74,10 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
     setMsg(null);
     try {
       const got = await claimTestAusd();
-      setMsg({ tone: "ok", text: `Received ${fmtAusd(got)} test AUSD from Agora's faucet.` });
+      setMsg({
+        tone: "ok",
+        text: `Received ${fmtAusd(got)} test AUSD from Agora's faucet. Next: deposit${depositCap !== null ? ` up to the ${fmtAusd(depositCap)} AUSD beta cap` : ""}, or place an order on Trade (it deposits the margin for you).`,
+      });
     } catch (e) {
       setMsg({ tone: "error", text: readableError(e) });
     } finally {
@@ -89,7 +93,12 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
           {busy ? "Claiming on chain…" : (reason ?? `Claim ${drip0(faucet?.drip ?? null)} test AUSD`.replace("  ", " "))}
         </button>
         {msg && <Notice tone={msg.tone}>{msg.text}</Notice>}
-        <p className={styles.fine}>Agora&apos;s testnet AUSD faucet, called from your wallet. Test funds, no real value.</p>
+        <p className={styles.fine}>
+          Agora&apos;s testnet AUSD faucet, called from your wallet. Test funds, no real value. Need MON first?{" "}
+          <a href={MONAD_TESTNET_FAUCET_URL} target="_blank" rel="noreferrer">
+            faucet.monad.xyz ↗
+          </a>
+        </p>
       </div>
     );
   }
@@ -131,16 +140,16 @@ export function TestnetFunds({ variant = "card" }: { variant?: "card" | "inline"
       )}
 
       <p className={styles.fine}>
-        Calls Agora&apos;s faucet contract from your wallet - test funds, no real value.
+        Calls Agora&apos;s faucet contract from your wallet. Test funds, no real value.
       </p>
       <dl className={styles.kv}>
         <div>
           <dt>Per claim</dt>
-          <dd className="mono">{whole(drip)}</dd>
+          <dd className="mono">{drip !== null ? `${whole(drip)} AUSD` : "…"}</dd>
         </div>
         <div>
           <dt>Max held</dt>
-          <dd className="mono">{whole(faucet?.maxOwn ?? null)}</dd>
+          <dd className="mono">{faucet?.maxOwn != null ? `${whole(faucet.maxOwn)} AUSD` : "…"}</dd>
         </div>
         <div>
           <dt>Next claim</dt>

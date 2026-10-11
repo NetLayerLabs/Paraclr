@@ -6,6 +6,8 @@
 // MIN_EXEC_DELAY after the commit. Fees, caps and the pause flag are read from
 // the contract and shown before submit.
 
+import { useAuctionParams } from "@/lib/chain/auctionParams";
+import { fmtBps } from "@/lib/chain/fair";
 import { useState, type CSSProperties } from "react";
 import { formatEther } from "viem";
 import type { MarketSymbol, Side } from "@/lib/types";
@@ -108,6 +110,7 @@ export function ProdOrderPanel({
   const feeBps = params?.tradingFeeBps ?? null;
   const tradingFee = feeBps !== null ? (notional * feeBps) / 10_000 : null;
   const execFee = params?.minExecutionFee ?? null;
+  const auction = useAuctionParams();
   const worst = price ? price * (side === "long" ? 1 + slip / 100 : 1 - slip / 100) : null;
 
   // Lane OI cap for this market/side.
@@ -151,12 +154,12 @@ export function ProdOrderPanel({
   const fundHint = testnet
     ? NETWORK?.sandbox
       ? `Get ${token.symbol} from the sandbox faucet (Wallet tab) first`
-      : `No testnet ${token.symbol} yet - claim it above (or on the Wallet tab)`
+      : `No testnet ${token.symbol} yet: claim it above (or on the Wallet tab)`
     : `Send ${token.symbol} to your wallet first`;
   const gasHint = testnet
     ? NETWORK?.sandbox
       ? "Need MON for the execution fee + gas (sandbox faucet, Wallet tab)"
-      : "Need testnet MON (faucet.monad.xyz) for the execution fee + gas"
+      : `Need testnet MON for the ${execFee !== null ? `${fmtMon(execFee)} MON ` : ""}execution fee + gas`
     : `Need ${NETWORK?.nativeSymbol ?? "MON"} for the execution fee + gas`;
 
   const reason = !listed
@@ -168,19 +171,19 @@ export function ProdOrderPanel({
       : !prod || prod.status === "loading"
         ? "Reading beta limits…"
         : prod.paused
-          ? "Paused - new positions disabled"
+          ? "Paused: new positions disabled"
           : acct.auction?.active
-            ? "In auction - reduce or close below, or cure it"
+            ? "In auction: reduce or close below, or cure it"
             : existing && existing.side !== side
               ? `You hold a ${base} ${existing.side}: reduce or close it below`
               : pendingHere
-                ? `A ${base} order is pending - one per market`
+                ? `A ${base} order is pending (one per market)`
               : aboveCap
                 ? "Collateral above the beta cap: withdraw down to it before adding margin"
               : !price
                 ? `Waiting for the ${pn}…`
                 : priceStale
-                  ? `Live ${pn} unavailable - reconnecting. Orders wait so the fill limit isn't set from a stale price.`
+                  ? `Live ${pn} unavailable, reconnecting. Orders wait so the fill limit isn't set from a stale price.`
                 : margin <= 0
                   ? `Enter ${token.symbol} margin`
                   : margin > available + 1e-9
@@ -410,7 +413,7 @@ export function ProdOrderPanel({
         <Notice>
           First {acked ? "" : "you'll confirm the beta risk notice, then "}an exact-amount approve
           {acct && acct.allowanceUnits > BigInt(0) ? " (if needed)" : ""} and a deposit of{" "}
-          <span className="mono">{fmtAusd(deposit)}</span> {token.symbol}, then the order - each an on-chain
+          <span className="mono">{fmtAusd(deposit)}</span> {token.symbol}, then the order: each an on-chain
           transaction.
         </Notice>
       )}
@@ -433,7 +436,7 @@ export function ProdOrderPanel({
           Agora's AUSD faucet (disabled with its own reason until there is MON for gas). */}
       {acct && (reason === gasHint || reason === fundHint) && (
         <div className={styles.fix} role="group" aria-label="Before you can trade">
-          <GasDrip address={address} nativeWei={native} />
+          <GasDrip address={address} nativeWei={native} faucetFallback={reason === gasHint} />
           {reason === fundHint && testnet && !NETWORK?.sandbox && <TestnetFunds variant="inline" />}
         </div>
       )}
@@ -465,7 +468,17 @@ export function ProdOrderPanel({
         {params?.minExecDelay != null ? fmtDuration(params.minExecDelay) : "a few seconds"} later, so nobody can trade
         on a price they already know. If that price is past your slippage limit the order is not filled (nothing is
         traded). If nobody executes it within {params?.maxExecDelay != null ? fmtDuration(params.maxExecDelay) : "the window"},
-        cancel it to get the escrow and execution fee back.
+        cancel it to get the escrow and execution fee back. Closing or reducing a position is an order too, with the
+        same execution fee.
+      </details>
+      <details className={styles.how}>
+        <summary>
+          <b>If equity falls below maintenance:</b> a liquidation auction
+        </summary>
+        Your account is frozen and goes to a per-block Dutch auction in its lane. A taker (first the lane&apos;s backstop
+        pool) inherits your positions at the oracle price and is paid a discount that rises{" "}
+        {fmtBps(auction.stepBps)} per block, up to {fmtBps(auction.maxDiscountBps)}. You keep the equity the taker
+        isn&apos;t paid, usually more than a fixed 1% liquidation leaves. Adding collateral during the auction cures it.
       </details>
     </section>
   );

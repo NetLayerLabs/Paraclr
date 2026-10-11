@@ -141,8 +141,8 @@ function OrderRow({ o }: { o: TrackedOrder }) {
           ) : null}
           {late
             ? keeperOnline
-              ? " · the keeper is late; if nobody fills it before the window closes, cancel it to get the fee back"
-              : " · keeper offline; if nobody fills it before the window closes, cancel it to get the fee back"
+              ? " · the keeper is late; if nobody fills it before the window closes, cancel it to get the execution fee back"
+              : " · keeper offline; if nobody fills it before the window closes, cancel it to get the execution fee back"
             : ""}
           .
         </>
@@ -189,7 +189,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
       msg = "Cancelled · margin escrow released, execution fee refunded.";
       break;
     case "settled":
-      msg = o.error ?? "No longer pending - see your positions for the result.";
+      msg = o.error ?? "No longer pending: see your positions for the result.";
       break;
     case "rejected":
       msg = o.error ?? "The order wasn't submitted.";
@@ -235,7 +235,7 @@ function OrderRow({ o }: { o: TrackedOrder }) {
         )}
         {o.executionFee > BigInt(0) && (
           <span>
-            exec fee <span className="mono">{Number(formatEther(o.executionFee)).toLocaleString("en-US", { maximumFractionDigits: 6 })}</span>{" "}
+            execution fee <span className="mono">{Number(formatEther(o.executionFee)).toLocaleString("en-US", { maximumFractionDigits: 6 })}</span>{" "}
             {NETWORK?.nativeSymbol ?? "MON"}
           </span>
         )}
