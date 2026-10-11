@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useParaclr } from "@/lib/store";
 import { NETWORK, PRODUCTION_MODE } from "@/lib/chain/config";
-import { acceptRiskAck, dismissRiskAck, useRiskAckModal } from "@/lib/chain/prod/riskAck";
+import { acceptRiskAck, dismissRiskAck, useRiskAcked, useRiskAckModal } from "@/lib/chain/prod/riskAck";
 import { retryChainConnect } from "@/components/chain/ChainProvider";
 import { fmtAusd } from "@/components/trade/format";
 // Shared beta / legal copy (content agent), so the modal and /risk say the same thing.
@@ -24,6 +24,7 @@ import {
 } from "@/components/landing/disclosures";
 import { NoticeClose } from "./NoticeClose";
 import styles from "./Prod.module.css";
+import rs from "./RiskAck.module.css";
 
 /** True when the app runs against the production contracts (or a production mode, even before connecting). */
 export function useProductionUi(): boolean {
@@ -156,13 +157,25 @@ export function RiskAckModal() {
   const { open, address } = useRiskAckModal();
   // Mounted fresh on every open, so the checkboxes always start unticked.
   if (!open || !address) return null;
-  return <RiskAckDialog />;
+  return <RiskAckDialog address={address} />;
 }
 
-function RiskAckDialog() {
+/** Short heading per risk point (the point's text follows it). */
+const RISK_TITLES: Record<string, string> = {
+  [RISK_ANCHORS.smartContract]: "Unaudited code",
+  [RISK_ANCHORS.liquidation]: "Liquidation",
+  [RISK_ANCHORS.oracle]: "Oracle prices",
+  [RISK_ANCHORS.caps]: "Caps and pause",
+  [RISK_ANCHORS.stablecoin]: "Collateral",
+  [RISK_ANCHORS.recovery]: "No recovery",
+  [RISK_ANCHORS.regulatory]: "Your jurisdiction",
+};
+
+function RiskAckDialog({ address }: { address: string }) {
   const params = useParaclr((s) => s.chain.prod?.params ?? null);
   const token = useParaclr((s) => s.chain.contracts?.token ?? null);
   const keeperSigned = useParaclr((s) => s.chain.contracts?.oracleKind === "keeper-signed");
+  const acked = useRiskAcked(address);
   const realMoney = !!NETWORK?.isMainnet && !NETWORK.local && !!token?.agora && !token.test;
   const testnet = !!NETWORK?.isTestnetProd;
   const [on, setOn] = useState<Record<string, boolean>>({});
@@ -180,84 +193,92 @@ function RiskAckDialog() {
   const capLine = [
     params?.maxDepositPerAccount != null ? `${fmtAusd(params.maxDepositPerAccount)} AUSD per account` : null,
     params?.maxTvlPerLane != null ? `${fmtAusd(params.maxTvlPerLane)} AUSD per lane` : null,
-    params?.maxLeverage != null ? `leverage up to ${params.maxLeverage}x` : null,
+    params?.maxLeverage != null ? `up to ${params.maxLeverage}x` : null,
   ]
     .filter(Boolean)
     .join(" · ");
   const all = CONFIRMS.every((c) => on[c.id]);
+  const where = realMoney ? "Monad mainnet · real funds" : testnet ? `${NETWORK?.label ?? "Monad testnet"} · test funds` : (NETWORK?.label ?? "this chain");
 
   return (
-    <div className={styles.overlay} role="presentation" onClick={(e) => e.target === e.currentTarget && dismissRiskAck()}>
-      <div
-        ref={dialog}
-        className={styles.modal}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="risk-title"
-        tabIndex={-1}
-      >
-        <span className={styles.modalKicker}>Before your first deposit</span>
-        <h2 id="risk-title">
-          {realMoney
-            ? "Real money, unaudited beta"
-            : testnet
-              ? "Unaudited beta on testnet: read before depositing"
-              : "Unaudited beta: read before depositing"}
-        </h2>
-        <p>
-          {realMoney
-            ? "You're about to deposit real Agora AUSD on Monad mainnet into Paraclr's clearinghouse contract."
-            : testnet && token?.testnet
-              ? `You're about to deposit Agora's testnet AUSD into the production clearinghouse on ${NETWORK?.label ?? "Monad testnet"}: test funds with no real value, but the same contract code and rules as the mainnet beta.`
-              : `You're about to deposit ${token?.symbol ?? "collateral"} into the production clearinghouse on ${NETWORK?.label ?? "this chain"}${token?.test ? " (a test token, not real AUSD)" : ""}.`}{" "}
-          Please read each point.
-        </p>
-        <ul className={styles.points}>
-          {RISK_ACK_POINTS.map((pt) => (
-            <li key={pt.anchor}>
-              <span>
-                {pt.anchor === RISK_ANCHORS.oracle && keeperSigned
-                  ? "Prices are simulated after the Pyth trial: the Paraclr keeper signs them (relaying Pyth's mainnet prices) and a testnet-only oracle checks its signature, not Pyth. Orders fill at a price you can't see when you submit them."
-                  : pt.text}
-                {pt.anchor === RISK_ANCHORS.caps && capLine ? <b> Now: {capLine}.</b> : null}
-              </span>
-              <Link href={`${RISK_PATH}#${pt.anchor}`} target="_blank">
-                Details
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <ul className={styles.checks}>
-          {CONFIRMS.map((c) => (
-            <li key={c.id}>
-              <label className={styles.check} data-on={on[c.id] ? "" : undefined}>
+    <div className={rs.overlay} role="presentation" onClick={(e) => e.target === e.currentTarget && dismissRiskAck()}>
+      <div ref={dialog} className={rs.sheet} role="dialog" aria-modal="true" aria-labelledby="risk-title" tabIndex={-1}>
+        <div className={rs.body}>
+          <p className={rs.kicker}>
+            <i aria-hidden="true" />
+            {acked ? "Risk notice" : "Before your first deposit"} · {where}
+          </p>
+          <h2 id="risk-title" className={rs.title}>
+            {realMoney ? "Real money, unaudited beta." : "Read before you deposit."}
+            <span>{realMoney ? "Use only what you can afford to lose." : "Unaudited, capped beta."}</span>
+          </h2>
+          <p className={rs.lede}>
+            {realMoney
+              ? "You're about to deposit real Agora AUSD into Paraclr's clearinghouse on Monad mainnet."
+              : testnet && token?.testnet
+                ? "Agora's testnet AUSD has no real value, but the contract code and rules are the ones the mainnet beta uses."
+                : `You're about to deposit ${token?.symbol ?? "collateral"} into the production clearinghouse${token?.test ? " (a test token, not real AUSD)" : ""}.`}
+          </p>
+          <ol className={rs.points}>
+            {RISK_ACK_POINTS.map((pt, i) => (
+              <li key={pt.anchor} className={rs.point}>
+                <span className={rs.num}>{String(i + 1).padStart(2, "0")}</span>
+                <span className={rs.pointText}>
+                  <b>{RISK_TITLES[pt.anchor] ?? "Risk"}</b>
+                  {pt.anchor === RISK_ANCHORS.oracle && keeperSigned
+                    ? "Prices are simulated after the Pyth trial: the Paraclr keeper signs them (relaying Pyth's mainnet prices) and a testnet-only oracle checks its signature, not Pyth. Orders fill at a price you can't see when you submit them."
+                    : pt.text}
+                  {pt.anchor === RISK_ANCHORS.caps && capLine ? <span className={rs.caps}>Now: {capLine}</span> : null}
+                </span>
+                <Link
+                  className={rs.more}
+                  href={`${RISK_PATH}#${pt.anchor}`}
+                  target="_blank"
+                  aria-label={`${RISK_TITLES[pt.anchor] ?? "Risk"}: details (opens in a new tab)`}
+                >
+                  More ↗
+                </Link>
+              </li>
+            ))}
+          </ol>
+          <div className={rs.checks}>
+            {CONFIRMS.map((c) => (
+              <label key={c.id} className={rs.check}>
                 <input
                   type="checkbox"
                   checked={!!on[c.id]}
                   onChange={(e) => setOn((s) => ({ ...s, [c.id]: e.target.checked }))}
                 />
-                <span>
-                  <b>{c.text}</b>
+                <span className={rs.box} aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2.5 6.2 L5 8.6 L9.6 3.6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
+                <span>{c.text}</span>
               </label>
-            </li>
-          ))}
-        </ul>
-        <div className={styles.modalLinks}>
-          <Link href={TERMS_PATH} target="_blank">
-            Read the Terms
-          </Link>
-          <Link href={RISK_PATH} target="_blank">
-            Read the full risk disclosure
-          </Link>
+            ))}
+          </div>
         </div>
-        <div className={styles.modalActions}>
-          <button type="button" className={styles.btnGhost} onClick={dismissRiskAck}>
-            Not now
-          </button>
-          <button type="button" className={styles.btnPrimary} disabled={!all} onClick={acceptRiskAck}>
-            I understand - continue
-          </button>
+        <div className={rs.foot}>
+          <div className={rs.links}>
+            <Link href={TERMS_PATH} target="_blank">
+              Terms
+            </Link>
+            <Link href={RISK_PATH} target="_blank">
+              Full risk disclosure
+            </Link>
+          </div>
+          <div className={rs.actions}>
+            <button type="button" className={rs.ghost} onClick={dismissRiskAck}>
+              Not now
+            </button>
+            <button type="button" className={rs.primary} disabled={!all} onClick={acceptRiskAck} aria-describedby="risk-hint">
+              I understand - continue
+            </button>
+          </div>
+          <p id="risk-hint" className={rs.hint} aria-live="polite">
+            {all ? "" : "Tick both boxes to continue."}
+          </p>
         </div>
       </div>
     </div>
