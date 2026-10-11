@@ -580,7 +580,9 @@ export class Arena {
   /** Reuse the uncrashed book of a previous process, else seed a new one. */
   private async prepareBook(): Promise<void> {
     const p = this.persisted.book;
-    if (p && !p.crashed && p.perLane === this.config.perLane && p.bps === this.config.bps) {
+    // An uncrashed book is reused even if ARENA_PER_LANE changed since it was seeded: its accounts
+    // are on chain either way and would be swept up by the next crash; new books use the new size.
+    if (p && !p.crashed && p.bps === this.config.bps) {
       const book = generateArenaBook(this.ctx.markets, p.seed, p.perLane, p.bps, this.config.cure);
       if (await this.bookIsLive(book)) {
         this.installBook(p.seed, book);
