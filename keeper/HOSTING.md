@@ -1,6 +1,6 @@
 # Hosting the production keeper (Monad testnet today, Monad mainnet at launch)
 
-The production keeper is one long-running Node process. Run **exactly one instance per key set**. Two instances would race the same nonces and send every execution twice. The duplicates revert harmlessly with `OrderNotPending`, but each one still burns gas.
+The production keeper is one long-running Node process. **Run exactly one instance per key set.** Two instances would race the same nonces and send every execution twice. The duplicates revert harmlessly with `OrderNotPending`, but each one still burns gas.
 
 It needs:
 
@@ -20,7 +20,7 @@ The production contracts have been live on **Monad testnet** (chain 10143) since
 | Deployment file | `deployments/10143.json` (`"production": true, "network": "monad-testnet"`, committed) |
 | Command | `node keeper/src/keeper.cjs --network testnet --yes-testnet` (from source: `npm run keeper -- --network testnet --yes-testnet`) |
 | Env template | `keeper/.env.testnet.example` → the platform's secret store (`KEEPER_SECRETS_FROM_ENV=1`), or `keeper/.env.testnet` (mode 600) when run from source |
-| Host | `https://api.paraclr.xyz` (planned; the app at `https://paraclr.xyz` sets `NEXT_PUBLIC_KEEPER_URL=https://api.paraclr.xyz` and `NEXT_PUBLIC_PYTH_HERMES_URL=https://api.paraclr.xyz/hermes`) |
+| Host | `https://api.paraclr.xyz` (live; the app at `https://paraclr.xyz` sets `NEXT_PUBLIC_KEEPER_URL=https://api.paraclr.xyz` and reaches Hermes through its `/hermes` proxy). How it is hosted: [Single VM with nginx + pm2](#single-vm-with-nginx--pm2-what-paraclrxyz-runs) |
 | RPC | a dedicated endpoint; see [RPC tuning](#rpc-tuning) for the public-RPC and QuickNode-free settings |
 | Refuses | any chain but 10143, `KEEPER_CORS_ORIGIN=*`, a deployment file without `"production": true`, a missing or rejected `PYTH_API_KEY` |
 
@@ -67,12 +67,10 @@ The keeper never logs keys, RPC URL paths/queries or the webhook URL.
 
 ## HTTPS, CORS and the app
 
-- **Port and TLS.** The platform terminates TLS. The keeper listens on `KEEPER_PORT`, falling back to `$PORT` and then 8787, on 0.0.0.0.
+- **Port and TLS.** The platform terminates TLS. The keeper listens on `KEEPER_PORT`, falling back to `$PORT` and then 8787, on 0.0.0.0; set `KEEPER_BIND=127.0.0.1` when a reverse proxy on the same host is the only way in.
 - **App settings.** Set two variables in the app:
   - `NEXT_PUBLIC_KEEPER_URL=https://<keeper host>`;
-  - `NEXT_PUBLIC_PYTH_HERMES_URL=https://<keeper host>/hermes`.
-
-  The second one routes the app's Hermes calls through the keeper, so the Pyth API key never ships to browsers.
+  - `NEXT_PUBLIC_PYTH_HERMES_URL` stays unset, so the app's Hermes calls go to `https://<keeper host>/hermes` and the Pyth API key never ships to browsers.
 - **Hermes proxy limits.** The proxy:
   - serves only this deployment's feed ids;
   - caches `latest` for 1 s;
@@ -169,6 +167,26 @@ RestartSec=5
 ```
 
 Put Caddy or nginx in front of it for TLS (`reverse_proxy 127.0.0.1:8787`).
+
+## Single VM with nginx + pm2 (what paraclr.xyz runs)
+
+The public testnet deployment runs the app and both keepers on one Linux VM, from source rather than from the image:
+
+| Process | Public URL | Command |
+| --- | --- | --- |
+| App | `https://paraclr.xyz`, `https://www.paraclr.xyz` | `next start` after `next build` |
+| Production keeper | `https://api.paraclr.xyz` | `npm run keeper -- --network testnet --yes-testnet` (tsx) |
+| Arena keeper (demo stack) | `https://arena.paraclr.xyz` | `DEPLOYMENTS_OUT=deployments/demo/10143.json npm run keeper -- --arena` (tsx; see [Arena mode](README.md#arena-mode---arena)) |
+
+- **One instance per key set.** Each keeper is one pm2 process in fork mode (never cluster mode, never more than one instance), restarted on exit. The production keeper and the Arena keeper use different key sets; never start a second copy of either.
+- **Loopback only.** Every process binds to 127.0.0.1 (`KEEPER_BIND=127.0.0.1` for the keepers) on its own local port; nginx is the only public listener.
+- **TLS.** nginx terminates TLS with Let's Encrypt certificates for each hostname and redirects http to https.
+- **Client IPs.** nginx **overwrites** `X-Forwarded-For` with the client's address (`proxy_set_header X-Forwarded-For $remote_addr;`, not `$proxy_add_x_forwarded_for`), so a client can't spoof it. The keepers then trust exactly one hop: `KEEPER_TRUST_PROXY=1` (gas drip limits) and `ARENA_TRUST_PROXY=1` (one crash per IP per window).
+- **CORS.** `KEEPER_CORS_ORIGIN=https://paraclr.xyz,https://www.paraclr.xyz` on both keepers.
+- **RPC.** The production keeper runs on the public testnet RPC with `KEEPER_LOG_RANGE=100` and `KEEPER_RPC_BATCH_SIZE=10` ([RPC tuning](#rpc-tuning)).
+- **Secrets.** The env files stay on the host with mode 600 (`keeper/.env.testnet` for the production keeper, `keeper/.env` for the demo stack); nothing secret is in the repo or the app build.
+- **App build.** `NEXT_PUBLIC_CHAIN_MODE=monad-testnet`, `NEXT_PUBLIC_SITE_URL=https://paraclr.xyz`, `NEXT_PUBLIC_KEEPER_URL=https://api.paraclr.xyz`, `NEXT_PUBLIC_ARENA_KEEPER_URL=https://arena.paraclr.xyz` and `NEXT_PUBLIC_ENVIO_GRAPHQL_URL=https://indexer.dev.hyperindex.xyz/b6db2a9/v1/graphql`. `NEXT_PUBLIC_*` values are inlined at build time, so rebuild after changing them.
+- **Health.** `GET /livez` on each keeper, e.g. `curl -s -o /dev/null -w "%{http_code}" https://api.paraclr.xyz/livez`.
 
 ## RPC choice
 

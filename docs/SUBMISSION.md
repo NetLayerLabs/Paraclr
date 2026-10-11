@@ -169,9 +169,9 @@ smaller.
 
 - Repo: `[LINK: repo]`
 - Demo video: `[LINK: video]`
-- Live app: `[LINK: app]`, or "video only" if the keeper isn't publicly hosted
+- Live app: https://paraclr.xyz (Monad testnet, test funds; trading at https://paraclr.xyz/app, Arena at https://paraclr.xyz/arena)
 - Contracts: `[LINK: explorer]` (testnet). **[L]** Mainnet: `[LINK: Monadscan clearinghouse]`
-- Risk disclosure and terms (drafts): `[LINK: app]/risk`, `[LINK: app]/terms`
+- Risk disclosure and terms (drafts): https://paraclr.xyz/risk, https://paraclr.xyz/terms
 
 ---
 

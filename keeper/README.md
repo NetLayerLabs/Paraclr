@@ -712,6 +712,8 @@ npm run keeper -- --arena            # or ARENA=1
 # The page (any host): NEXT_PUBLIC_ARENA_KEEPER_URL=https://<arena keeper>
 ```
 
+The public Arena runs this at `https://arena.paraclr.xyz` behind nginx, with `KEEPER_BIND=127.0.0.1`, `ARENA_TRUST_PROXY=1`, `ARENA_PER_LANE=1` and `ARENA_DAILY_MAX=8` ([`HOSTING.md`](HOSTING.md#single-vm-with-nginx--pm2-what-paraclrxyz-runs)).
+
 One cycle: `seeding → ready → crashing → resolving → xray → recovering → seeding → ready`.
 
 - **seeding**: a fresh book of `ARENA_PER_LANE` (3) keyless accounts in each of the 8 lanes, identical in both designs, from a new seed each cycle. Accounts are sized against the shock: most go underwater (positive equity left), a few go below zero (lane-funded shortfall), a few stay healthy, and one gets an operator-funded top-up mid-auction so it is cured (`ARENA_CURE=0` disables it). Backstop pools below half of `ARENA_BACKSTOP_CASH` (500k AUSD per lane) are topped up.
@@ -751,6 +753,7 @@ Every other GET (`/health`, `/sweeper`, `/runs/:id`, `/runs/:id/xray`, `/solvenc
 | `FAUCET_PRIVATE_KEY` | anvil #2 / **required** | Faucet |
 | `KEEPER_PRIVATE_KEYS` | anvil #3–10 / **required** (8, comma-separated) | Lane keepers |
 | `KEEPER_PORT` | 8787 (private stacks: 8787 + port − 8545) | HTTP port |
+| `KEEPER_BIND` | all interfaces | Listen address; `127.0.0.1` behind a reverse proxy on the same host (the production keeper honours it too) |
 | `KEEPER_CORS_ORIGIN` | `*` | `*` or comma-separated origins |
 | `DEPLOYMENTS_OUT` | `deployments/<chainId>.json` (private stacks: `contracts/cache/dev-chain/<port>/deployments.json`) | Deployment file the deploy writes and the keeper and bench read |
 | `PRICE_PUSH_MS` | 1000 | Price push interval (minimum 200) |
