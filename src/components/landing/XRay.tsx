@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { MONAD_TESTNET_CHAIN_ID, type XrayDesign, type XrayEvidence } from "./benchResults.server";
 import { bands, MatrixSvg } from "./XrayMatrix";
-import { GITHUB_BLOB, GITHUB_TREE, MONAD_EXPLORER } from "./content";
+import { GITHUB_BLOB, GITHUB_TREE, MONAD_EXPLORER, README_AT } from "./content";
 import { fmtInt, shortHash } from "./format";
 import b from "./brand/Brand.module.css";
 import s from "./XRay.module.css";
@@ -295,6 +295,14 @@ export function XRay({ xray }: { xray: XrayEvidence | null }) {
             </p>
           </div>
         </div>
+
+        <p className={s.solvency}>
+          <b>Solvency is one on-chain check.</b> <code className={b.code}>solvency()</code> returns the AUSD the
+          clearinghouse holds against its liabilities summed over the 8 lane ledgers; the app reads it every block.{" "}
+          <a className={b.link} href={README_AT.solvency} target="_blank" rel="noreferrer">
+            Solvency proof in the README
+          </a>
+        </p>
       </div>
     </section>
   );

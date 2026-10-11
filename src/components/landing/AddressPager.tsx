@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { ArrowUpRight } from "./icons";
-import s from "./Beta.module.css";
+import s from "./AddressPager.module.css";
 
 export interface PagerRow {
   name: string;

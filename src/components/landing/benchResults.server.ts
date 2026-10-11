@@ -150,6 +150,8 @@ export interface LandingEvidence {
   monadHeadline: BenchRun | null;
   /** Monad testnet X-ray if one exists, else the latest anvil one, else null. */
   xray: XrayEvidence | null;
+  /** Every committed X-ray, by file name order (Results cites specific runs). */
+  xrays: XrayEvidence[];
   /** deployments/10143.json exists, is the demo-stack format (no `"production": true`) and has a clearinghouse address. */
   monadDeployment: {
     clearinghouse: string;
@@ -470,6 +472,7 @@ export async function loadLandingEvidence(): Promise<LandingEvidence> {
     anvilHeadline: pickHeadline(anvilRuns),
     monadHeadline: pickHeadline(monadRuns),
     xray,
+    xrays,
     monadDeployment,
     repo: await loadRepoFacts(root),
   };

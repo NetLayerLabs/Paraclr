@@ -1,0 +1,97 @@
+/* ---- Announcement bar ---------------------------------------------------- */
+
+.bar {
+  position: relative;
+  z-index: 61;
+  background: var(--pc-bg);
+  color: var(--pc-ink);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.barInner {
+  display: flex;
+  align-items: center;
+  gap: 8px 18px;
+  min-height: 42px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.barPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  font-weight: 600;
+  color: var(--pc-ink);
+}
+
+.barNote {
+  min-width: 0;
+  color: var(--pc-ink-2);
+}
+
+.barLinks {
+  display: inline-flex;
+  gap: 16px;
+  flex: none;
+  margin-left: auto;
+}
+
+.barLinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--pc-accent-text);
+}
+
+.barLinks a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.barIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.barClose {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: -4px -6px -4px 0;
+  border-radius: 50%;
+  color: var(--pc-ink-2);
+  transition:
+    color var(--pc-dur-1),
+    background-color var(--pc-dur-1);
+}
+
+.barClose:hover {
+  color: var(--pc-ink);
+  background: color-mix(in srgb, var(--pc-ink) 10%, transparent);
+}
+
+.barClose:focus-visible {
+  outline: 2px solid var(--pc-accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 899px) {
+  .barNote {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .bar {
+    font-size: 12.5px;
+  }
+
+  .barInner {
+    gap: 6px 12px;
+  }
+}

@@ -9,13 +9,27 @@ export const X_URL = "https://x.com/Paraclr";
 
 export const MONAD_EXPLORER = "https://testnet.monadexplorer.com";
 
+/** The README carries the detail the landing page links to. Anchors are GitHub's heading slugs. */
+export const README = `${GITHUB_BLOB}/README.md`;
+export const README_AT = {
+  auction: `${README}#the-auction`,
+  backstop: `${README}#backstop-lps`,
+  xray: `${README}#conflict-x-ray`,
+  solvency: `${README}#solvency-proof`,
+  results: `${README}#results`,
+  supporting: `${README}#supporting-stack`,
+  production: `${README}#production-beta-monad-mainnet-gated`,
+  launchGate: `${README}#launch-gate-no-exceptions`,
+  testnetContracts: `${README}#deployed-contracts-monad-testnet-chain-id-10143`,
+  mainnetContracts: `${README}#deployed-contracts-monad-mainnet-chain-id-143`,
+} as const;
+
 /** In page order. */
 export const NAV_LINKS = [
   { href: "#auction", label: "How it works" },
   { href: "#xray", label: "X-ray" },
-  { href: "#solvency", label: "Solvency" },
-  { href: "#beta", label: "Mainnet beta" },
   { href: "#results", label: "Results" },
+  { href: "#built-on", label: "Built on" },
   { href: "#faq", label: "FAQ" },
 ] as const;
 

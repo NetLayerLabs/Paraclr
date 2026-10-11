@@ -1,0 +1,126 @@
+/* ---- Address pager ---------------------------------------------------------- */
+
+.pager {
+  margin-top: 18px;
+}
+
+.addrList {
+  list-style: none;
+  border-bottom: 1px solid var(--pc-line);
+}
+
+.addrList li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 20px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-top: 1px solid var(--pc-line);
+}
+
+.cWho {
+  min-width: 0;
+}
+
+.cName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--pc-ink);
+}
+
+.cRole {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--pc-ink-3);
+}
+
+.extTag {
+  font-family: var(--pc-font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--pc-ink-3);
+}
+
+.addr {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--pc-font-mono);
+  font-size: 13px;
+  color: var(--pc-accent-text);
+  white-space: nowrap;
+}
+
+.addr:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.addrIcon {
+  width: 13px;
+  height: 13px;
+}
+
+.pagerNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 0;
+}
+
+.pagerBtn {
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pc-accent-text);
+  cursor: pointer;
+}
+
+.pagerBtn:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pagerBtn:disabled {
+  color: var(--pc-ink-3);
+  opacity: 0.55;
+  cursor: default;
+}
+
+.pagerCount {
+  font-family: var(--pc-font-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--pc-ink-2);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.allLink {
+  margin-top: 6px;
+  font-size: 13.5px;
+}
+
+@media (max-width: 639px) {
+  .addrList li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

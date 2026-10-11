@@ -24,7 +24,7 @@ const STATUS_LIVE = "Capped, unaudited beta on Monad mainnet: use only what you 
 const STATUS_PENDING = "Testnet build for Monad Metropolis; the mainnet beta is pending its launch gate.";
 // deployments/10143.json with "production": true.
 const STATUS_TESTNET =
-  "Production contracts live on Monad testnet (test funds, no real value); the mainnet beta is pending its launch gate.";
+  "Production contracts live on Monad testnet (test funds, no real value); the mainnet beta passed its launch gate and its launch is pending.";
 
 // Absolute base for OG/Twitter image URLs. Set NEXT_PUBLIC_SITE_URL (e.g.
 // https://paraclr.example) on the host; unset, Next falls back to its default

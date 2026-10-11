@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { RepoFacts, XrayEvidence } from "./benchResults.server";
 import { HeroVisual } from "./HeroVisual";
 import { CodeIcon } from "./icons";
-import { auctionStepBps, GITHUB_TREE, GITHUB_URL } from "./content";
+import { auctionStepBps, GITHUB_TREE, GITHUB_URL, README_AT } from "./content";
 import { RISK_ANCHORS, RISK_PATH } from "./disclosures";
 import { fmtInt } from "./format";
 import b from "./brand/Brand.module.css";
@@ -30,9 +30,9 @@ function badges(live: boolean, testnetLive: boolean, repo: RepoFacts): Badge[] {
   };
   if (live) {
     return [
-      { href: "#beta", label: "Live on Monad", sub: "capped mainnet beta", dot: "pos" },
+      { href: README_AT.mainnetContracts, label: "Live on Monad", sub: "capped mainnet beta", dot: "pos", external: true },
       tests,
-      { href: "#beta", label: "Pyth-verified", sub: "prices checked on chain", dot: "accent" },
+      { href: README_AT.production, label: "Pyth-verified", sub: "prices checked on chain", dot: "accent", external: true },
       {
         href: `${RISK_PATH}#${RISK_ANCHORS.smartContract}`,
         label: "Unaudited",
@@ -45,7 +45,7 @@ function badges(live: boolean, testnetLive: boolean, repo: RepoFacts): Badge[] {
     return [
       { href: "#testnet", label: "Live on testnet", sub: "Monad · no real value", dot: "pos" },
       tests,
-      { href: "#beta", label: "Mainnet beta", sub: "gate passed · launch pending", dot: "warn" },
+      { href: README_AT.launchGate, label: "Mainnet beta", sub: "gate passed · launch pending", dot: "warn", external: true },
       {
         href: `${RISK_PATH}#${RISK_ANCHORS.smartContract}`,
         label: "Not audited",
@@ -55,7 +55,7 @@ function badges(live: boolean, testnetLive: boolean, repo: RepoFacts): Badge[] {
     ];
   }
   return [
-    { href: "#beta", label: "Mainnet beta", sub: "pending launch gate", dot: "warn" },
+    { href: README_AT.launchGate, label: "Mainnet beta", sub: "pending launch gate", dot: "warn", external: true },
     tests,
     { href: "#xray", label: "Conflict X-ray", sub: "measured, labelled", dot: "accent" },
     {

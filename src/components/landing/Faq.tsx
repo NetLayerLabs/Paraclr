@@ -5,6 +5,7 @@ import { PRODUCTION_FILE } from "./production.server";
 import { Chevron } from "./icons";
 import { fmtDuration } from "./format";
 import { RISK_ANCHORS, RISK_PATH } from "./disclosures";
+import { README_AT } from "./content";
 import b from "./brand/Brand.module.css";
 import s from "./Faq.module.css";
 
@@ -109,10 +110,10 @@ export function Faq({
           <p>
             Yes, as a capped, unaudited beta on Monad mainnet (chain 143), with real Agora AUSD as collateral and Pyth
             prices. The contract addresses are in the{" "}
-            <a className={b.link} href="#beta">
-              Mainnet beta
-            </a>{" "}
-            section, read from <code className={b.code}>{PRODUCTION_FILE}</code>; check them on Monadscan before you
+            <a className={b.link} href={README_AT.mainnetContracts} target="_blank" rel="noreferrer">
+              README
+            </a>
+            , read from <code className={b.code}>{PRODUCTION_FILE}</code>; check them on Monadscan before you
             approve anything.
           </p>
           <p>
@@ -124,7 +125,7 @@ export function Faq({
         <>
           <p>
             Not yet. A capped beta with real AUSD launches on Monad mainnet only if every check in the{" "}
-            <a className={b.link} href="#beta">
+            <a className={b.link} href={README_AT.launchGate} target="_blank" rel="noreferrer">
               launch gate
             </a>{" "}
             passes. Until <code className={b.code}>{PRODUCTION_FILE}</code> is committed, Paraclr has no contracts on
@@ -137,7 +138,7 @@ export function Faq({
                 Monad testnet
               </a>{" "}
               (chain 10143) with Agora&rsquo;s testnet AUSD and Pyth prices: test funds, no real value. The measured
-              runs on this page come from the demo stack (local anvil, labelled), whose AUSD is{" "}
+              runs on this page come from the demo stack (on Monad testnet, labelled), whose AUSD is{" "}
               <code className={b.code}>MockAUSD</code>, a 6-decimal stand-in, not Agora&rsquo;s token.
             </p>
           ) : (
@@ -179,7 +180,7 @@ export function Faq({
             market moves. Test funds, no real value.
           </p>
           <p>
-            <strong>The measured crash runs (local anvil):</strong> the demo stack, where the price feed is simulated
+            <strong>The measured crash runs (demo stack, Monad testnet and local anvil):</strong> the demo stack, where the price feed is simulated
             (the keeper pushes it on chain and the flash crash is one oracle transaction), the hundreds of crash-run
             accounts are synthetic (created by a demo-only{" "}
             <code className={b.code}>seedAccounts</code>), and the collateral is MockAUSD. The app&rsquo;s Simulated

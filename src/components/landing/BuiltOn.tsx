@@ -1,6 +1,4 @@
-import type { RepoFacts } from "./benchResults.server";
-import { GITHUB_BLOB, MONAD_EXPLORER } from "./content";
-import { fmtInt } from "./format";
+import { GITHUB_BLOB, MONAD_EXPLORER, README_AT } from "./content";
 import b from "./brand/Brand.module.css";
 import s from "./BuiltOn.module.css";
 
@@ -21,27 +19,17 @@ interface Partner {
   tone: Tone;
 }
 
-interface Support {
-  name: string;
-  site: string;
-  logo: string;
-  /** Box width for marks wider than tall (default: a square box). */
-  logoW?: number;
-  use: string;
-}
-
 const README = `${GITHUB_BLOB}/README.md`;
 const AUSD_TESTNET = "0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC";
 const AUSD_MAINNET = "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a";
-const SAFE = "0xCC62247E59A3872013e2dB7A52696A3117F2e4c3";
 /** bench/xray/10143-run-mv2ze6l6-xzyi6.json: Paraclr lanes vs the naive shared-state build. */
 const ARENA_XRAY = "bench/xray/10143-run-mv2ze6l6-xzyi6.json";
 
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 /**
- * The five projects Paraclr is built on, each with what it does here and one fact a judge can check, then the
- * supporting tools as a compact row. Marks come from public/partners/ (each project's own site, brand kit or repo),
+ * The five projects Paraclr is built on, each with what it does here and one fact a judge can check, then one line
+ * naming the supporting stack (detail in the README). Marks come from public/partners/ (each project's own site, brand kit or repo),
  * in their light or colour variant since the section is dark. Full detail: README.md "Built on".
  */
 function partners(live: boolean, testnet: boolean, testnetLive: boolean): Partner[] {
@@ -114,54 +102,6 @@ function partners(live: boolean, testnet: boolean, testnetLive: boolean): Partne
   ];
 }
 
-function support(repo: RepoFacts): Support[] {
-  return [
-    {
-      name: "Safe",
-      site: "https://safe.global",
-      logo: "/partners/safe.svg",
-      use: `Owner multisig ${short(SAFE)}: proposes and executes every change through the timelock.`,
-    },
-    {
-      name: "OpenZeppelin",
-      site: "https://www.openzeppelin.com",
-      logo: "/partners/openzeppelin.svg",
-      use: "TimelockController owns the contracts (600 s on testnet); SafeERC20, SafeCast, Ownable.",
-    },
-    {
-      name: "Foundry",
-      site: "https://getfoundry.sh",
-      logo: "/partners/foundry.png",
-      use: [
-        repo.foundryTests ? `${fmtInt(repo.foundryTests)} tests` : "Tests",
-        repo.invariantTests ? `${fmtInt(repo.invariantTests)} invariant tests` : null,
-        "storage-access checks; anvil for the local chain.",
-      ]
-        .filter(Boolean)
-        .join(", "),
-    },
-    {
-      name: "viem",
-      site: "https://viem.sh",
-      logo: "/partners/viem.svg",
-      use: "App reads and transactions; the keeper's signing, Multicall3 batching and X-ray traces.",
-    },
-    {
-      name: "Slither",
-      site: "https://github.com/crytic/slither",
-      logo: "/partners/slither.png",
-      logoW: 30,
-      use: "Static analysis of the production contracts, part of the launch gate. Not an audit.",
-    },
-    {
-      name: "Next.js",
-      site: "https://nextjs.org",
-      logo: "/partners/nextjs.svg",
-      use: "This site, the trading app and /arena: App Router with CSS Modules.",
-    },
-  ];
-}
-
 const DOT: Record<Tone, string> = {
   accent: "",
   pos: b.dotPos,
@@ -211,18 +151,16 @@ function Row({ p }: { p: Partner }) {
 }
 
 export function BuiltOn({
-  repo,
   live,
   testnet,
   testnetLive = false,
 }: {
-  repo: RepoFacts;
   live: boolean;
   testnet: boolean;
   testnetLive?: boolean;
 }) {
   return (
-    <section className={`${b.dark} ${b.surface} ${b.section} ${s.section}`} aria-labelledby="built-title">
+    <section id="built-on" className={`${b.dark} ${b.surface} ${b.section} ${s.section}`} aria-labelledby="built-title">
       <div className={b.container}>
         <div className={`${b.sectionHead} ${b.sectionHeadCenter}`}>
           <p className={b.eyebrow}>Built on</p>
@@ -241,18 +179,12 @@ export function BuiltOn({
           ))}
         </ul>
 
-        <p className={s.alsoHead}>Also used</p>
-        <ul className={s.also} aria-label="Supporting tools">
-          {support(repo).map((t) => (
-            <li key={t.name} className={s.tool}>
-              <a className={s.toolName} href={t.site} target="_blank" rel="noopener noreferrer">
-                <Logo src={t.logo} w={t.logoW ?? 18} h={18} />
-                {t.name}
-              </a>
-              <span className={s.toolUse}>{t.use}</span>
-            </li>
-          ))}
-        </ul>
+        <p className={s.also}>
+          Also used: Safe, OpenZeppelin, Foundry, viem, Slither and Next.js.{" "}
+          <a className={b.link} href={README_AT.supporting} target="_blank" rel="noreferrer">
+            Supporting stack in the README
+          </a>
+        </p>
 
         <p className={s.disclaimer}>
           Built for the Monad Metropolis hackathon. Not affiliated with or endorsed by Monad, Agora, Pyth, Privy, Envio,

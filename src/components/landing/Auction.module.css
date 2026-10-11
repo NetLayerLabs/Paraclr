@@ -215,8 +215,7 @@
   border-bottom: 1px solid var(--pc-line);
 }
 
-.keys div,
-.splitRows div {
+.keys div {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr);
   gap: 16px;
@@ -226,29 +225,13 @@
   line-height: 1.55;
 }
 
-.keys dt,
-.splitRows dt {
+.keys dt {
   font-weight: 600;
   color: var(--pc-ink);
 }
 
-.keys dd,
-.splitRows dd {
+.keys dd {
   color: var(--pc-ink-2);
-}
-
-.splitRows dt {
-  font-family: var(--pc-font-mono);
-  font-size: 12.5px;
-  font-weight: 500;
-  padding-top: 1px;
-}
-
-.splitRows b {
-  font-family: var(--pc-font-mono);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--pc-ink);
 }
 
 /* ---- Equity split + MEV note ------------------------------------------- */
@@ -289,14 +272,6 @@
   color: var(--pc-pos-text);
 }
 
-.splitRows {
-  border-bottom: 1px solid var(--pc-line);
-}
-
-.splitRows div {
-  grid-template-columns: 64px minmax(0, 1fr);
-}
-
 .mev {
   padding-top: 16px;
   border-top: 1px solid var(--pc-line-strong);
@@ -315,10 +290,10 @@
   color: var(--pc-ink);
 }
 
-/* ---- Lifecycle: four ruled columns -------------------------------------- */
+/* ---- Lifecycle: four ruled columns, one line each ----------------------- */
 
 .stepsHead {
-  margin: clamp(64px, 8vw, 104px) 0 20px;
+  margin: clamp(56px, 7vw, 88px) 0 18px;
   font-family: var(--pc-font-mono);
   font-size: 11.5px;
   font-weight: 500;
@@ -335,23 +310,38 @@
 }
 
 .step {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 6px 10px;
   min-width: 0;
-  padding-top: 16px;
+  padding: 14px 0 18px;
   border-top: 1px solid var(--pc-ink);
 }
 
 .stepNum {
+  padding-top: 3px;
   font-family: var(--pc-font-mono);
   font-size: 12px;
   color: var(--pc-accent-text);
 }
 
+.stepTitle {
+  font-family: var(--pc-font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--pc-ink);
+}
+
+.stepCode,
+.stepBody {
+  grid-column: 1 / -1;
+}
+
 .stepCode {
   font-family: var(--pc-font-mono);
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--pc-ink-3);
   overflow-wrap: anywhere;
@@ -359,63 +349,48 @@
 
 .stepBody {
   font-size: 14.5px;
-  line-height: 1.62;
+  line-height: 1.55;
   color: var(--pc-ink-2);
   text-wrap: pretty;
 }
 
-.stepBody b {
+.stepBody b,
+.splitLine b {
   font-family: var(--pc-font-mono);
   font-size: 13px;
   font-weight: 600;
   color: var(--pc-ink);
 }
 
-/* ---- Backstop pools ------------------------------------------------------ */
+.splitLine {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--pc-ink-2);
+}
+
+/* ---- Backstop pools + README links --------------------------------------- */
 
 .pool {
-  margin-top: clamp(64px, 8vw, 104px);
-  padding-top: clamp(44px, 5vw, 64px);
+  max-width: 760px;
+  margin-top: 28px;
+  padding-top: 14px;
   border-top: 1px solid var(--pc-line);
-  scroll-margin-top: 72px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--pc-ink-2);
+  scroll-margin-top: 84px;
 }
 
-.poolHead {
-  max-width: 720px;
-  margin-bottom: 36px;
+.pool b {
+  color: var(--pc-ink);
+  font-weight: 600;
 }
 
-.poolTitle {
-  margin-bottom: 14px;
-  font-family: var(--pc-font-display);
-  font-size: clamp(26px, 3vw, 38px);
-  font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.04em;
-  text-wrap: balance;
-}
-
-.poolTitle em {
-  font-style: normal;
-  color: var(--pc-display-2);
-}
-
-.poolRows {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0 clamp(24px, 3vw, 40px);
-  list-style: none;
-}
-
-.poolRows li {
-  display: grid;
-  align-content: start;
-  gap: 10px;
-  padding: 16px 0 24px;
-  border-top: 1px solid var(--pc-line-strong);
-}
-
-.poolRows .body {
+.readMore {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin-top: 14px;
   font-size: 14.5px;
 }
 
@@ -424,10 +399,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .steps,
-  .poolRows {
+  .steps {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px clamp(24px, 3vw, 40px);
+    gap: 12px clamp(24px, 3vw, 40px);
   }
 }
 
@@ -448,10 +422,9 @@
     gap: 2px;
   }
 
-  .steps,
-  .poolRows {
+  .steps {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+    gap: 4px;
   }
 
   .splitTaker {

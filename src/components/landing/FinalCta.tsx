@@ -3,7 +3,7 @@ import { ParaclrLogo } from "@/components/brand/ParaclrLogo";
 import { BuiltByBadge } from "@/components/brand/BuiltByBadge";
 import { Mark } from "./brand/Logo";
 import { ArrowUpRight, CodeIcon, XIcon } from "./icons";
-import { GITHUB_BLOB, GITHUB_URL, X_URL } from "./content";
+import { GITHUB_BLOB, GITHUB_URL, README_AT, X_URL } from "./content";
 import { AUDIT_STATUS, BETA_LABEL, RISK_PATH, TERMS_PATH } from "./disclosures";
 import b from "./brand/Brand.module.css";
 import s from "./FinalCta.module.css";
@@ -105,10 +105,10 @@ export function Footer({ live }: { live: boolean }) {
     {
       title: "Protocol",
       links: [
-        { href: "/#backstop", label: "Backstop LPs" },
         { href: "/#xray", label: "Conflict X-ray" },
-        { href: "/#solvency", label: "Solvency proof" },
-        { href: "/#beta", label: "Mainnet beta" },
+        { href: README_AT.backstop, label: "Backstop LPs", external: true },
+        { href: README_AT.solvency, label: "Solvency proof", external: true },
+        { href: README_AT.production, label: "Mainnet beta", external: true },
       ],
     },
     {

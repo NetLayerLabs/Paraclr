@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { aboutSeconds, AUCTION, auctionStepBps } from "./content";
+import { aboutSeconds, AUCTION, auctionStepBps, README_AT } from "./content";
 import b from "./brand/Brand.module.css";
 import s from "./Auction.module.css";
 
@@ -10,80 +10,42 @@ const Y_TICKS = [0, 100, 200, 300, 400, 500];
 interface Step {
   n: string;
   title: string;
-  code: ReactNode;
-  body: ReactNode;
+  code: string;
+  line: ReactNode;
 }
 
-function steps(step: number, onTestnet: boolean): Step[] {
+function steps(step: number): Step[] {
   return [
     {
       n: "01",
       title: "Start",
-      code: <>startAuctions(lane, accounts)</>,
-      body: (
-        <>
-          Anyone can put an account below the {AUCTION.maintenanceBps / 100}% maintenance margin into auction.
-          It&rsquo;s frozen: no withdrawals, no new positions. Deposits still work.
-        </>
-      ),
+      code: "startAuctions(lane, accounts)",
+      line: <>Anyone can put an account below maintenance margin into auction; it&rsquo;s frozen.</>,
     },
     {
       n: "02",
       title: "Tick",
-      code: (
-        <>
-          d = min({AUCTION.maxBps}, {step} × blocks)
-        </>
-      ),
-      body: (
-        <>
-          The discount <b>d</b> starts at 0 and rises {step} bps per block since the start
-          {onTestnet ? <> ({AUCTION.stepBps} is the contract default)</> : null}. Only the block number moves it; a
-          higher gas bid doesn&rsquo;t.
-        </>
-      ),
+      code: `d = min(${AUCTION.maxBps}, ${step} × blocks)`,
+      line: <>The discount rises with the block number, never with a gas bid.</>,
     },
     {
       n: "03",
       title: "Take",
-      code: <>backstopTakeBatch(lane, …) · take(account)</>,
-      body: (
+      code: "backstopTakeBatch · take",
+      line: (
         <>
-          The taker inherits the positions at the mark and is paid <b>P = d × notional</b>. An account in the same lane
-          can take any block before the pool, if it stays above initial margin, but is paid only out of the
-          trader&rsquo;s own equity, <b>min(P, E)</b>, so nobody profits by liquidating their own account.
+          The taker gets the positions and <b>P = d × notional</b>; the trader keeps <b>E − P</b>.
         </>
       ),
     },
     {
       n: "04",
       title: "Cure or expire",
-      code: <>cancelAuction(account) · expireBatch(lane, …)</>,
-      body: (
-        <>
-          Healthy again after a top-up or a price recovery? Anyone can cancel the auction. Still untaken at{" "}
-          {AUCTION.maxBps} bps? It closes at mark through the old 1% fee path; any shortfall hits lane insurance, then
-          lane bad debt.
-        </>
-      ),
+      code: "cancelAuction · expireBatch",
+      line: <>Healthy again: cancelled. Untaken at {AUCTION.maxBps} bps: closed at mark.</>,
     },
   ];
 }
-
-const POOL = [
-  {
-    title: "Deposit per lane",
-    body: "Each of the 8 lanes has its own pool. LPs deposit AUSD into a lane's pool for shares in it, and pool storage is lane-local: 8 pools can take in the same block without touching each other's slots.",
-  },
-  {
-    title: "Earn the discount",
-    body: `The pool takes that lane's auctions once the discount reaches its threshold (${AUCTION.backstopMinBps} bps by default, below the old 1% fixed fee) and is paid P = d × notional for each.`,
-  },
-  {
-    title: "Absorb the exposure",
-    body: "The pool also inherits the positions, at the mark. If the market keeps moving against them, NAV falls. The discount is the payment for carrying that risk.",
-  },
-] as const;
 
 /** Discount by block, drawn for the step the page quotes (testnet deployment or contract default). */
 function Chart({ step, onTestnet }: { step: number; onTestnet: boolean }) {
@@ -231,25 +193,10 @@ export function Auction({ live = false, testnetLive = false }: { live?: boolean;
                 <span className={s.splitTaker}>P</span>
                 <span className={s.splitTrader}>E − P</span>
               </div>
-              <dl className={s.splitRows}>
-                <div>
-                  <dt>Taker</dt>
-                  <dd>
-                    gets <b>P = d × notional</b> (outside takers: capped at the trader&rsquo;s equity) and the
-                    positions, entered at the mark
-                  </dd>
-                </div>
-                <div>
-                  <dt>Trader</dt>
-                  <dd>
-                    keeps <b>max(0, E − P)</b> as free collateral; account unfrozen
-                  </dd>
-                </div>
-                <div>
-                  <dt>E &lt; P</dt>
-                  <dd>lane insurance pays the shortfall, then lane bad debt. The trader never loses more than E.</dd>
-                </div>
-              </dl>
+              <p className={s.splitLine}>
+                The taker gets <b>P = d × notional</b> and the positions at mark; the trader keeps{" "}
+                <b>max(0, E − P)</b>. If <b>E &lt; P</b>, lane insurance, then lane bad debt, pays the rest.
+              </p>
             </figure>
 
             <p className={s.mev}>
@@ -262,48 +209,29 @@ export function Auction({ live = false, testnetLive = false }: { live?: boolean;
 
         <h3 className={s.stepsHead}>The lifecycle, in four calls</h3>
         <ol className={s.steps} aria-label="Auction lifecycle">
-          {steps(step, onTestnet).map((st) => (
+          {steps(step).map((st) => (
             <li key={st.n} className={s.step}>
               <span className={s.stepNum}>{st.n}</span>
-              <h4 className={b.h3}>
-                <span className={b.srOnly}>Step {st.n}: </span>
-                {st.title}
-              </h4>
+              <h4 className={s.stepTitle}>{st.title}</h4>
               <code className={s.stepCode}>{st.code}</code>
-              <p className={s.stepBody}>{st.body}</p>
+              <p className={s.stepBody}>{st.line}</p>
             </li>
           ))}
         </ol>
 
-        <div id="backstop" className={s.pool}>
-          <div className={s.poolHead}>
-            <p className={b.eyebrow}>Backstop LPs</p>
-            <h3 className={s.poolTitle}>
-              A taker in every lane, <em>paid to hold the risk.</em>
-            </h3>
-            <p className={b.body}>
-              Auctions need someone on the other side when the market is falling hardest. Each lane has a backstop pool
-              that takes its auctions at a known threshold, so an underwater account is resolved within a bounded number
-              of blocks even if no outside taker shows up.
-            </p>
-          </div>
-          <ul className={s.poolRows}>
-            {POOL.map(({ title, body }) => (
-              <li key={title}>
-                <h4 className={b.h3}>{title}</h4>
-                <p className={b.body}>{body}</p>
-              </li>
-            ))}
-            <li>
-              <h4 className={b.h3}>No APY</h4>
-              <p className={b.body}>
-                Pool returns are shown as <strong>earned since deploy</strong>: discount collected, notional absorbed,
-                realized and unrealized PnL. A crash-driven income stream doesn&rsquo;t annualize honestly, so we
-                don&rsquo;t. On testnet the operator seeds every pool with test AUSD.
-              </p>
-            </li>
-          </ul>
-        </div>
+        <p id="backstop" className={s.pool}>
+          <b>Backstop LPs.</b> Each lane has its own pool. LPs deposit AUSD for shares; the pool takes that lane&rsquo;s
+          auctions at {AUCTION.backstopMinBps} bps, earns the discount and carries the positions. Returns are shown as
+          earned since deploy, never as an APY.
+        </p>
+        <p className={s.readMore}>
+          <a className={b.link} href={README_AT.auction} target="_blank" rel="noreferrer">
+            How the auction works
+          </a>
+          <a className={b.link} href={README_AT.backstop} target="_blank" rel="noreferrer">
+            Backstop LPs in the README
+          </a>
+        </p>
       </div>
     </section>
   );

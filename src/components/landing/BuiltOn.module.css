@@ -103,54 +103,12 @@
   font-size: 13.5px;
 }
 
-/* ---- Supporting tools: a compact ruled grid ----------------------------- */
-
-.alsoHead {
-  max-width: 1120px;
-  margin: 48px auto 14px;
-  font-family: var(--pc-font-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--pc-ink-3);
-}
+/* ---- Supporting stack: one line ---------------------------------------- */
 
 .also {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0 clamp(24px, 3.4vw, 48px);
   max-width: 1120px;
-  margin: 0 auto;
-  list-style: none;
-}
-
-.tool {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px 0;
-  border-top: 1px solid var(--pc-line);
-}
-
-.toolName {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--pc-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--pc-ink);
-  transition: color var(--pc-dur-1);
-}
-
-.toolName:hover {
-  color: var(--pc-accent-text);
-}
-
-.toolUse {
-  font-size: 13.5px;
-  line-height: 1.5;
+  margin: 18px auto 0;
+  font-size: 14px;
   color: var(--pc-ink-3);
 }
 
@@ -170,10 +128,6 @@
   .side {
     grid-column: 2;
   }
-
-  .also {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 639px) {
@@ -192,10 +146,6 @@
 
   .side {
     grid-column: auto;
-  }
-
-  .also {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .disclaimer {

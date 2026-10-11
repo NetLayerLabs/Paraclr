@@ -393,6 +393,20 @@ a.addr:hover {
   font-weight: 600;
 }
 
+.solvency {
+  margin-top: clamp(32px, 4vw, 48px);
+  padding-top: 18px;
+  border-top: 1px solid var(--pc-line);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--pc-ink-2);
+}
+
+.solvency b {
+  color: var(--pc-ink);
+  font-weight: 600;
+}
+
 .excl {
   font-size: 13px;
 }

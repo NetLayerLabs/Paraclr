@@ -4,17 +4,15 @@ import { loadLandingEvidence } from "@/components/landing/benchResults.server";
 import { Bend } from "@/components/landing/brand/Bend";
 import { displayFont } from "@/components/landing/brand/fonts";
 import { BuiltOn } from "@/components/landing/BuiltOn";
-import { Compare } from "@/components/landing/Compare";
 import { NAV_LINKS } from "@/components/landing/content";
 import { Faq } from "@/components/landing/Faq";
 import { FinalCta, Footer } from "@/components/landing/FinalCta";
 import { Hero } from "@/components/landing/Hero";
 import { Nav } from "@/components/landing/Nav";
 import { Problem } from "@/components/landing/Problem";
-import { ProductionBeta, StatusBar } from "@/components/landing/ProductionBeta";
+import { StatusBar } from "@/components/landing/StatusBar";
 import { loadProductionStatus, loadTestnetProductionStatus } from "@/components/landing/production.server";
 import { Results } from "@/components/landing/Results";
-import { Solvency } from "@/components/landing/Solvency";
 import { XRay } from "@/components/landing/XRay";
 import b from "@/components/landing/brand/Brand.module.css";
 
@@ -57,15 +55,10 @@ export default async function Home() {
         <Auction live={live} testnetLive={testnetLive} />
         <Bend into="dark" corner="right" />
         <XRay xray={evidence.xray} />
-        <Solvency repo={evidence.repo} />
         <Bend into="light" corner="left" />
-        <ProductionBeta status={production} testnet={testnetProd} />
-        <Results evidence={evidence} />
-        <Bend into="dark" corner="left" />
-        <BuiltOn repo={evidence.repo} live={live} testnet={testnet} testnetLive={testnetLive} />
-        <Bend into="light" corner="right" />
-        <Compare live={live} testnetLive={testnetLive} />
-        <Bend into="dark" corner="left" />
+        <Results evidence={evidence} production={production} testnet={testnetProd} />
+        <Bend into="dark" corner="right" />
+        <BuiltOn live={live} testnet={testnet} testnetLive={testnetLive} />
         <Faq monadDeployed={testnet} production={production} testnetProd={testnetProd} />
         <FinalCta live={live} testnetLive={testnetLive} />
       </main>

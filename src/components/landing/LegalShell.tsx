@@ -46,7 +46,7 @@ export function LegalShell({
 }) {
   const links = [
     { href: "/#auction", label: "How it works" },
-    { href: "/#beta", label: "Mainnet beta" },
+    { href: "/#results", label: "Results" },
     { href: RISK_PATH, label: "Risks", current: current === "risk" },
     { href: TERMS_PATH, label: "Terms", current: current === "terms" },
   ];

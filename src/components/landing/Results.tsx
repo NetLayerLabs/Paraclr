@@ -1,340 +1,91 @@
-import type { CSSProperties } from "react";
-import type { AuctionOutcome, BenchRun, LandingEvidence } from "./benchResults.server";
-import { ArrowUpRight } from "./icons";
-import { GITHUB_TREE, MONAD_EXPLORER } from "./content";
-import { fmtAusd, fmtBlocks, fmtCompact, fmtInt, fmtPct, fmtRunDate, shortHash } from "./format";
+import type { ReactNode } from "react";
+import type { BenchRun, LandingEvidence, XrayEvidence } from "./benchResults.server";
+import type { ProductionStatus } from "./production.server";
+import { AddressPager } from "./AddressPager";
+import { GITHUB_BLOB, README_AT } from "./content";
+import { fmtAusd, fmtInt } from "./format";
 import b from "./brand/Brand.module.css";
 import s from "./Results.module.css";
 
-type Net = "monad" | "anvil";
-type Vars = CSSProperties & Record<`--${string}`, string | number>;
+/** The runs the headline figures cite (README "Results"). Each figure is read from its file at build time. */
+const AUCTION_RUN = "10143-2026-10-10T22-40-07Z.json";
+const ARENA_XRAY = "10143-run-mv2ze6l6-xzyi6.json";
 
-function shockLabel(bps: number | null): string {
-  if (bps === null || bps >= 10_000) return "a price shock";
-  return `a −${(10_000 - bps) / 100}% shock`;
+interface Figure {
+  value: ReactNode;
+  claim: ReactNode;
+  detail: string;
+  file: string;
 }
 
-/** Accounts that went underwater: v1 = liquidated by liquidateBatch, v2 = auctions started. */
-function underwaterCount(run: BenchRun): number | null {
-  return run.auctions ? run.auctions.started : run.liquidated;
+function shock(run: BenchRun): string {
+  return run.shockBps !== null && run.shockBps < 10_000 ? `-${(10_000 - run.shockBps) / 100}% shock` : "price shock";
 }
 
-function gasPerAccount(run: BenchRun): string {
-  if (run.gasPerLiquidation !== null) return fmtInt(run.gasPerLiquidation);
-  const u = underwaterCount(run);
-  return u ? fmtInt(Math.round(run.totalGasUsed / u)) : "–";
+function figures(run: BenchRun | null, xray: XrayEvidence | null): Figure[] {
+  const out: Figure[] = [];
+  const a = run?.auctions;
+  if (run && a && a.auctionTraderLoss !== null && a.legacyTraderLoss) {
+    const less = Math.round((1 - a.auctionTraderLoss / a.legacyTraderLoss) * 100);
+    out.push({
+      value: <>{less}%</>,
+      claim: <>less taken from traders than the old fixed 1% fee would have taken in the same crash</>,
+      detail: `${fmtAusd(a.auctionTraderLoss)} vs ${fmtAusd(a.legacyTraderLoss)} AUSD, ${fmtInt(a.started)} accounts, ${shock(run)}`,
+      file: `bench/results/${run.file}`,
+    });
+  }
+  if (xray?.lanes && xray.naive) {
+    out.push({
+      value: (
+        <>
+          {fmtInt(xray.lanes.crossLaneEdges)} <span className={s.vs}>vs</span> {fmtInt(xray.naive.crossLaneEdges)}
+        </>
+      ),
+      claim: <>cross-lane conflicts: Paraclr&rsquo;s lanes against a naive shared-state build of the same code</>,
+      detail: "first public Arena crash on Monad testnet, live debug_traceTransaction",
+      file: `bench/xray/${xray.file}`,
+    });
+  }
+  if (run && a) {
+    out.push({
+      value: (
+        <>
+          {fmtInt(run.blocks.length)}
+          <span className={s.unit}> blocks</span>
+        </>
+      ),
+      claim: (
+        <>
+          for every auction in the Monad testnet run to resolve: {fmtInt(a.takenByBackstop)} taken by backstop pools,{" "}
+          {fmtInt(a.takenExternal)} by {a.externalTakersDemo ? "demo takers" : "outside takers"}, {fmtInt(a.expired)}{" "}
+          expired
+        </>
+      ),
+      detail: `${(run.wallClockMs / 1000).toFixed(1)} s from the first submit to the last receipt`,
+      file: `bench/results/${run.file}`,
+    });
+  }
+  return out;
 }
 
-function Tiles({ run }: { run: BenchRun }) {
-  const oneBlock = run.sameBlock && run.blocks.length === 1;
-  const under = underwaterCount(run);
-  const uw = run.underwater;
-  return (
-    <dl className={s.tiles}>
-      <div className={s.tile}>
-        <dt>Accounts scanned</dt>
-        <dd className={s.tileValue}>{fmtInt(run.accountsScanned)}</dd>
-        <dd className={s.tileSub}>
-          {run.accountsSeeded
-            ? `${fmtInt(run.accountsSeeded)} seeded on-chain${run.seedTxCount ? ` in ${fmtInt(run.seedTxCount)} txs` : ""}`
-            : "registered across the 8 lanes"}
-        </dd>
-      </div>
-      <div className={s.tile}>
-        <dt>{run.auctions ? "Went to auction" : "Liquidated"}</dt>
-        <dd className={s.tileValue}>{under === null ? "–" : fmtInt(under)}</dd>
-        <dd className={s.tileSub}>
-          {under === null ? "–" : fmtPct(under, run.accountsScanned)} of scanned, after {shockLabel(run.shockBps)}
-        </dd>
-      </div>
-      {run.auctions && uw && uw.maxBlocks !== null ? (
-        <div className={s.tile}>
-          <dt>Longest time underwater</dt>
-          <dd className={s.tileValue}>
-            {fmtInt(uw.maxBlocks)}
-            <span className={s.unit}> blocks</span>
-          </dd>
-          <dd className={s.tileSub}>
-            {uw.p50Blocks !== null ? `p50 ${fmtInt(uw.p50Blocks)} · ` : ""}
-            {uw.p95Blocks !== null ? `p95 ${fmtInt(uw.p95Blocks)} · ` : ""}
-            {uw.maxMs !== null ? `max ${fmtInt(uw.maxMs)} ms on the keeper's clock` : "shock block → resolved"}
-          </dd>
-        </div>
-      ) : (
-        <div className={s.tile}>
-          <dt>{run.auctions ? "Gas per account" : "Gas per liquidation"}</dt>
-          <dd className={s.tileValue}>{gasPerAccount(run)}</dd>
-          <dd className={s.tileSub}>
-            {fmtCompact(run.totalGasUsed)} gas across {run.batchCount} lane txs
-          </dd>
-        </div>
-      )}
-      <div className={s.tile}>
-        <dt>{oneBlock ? "Lane txs in one block" : "Blocks used by lane txs"}</dt>
-        <dd className={s.tileValue}>
-          {oneBlock ? (
-            <>
-              {run.batchCount}
-              <span className={s.unit}> / {run.batchCount}</span>
-            </>
-          ) : (
-            run.blocks.length
-          )}
-        </dd>
-        <dd className={s.tileSub}>
-          {oneBlock ? `all in block #${run.blocks[0]}` : `split across ${fmtBlocks(run.blocks)}`}
-        </dd>
-      </div>
-    </dl>
-  );
-}
-
-const OUTCOME_LABEL: Record<AuctionOutcome, string> = {
-  backstop: "taken by backstop",
-  external: "taken externally",
-  cured: "cured",
-  expired: "expired",
-};
-const OUTCOMES = Object.keys(OUTCOME_LABEL) as AuctionOutcome[];
-
-function LaneOutcomes({ run }: { run: BenchRun }) {
-  const per = run.underwater?.perLane ?? [];
-  const totals = per.map((l) => l.backstop + l.external + l.cured + l.expired);
-  const max = Math.max(1, ...totals);
-  const demo = run.auctions?.externalTakersDemo;
-  return (
-    <figure className={s.chart}>
-      <figcaption className={s.chartHead}>
-        <span className={s.chartTitle}>Auction outcomes per lane</span>
-        <span className={s.chartSub}>every underwater account, by how it resolved</span>
-      </figcaption>
-      <ol className={s.bars}>
-        {per.map((l, lane) => {
-          const tip = `Lane ${lane}: ${OUTCOMES.map((o) => `${l[o]} ${OUTCOME_LABEL[o]}`).join(", ")}`;
-          return (
-            <li key={lane} className={s.barRow} aria-label={tip}>
-              <span className={s.barLane}>L{lane}</span>
-              <span className={s.barTrack}>
-                <span className={s.stack} style={{ "--w": `${(totals[lane] / max) * 100}%` } as Vars}>
-                  {OUTCOMES.map((o) =>
-                    l[o] ? <i key={o} className={s[`seg_${o}`]} style={{ flexGrow: l[o] }} /> : null,
-                  )}
-                </span>
-              </span>
-              <span className={s.barValue}>{fmtInt(totals[lane])}</span>
-            </li>
-          );
-        })}
-      </ol>
-      <p className={s.segLegend}>
-        {OUTCOMES.map((o) => (
-          <span key={o}>
-            <i className={s[`seg_${o}`]} />{" "}
-            {o === "external" && demo ? "taken externally (demo bots)" : OUTCOME_LABEL[o]}
-          </span>
-        ))}
-      </p>
-    </figure>
-  );
-}
-
-function LaneBars({ run, net }: { run: BenchRun; net: Net }) {
-  const max = Math.max(1, ...run.lanes.map((l) => l.liquidated));
-  return (
-    <figure className={s.chart}>
-      <figcaption className={s.chartHead}>
-        <span className={s.chartTitle}>Liquidations per lane batch</span>
-        <span className={s.chartSub}>one liquidateBatch per lane, 8 keeper wallets</span>
-      </figcaption>
-      <ol className={s.bars}>
-        {run.lanes.map((l) => (
-          <li
-            key={`${l.lane}-${l.txHash}`}
-            className={s.barRow}
-            aria-label={`Lane ${l.lane}: ${fmtInt(l.liquidated)} of ${fmtInt(l.accounts)} accounts liquidated, ${fmtInt(l.gasUsed)} gas`}
-          >
-            <span className={s.barLane}>L{l.lane}</span>
-            <span className={s.barTrack}>
-              <span className={s.stack} style={{ "--w": `${(l.liquidated / max) * 100}%` } as Vars}>
-                <i className={s.seg_backstop} style={{ flexGrow: 1 }} />
-              </span>
-            </span>
-            <span className={s.barValue}>{fmtInt(l.liquidated)}</span>
-          </li>
-        ))}
-      </ol>
-      <p className={s.chartFoot}>
-        {net === "monad"
-          ? run.lanes
-              .filter((l) => l.txHash)
-              .map((l) => (
-                <a
-                  key={`${l.lane}-${l.txHash}`}
-                  href={`${MONAD_EXPLORER}/tx/${l.txHash}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  L{l.lane} {shortHash(l.txHash)}
-                </a>
-              ))
-          : "Local anvil tx hashes are in the JSON. They don't resolve on any public explorer."}
-      </p>
-    </figure>
-  );
-}
-
-function AuctionMetrics({ run }: { run: BenchRun }) {
-  const a = run.auctions;
-  if (!a) return <AuctionPending />;
-  const counts: [string, number | null, string?][] = [
-    ["Taken by backstop", a.takenByBackstop],
-    [a.externalTakersDemo ? "Taken externally (demo bots)" : "Taken externally", a.takenExternal],
-    ["Cured", a.cured],
-    ["Expired", a.expired],
-    ["Avg discount at take", a.avgDiscountBps, "bps"],
-  ];
-  const money: { k: string; v: number | null; sub: string; tone?: "good" | "bad" }[] = [
-    {
-      k: "Equity returned to traders",
-      v: a.traderResidualReturned,
-      sub: "Σ max(0, E − P) over taken accounts, plus collateral left on expired ones",
-      tone: "good",
-    },
-    { k: "Paid to backstop pools", v: a.backstopPaid, sub: "the discount the lane pools earned" },
-    {
-      k: "Lane-funded shortfall",
-      v: a.badDebt,
-      sub: "where E < P on a backstop take: lane insurance first, then lane bad debt",
-      tone: a.badDebt ? "bad" : undefined,
-    },
-    ...(a.auctionTraderLoss !== null
-      ? [
-          {
-            k: "Taken from traders by the auction",
-            v: a.auctionTraderLoss,
-            sub: "equity at auction start − equity returned; compare with the next tile",
-          },
-        ]
-      : []),
-    {
-      k: "Old fixed-penalty path, counterfactual",
-      v: a.legacyTraderLoss,
-      sub: "what the old fixed-fee path would have taken from the same traders (keeper-computed)",
-    },
-  ];
-  return (
-    <div className={s.metrics}>
-      <dl className={s.counts}>
-        {counts.map(([k, v, unit]) => (
-          <div key={k}>
-            <dt>{k}</dt>
-            <dd>
-              {v === null ? "–" : fmtInt(v)}
-              {unit && v !== null ? <span className={s.unit}> {unit}</span> : null}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <dl className={s.money}>
-        {money.map((m) => (
-          <div key={m.k} className={s.moneyTile}>
-            <dt>{m.k}</dt>
-            <dd className={m.tone === "good" ? s.good : m.tone === "bad" ? s.bad : s.moneyValue}>
-              {m.v === null ? "–" : fmtAusd(m.v)}
-              <span className={s.unit}> AUSD</span>
-            </dd>
-            <dd className={s.tileSub}>{m.sub}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  );
-}
-
-function AuctionPending() {
-  return (
-    <div className={s.metrics}>
-      <p className={s.footnote}>
-        This run predates auctions: it used the old <code className={b.code}>liquidateBatch</code> path (close at mark,
-        1% fee). The next <code className={b.code}>npm run bench</code> writes a RunReport with{" "}
-        <code className={b.code}>auctions</code> and <code className={b.code}>underwater</code>, and auction metrics
-        fill in from it.
-      </p>
-    </div>
-  );
-}
-
-function RunsTable({ runs, net }: { runs: BenchRun[]; net: Net }) {
-  return (
-    <div
-      className={`${b.scrollX} ${s.tableWrap}`}
-      tabIndex={0}
-      role="region"
-      aria-label={net === "monad" ? "Monad testnet runs" : "Local anvil runs"}
-    >
-      <table className={s.table}>
-        <thead>
-          <tr>
-            <th scope="col">Run (UTC)</th>
-            <th scope="col">Mechanism</th>
-            <th scope="col">Accounts</th>
-            <th scope="col">Underwater</th>
-            <th scope="col">Lane txs</th>
-            <th scope="col">Block(s)</th>
-            <th scope="col">One block?</th>
-            <th scope="col">Gas / acct.</th>
-            <th scope="col">Total gas</th>
-            <th scope="col">Wall-clock*</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...runs].reverse().map((r) => (
-            <tr key={r.file}>
-              <th scope="row">
-                <span className={s.runDate}>{fmtRunDate(r.startedAt)}</span>
-                <span className={s.runFile}>{r.file}</span>
-              </th>
-              <td>
-                <span className={r.auctions ? s.mechAuction : s.mechFixed}>{r.auctions ? "auction" : "fixed fee"}</span>
-              </td>
-              <td>{fmtInt(r.accountsScanned)}</td>
-              <td>{underwaterCount(r) === null ? "–" : fmtInt(underwaterCount(r)!)}</td>
-              <td>{r.batchCount}</td>
-              <td>{fmtBlocks(r.blocks)}</td>
-              <td>{r.sameBlock ? "yes" : "no"}</td>
-              <td>{gasPerAccount(r)}</td>
-              <td>{fmtInt(r.totalGasUsed)}</td>
-              <td>{fmtInt(r.wallClockMs)} ms</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function MonadPending() {
-  return (
-    <div className={s.pending}>
-      <div className={s.pendingCopy}>
-        <span className={s.bannerNet}>
-          Monad testnet · chain 10143
-        </span>
-        <h3 className={s.pendingTitle}>Monad testnet: live on real prices</h3>
-        <p className={s.pendingBody}>
-          The production contracts on Monad testnet run on real Pyth prices, so their auctions run when the market
-          moves. The X-ray above comes from a staged crash of the demo stack on Monad testnet. That run&rsquo;s auction
-          economics are kept in <code className={b.code}>bench/diagnostics/</code> rather than here: the keeper
-          resolving it was held back by a 15-request/s public RPC and took about 40 s, which measures the keeper more
-          than the design. The staged runs below are local anvil.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export function Results({ evidence }: { evidence: LandingEvidence }) {
-  const { anvilHeadline: anvil, monadHeadline: monad } = evidence;
+/**
+ * `production`: deployments/143.json; `testnet`: deployments/10143.json with "production": true. The contract list
+ * shows the mainnet set once it is live, else the testnet one.
+ */
+export function Results({
+  evidence,
+  production,
+  testnet,
+}: {
+  evidence: LandingEvidence;
+  production: ProductionStatus;
+  testnet: ProductionStatus;
+}) {
+  const mainnet = production.live;
+  const deployment = mainnet ? production : testnet;
+  const run = evidence.monadRuns.find((r) => r.file === AUCTION_RUN) ?? null;
+  const xray = evidence.xrays.find((x) => x.file === ARENA_XRAY) ?? null;
+  const figs = figures(run, xray);
   return (
     <section
       id="results"
@@ -345,84 +96,77 @@ export function Results({ evidence }: { evidence: LandingEvidence }) {
         <div className={b.sectionHead}>
           <p className={b.eyebrow}>Results</p>
           <h2 id="results-title" className={b.h2}>
-            Measured, labelled, <em>committed.</em>
+            Measured on Monad testnet. <em>Every number has a file.</em>
           </h2>
           <p className={b.lede}>
-            Every number in this section is read from the RunReport JSON files in{" "}
-            <a className={b.link} href={`${GITHUB_TREE}/bench/results`} target="_blank" rel="noreferrer">
-              bench/results/
-            </a>{" "}
-            when the page is built. Each run seeds accounts with <code className={b.code}>seedAccounts</code>, shocks
-            every market in one oracle tx, then 8 lane keepers resolve every underwater account, each from its own key.
+            Each figure is read from a committed JSON report when the page is built. The README has every run, including
+            the local anvil ones, and how each was collected.
           </p>
         </div>
 
-        {monad ? (
-          <div className={s.block}>
-            <div className={`${s.banner} ${s.bannerMonad}`}>
-              <span className={s.bannerNet}>Monad testnet · chain 10143</span>
-              <p>
-                {fmtRunDate(monad.startedAt)} · <span className={b.mono}>{monad.file}</span> · tx links open the Monad
-                testnet explorer
-              </p>
-            </div>
-            <div className={s.split}>
-              <Tiles run={monad} />
-              {monad.auctions && monad.underwater?.accounts ? (
-                <LaneOutcomes run={monad} />
-              ) : (
-                <LaneBars run={monad} net="monad" />
-              )}
-            </div>
-            <AuctionMetrics run={monad} />
-            <RunsTable runs={evidence.monadRuns} net="monad" />
-          </div>
+        {figs.length ? (
+          <ol className={s.figures}>
+            {figs.map((f) => (
+              <li key={f.file + String(f.detail)} className={s.figure}>
+                <p className={s.value}>{f.value}</p>
+                <p className={s.claim}>{f.claim}</p>
+                <p className={s.detail}>{f.detail}</p>
+                <a className={s.file} href={`${GITHUB_BLOB}/${f.file}`} target="_blank" rel="noreferrer">
+                  {f.file}
+                </a>
+              </li>
+            ))}
+          </ol>
         ) : (
-          <MonadPending />
+          <p className={s.pending}>The cited bench files aren&rsquo;t in this build.</p>
         )}
+        <p className={s.more}>
+          <a className={b.link} href={README_AT.results} target="_blank" rel="noreferrer">
+            All runs and X-rays in the README
+          </a>
+        </p>
 
-        {anvil ? (
-          <div className={s.block}>
-            <div className={`${s.banner} ${s.bannerAnvil}`} role="note">
-              <span className={`${s.bannerNet} ${s.bannerNetWarn}`}>local anvil - not Monad</span>
-              <p>
-                <b>Measured on local anvil, not Monad.</b>{" "}
-                {monad
-                  ? "anvil executes sequentially. Kept for reference: these runs check the contracts and the keeper end to end and say nothing about Monad's parallel execution."
-                  : "anvil executes sequentially. These runs check the contracts and the keeper end to end. They say nothing about Monad's parallel execution."}
+        {deployment.live ? (
+          <div id={mainnet ? "contracts" : "testnet"} className={s.contracts}>
+            <div className={s.contractsHead}>
+              <h3 className={s.contractsTitle}>
+                {mainnet ? "Contracts on Monad mainnet" : "Production contracts on Monad testnet"}
+              </h3>
+              <p className={s.contractsSub}>
+                {mainnet ? (
+                  <>Capped, unaudited beta on chain 143. Check every address before you approve anything.</>
+                ) : (
+                  <>
+                    The contract set the mainnet beta would run, on chain 10143 with Agora&rsquo;s testnet AUSD. Test
+                    funds, no real value. Nothing of ours is on Monad mainnet yet.
+                  </>
+                )}
               </p>
-              <span className={s.bannerChain}>
-                chain {anvil.chainId}
-                {anvil.clientVersion ? ` · ${anvil.clientVersion}` : ""}
+            </div>
+            <AddressPager
+              rows={deployment.contracts.map((c) => ({
+                name: c.name,
+                role: c.role,
+                address: c.address,
+                external: c.external,
+              }))}
+              explorer={deployment.explorer}
+              label={mainnet ? "Monad mainnet contract addresses" : "Monad testnet contract addresses"}
+            />
+            <p className={s.contractsFoot}>
+              <a
+                className={b.link}
+                href={mainnet ? README_AT.mainnetContracts : README_AT.testnetContracts}
+                target="_blank"
+                rel="noreferrer"
+              >
+                All {deployment.contracts.length} addresses in the README
+              </a>
+              <span>
+                From <code className={b.code}>{deployment.file}</code>
+                {deployment.deployBlock !== null ? <>, deploy block #{fmtInt(deployment.deployBlock)}</> : null}.
               </span>
-            </div>
-
-            <p className={s.runLabel}>
-              {anvil.auctions ? "Largest auction run" : "Largest run"} · {fmtRunDate(anvil.startedAt)} ·{" "}
-              <span className={b.mono}>{anvil.file}</span>
             </p>
-            <div className={s.split}>
-              <Tiles run={anvil} />
-              {anvil.auctions && anvil.underwater?.accounts ? (
-                <LaneOutcomes run={anvil} />
-              ) : (
-                <LaneBars run={anvil} net="anvil" />
-              )}
-            </div>
-            <AuctionMetrics run={anvil} />
-
-            <h3 className={s.tableTitle}>All committed anvil runs</h3>
-            <RunsTable runs={evidence.anvilRuns} net="anvil" />
-            <p className={s.footnote}>
-              * Wall-clock runs from the first lane tx submitted to the last receipt, on the keeper&rsquo;s clock. It
-              includes RPC round trips and anvil&rsquo;s block interval, so it is not EVM execution time, and on anvil
-              it says nothing about Monad. The app&rsquo;s labelled Simulated mode uses modeled costs and is not shown
-              here.
-            </p>
-            <a className={s.evidence} href={`${GITHUB_TREE}/bench/results`} target="_blank" rel="noreferrer">
-              Raw RunReports with every tx hash and timing
-              <ArrowUpRight className={s.evidenceIcon} />
-            </a>
           </div>
         ) : null}
       </div>
