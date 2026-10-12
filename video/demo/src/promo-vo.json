@@ -1,0 +1,110 @@
+{
+ "race": {
+  "file": "audio/vo-promo/race.mp3",
+  "seconds": 1.532517,
+  "words": [
+   {
+    "word": "Liquidation",
+    "start": 0,
+    "end": 0.639
+   },
+   {
+    "word": "is",
+    "start": 0.708,
+    "end": 0.813
+   },
+   {
+    "word": "a",
+    "start": 0.859,
+    "end": 0.882
+   },
+   {
+    "word": "race.",
+    "start": 0.952,
+    "end": 1.533
+   }
+  ]
+ },
+ "turn": {
+  "file": "audio/vo-promo/turn.mp3",
+  "seconds": 3.065034,
+  "words": [
+   {
+    "word": "Paraclr",
+    "start": 0,
+    "end": 0.72
+   },
+   {
+    "word": "replaces",
+    "start": 0.813,
+    "end": 1.405
+   },
+   {
+    "word": "the",
+    "start": 1.474,
+    "end": 1.544
+   },
+   {
+    "word": "race",
+    "start": 1.625,
+    "end": 1.869
+   },
+   {
+    "word": "with",
+    "start": 1.904,
+    "end": 2.02
+   },
+   {
+    "word": "a",
+    "start": 2.055,
+    "end": 2.078
+   },
+   {
+    "word": "clock.",
+    "start": 2.125,
+    "end": 3.065
+   }
+  ]
+ },
+ "fair": {
+  "file": "audio/vo-promo/fair.mp3",
+  "seconds": 3.204354,
+  "words": [
+   {
+    "word": "Fair",
+    "start": 0,
+    "end": 0.255
+   },
+   {
+    "word": "liquidations",
+    "start": 0.313,
+    "end": 0.964
+   },
+   {
+    "word": "for",
+    "start": 1.01,
+    "end": 1.126
+   },
+   {
+    "word": "Monad.",
+    "start": 1.173,
+    "end": 1.8
+   },
+   {
+    "word": "Crash",
+    "start": 1.927,
+    "end": 2.241
+   },
+   {
+    "word": "it",
+    "start": 2.276,
+    "end": 2.345
+   },
+   {
+    "word": "yourself.",
+    "start": 2.392,
+    "end": 3.204
+   }
+  ]
+ }
+}

@@ -48,6 +48,8 @@ export const SCENE_TONE: Record<string, Tone> = {
   arena: "dark", kept: "violet", xray: "dark", builton: "light", close: "dark",
   // technical demo
   tsignin: "dark", tfund: "dark", topen: "dark", tclose: "dark", tchain: "dark", tclearing: "dark", tbackstop: "dark", txray: "dark",
+  // promo
+  pmontage: "dark", pproof: "violet",
 };
 
 export const SCENE_LABEL: Record<string, string> = {
@@ -58,4 +60,4 @@ export const SCENE_LABEL: Record<string, string> = {
 
 /** Scenes that show the product or measured proof: the testnet label stays on screen. */
 export const TESTNET_SCENES = new Set(["clock", "lanes", "app", "arena", "kept", "xray", "builton", "close",
-  "tsignin", "tfund", "topen", "tclose", "tchain", "tclearing", "tbackstop", "txray"]);
+  "tsignin", "tfund", "topen", "tclose", "tchain", "tclearing", "tbackstop", "txray", "pmontage", "pproof"]);

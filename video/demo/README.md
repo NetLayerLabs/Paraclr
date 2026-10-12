@@ -130,3 +130,27 @@ What is real, in addition to the film's list above:
 Build it: `node scripts/reuse.mjs && SCRIPT=script-tech.json node scripts/voiceover.mjs && SCRIPT=script-tech.json node scripts/timing.mjs`,
 then render the `TechDemo` composition the same way as the film (`--scale 2 ...`, `finish.mjs`, Lanczos 1080p).
 The cover art is the `PosterTech` still, embedded as `attached_pic`.
+
+## The 30-second promo
+
+The `Promo` composition (`src/promo/Promo.tsx`) is a 28.6 s clip for social posts and the form's
+"promotion" field. It reuses the film's scenes, footage and brand, and its cuts follow the music.
+
+- **Music:** a new 30 s ElevenLabs cue at 119.5 BPM (`scripts/promo-music.mjs`). `scripts/promo-audio.mjs`
+  re-edits it on bar lines (the last 2 bars of the build, the drop and 8 bars, then the last 4 bars again),
+  so the drop lands at 4.02 s, right on the logo. Every montage cut sits on a beat.
+- **Voice:** three short lines from Sarah. "Liquidation is a race." and "Fair liquidations for Monad. Crash
+  it yourself." are new; "Paraclr replaces the race with a clock." is the film's take, copied into
+  `public/audio/vo-promo/`.
+- **What is real:** the six montage cuts are the same live paraclr.xyz recordings as the technical demo:
+  - Privy sign-in, with the email blurred;
+  - the SOL long filling at the Pyth price;
+  - the close's share card (+0.11 AUSD, +1.1%);
+  - Arena crash #4 on the demo stack with synthetic accounts;
+  - its 8 lanes clearing;
+  - its live X-ray, 0 vs 11.
+  The proof cards show the bench files' 28% (1 052.41 vs 1 464.26 AUSD) and 0 vs 49, with the file names
+  on screen. The race at the start is the film's schematic.
+
+Build it: `node scripts/promo-music.mjs && node scripts/promo-audio.mjs`, then render `Promo` like the
+film. The cover art is the `Poster` still.

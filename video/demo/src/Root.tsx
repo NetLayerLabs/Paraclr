@@ -4,11 +4,13 @@ import { Film } from "./Film";
 import { Poster } from "./Poster";
 import { T } from "./timing";
 import { TechDemo, TT } from "./TechDemo";
+import { Promo, PROMO_FRAMES } from "./promo/Promo";
 
 export const Root: React.FC = () => (
   <>
     <Composition id="Paraclr" component={Film} durationInFrames={T.totalFrames} fps={T.fps} width={1920} height={1080} />
     <Composition id="TechDemo" component={TechDemo} durationInFrames={TT.totalFrames} fps={TT.fps} width={1920} height={1080} />
+    <Composition id="Promo" component={Promo} durationInFrames={PROMO_FRAMES} fps={30} width={1920} height={1080} />
     <Still id="Poster" component={Poster} width={1920} height={1080} />
     <Still id="PosterTech" component={() => <Poster label="TECHNICAL DEMO · MONAD METROPOLIS · LIVE ON MONAD TESTNET · TEST FUNDS" />} width={1920} height={1080} />
   </>
