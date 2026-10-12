@@ -1,0 +1,686 @@
+{
+ "fps": 30,
+ "placeholder": true,
+ "totalFrames": 1830,
+ "scenes": [
+  {
+   "id": "reveal",
+   "from": 0,
+   "durationInFrames": 240,
+   "lines": [
+    {
+     "text": "We're NetLayer Labs. An independent product studio and research lab, based in Italy.",
+     "file": null,
+     "startFrame": 54,
+     "durationFrames": 168,
+     "words": [
+      {
+       "word": "We're",
+       "start": 54,
+       "end": 65
+      },
+      {
+       "word": "NetLayer",
+       "start": 66,
+       "end": 80
+      },
+      {
+       "word": "Labs.",
+       "start": 81,
+       "end": 91
+      },
+      {
+       "word": "An",
+       "start": 98,
+       "end": 107
+      },
+      {
+       "word": "independent",
+       "start": 107,
+       "end": 124
+      },
+      {
+       "word": "product",
+       "start": 125,
+       "end": 138
+      },
+      {
+       "word": "studio",
+       "start": 138,
+       "end": 151
+      },
+      {
+       "word": "and",
+       "start": 151,
+       "end": 161
+      },
+      {
+       "word": "research",
+       "start": 161,
+       "end": 176
+      },
+      {
+       "word": "lab,",
+       "start": 176,
+       "end": 186
+      },
+      {
+       "word": "based",
+       "start": 189,
+       "end": 201
+      },
+      {
+       "word": "in",
+       "start": 201,
+       "end": 210
+      },
+      {
+       "word": "Italy.",
+       "start": 211,
+       "end": 222
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "founder",
+   "from": 240,
+   "durationInFrames": 270,
+   "lines": [
+    {
+     "text": "Founded by MrNetwork. We build autonomous agents, onchain infrastructure, and the apps people use on top of them.",
+     "file": null,
+     "startFrame": 254,
+     "durationFrames": 238,
+     "words": [
+      {
+       "word": "Founded",
+       "start": 254,
+       "end": 268
+      },
+      {
+       "word": "by",
+       "start": 268,
+       "end": 277
+      },
+      {
+       "word": "MrNetwork.",
+       "start": 278,
+       "end": 294
+      },
+      {
+       "word": "We",
+       "start": 301,
+       "end": 310
+      },
+      {
+       "word": "build",
+       "start": 310,
+       "end": 322
+      },
+      {
+       "word": "autonomous",
+       "start": 323,
+       "end": 339
+      },
+      {
+       "word": "agents,",
+       "start": 340,
+       "end": 353
+      },
+      {
+       "word": "onchain",
+       "start": 357,
+       "end": 370
+      },
+      {
+       "word": "infrastructure,",
+       "start": 371,
+       "end": 391
+      },
+      {
+       "word": "and",
+       "start": 395,
+       "end": 405
+      },
+      {
+       "word": "the",
+       "start": 406,
+       "end": 416
+      },
+      {
+       "word": "apps",
+       "start": 416,
+       "end": 427
+      },
+      {
+       "word": "people",
+       "start": 428,
+       "end": 441
+      },
+      {
+       "word": "use",
+       "start": 441,
+       "end": 451
+      },
+      {
+       "word": "on",
+       "start": 452,
+       "end": 461
+      },
+      {
+       "word": "top",
+       "start": 461,
+       "end": 471
+      },
+      {
+       "word": "of",
+       "start": 472,
+       "end": 481
+      },
+      {
+       "word": "them.",
+       "start": 481,
+       "end": 492
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "record",
+   "from": 510,
+   "durationInFrames": 420,
+   "lines": [
+    {
+     "text": "Five products shipped. Three live on mainnet. Calmr took first place, and four thousand dollars, at the Visko Orbis challenge. All of it open source.",
+     "file": null,
+     "startFrame": 524,
+     "durationFrames": 382,
+     "words": [
+      {
+       "word": "Five",
+       "start": 524,
+       "end": 537
+      },
+      {
+       "word": "products",
+       "start": 537,
+       "end": 554
+      },
+      {
+       "word": "shipped.",
+       "start": 555,
+       "end": 571
+      },
+      {
+       "word": "Three",
+       "start": 579,
+       "end": 593
+      },
+      {
+       "word": "live",
+       "start": 593,
+       "end": 606
+      },
+      {
+       "word": "on",
+       "start": 607,
+       "end": 617
+      },
+      {
+       "word": "mainnet.",
+       "start": 618,
+       "end": 634
+      },
+      {
+       "word": "Calmr",
+       "start": 642,
+       "end": 656
+      },
+      {
+       "word": "took",
+       "start": 656,
+       "end": 669
+      },
+      {
+       "word": "first",
+       "start": 669,
+       "end": 683
+      },
+      {
+       "word": "place,",
+       "start": 684,
+       "end": 698
+      },
+      {
+       "word": "and",
+       "start": 702,
+       "end": 714
+      },
+      {
+       "word": "four",
+       "start": 714,
+       "end": 727
+      },
+      {
+       "word": "thousand",
+       "start": 727,
+       "end": 744
+      },
+      {
+       "word": "dollars,",
+       "start": 745,
+       "end": 761
+      },
+      {
+       "word": "at",
+       "start": 766,
+       "end": 776
+      },
+      {
+       "word": "the",
+       "start": 777,
+       "end": 788
+      },
+      {
+       "word": "Visko",
+       "start": 789,
+       "end": 802
+      },
+      {
+       "word": "Orbis",
+       "start": 803,
+       "end": 817
+      },
+      {
+       "word": "challenge.",
+       "start": 817,
+       "end": 836
+      },
+      {
+       "word": "All",
+       "start": 844,
+       "end": 855
+      },
+      {
+       "word": "of",
+       "start": 856,
+       "end": 866
+      },
+      {
+       "word": "it",
+       "start": 867,
+       "end": 877
+      },
+      {
+       "word": "open",
+       "start": 878,
+       "end": 891
+      },
+      {
+       "word": "source.",
+       "start": 891,
+       "end": 906
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "why",
+   "from": 930,
+   "durationInFrames": 390,
+   "lines": [
+    {
+     "text": "Trading on chain, we kept hitting the same unfair moment. When a position is liquidated, bots race on gas, and the trader pays a penalty no market ever set.",
+     "file": null,
+     "startFrame": 946,
+     "durationFrames": 344,
+     "words": [
+      {
+       "word": "Trading",
+       "start": 946,
+       "end": 959
+      },
+      {
+       "word": "on",
+       "start": 960,
+       "end": 969
+      },
+      {
+       "word": "chain,",
+       "start": 969,
+       "end": 981
+      },
+      {
+       "word": "we",
+       "start": 984,
+       "end": 993
+      },
+      {
+       "word": "kept",
+       "start": 994,
+       "end": 1004
+      },
+      {
+       "word": "hitting",
+       "start": 1005,
+       "end": 1018
+      },
+      {
+       "word": "the",
+       "start": 1019,
+       "end": 1028
+      },
+      {
+       "word": "same",
+       "start": 1029,
+       "end": 1039
+      },
+      {
+       "word": "unfair",
+       "start": 1040,
+       "end": 1052
+      },
+      {
+       "word": "moment.",
+       "start": 1053,
+       "end": 1065
+      },
+      {
+       "word": "When",
+       "start": 1072,
+       "end": 1083
+      },
+      {
+       "word": "a",
+       "start": 1083,
+       "end": 1091
+      },
+      {
+       "word": "position",
+       "start": 1092,
+       "end": 1106
+      },
+      {
+       "word": "is",
+       "start": 1106,
+       "end": 1115
+      },
+      {
+       "word": "liquidated,",
+       "start": 1116,
+       "end": 1132
+      },
+      {
+       "word": "bots",
+       "start": 1136,
+       "end": 1146
+      },
+      {
+       "word": "race",
+       "start": 1147,
+       "end": 1157
+      },
+      {
+       "word": "on",
+       "start": 1158,
+       "end": 1167
+      },
+      {
+       "word": "gas,",
+       "start": 1167,
+       "end": 1177
+      },
+      {
+       "word": "and",
+       "start": 1180,
+       "end": 1190
+      },
+      {
+       "word": "the",
+       "start": 1191,
+       "end": 1200
+      },
+      {
+       "word": "trader",
+       "start": 1201,
+       "end": 1213
+      },
+      {
+       "word": "pays",
+       "start": 1214,
+       "end": 1224
+      },
+      {
+       "word": "a",
+       "start": 1225,
+       "end": 1233
+      },
+      {
+       "word": "penalty",
+       "start": 1233,
+       "end": 1247
+      },
+      {
+       "word": "no",
+       "start": 1247,
+       "end": 1256
+      },
+      {
+       "word": "market",
+       "start": 1256,
+       "end": 1269
+      },
+      {
+       "word": "ever",
+       "start": 1269,
+       "end": 1280
+      },
+      {
+       "word": "set.",
+       "start": 1280,
+       "end": 1290
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "paraclr",
+   "from": 1320,
+   "durationInFrames": 330,
+   "lines": [
+    {
+     "text": "So we built Paraclr. It turns liquidation into a per-block auction, in eight lanes built for Monad's parallel execution. Live on testnet today, every number measured.",
+     "file": null,
+     "startFrame": 1334,
+     "durationFrames": 292,
+     "words": [
+      {
+       "word": "So",
+       "start": 1334,
+       "end": 1342
+      },
+      {
+       "word": "we",
+       "start": 1342,
+       "end": 1350
+      },
+      {
+       "word": "built",
+       "start": 1350,
+       "end": 1360
+      },
+      {
+       "word": "Paraclr.",
+       "start": 1360,
+       "end": 1372
+      },
+      {
+       "word": "It",
+       "start": 1378,
+       "end": 1386
+      },
+      {
+       "word": "turns",
+       "start": 1386,
+       "end": 1396
+      },
+      {
+       "word": "liquidation",
+       "start": 1397,
+       "end": 1411
+      },
+      {
+       "word": "into",
+       "start": 1412,
+       "end": 1421
+      },
+      {
+       "word": "a",
+       "start": 1421,
+       "end": 1428
+      },
+      {
+       "word": "per-block",
+       "start": 1429,
+       "end": 1441
+      },
+      {
+       "word": "auction,",
+       "start": 1442,
+       "end": 1453
+      },
+      {
+       "word": "in",
+       "start": 1456,
+       "end": 1464
+      },
+      {
+       "word": "eight",
+       "start": 1464,
+       "end": 1475
+      },
+      {
+       "word": "lanes",
+       "start": 1475,
+       "end": 1485
+      },
+      {
+       "word": "built",
+       "start": 1485,
+       "end": 1495
+      },
+      {
+       "word": "for",
+       "start": 1496,
+       "end": 1504
+      },
+      {
+       "word": "Monad's",
+       "start": 1505,
+       "end": 1516
+      },
+      {
+       "word": "parallel",
+       "start": 1517,
+       "end": 1529
+      },
+      {
+       "word": "execution.",
+       "start": 1530,
+       "end": 1543
+      },
+      {
+       "word": "Live",
+       "start": 1549,
+       "end": 1558
+      },
+      {
+       "word": "on",
+       "start": 1558,
+       "end": 1566
+      },
+      {
+       "word": "testnet",
+       "start": 1566,
+       "end": 1578
+      },
+      {
+       "word": "today,",
+       "start": 1579,
+       "end": 1589
+      },
+      {
+       "word": "every",
+       "start": 1592,
+       "end": 1602
+      },
+      {
+       "word": "number",
+       "start": 1602,
+       "end": 1613
+      },
+      {
+       "word": "measured.",
+       "start": 1614,
+       "end": 1626
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "close",
+   "from": 1650,
+   "durationInFrames": 180,
+   "lines": [
+    {
+     "text": "Deterministic safety. Real numbers. NetLayer Labs.",
+     "file": null,
+     "startFrame": 1662,
+     "durationFrames": 93,
+     "words": [
+      {
+       "word": "Deterministic",
+       "start": 1662,
+       "end": 1680
+      },
+      {
+       "word": "safety.",
+       "start": 1681,
+       "end": 1693
+      },
+      {
+       "word": "Real",
+       "start": 1700,
+       "end": 1710
+      },
+      {
+       "word": "numbers.",
+       "start": 1711,
+       "end": 1724
+      },
+      {
+       "word": "NetLayer",
+       "start": 1730,
+       "end": 1744
+      },
+      {
+       "word": "Labs.",
+       "start": 1745,
+       "end": 1755
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "music": {
+  "file": "audio/music.mp3",
+  "source": "elevenlabs-music"
+ }
+}

@@ -1,0 +1,12 @@
+[
+ { "file": "pop", "word": 9, "vol": 0.3 },
+ { "file": "pop", "word": 42, "vol": 0.3 },
+ { "file": "chime", "word": 57, "off": 4, "vol": 0.3 },
+ { "file": "pop", "word": 86, "vol": 0.28 },
+ { "file": "sheen", "word": 118, "off": -4, "vol": 0.35 },
+ { "file": "pop", "word": 126, "vol": 0.28 },
+ { "file": "pop", "word": 212, "vol": 0.3 },
+ { "file": "pop", "word": 239, "vol": 0.3 },
+ { "file": "sheen", "at": "end", "off": 0, "vol": 0.4 },
+ { "file": "impact", "at": "end", "off": 4, "vol": 0.7 }
+]

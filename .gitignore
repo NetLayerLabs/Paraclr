@@ -72,3 +72,10 @@ video/demo/out/
 video/demo/.cache/
 video/demo/public/footage/
 video/demo/public/stills/
+
+# pitch video (video/pitch): dependencies, renders, caches and copied footage stay local
+video/pitch/node_modules/
+video/pitch/out/
+video/pitch/.cache/
+video/pitch/public/footage/
+video/pitch/public/audio/voice.wav

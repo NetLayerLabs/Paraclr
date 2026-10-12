@@ -1,0 +1,18 @@
+{
+  "title": "NetLayer Labs: team pitch for Monad Metropolis",
+  "voice": "the founder's own recording (public/audio/vo, built by scripts/timing.mjs from .cache/voice-clean.wav)",
+  "scenes": [
+    { "id": "reveal", "seconds": 8, "lead": 54, "tail": 18,
+      "text": "We're NetLayer Labs. An independent product studio and research lab, based in Italy." },
+    { "id": "founder", "seconds": 9, "lead": 14, "tail": 18,
+      "text": "Founded by MrNetwork. We build autonomous agents, onchain infrastructure, and the apps people use on top of them." },
+    { "id": "record", "seconds": 14, "lead": 14, "tail": 24,
+      "text": "Five products shipped. Three live on mainnet. Calmr took first place, and four thousand dollars, at the Visko Orbis challenge. All of it open source." },
+    { "id": "why", "seconds": 13, "lead": 16, "tail": 30,
+      "text": "Trading on chain, we kept hitting the same unfair moment. When a position is liquidated, bots race on gas, and the trader pays a penalty no market ever set." },
+    { "id": "paraclr", "seconds": 11, "lead": 14, "tail": 24,
+      "text": "So we built Paraclr. It turns liquidation into a per-block auction, in eight lanes built for Monad's parallel execution. Live on testnet today, every number measured." },
+    { "id": "close", "seconds": 6, "lead": 12, "tail": 75,
+      "text": "Deterministic safety. Real numbers. NetLayer Labs." }
+  ]
+}
