@@ -125,12 +125,30 @@ async function reserveRuleApplies(account: Address, value: bigint | undefined): 
   return (await publicClient().getBalance({ address: account }).catch(() => RESERVE_WEI)) < RESERVE_WEI;
 }
 
-async function waitForReserveRule(account: Address, value: bigint | undefined): Promise<boolean> {
-  const last = lastTxBlock.get(account.toLowerCase());
-  if (last === undefined || !(await reserveRuleApplies(account, value))) return false;
+/**
+ * Did this account send a transaction in the last RESERVE_BLOCKS blocks, or does it have one in
+ * flight? Read from the chain (nonce now vs RESERVE_BLOCKS ago), so it also covers a reload or a
+ * transaction sent elsewhere; falls back to this session's own record if the node can't answer.
+ */
+async function sentRecently(account: Address): Promise<boolean> {
   const pc = publicClient();
+  try {
+    const head = await pc.getBlockNumber();
+    const [pending, before] = await Promise.all([
+      pc.getTransactionCount({ address: account, blockTag: "pending" }),
+      pc.getTransactionCount({ address: account, blockNumber: head - RESERVE_BLOCKS }),
+    ]);
+    return pending > before;
+  } catch {
+    const last = lastTxBlock.get(account.toLowerCase());
+    return last !== undefined && (await pc.getBlockNumber()) < last + RESERVE_BLOCKS;
+  }
+}
+
+async function waitForReserveRule(account: Address, value: bigint | undefined): Promise<boolean> {
+  if (!(await reserveRuleApplies(account, value))) return false;
   for (let i = 0; i < 40; i++) {
-    if ((await pc.getBlockNumber()) >= last + RESERVE_BLOCKS) break;
+    if (!(await sentRecently(account))) break;
     await new Promise((r) => setTimeout(r, 300));
   }
   return true;
