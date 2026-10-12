@@ -6,11 +6,12 @@ import { join } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const frames = process.argv.slice(2).map(Number);
-mkdirSync(join(ROOT, "out/stills"), { recursive: true });
+const DIR = process.env.COMP ? `out/stills-${process.env.COMP}` : "out/stills";
+mkdirSync(join(ROOT, DIR), { recursive: true });
 const serveUrl = await bundle({ entryPoint: join(ROOT, "src/index.ts"), publicDir: join(ROOT, "public") });
-const composition = await selectComposition({ serveUrl, id: "Paraclr" });
+const composition = await selectComposition({ serveUrl, id: process.env.COMP || "Paraclr" });
 for (const frame of frames) {
-  const output = join(ROOT, "out/stills", `f${frame}.png`);
+  const output = join(ROOT, DIR, `f${frame}.png`);
   await renderStill({ composition, serveUrl, frame, output, scale: 0.5 });
   console.log(output);
 }

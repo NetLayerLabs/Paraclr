@@ -18,7 +18,9 @@ const SCALE = 2;
 const VIEW = { w: 1600, h: 900 };
 mkdirSync(FRAMES, { recursive: true });
 mkdirSync(STILLS, { recursive: true });
-const PROFILE = join(ROOT, ".cache/profile");
+const PROFILE = join(ROOT, process.env.PROFILE || ".cache/profile");
+// HEADFUL=1 opens a visible window: the Monad explorers show a bot check to headless Chrome.
+const HEADFUL = process.env.HEADFUL === "1";
 mkdirSync(PROFILE, { recursive: true });
 
 const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : {});
@@ -30,7 +32,7 @@ const save = () => {
 };
 const mark = (k) => { marks[k] = Date.now() / 1000; save(); return k; };
 
-const b = await launch({ width: VIEW.w, height: VIEW.h, scale: SCALE, userDataDir: PROFILE, extraArgs: [`--force-device-scale-factor=${SCALE}`] });
+const b = await launch({ width: VIEW.w, height: VIEW.h, scale: SCALE, userDataDir: PROFILE, headless: !HEADFUL, extraArgs: [`--force-device-scale-factor=${SCALE}`, ...(HEADFUL ? ["--window-position=30,30", "--disable-backgrounding-occluded-windows", "--disable-features=CalculateNativeWinOcclusion"] : [])] });
 writeFileSync(join(ROOT, ".cache/session.pid"), String(b.pid));
 const js = (e) => b.js(e);
 

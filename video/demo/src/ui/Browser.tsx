@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Img, OffthreadVideo, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Freeze, Img, OffthreadVideo, interpolate, staticFile, useCurrentFrame } from "remotion";
 import footage from "../footage.json";
 import { C, mono, sora } from "../theme";
 import { clamp, soft } from "./motion";
@@ -27,7 +27,9 @@ export const Browser: React.FC<{
   still?: string; enter?: number; exit?: number; masks?: Mask[]; dark?: boolean; tilt?: number;
   /** dims everything outside `focus` while zoomed, so no cut-off page text shows around it */
   spotlight?: boolean;
-}> = ({ name, url, width, left, top, startFrom = 0, focus, zoom = 1.8, focusAt = [0, 1], unfocusAt, still, enter = 0, exit, masks = [], dark = true, tilt = 0, spotlight = false }) => {
+  /** freeze the footage (not the camera) from this local frame on */
+  holdFrom?: number;
+}> = ({ name, url, width, left, top, startFrom = 0, focus, zoom = 1.8, focusAt = [0, 1], unfocusAt, still, enter = 0, exit, masks = [], dark = true, tilt = 0, spotlight = false, holdFrom }) => {
   const f = useCurrentFrame();
   const c = clip(name);
   const bar = 44;
@@ -57,7 +59,11 @@ export const Browser: React.FC<{
       <div style={{ position: "relative", width, height: vh, overflow: "hidden", background: dark ? C.night : C.white }}>
         <div style={{ position: "absolute", left: 0, top: 0, width: PAGE.w, height: PAGE.h, transformOrigin: "0 0", transform: `translate(${tx}px, ${ty}px) scale(${k * s})` }}>
           {c ? (
-            <OffthreadVideo src={staticFile(c.file)} startFrom={startFrom} muted style={{ width: PAGE.w, height: PAGE.h, display: "block" }} />
+            holdFrom != null && f >= holdFrom ? (
+              <Freeze frame={holdFrom}><OffthreadVideo src={staticFile(c.file)} startFrom={startFrom} muted style={{ width: PAGE.w, height: PAGE.h, display: "block" }} /></Freeze>
+            ) : (
+              <OffthreadVideo src={staticFile(c.file)} startFrom={startFrom} muted style={{ width: PAGE.w, height: PAGE.h, display: "block" }} />
+            )
           ) : still ? (
             <Img src={staticFile(still)} style={{ width: PAGE.w, height: PAGE.h }} />
           ) : (

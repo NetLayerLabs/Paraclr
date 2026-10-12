@@ -11,11 +11,16 @@ import { join } from "node:path";
 import { ROOT, post, retry } from "./env.mjs";
 import { renderVo } from "./vofx.mjs";
 
-const script = JSON.parse(readFileSync(join(ROOT, "script.json"), "utf8"));
-const OUT = join(ROOT, "public/audio/vo");
-const RAW = join(ROOT, ".cache/raw");
-const WORDS = join(ROOT, ".cache/words");
-const CACHE = join(ROOT, ".cache/vo.json");
+// SCRIPT=script-tech.json picks the technical-demo script. Lines with "reuse" copy an existing take
+// (scripts/reuse.mjs) instead of being generated.
+const script = JSON.parse(readFileSync(join(ROOT, process.env.SCRIPT || "script.json"), "utf8"));
+const TECH = !!process.env.SCRIPT && process.env.SCRIPT !== "script.json";
+export const DIRS = TECH ? { raw: ".cache/raw-tech", out: "public/audio/vo-tech", words: ".cache/words-tech", cache: ".cache/vo-tech.json" }
+  : { raw: ".cache/raw", out: "public/audio/vo", words: ".cache/words", cache: ".cache/vo.json" };
+const OUT = join(ROOT, DIRS.out);
+const RAW = join(ROOT, DIRS.raw);
+const WORDS = join(ROOT, DIRS.words);
+const CACHE = join(ROOT, DIRS.cache);
 for (const d of [OUT, RAW, WORDS]) mkdirSync(d, { recursive: true });
 const cache = existsSync(CACHE) ? JSON.parse(readFileSync(CACHE, "utf8")) : { lines: {}, charsUsed: 0 };
 
@@ -57,6 +62,7 @@ function toWords(a) {
   return words;
 }
 const all = script.scenes.flatMap((s) => s.lines.map((l, i) => ({ id: `${s.id}_${i}`, ...l })));
+const gen = new Set(all.filter((l) => !l.reuse).map((l) => l.id));
 async function synth(idx, voiceId, settings) {
   return retry(async () => {
     const res = await post(`/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`, {
@@ -73,6 +79,7 @@ const sane = (text, words) => { const sp = words.at(-1).end - words[0].start; co
 let used = 0;
 for (const [idx, line] of all.entries()) {
   const id = line.id;
+  if (!gen.has(id)) continue;
   const voice = script.voices[line.voice];
   const settings = { ...voice.settings, ...(OVERRIDES[id] || {}) };
   const hash = createHash("sha1").update(JSON.stringify([say(line.text), voice.id, settings, script.model])).digest("hex");
@@ -92,7 +99,7 @@ for (const [idx, line] of all.entries()) {
   if (shown.length !== take.words.length) throw new Error(`${id}: ${take.words.length} spoken words vs ${shown.length} script words`);
   const words = take.words.map((w, i) => ({ ...w, word: shown[i] }));
   writeFileSync(join(RAW, `${id}.mp3`), take.audio);
-  renderVo(id, 1);
+  renderVo(id, 1, DIRS);
   writeFileSync(join(WORDS, `${id}.json`), JSON.stringify({ tempo: 1, words }, null, 1));
   const dur = durationOf(join(OUT, `${id}.mp3`));
   cache.lines[id] = { hash, voice: voice.id, chars: line.text.length, dur };

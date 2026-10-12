@@ -11,13 +11,20 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(fileURLToPath(import.meta.url), "../..");
-const FPS = 30, MAX = 4980; // 2:46 ceiling (target 2:45, hard max 3:00)
-const LEAD = { open: 40, turn: 30, arena: 14 }; // frames before the first word, where the picture leads
-const END_HOLD = { close: 120, turn: 30, xray: 36, kept: 30 }; // min frames after last word, per scene
-const TRIM_ORDER = ["lanes", "clock", "problem", "builton", "kept", "xray", "open", "app", "arena"];
-const script = JSON.parse(readFileSync(join(ROOT, "script.json"), "utf8"));
+const FPS = 30;
+let MAX = 4980; // 2:46 ceiling (target 2:45, hard max 3:00)
+let LEAD = { open: 40, turn: 30, arena: 14 }; // frames before the first word, where the picture leads
+let END_HOLD = { close: 120, turn: 30, xray: 36, kept: 30 }; // min frames after last word, per scene
+let TRIM_ORDER = ["lanes", "clock", "problem", "builton", "kept", "xray", "open", "app", "arena"];
+// SCRIPT=script-tech.json builds the technical demo (its "timing" block sets out, max, lead, endHold, trim).
+const script = JSON.parse(readFileSync(join(ROOT, process.env.SCRIPT || "script.json"), "utf8"));
+const TC = script.timing || {};
+const TECH = !!script.timing;
+const VO = TECH ? "audio/vo-tech" : "audio/vo";
+if (TECH) { MAX = TC.max ?? MAX; LEAD = TC.lead ?? LEAD; END_HOLD = TC.endHold ?? END_HOLD; TRIM_ORDER = TC.trim ?? TRIM_ORDER; }
+const WDIR = TECH ? ".cache/words-tech" : ".cache/words";
 const dur = (f) => parseFloat(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "default=nw=1:nk=1", f]).toString());
-const wordsOf = (id) => JSON.parse(readFileSync(join(ROOT, ".cache/words", `${id}.json`), "utf8"));
+const wordsOf = (id) => JSON.parse(readFileSync(join(ROOT, WDIR, `${id}.json`), "utf8"));
 
 const LOOSE = { lead: 12, dialogue: 10, narration: 16, tail: 16 };
 const TIGHT = { lead: 8, dialogue: 6, narration: 8, tail: 8 };
@@ -34,7 +41,7 @@ function build(sp, trim = {}) {
       const id = `${scene.id}_${i}`;
       if (prevVoice) cur += prevVoice === "narrator" || line.voice === "narrator" ? sp.narration : sp.dialogue;
       const { tempo, words } = wordsOf(id);
-      const file = `audio/vo/${id}.mp3`;
+      const file = `${VO}/${id}.mp3`;
       const fileFrames = Math.ceil(dur(join(ROOT, "public", file)) * FPS);
       const w = words.map((x) => ({
         word: x.word,
@@ -90,7 +97,7 @@ const out = {
   music: { file: "audio/music.mp3", source: music.source || "unknown" },
   scenes: res.scenes.map(({ plannedFrames, ...s }) => ({ ...s, lines: s.lines.map(({ speechEndFrame, ...l }) => l) })),
 };
-writeFileSync(join(ROOT, "src/timing.json"), JSON.stringify(out, null, 1));
+writeFileSync(join(ROOT, TC.out || "src/timing.json"), JSON.stringify(out, null, 1));
 
 const tempos = res.scenes.flatMap((s) => s.lines.map((_, i) => `${s.id}_${i}`)).map((id) => [id, wordsOf(id).tempo]).filter(([, t]) => t !== 1);
 console.log(`spacing: ${sp === LOOSE ? "loose" : "tight"}; atempo lines: ${tempos.map(([id, t]) => `${id}x${t}`).join(" ") || "none"}`);

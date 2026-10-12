@@ -7,7 +7,7 @@ import { Lanes } from "./ui/Lanes";
 import { Grain } from "./ui/Grain";
 
 /** Thumbnail: the lockup, the landing's headline and the thesis, over the lanes. */
-export const Poster: React.FC = () => (
+export const Poster: React.FC<{ label?: string }> = ({ label = "MONAD METROPOLIS · LIVE ON MONAD TESTNET · TEST FUNDS" }) => (
   <AbsoluteFill style={{ background: C.night, fontFamily: sora, color: C.dInk }}>
     <AbsoluteFill style={{ background: "radial-gradient(55% 50% at 30% 35%, rgba(110,84,255,0.28), transparent 75%)" }} />
     <Lanes y={830} gap={18} color="rgba(255,255,255,0.10)" tick="rgba(168,152,255,0.8)" stroke={2} hot={[{ lane: 3, at: -60, resolve: 999, color: "#FFB547" }]} />
@@ -21,7 +21,7 @@ export const Poster: React.FC = () => (
       The race, replaced by a <span style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, color: "#fff", fontSize: 54 }}>clock.</span>
     </div>
     <div style={{ position: "absolute", left: 134, bottom: 50, fontFamily: mono, fontSize: 20, letterSpacing: "0.1em", color: C.dInk3 }}>
-      MONAD METROPOLIS · LIVE ON MONAD TESTNET · TEST FUNDS
+      {label}
     </div>
     <Grain opacity={0.07} />
   </AbsoluteFill>

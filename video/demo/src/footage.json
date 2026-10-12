@@ -201,5 +201,119 @@
   },
   "lanesTop": 498,
   "naiveTop": 1092
+ },
+ "arena_xray": {
+  "file": "footage/arena_xray.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 689,
+  "marks": {
+   "ax_crash": 111,
+   "ax_xray": 318,
+   "ax_xray2": 531
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/arena",
+  "crashTop": 1354,
+  "xrayTop": 2054
+ },
+ "backstop": {
+  "file": "footage/backstop.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 530,
+  "marks": {
+   "bs_row": 126,
+   "bs_takes": 250,
+   "bs_scroll": 385
+  }
+ },
+ "clearing": {
+  "file": "footage/clearing.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 584,
+  "marks": {
+   "clr_you": 168,
+   "clr_scroll": 310
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/app · Clearing",
+  "rects": {
+   "header": {
+    "x": 20,
+    "y": 109,
+    "w": 407,
+    "h": 31
+   }
+  }
+ },
+ "close2": {
+  "file": "footage/close2.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 1130,
+  "marks": {
+   "c2_row": 126,
+   "c2_click": 205,
+   "c2_confirm": 302,
+   "c2_filled": 482,
+   "c2_hist": 909
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/app",
+  "rects": {
+   "histRow": null
+  }
+ },
+ "explorer": {
+  "file": "footage/explorer.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 306,
+  "marks": {}
+ },
+ "history": {
+  "file": "footage/history.mp4",
+  "width": 3200,
+  "height": 1800,
+  "durationFrames": 437,
+  "marks": {
+   "hi_pos": 96,
+   "hi_tab": 186,
+   "hi_link": 316
+  },
+  "deviceScale": 2,
+  "viewport": {
+   "w": 1600,
+   "h": 900
+  },
+  "url": "paraclr.xyz/app · History",
+  "rects": {
+   "position": {
+    "x": 0,
+    "y": 764,
+    "w": 1216,
+    "h": 40
+   },
+   "row": {
+    "x": 0,
+    "y": 764,
+    "w": 1216,
+    "h": 40
+   }
+  }
  }
 }

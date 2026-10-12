@@ -8,12 +8,13 @@ const ROOT = join(fileURLToPath(import.meta.url), "../..");
 export const VO_LUFS = -16;
 const BROADCAST = new Set([]); // single narrator, no diegetic voice
 
-export function renderVo(id, tempo = 1) {
-  const src = join(ROOT, ".cache/raw", `${id}.mp3`);
-  const dst = join(ROOT, "public/audio/vo", `${id}.mp3`);
+/** dirs: { raw, out } relative to the project (the technical demo keeps its own: .cache/raw-tech, public/audio/vo-tech). */
+export function renderVo(id, tempo = 1, dirs = { raw: ".cache/raw", out: "public/audio/vo" }, post = "") {
+  const src = join(ROOT, dirs.raw, `${id}.mp3`);
+  const dst = join(ROOT, dirs.out, `${id}.mp3`);
   // The breaking-news line plays as a broadcast: band-limited and pressed.
   const tv = BROADCAST.has(id) ? "highpass=f=260,lowpass=f=5200,acompressor=threshold=-20dB:ratio=4:attack=5:release=60," : "";
-  const pre = (tempo !== 1 ? `atempo=${tempo},` : "") + tv;
+  const pre = post + (tempo !== 1 ? `atempo=${tempo},` : "") + tv;
   const ln = `loudnorm=I=${VO_LUFS}:TP=-1.5:LRA=11`;
   const r = spawnSync("ffmpeg", ["-hide_banner", "-nostats", "-i", src, "-af", `${pre}${ln}:print_format=json`, "-f", "null", "-"], { encoding: "utf8" });
   const m = JSON.parse(r.stderr.slice(r.stderr.lastIndexOf("{"), r.stderr.lastIndexOf("}") + 1));

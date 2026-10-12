@@ -92,3 +92,41 @@ npm run poster                                                        # 1920×10
 - `src/timing.json` (from `scripts/timing.mjs`) places each word on the frame where it is spoken, and
   the scenes animate on those words (`wordAt`).
 - Footage, stills, renders and caches stay local (gitignored).
+
+## The technical demo cut
+
+A second composition, `TechDemo` (`src/TechDemo.tsx`, `script-tech.json`, `src/timing-tech.json`). It is
+built for the hackathon's "Technical demo video" slot: the working product first. It runs 2:48 (168.0 s),
+and 120.4 s of that (71.7%) is real footage of paraclr.xyz:
+
+| scene | seconds | |
+|---|---|---|
+| open, problem, turn (the film's hook) | 29.6 | motion graphics |
+| sign-in, gas and faucet, open long, close, on chain | 48.0 | footage |
+| Clearing tab | 19.2 | footage, zoomed onto the lanes, then onto Envio's stats |
+| Backstop tab | 14.0 | footage, zoomed onto the pools, the pool panel, then 0.00 earned |
+| Arena crash #4 | 18.9 | footage |
+| X-ray | 20.4 | footage, with a card naming the bench runs |
+| built on, close | 18.0 | motion graphics |
+ It reuses the film's look, voice and hook, and keeps its own
+audio (`public/audio/vo-tech/`) and timing, so the film's files are never touched.
+
+What is real, in addition to the film's list above:
+
+- **Close:** filmed on 2026-10-12 in the same Privy account. The first close attempt reverted on-chain
+  (block #70295482) under Monad's reserve-balance rule, because the wallet held under 10 MON and the
+  close was not its first transaction in 3 blocks. After the wallet was topped up with testnet MON, the
+  close filled at 111.55 (the Pyth price of 04:00:35 UTC), realized +0.11 AUSD, in block #70296603. The
+  film shows the app's own share card for that round trip. The app has since been changed to wait out
+  the 3-block rule itself.
+- **On chain:** History (indexed by Envio) shows the open filling in 3 s. The close's fill tx
+  `0x0ad54f7c…fb58fba` is shown on MonadVision, recorded in a visible Chrome window
+  (`scripts/explorer.mjs`), because the explorer shows a bot check to headless Chrome.
+- **Clearing and Backstop tabs:** shown as they are on the production deployment. It has 13 accounts,
+  no auctions yet, pools with an exit value of 805.00 AUSD and nothing earned yet. The narration says so.
+- **X-ray:** the Arena's live X-ray of crash #4 (run `mv4b7d4t-dx2sr`) shows Paraclr 0 vs shared 11
+  cross-lane edges. A card beside it names the measured bench runs (0 vs 49, and 28%) and their files.
+
+Build it: `node scripts/reuse.mjs && SCRIPT=script-tech.json node scripts/voiceover.mjs && SCRIPT=script-tech.json node scripts/timing.mjs`,
+then render the `TechDemo` composition the same way as the film (`--scale 2 ...`, `finish.mjs`, Lanczos 1080p).
+The cover art is the `PosterTech` still, embedded as `attached_pic`.

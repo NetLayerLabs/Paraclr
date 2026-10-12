@@ -1,0 +1,60 @@
+{
+  "title": "Paraclr technical demo: the working product on Monad testnet",
+  "model": "eleven_multilingual_v2",
+  "voices": {
+    "narrator": {
+      "name": "Sarah",
+      "id": "EXAVITQu4vr4xnSDxMaL",
+      "settings": { "stability": 0.55, "similarity_boost": 0.8, "style": 0.18, "use_speaker_boost": true }
+    }
+  },
+  "timing": { "out": "src/timing-tech.json", "max": 5040, "lead": { "open": 30, "turn": 24 }, "endHold": { "close": 110, "turn": 26 }, "trim": ["txray", "arena", "tchain", "problem", "topen"] },
+  "scenes": [
+    { "id": "open", "seconds": 13, "lines": [
+      { "voice": "narrator", "reuse": "open_0", "text": "October twenty twenty-five. Crypto's largest liquidation day ever." },
+      { "voice": "narrator", "reuse": "open_1", "text": "More than nineteen billion dollars. One point six million traders. In twenty-four hours." }
+    ] },
+    { "id": "problem", "seconds": 11, "lines": [
+      { "voice": "narrator", "reuse": "problem_0", "text": "Every one of those liquidations was a race. Bots bid gas to land first." },
+      { "voice": "narrator", "reuse": "problem_1", "cutAfter": 14, "text": "The winner takes a penalty that was fixed in advance. And the trader pays it," }
+    ] },
+    { "id": "turn", "seconds": 5, "lines": [
+      { "voice": "narrator", "reuse": "turn_0", "text": "Paraclr replaces the race with a clock." }
+    ] },
+    { "id": "tsignin", "seconds": 9, "lines": [
+      { "voice": "narrator", "text": "This is Paraclr, live on Monad testnet with test funds. I sign in with Privy, by email. No seed phrase." }
+    ] },
+    { "id": "tfund", "seconds": 6, "lines": [
+      { "voice": "narrator", "text": "The app drips gas for fees, and Agora's faucet sends test AUSD." }
+    ] },
+    { "id": "topen", "seconds": 13, "lines": [
+      { "voice": "narrator", "text": "I deposit ten AUSD and open a three times leveraged long on SOL. The order is committed now and filled at the next Pyth price. This one filled in three seconds." }
+    ] },
+    { "id": "tclose", "seconds": 10, "lines": [
+      { "voice": "narrator", "text": "Here is the position. I close it. The close also fills at the next Pyth price, with a small realized gain." }
+    ] },
+    { "id": "tchain", "seconds": 10, "lines": [
+      { "voice": "narrator", "text": "Envio indexes every order. And every fill is a real transaction. Here is the close on the Monad testnet explorer." }
+    ] },
+    { "id": "tclearing", "seconds": 18, "lines": [
+      { "voice": "narrator", "text": "This is the Clearing tab. Each row is a lane, and every account lives in one of eight. Mine is in lane six. If an account falls below maintenance, a Dutch auction starts in its lane, and the discount rises five basis points every block. On this deployment, no account has needed one yet." }
+    ] },
+    { "id": "tbackstop", "seconds": 14, "lines": [
+      { "voice": "narrator", "text": "The Backstop tab shows one pool per lane. A pool can take an account from a seventy-five basis point discount, and it inherits the positions. Nothing has been taken here yet, so earnings show zero." }
+    ] },
+    { "id": "arena", "seconds": 19, "lines": [
+      { "voice": "narrator", "reuse": "arena_0", "text": "Now crash the market. Anyone can, in the Arena. One click drops prices twenty percent." },
+      { "voice": "narrator", "reuse": "arena_1", "text": "Each lane runs its own auctions, and the backstops take them, lane by lane, in seconds." }
+    ] },
+    { "id": "txray", "seconds": 22, "lines": [
+      { "voice": "narrator", "text": "The Arena then traces the crash's transactions. Paraclr's lanes have zero cross-lane dependencies. The shared-state build has eleven." },
+      { "voice": "narrator", "text": "Our measured runs on Monad testnet agree: zero against forty-nine, and auctions that took twenty-eight percent less from traders than a fixed fee." }
+    ] },
+    { "id": "builton", "seconds": 6, "lines": [
+      { "voice": "narrator", "text": "Built on Monad, with Agora AUSD, Pyth, Privy and Envio. Not yet audited." }
+    ] },
+    { "id": "close", "seconds": 8, "lines": [
+      { "voice": "narrator", "reuse": "close_0", "text": "Paraclr. Fair liquidations for Monad. Crash it yourself, at paraclr dot x y z." }
+    ] }
+  ]
+}

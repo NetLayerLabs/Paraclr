@@ -1,0 +1,2298 @@
+{
+ "fps": 30,
+ "totalFrames": 5040,
+ "bpm": 100,
+ "beats": [
+  1,
+  19,
+  37,
+  55,
+  73,
+  91,
+  109,
+  127,
+  145,
+  163,
+  181,
+  199,
+  217,
+  235,
+  253,
+  271,
+  289,
+  307,
+  325,
+  343,
+  361,
+  379,
+  397,
+  415,
+  433,
+  451,
+  469,
+  487,
+  505,
+  523,
+  541,
+  559,
+  577,
+  595,
+  613,
+  631,
+  649,
+  667,
+  685,
+  703,
+  721,
+  739,
+  757,
+  775,
+  793,
+  811,
+  829,
+  847,
+  865,
+  883,
+  901,
+  919,
+  937,
+  955,
+  973,
+  991,
+  1009,
+  1027,
+  1045,
+  1063,
+  1081,
+  1099,
+  1117,
+  1135,
+  1153,
+  1171,
+  1189,
+  1207,
+  1225,
+  1243,
+  1261,
+  1279,
+  1297,
+  1315,
+  1333,
+  1351,
+  1369,
+  1387,
+  1405,
+  1423,
+  1441,
+  1459,
+  1477,
+  1495,
+  1513,
+  1531,
+  1549,
+  1567,
+  1585,
+  1603,
+  1621,
+  1639,
+  1657,
+  1675,
+  1693,
+  1711,
+  1729,
+  1747,
+  1765,
+  1783,
+  1801,
+  1819,
+  1837,
+  1855,
+  1873,
+  1891,
+  1909,
+  1927,
+  1945,
+  1963,
+  1981,
+  1999,
+  2017,
+  2035,
+  2053,
+  2071,
+  2089,
+  2107,
+  2125,
+  2143,
+  2161,
+  2179,
+  2197,
+  2215,
+  2233,
+  2251,
+  2269,
+  2287,
+  2305,
+  2323,
+  2341,
+  2359,
+  2377,
+  2395,
+  2413,
+  2431,
+  2449,
+  2467,
+  2485,
+  2503,
+  2521,
+  2539,
+  2557,
+  2575,
+  2593,
+  2611,
+  2629,
+  2647,
+  2665,
+  2683,
+  2701,
+  2719,
+  2737,
+  2755,
+  2773,
+  2791,
+  2809,
+  2827,
+  2845,
+  2863,
+  2881,
+  2899,
+  2917,
+  2935,
+  2953,
+  2971,
+  2989,
+  3007,
+  3025,
+  3043,
+  3061,
+  3079,
+  3097,
+  3115,
+  3133,
+  3151,
+  3169,
+  3187,
+  3205,
+  3223,
+  3241,
+  3259,
+  3277,
+  3295,
+  3313,
+  3331,
+  3349,
+  3367,
+  3385,
+  3403,
+  3421,
+  3439,
+  3457,
+  3475,
+  3493,
+  3511,
+  3529,
+  3547,
+  3565,
+  3583,
+  3601,
+  3619,
+  3637,
+  3655,
+  3673,
+  3691,
+  3709,
+  3727,
+  3745,
+  3763,
+  3781,
+  3799,
+  3817,
+  3835,
+  3853,
+  3871,
+  3889,
+  3907,
+  3925,
+  3943,
+  3961,
+  3979,
+  3997,
+  4015,
+  4033,
+  4051,
+  4069,
+  4087,
+  4105,
+  4123,
+  4141,
+  4159,
+  4177,
+  4195,
+  4213,
+  4231,
+  4249,
+  4267,
+  4285,
+  4303,
+  4321,
+  4339,
+  4357,
+  4375,
+  4393,
+  4411,
+  4429,
+  4447,
+  4465,
+  4483,
+  4501,
+  4519,
+  4537,
+  4555,
+  4573,
+  4591,
+  4609,
+  4627,
+  4645,
+  4663,
+  4681,
+  4699,
+  4717,
+  4735,
+  4753,
+  4771,
+  4789,
+  4807,
+  4825,
+  4843,
+  4861,
+  4879,
+  4897,
+  4915,
+  4933,
+  4951,
+  4969,
+  4987,
+  5005,
+  5023
+ ],
+ "music": {
+  "file": "audio/music.mp3",
+  "source": "elevenlabs-music"
+ },
+ "scenes": [
+  {
+   "id": "open",
+   "from": 0,
+   "durationInFrames": 407,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "October twenty twenty-five. Crypto's largest liquidation day ever.",
+     "file": "audio/vo-tech/open_0.mp3",
+     "startFrame": 30,
+     "durationFrames": 148,
+     "words": [
+      {
+       "word": "October",
+       "start": 30,
+       "end": 51
+      },
+      {
+       "word": "twenty",
+       "start": 52,
+       "end": 60
+      },
+      {
+       "word": "twenty-five.",
+       "start": 61,
+       "end": 82
+      },
+      {
+       "word": "Crypto's",
+       "start": 90,
+       "end": 106
+      },
+      {
+       "word": "largest",
+       "start": 108,
+       "end": 121
+      },
+      {
+       "word": "liquidation",
+       "start": 122,
+       "end": 139
+      },
+      {
+       "word": "day",
+       "start": 141,
+       "end": 149
+      },
+      {
+       "word": "ever.",
+       "start": 153,
+       "end": 178
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "More than nineteen billion dollars. One point six million traders. In twenty-four hours.",
+     "file": "audio/vo-tech/open_1.mp3",
+     "startFrame": 186,
+     "durationFrames": 214,
+     "words": [
+      {
+       "word": "More",
+       "start": 186,
+       "end": 193
+      },
+      {
+       "word": "than",
+       "start": 194,
+       "end": 199
+      },
+      {
+       "word": "nineteen",
+       "start": 202,
+       "end": 219
+      },
+      {
+       "word": "billion",
+       "start": 223,
+       "end": 238
+      },
+      {
+       "word": "dollars.",
+       "start": 240,
+       "end": 259
+      },
+      {
+       "word": "One",
+       "start": 270,
+       "end": 278
+      },
+      {
+       "word": "point",
+       "start": 279,
+       "end": 288
+      },
+      {
+       "word": "six",
+       "start": 291,
+       "end": 301
+      },
+      {
+       "word": "million",
+       "start": 305,
+       "end": 318
+      },
+      {
+       "word": "traders.",
+       "start": 320,
+       "end": 339
+      },
+      {
+       "word": "In",
+       "start": 346,
+       "end": 351
+      },
+      {
+       "word": "twenty-four",
+       "start": 352,
+       "end": 367
+      },
+      {
+       "word": "hours.",
+       "start": 369,
+       "end": 399
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "problem",
+   "from": 407,
+   "durationInFrames": 330,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Every one of those liquidations was a race. Bots bid gas to land first.",
+     "file": "audio/vo-tech/problem_0.mp3",
+     "startFrame": 415,
+     "durationFrames": 140,
+     "words": [
+      {
+       "word": "Every",
+       "start": 415,
+       "end": 424
+      },
+      {
+       "word": "one",
+       "start": 426,
+       "end": 430
+      },
+      {
+       "word": "of",
+       "start": 430,
+       "end": 432
+      },
+      {
+       "word": "those",
+       "start": 433,
+       "end": 439
+      },
+      {
+       "word": "liquidations",
+       "start": 440,
+       "end": 459
+      },
+      {
+       "word": "was",
+       "start": 460,
+       "end": 464
+      },
+      {
+       "word": "a",
+       "start": 465,
+       "end": 466
+      },
+      {
+       "word": "race.",
+       "start": 468,
+       "end": 482
+      },
+      {
+       "word": "Bots",
+       "start": 489,
+       "end": 500
+      },
+      {
+       "word": "bid",
+       "start": 501,
+       "end": 506
+      },
+      {
+       "word": "gas",
+       "start": 508,
+       "end": 517
+      },
+      {
+       "word": "to",
+       "start": 519,
+       "end": 521
+      },
+      {
+       "word": "land",
+       "start": 523,
+       "end": 531
+      },
+      {
+       "word": "first.",
+       "start": 533,
+       "end": 554
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "The winner takes a penalty that was fixed in advance. And the trader pays it,",
+     "file": "audio/vo-tech/problem_1.mp3",
+     "startFrame": 562,
+     "durationFrames": 141,
+     "words": [
+      {
+       "word": "The",
+       "start": 562,
+       "end": 567
+      },
+      {
+       "word": "winner",
+       "start": 568,
+       "end": 576
+      },
+      {
+       "word": "takes",
+       "start": 577,
+       "end": 584
+      },
+      {
+       "word": "a",
+       "start": 585,
+       "end": 586
+      },
+      {
+       "word": "penalty",
+       "start": 587,
+       "end": 599
+      },
+      {
+       "word": "that",
+       "start": 601,
+       "end": 604
+      },
+      {
+       "word": "was",
+       "start": 606,
+       "end": 609
+      },
+      {
+       "word": "fixed",
+       "start": 611,
+       "end": 619
+      },
+      {
+       "word": "in",
+       "start": 621,
+       "end": 623
+      },
+      {
+       "word": "advance.",
+       "start": 624,
+       "end": 644
+      },
+      {
+       "word": "And",
+       "start": 650,
+       "end": 657
+      },
+      {
+       "word": "the",
+       "start": 659,
+       "end": 661
+      },
+      {
+       "word": "trader",
+       "start": 663,
+       "end": 672
+      },
+      {
+       "word": "pays",
+       "start": 674,
+       "end": 684
+      },
+      {
+       "word": "it,",
+       "start": 687,
+       "end": 694
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "turn",
+   "from": 737,
+   "durationInFrames": 150,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Paraclr replaces the race with a clock.",
+     "file": "audio/vo-tech/turn_0.mp3",
+     "startFrame": 761,
+     "durationFrames": 92,
+     "words": [
+      {
+       "word": "Paraclr",
+       "start": 761,
+       "end": 783
+      },
+      {
+       "word": "replaces",
+       "start": 785,
+       "end": 803
+      },
+      {
+       "word": "the",
+       "start": 805,
+       "end": 807
+      },
+      {
+       "word": "race",
+       "start": 810,
+       "end": 817
+      },
+      {
+       "word": "with",
+       "start": 818,
+       "end": 822
+      },
+      {
+       "word": "a",
+       "start": 823,
+       "end": 823
+      },
+      {
+       "word": "clock.",
+       "start": 825,
+       "end": 853
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tsignin",
+   "from": 887,
+   "durationInFrames": 270,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "This is Paraclr, live on Monad testnet with test funds. I sign in with Privy, by email. No seed phrase.",
+     "file": "audio/vo-tech/tsignin_0.mp3",
+     "startFrame": 895,
+     "durationFrames": 221,
+     "words": [
+      {
+       "word": "This",
+       "start": 895,
+       "end": 901
+      },
+      {
+       "word": "is",
+       "start": 903,
+       "end": 905
+      },
+      {
+       "word": "Paraclr,",
+       "start": 907,
+       "end": 928
+      },
+      {
+       "word": "live",
+       "start": 931,
+       "end": 939
+      },
+      {
+       "word": "on",
+       "start": 941,
+       "end": 943
+      },
+      {
+       "word": "Monad",
+       "start": 945,
+       "end": 956
+      },
+      {
+       "word": "testnet",
+       "start": 958,
+       "end": 970
+      },
+      {
+       "word": "with",
+       "start": 971,
+       "end": 975
+      },
+      {
+       "word": "test",
+       "start": 977,
+       "end": 983
+      },
+      {
+       "word": "funds.",
+       "start": 985,
+       "end": 1000
+      },
+      {
+       "word": "I",
+       "start": 1010,
+       "end": 1012
+      },
+      {
+       "word": "sign",
+       "start": 1016,
+       "end": 1022
+      },
+      {
+       "word": "in",
+       "start": 1024,
+       "end": 1026
+      },
+      {
+       "word": "with",
+       "start": 1027,
+       "end": 1031
+      },
+      {
+       "word": "Privy,",
+       "start": 1033,
+       "end": 1045
+      },
+      {
+       "word": "by",
+       "start": 1047,
+       "end": 1051
+      },
+      {
+       "word": "email.",
+       "start": 1053,
+       "end": 1070
+      },
+      {
+       "word": "No",
+       "start": 1079,
+       "end": 1084
+      },
+      {
+       "word": "seed",
+       "start": 1086,
+       "end": 1093
+      },
+      {
+       "word": "phrase.",
+       "start": 1094,
+       "end": 1115
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tfund",
+   "from": 1157,
+   "durationInFrames": 180,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "The app drips gas for fees, and Agora's faucet sends test AUSD.",
+     "file": "audio/vo-tech/tfund_0.mp3",
+     "startFrame": 1165,
+     "durationFrames": 154,
+     "words": [
+      {
+       "word": "The",
+       "start": 1165,
+       "end": 1169
+      },
+      {
+       "word": "app",
+       "start": 1171,
+       "end": 1178
+      },
+      {
+       "word": "drips",
+       "start": 1179,
+       "end": 1187
+      },
+      {
+       "word": "gas",
+       "start": 1188,
+       "end": 1196
+      },
+      {
+       "word": "for",
+       "start": 1198,
+       "end": 1201
+      },
+      {
+       "word": "fees,",
+       "start": 1203,
+       "end": 1219
+      },
+      {
+       "word": "and",
+       "start": 1222,
+       "end": 1228
+      },
+      {
+       "word": "Agora's",
+       "start": 1230,
+       "end": 1240
+      },
+      {
+       "word": "faucet",
+       "start": 1242,
+       "end": 1253
+      },
+      {
+       "word": "sends",
+       "start": 1255,
+       "end": 1264
+      },
+      {
+       "word": "test",
+       "start": 1266,
+       "end": 1275
+      },
+      {
+       "word": "AUSD.",
+       "start": 1277,
+       "end": 1318
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "topen",
+   "from": 1337,
+   "durationInFrames": 390,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "I deposit ten AUSD and open a three times leveraged long on SOL. The order is committed now and filled at the next Pyth price. This one filled in three seconds.",
+     "file": "audio/vo-tech/topen_0.mp3",
+     "startFrame": 1345,
+     "durationFrames": 338,
+     "words": [
+      {
+       "word": "I",
+       "start": 1345,
+       "end": 1348
+      },
+      {
+       "word": "deposit",
+       "start": 1352,
+       "end": 1367
+      },
+      {
+       "word": "ten",
+       "start": 1369,
+       "end": 1378
+      },
+      {
+       "word": "AUSD",
+       "start": 1381,
+       "end": 1406
+      },
+      {
+       "word": "and",
+       "start": 1413,
+       "end": 1418
+      },
+      {
+       "word": "open",
+       "start": 1420,
+       "end": 1429
+      },
+      {
+       "word": "a",
+       "start": 1430,
+       "end": 1431
+      },
+      {
+       "word": "three",
+       "start": 1433,
+       "end": 1442
+      },
+      {
+       "word": "times",
+       "start": 1444,
+       "end": 1453
+      },
+      {
+       "word": "leveraged",
+       "start": 1455,
+       "end": 1468
+      },
+      {
+       "word": "long",
+       "start": 1471,
+       "end": 1480
+      },
+      {
+       "word": "on",
+       "start": 1483,
+       "end": 1487
+      },
+      {
+       "word": "SOL.",
+       "start": 1490,
+       "end": 1507
+      },
+      {
+       "word": "The",
+       "start": 1514,
+       "end": 1518
+      },
+      {
+       "word": "order",
+       "start": 1521,
+       "end": 1528
+      },
+      {
+       "word": "is",
+       "start": 1530,
+       "end": 1532
+      },
+      {
+       "word": "committed",
+       "start": 1533,
+       "end": 1544
+      },
+      {
+       "word": "now",
+       "start": 1546,
+       "end": 1552
+      },
+      {
+       "word": "and",
+       "start": 1555,
+       "end": 1559
+      },
+      {
+       "word": "filled",
+       "start": 1561,
+       "end": 1570
+      },
+      {
+       "word": "at",
+       "start": 1571,
+       "end": 1573
+      },
+      {
+       "word": "the",
+       "start": 1574,
+       "end": 1576
+      },
+      {
+       "word": "next",
+       "start": 1578,
+       "end": 1586
+      },
+      {
+       "word": "Pyth",
+       "start": 1588,
+       "end": 1598
+      },
+      {
+       "word": "price.",
+       "start": 1600,
+       "end": 1614
+      },
+      {
+       "word": "This",
+       "start": 1622,
+       "end": 1627
+      },
+      {
+       "word": "one",
+       "start": 1629,
+       "end": 1633
+      },
+      {
+       "word": "filled",
+       "start": 1634,
+       "end": 1642
+      },
+      {
+       "word": "in",
+       "start": 1643,
+       "end": 1645
+      },
+      {
+       "word": "three",
+       "start": 1647,
+       "end": 1654
+      },
+      {
+       "word": "seconds.",
+       "start": 1656,
+       "end": 1682
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tclose",
+   "from": 1727,
+   "durationInFrames": 300,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Here is the position. I close it. The close also fills at the next Pyth price, with a small realized gain.",
+     "file": "audio/vo-tech/tclose_0.mp3",
+     "startFrame": 1735,
+     "durationFrames": 228,
+     "words": [
+      {
+       "word": "Here",
+       "start": 1735,
+       "end": 1742
+      },
+      {
+       "word": "is",
+       "start": 1744,
+       "end": 1746
+      },
+      {
+       "word": "the",
+       "start": 1748,
+       "end": 1750
+      },
+      {
+       "word": "position.",
+       "start": 1751,
+       "end": 1769
+      },
+      {
+       "word": "I",
+       "start": 1778,
+       "end": 1780
+      },
+      {
+       "word": "close",
+       "start": 1783,
+       "end": 1792
+      },
+      {
+       "word": "it.",
+       "start": 1794,
+       "end": 1803
+      },
+      {
+       "word": "The",
+       "start": 1808,
+       "end": 1811
+      },
+      {
+       "word": "close",
+       "start": 1813,
+       "end": 1823
+      },
+      {
+       "word": "also",
+       "start": 1825,
+       "end": 1836
+      },
+      {
+       "word": "fills",
+       "start": 1838,
+       "end": 1847
+      },
+      {
+       "word": "at",
+       "start": 1849,
+       "end": 1851
+      },
+      {
+       "word": "the",
+       "start": 1852,
+       "end": 1854
+      },
+      {
+       "word": "next",
+       "start": 1856,
+       "end": 1864
+      },
+      {
+       "word": "Pyth",
+       "start": 1867,
+       "end": 1876
+      },
+      {
+       "word": "price,",
+       "start": 1878,
+       "end": 1894
+      },
+      {
+       "word": "with",
+       "start": 1898,
+       "end": 1904
+      },
+      {
+       "word": "a",
+       "start": 1905,
+       "end": 1905
+      },
+      {
+       "word": "small",
+       "start": 1907,
+       "end": 1916
+      },
+      {
+       "word": "realized",
+       "start": 1919,
+       "end": 1936
+      },
+      {
+       "word": "gain.",
+       "start": 1937,
+       "end": 1962
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tchain",
+   "from": 2027,
+   "durationInFrames": 300,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Envio indexes every order. And every fill is a real transaction. Here is the close on the Monad testnet explorer.",
+     "file": "audio/vo-tech/tchain_0.mp3",
+     "startFrame": 2035,
+     "durationFrames": 247,
+     "words": [
+      {
+       "word": "Envio",
+       "start": 2035,
+       "end": 2049
+      },
+      {
+       "word": "indexes",
+       "start": 2052,
+       "end": 2071
+      },
+      {
+       "word": "every",
+       "start": 2074,
+       "end": 2086
+      },
+      {
+       "word": "order.",
+       "start": 2088,
+       "end": 2103
+      },
+      {
+       "word": "And",
+       "start": 2108,
+       "end": 2113
+      },
+      {
+       "word": "every",
+       "start": 2115,
+       "end": 2125
+      },
+      {
+       "word": "fill",
+       "start": 2127,
+       "end": 2136
+      },
+      {
+       "word": "is",
+       "start": 2139,
+       "end": 2143
+      },
+      {
+       "word": "a",
+       "start": 2145,
+       "end": 2146
+      },
+      {
+       "word": "real",
+       "start": 2149,
+       "end": 2157
+      },
+      {
+       "word": "transaction.",
+       "start": 2159,
+       "end": 2187
+      },
+      {
+       "word": "Here",
+       "start": 2196,
+       "end": 2203
+      },
+      {
+       "word": "is",
+       "start": 2204,
+       "end": 2206
+      },
+      {
+       "word": "the",
+       "start": 2208,
+       "end": 2210
+      },
+      {
+       "word": "close",
+       "start": 2212,
+       "end": 2221
+      },
+      {
+       "word": "on",
+       "start": 2222,
+       "end": 2224
+      },
+      {
+       "word": "the",
+       "start": 2225,
+       "end": 2227
+      },
+      {
+       "word": "Monad",
+       "start": 2228,
+       "end": 2239
+      },
+      {
+       "word": "testnet",
+       "start": 2241,
+       "end": 2254
+      },
+      {
+       "word": "explorer.",
+       "start": 2255,
+       "end": 2282
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tclearing",
+   "from": 2327,
+   "durationInFrames": 576,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "This is the Clearing tab. Each row is a lane, and every account lives in one of eight. Mine is in lane six. If an account falls below maintenance, a Dutch auction starts in its lane, and the discount rises five basis points every block. On this deployment, no account has needed one yet.",
+     "file": "audio/vo-tech/tclearing_0.mp3",
+     "startFrame": 2335,
+     "durationFrames": 561,
+     "words": [
+      {
+       "word": "This",
+       "start": 2335,
+       "end": 2341
+      },
+      {
+       "word": "is",
+       "start": 2343,
+       "end": 2345
+      },
+      {
+       "word": "the",
+       "start": 2346,
+       "end": 2349
+      },
+      {
+       "word": "Clearing",
+       "start": 2350,
+       "end": 2359
+      },
+      {
+       "word": "tab.",
+       "start": 2360,
+       "end": 2373
+      },
+      {
+       "word": "Each",
+       "start": 2383,
+       "end": 2390
+      },
+      {
+       "word": "row",
+       "start": 2392,
+       "end": 2399
+      },
+      {
+       "word": "is",
+       "start": 2402,
+       "end": 2405
+      },
+      {
+       "word": "a",
+       "start": 2407,
+       "end": 2408
+      },
+      {
+       "word": "lane,",
+       "start": 2410,
+       "end": 2426
+      },
+      {
+       "word": "and",
+       "start": 2431,
+       "end": 2436
+      },
+      {
+       "word": "every",
+       "start": 2440,
+       "end": 2450
+      },
+      {
+       "word": "account",
+       "start": 2451,
+       "end": 2461
+      },
+      {
+       "word": "lives",
+       "start": 2464,
+       "end": 2472
+      },
+      {
+       "word": "in",
+       "start": 2473,
+       "end": 2475
+      },
+      {
+       "word": "one",
+       "start": 2477,
+       "end": 2481
+      },
+      {
+       "word": "of",
+       "start": 2482,
+       "end": 2484
+      },
+      {
+       "word": "eight.",
+       "start": 2486,
+       "end": 2500
+      },
+      {
+       "word": "Mine",
+       "start": 2507,
+       "end": 2519
+      },
+      {
+       "word": "is",
+       "start": 2521,
+       "end": 2525
+      },
+      {
+       "word": "in",
+       "start": 2527,
+       "end": 2530
+      },
+      {
+       "word": "lane",
+       "start": 2532,
+       "end": 2543
+      },
+      {
+       "word": "six.",
+       "start": 2545,
+       "end": 2562
+      },
+      {
+       "word": "If",
+       "start": 2570,
+       "end": 2574
+      },
+      {
+       "word": "an",
+       "start": 2576,
+       "end": 2577
+      },
+      {
+       "word": "account",
+       "start": 2578,
+       "end": 2587
+      },
+      {
+       "word": "falls",
+       "start": 2589,
+       "end": 2597
+      },
+      {
+       "word": "below",
+       "start": 2599,
+       "end": 2607
+      },
+      {
+       "word": "maintenance,",
+       "start": 2610,
+       "end": 2625
+      },
+      {
+       "word": "a",
+       "start": 2627,
+       "end": 2629
+      },
+      {
+       "word": "Dutch",
+       "start": 2631,
+       "end": 2639
+      },
+      {
+       "word": "auction",
+       "start": 2640,
+       "end": 2652
+      },
+      {
+       "word": "starts",
+       "start": 2654,
+       "end": 2664
+      },
+      {
+       "word": "in",
+       "start": 2666,
+       "end": 2668
+      },
+      {
+       "word": "its",
+       "start": 2669,
+       "end": 2673
+      },
+      {
+       "word": "lane,",
+       "start": 2674,
+       "end": 2687
+      },
+      {
+       "word": "and",
+       "start": 2693,
+       "end": 2697
+      },
+      {
+       "word": "the",
+       "start": 2698,
+       "end": 2700
+      },
+      {
+       "word": "discount",
+       "start": 2701,
+       "end": 2715
+      },
+      {
+       "word": "rises",
+       "start": 2717,
+       "end": 2729
+      },
+      {
+       "word": "five",
+       "start": 2731,
+       "end": 2741
+      },
+      {
+       "word": "basis",
+       "start": 2743,
+       "end": 2754
+      },
+      {
+       "word": "points",
+       "start": 2756,
+       "end": 2767
+      },
+      {
+       "word": "every",
+       "start": 2770,
+       "end": 2780
+      },
+      {
+       "word": "block.",
+       "start": 2782,
+       "end": 2796
+      },
+      {
+       "word": "On",
+       "start": 2804,
+       "end": 2809
+      },
+      {
+       "word": "this",
+       "start": 2810,
+       "end": 2814
+      },
+      {
+       "word": "deployment,",
+       "start": 2816,
+       "end": 2832
+      },
+      {
+       "word": "no",
+       "start": 2835,
+       "end": 2840
+      },
+      {
+       "word": "account",
+       "start": 2842,
+       "end": 2852
+      },
+      {
+       "word": "has",
+       "start": 2854,
+       "end": 2857
+      },
+      {
+       "word": "needed",
+       "start": 2859,
+       "end": 2867
+      },
+      {
+       "word": "one",
+       "start": 2869,
+       "end": 2874
+      },
+      {
+       "word": "yet.",
+       "start": 2875,
+       "end": 2895
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tbackstop",
+   "from": 2903,
+   "durationInFrames": 420,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "The Backstop tab shows one pool per lane. A pool can take an account from a seventy-five basis point discount, and it inherits the positions. Nothing has been taken here yet, so earnings show zero.",
+     "file": "audio/vo-tech/tbackstop_0.mp3",
+     "startFrame": 2911,
+     "durationFrames": 378,
+     "words": [
+      {
+       "word": "The",
+       "start": 2911,
+       "end": 2916
+      },
+      {
+       "word": "Backstop",
+       "start": 2918,
+       "end": 2933
+      },
+      {
+       "word": "tab",
+       "start": 2935,
+       "end": 2944
+      },
+      {
+       "word": "shows",
+       "start": 2946,
+       "end": 2953
+      },
+      {
+       "word": "one",
+       "start": 2956,
+       "end": 2963
+      },
+      {
+       "word": "pool",
+       "start": 2965,
+       "end": 2973
+      },
+      {
+       "word": "per",
+       "start": 2975,
+       "end": 2980
+      },
+      {
+       "word": "lane.",
+       "start": 2982,
+       "end": 2998
+      },
+      {
+       "word": "A",
+       "start": 3006,
+       "end": 3009
+      },
+      {
+       "word": "pool",
+       "start": 3011,
+       "end": 3017
+      },
+      {
+       "word": "can",
+       "start": 3019,
+       "end": 3022
+      },
+      {
+       "word": "take",
+       "start": 3024,
+       "end": 3029
+      },
+      {
+       "word": "an",
+       "start": 3030,
+       "end": 3032
+      },
+      {
+       "word": "account",
+       "start": 3032,
+       "end": 3041
+      },
+      {
+       "word": "from",
+       "start": 3042,
+       "end": 3046
+      },
+      {
+       "word": "a",
+       "start": 3048,
+       "end": 3048
+      },
+      {
+       "word": "seventy-five",
+       "start": 3050,
+       "end": 3069
+      },
+      {
+       "word": "basis",
+       "start": 3070,
+       "end": 3080
+      },
+      {
+       "word": "point",
+       "start": 3082,
+       "end": 3089
+      },
+      {
+       "word": "discount,",
+       "start": 3091,
+       "end": 3110
+      },
+      {
+       "word": "and",
+       "start": 3115,
+       "end": 3120
+      },
+      {
+       "word": "it",
+       "start": 3122,
+       "end": 3125
+      },
+      {
+       "word": "inherits",
+       "start": 3126,
+       "end": 3141
+      },
+      {
+       "word": "the",
+       "start": 3143,
+       "end": 3145
+      },
+      {
+       "word": "positions.",
+       "start": 3146,
+       "end": 3170
+      },
+      {
+       "word": "Nothing",
+       "start": 3180,
+       "end": 3190
+      },
+      {
+       "word": "has",
+       "start": 3191,
+       "end": 3194
+      },
+      {
+       "word": "been",
+       "start": 3196,
+       "end": 3199
+      },
+      {
+       "word": "taken",
+       "start": 3200,
+       "end": 3207
+      },
+      {
+       "word": "here",
+       "start": 3209,
+       "end": 3214
+      },
+      {
+       "word": "yet,",
+       "start": 3215,
+       "end": 3227
+      },
+      {
+       "word": "so",
+       "start": 3232,
+       "end": 3237
+      },
+      {
+       "word": "earnings",
+       "start": 3239,
+       "end": 3253
+      },
+      {
+       "word": "show",
+       "start": 3255,
+       "end": 3262
+      },
+      {
+       "word": "zero.",
+       "start": 3265,
+       "end": 3289
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "arena",
+   "from": 3323,
+   "durationInFrames": 566,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Now crash the market. Anyone can, in the Arena. One click drops prices twenty percent.",
+     "file": "audio/vo-tech/arena_0.mp3",
+     "startFrame": 3331,
+     "durationFrames": 197,
+     "words": [
+      {
+       "word": "Now",
+       "start": 3331,
+       "end": 3339
+      },
+      {
+       "word": "crash",
+       "start": 3342,
+       "end": 3353
+      },
+      {
+       "word": "the",
+       "start": 3355,
+       "end": 3357
+      },
+      {
+       "word": "market.",
+       "start": 3359,
+       "end": 3376
+      },
+      {
+       "word": "Anyone",
+       "start": 3386,
+       "end": 3401
+      },
+      {
+       "word": "can,",
+       "start": 3402,
+       "end": 3416
+      },
+      {
+       "word": "in",
+       "start": 3418,
+       "end": 3422
+      },
+      {
+       "word": "the",
+       "start": 3424,
+       "end": 3426
+      },
+      {
+       "word": "Arena.",
+       "start": 3427,
+       "end": 3444
+      },
+      {
+       "word": "One",
+       "start": 3453,
+       "end": 3460
+      },
+      {
+       "word": "click",
+       "start": 3461,
+       "end": 3467
+      },
+      {
+       "word": "drops",
+       "start": 3469,
+       "end": 3477
+      },
+      {
+       "word": "prices",
+       "start": 3478,
+       "end": 3491
+      },
+      {
+       "word": "twenty",
+       "start": 3492,
+       "end": 3501
+      },
+      {
+       "word": "percent.",
+       "start": 3502,
+       "end": 3527
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "Each lane runs its own auctions, and the backstops take them, lane by lane, in seconds.",
+     "file": "audio/vo-tech/arena_1.mp3",
+     "startFrame": 3535,
+     "durationFrames": 169,
+     "words": [
+      {
+       "word": "Each",
+       "start": 3535,
+       "end": 3543
+      },
+      {
+       "word": "lane",
+       "start": 3545,
+       "end": 3552
+      },
+      {
+       "word": "runs",
+       "start": 3554,
+       "end": 3561
+      },
+      {
+       "word": "its",
+       "start": 3563,
+       "end": 3566
+      },
+      {
+       "word": "own",
+       "start": 3567,
+       "end": 3571
+      },
+      {
+       "word": "auctions,",
+       "start": 3572,
+       "end": 3587
+      },
+      {
+       "word": "and",
+       "start": 3588,
+       "end": 3591
+      },
+      {
+       "word": "the",
+       "start": 3592,
+       "end": 3595
+      },
+      {
+       "word": "backstops",
+       "start": 3596,
+       "end": 3613
+      },
+      {
+       "word": "take",
+       "start": 3615,
+       "end": 3622
+      },
+      {
+       "word": "them,",
+       "start": 3623,
+       "end": 3630
+      },
+      {
+       "word": "lane",
+       "start": 3634,
+       "end": 3643
+      },
+      {
+       "word": "by",
+       "start": 3644,
+       "end": 3650
+      },
+      {
+       "word": "lane,",
+       "start": 3652,
+       "end": 3665
+      },
+      {
+       "word": "in",
+       "start": 3667,
+       "end": 3671
+      },
+      {
+       "word": "seconds.",
+       "start": 3674,
+       "end": 3704
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "txray",
+   "from": 3889,
+   "durationInFrames": 611,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "The Arena then traces the crash's transactions. Paraclr's lanes have zero cross-lane dependencies. The shared-state build has eleven.",
+     "file": "audio/vo-tech/txray_0.mp3",
+     "startFrame": 3897,
+     "durationFrames": 268,
+     "words": [
+      {
+       "word": "The",
+       "start": 3897,
+       "end": 3902
+      },
+      {
+       "word": "Arena",
+       "start": 3904,
+       "end": 3913
+      },
+      {
+       "word": "then",
+       "start": 3915,
+       "end": 3920
+      },
+      {
+       "word": "traces",
+       "start": 3922,
+       "end": 3934
+      },
+      {
+       "word": "the",
+       "start": 3936,
+       "end": 3938
+      },
+      {
+       "word": "crash's",
+       "start": 3938,
+       "end": 3950
+      },
+      {
+       "word": "transactions.",
+       "start": 3951,
+       "end": 3980
+      },
+      {
+       "word": "Paraclr's",
+       "start": 3989,
+       "end": 4008
+      },
+      {
+       "word": "lanes",
+       "start": 4010,
+       "end": 4019
+      },
+      {
+       "word": "have",
+       "start": 4021,
+       "end": 4026
+      },
+      {
+       "word": "zero",
+       "start": 4027,
+       "end": 4039
+      },
+      {
+       "word": "cross-lane",
+       "start": 4041,
+       "end": 4059
+      },
+      {
+       "word": "dependencies.",
+       "start": 4060,
+       "end": 4089
+      },
+      {
+       "word": "The",
+       "start": 4098,
+       "end": 4102
+      },
+      {
+       "word": "shared-state",
+       "start": 4103,
+       "end": 4120
+      },
+      {
+       "word": "build",
+       "start": 4121,
+       "end": 4130
+      },
+      {
+       "word": "has",
+       "start": 4131,
+       "end": 4136
+      },
+      {
+       "word": "eleven.",
+       "start": 4138,
+       "end": 4164
+      }
+     ]
+    },
+    {
+     "voice": "narrator",
+     "text": "Our measured runs on Monad testnet agree: zero against forty-nine, and auctions that took twenty-eight percent less from traders than a fixed fee.",
+     "file": "audio/vo-tech/txray_1.mp3",
+     "startFrame": 4172,
+     "durationFrames": 283,
+     "words": [
+      {
+       "word": "Our",
+       "start": 4172,
+       "end": 4178
+      },
+      {
+       "word": "measured",
+       "start": 4179,
+       "end": 4190
+      },
+      {
+       "word": "runs",
+       "start": 4192,
+       "end": 4199
+      },
+      {
+       "word": "on",
+       "start": 4201,
+       "end": 4204
+      },
+      {
+       "word": "Monad",
+       "start": 4206,
+       "end": 4219
+      },
+      {
+       "word": "testnet",
+       "start": 4220,
+       "end": 4235
+      },
+      {
+       "word": "agree:",
+       "start": 4237,
+       "end": 4252
+      },
+      {
+       "word": "zero",
+       "start": 4259,
+       "end": 4272
+      },
+      {
+       "word": "against",
+       "start": 4276,
+       "end": 4286
+      },
+      {
+       "word": "forty-nine,",
+       "start": 4288,
+       "end": 4311
+      },
+      {
+       "word": "and",
+       "start": 4317,
+       "end": 4322
+      },
+      {
+       "word": "auctions",
+       "start": 4324,
+       "end": 4337
+      },
+      {
+       "word": "that",
+       "start": 4339,
+       "end": 4343
+      },
+      {
+       "word": "took",
+       "start": 4344,
+       "end": 4349
+      },
+      {
+       "word": "twenty-eight",
+       "start": 4350,
+       "end": 4365
+      },
+      {
+       "word": "percent",
+       "start": 4366,
+       "end": 4377
+      },
+      {
+       "word": "less",
+       "start": 4379,
+       "end": 4387
+      },
+      {
+       "word": "from",
+       "start": 4388,
+       "end": 4392
+      },
+      {
+       "word": "traders",
+       "start": 4394,
+       "end": 4406
+      },
+      {
+       "word": "than",
+       "start": 4407,
+       "end": 4411
+      },
+      {
+       "word": "a",
+       "start": 4412,
+       "end": 4413
+      },
+      {
+       "word": "fixed",
+       "start": 4415,
+       "end": 4424
+      },
+      {
+       "word": "fee.",
+       "start": 4425,
+       "end": 4455
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "builton",
+   "from": 4500,
+   "durationInFrames": 207,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Built on Monad, with Agora AUSD, Pyth, Privy and Envio. Not yet audited.",
+     "file": "audio/vo-tech/builton_0.mp3",
+     "startFrame": 4508,
+     "durationFrames": 191,
+     "words": [
+      {
+       "word": "Built",
+       "start": 4508,
+       "end": 4517
+      },
+      {
+       "word": "on",
+       "start": 4519,
+       "end": 4523
+      },
+      {
+       "word": "Monad,",
+       "start": 4525,
+       "end": 4540
+      },
+      {
+       "word": "with",
+       "start": 4541,
+       "end": 4546
+      },
+      {
+       "word": "Agora",
+       "start": 4548,
+       "end": 4563
+      },
+      {
+       "word": "AUSD,",
+       "start": 4566,
+       "end": 4600
+      },
+      {
+       "word": "Pyth,",
+       "start": 4603,
+       "end": 4615
+      },
+      {
+       "word": "Privy",
+       "start": 4616,
+       "end": 4627
+      },
+      {
+       "word": "and",
+       "start": 4629,
+       "end": 4632
+      },
+      {
+       "word": "Envio.",
+       "start": 4634,
+       "end": 4654
+      },
+      {
+       "word": "Not",
+       "start": 4661,
+       "end": 4667
+      },
+      {
+       "word": "yet",
+       "start": 4669,
+       "end": 4673
+      },
+      {
+       "word": "audited.",
+       "start": 4674,
+       "end": 4699
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "close",
+   "from": 4707,
+   "durationInFrames": 333,
+   "lines": [
+    {
+     "voice": "narrator",
+     "text": "Paraclr. Fair liquidations for Monad. Crash it yourself, at paraclr dot x y z.",
+     "file": "audio/vo-tech/close_0.mp3",
+     "startFrame": 4715,
+     "durationFrames": 215,
+     "words": [
+      {
+       "word": "Paraclr.",
+       "start": 4715,
+       "end": 4745
+      },
+      {
+       "word": "Fair",
+       "start": 4752,
+       "end": 4761
+      },
+      {
+       "word": "liquidations",
+       "start": 4763,
+       "end": 4787
+      },
+      {
+       "word": "for",
+       "start": 4789,
+       "end": 4794
+      },
+      {
+       "word": "Monad.",
+       "start": 4796,
+       "end": 4816
+      },
+      {
+       "word": "Crash",
+       "start": 4823,
+       "end": 4834
+      },
+      {
+       "word": "it",
+       "start": 4835,
+       "end": 4837
+      },
+      {
+       "word": "yourself,",
+       "start": 4838,
+       "end": 4854
+      },
+      {
+       "word": "at",
+       "start": 4855,
+       "end": 4859
+      },
+      {
+       "word": "paraclr",
+       "start": 4861,
+       "end": 4882
+      },
+      {
+       "word": "dot",
+       "start": 4885,
+       "end": 4892
+      },
+      {
+       "word": "x",
+       "start": 4896,
+       "end": 4902
+      },
+      {
+       "word": "y",
+       "start": 4904,
+       "end": 4908
+      },
+      {
+       "word": "z.",
+       "start": 4911,
+       "end": 4930
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,12 +1,13 @@
 import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
 import { sora, SCENE_TONE, TONE } from "../theme";
-import { T } from "../timing";
+import { useTiming } from "../timing";
 import { clamp } from "./motion";
 
 /** Narration captions: the current phrase on a frosted pill, each word lighting up as it is spoken. */
 export const Captions: React.FC<{ hidden?: (frame: number) => boolean; bottom?: number }> = ({ hidden, bottom = 84 }) => {
   const frame = useCurrentFrame();
+  const T = useTiming();
   if (hidden?.(frame)) return null;
   const sc = T.scenes.find((s) => frame >= s.from && frame < s.from + s.durationInFrames);
   const line = T.scenes.flatMap((s) => s.lines).find((l) => frame >= l.startFrame - 4 && frame <= l.words[l.words.length - 1].end + 14);

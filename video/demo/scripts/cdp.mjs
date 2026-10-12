@@ -10,12 +10,12 @@ import { join } from "node:path";
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export async function launch({ width = 1440, height = 900, scale = 1, userDataDir = null, extraArgs = [] } = {}) {
+export async function launch({ width = 1440, height = 900, scale = 1, userDataDir = null, headless = true, extraArgs = [] } = {}) {
   const port = 9600 + Math.floor(Math.random() * 300);
   const chrome = spawn(
     CHROME,
     [
-      "--headless=new",
+      ...(headless ? ["--headless=new"] : []),
       "--hide-scrollbars",
       "--no-first-run",
       "--no-default-browser-check",
